@@ -1,0 +1,43 @@
+{
+	"folders":
+	[
+		{
+			"path": "/Users/dg/Workspace/void/github"
+		}
+	],
+	
+    "settings":
+    {
+         "sublimeclang_options":
+         [
+	        "-Wall",
+	        "-I./.",
+	        "-I./..",
+	        "-I/usr/lib/clang/3.0/include/",
+	        "-I/usr/lib/clang/2.1/include/",
+	        "-I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include/",
+	        "-I/usr/lib/gcc/i686-apple-darwin11/4.2.1/include/",
+	        "-I/Users/dg/Workspace/void/github/source",
+	        "-I/Users/dg/Workspace/void/github/source/.",
+	        "-I/Users/dg/Workspace/void/github/source/..",
+	        "-I/Users/dg/Workspace/void/github/source/core",
+	        "-I/Users/dg/Workspace/void/github/source/core/.",
+	        "-I/Users/dg/Workspace/void/github/source/core/..",
+	        "-I/Users/dg/Workspace/void/github/source/data.",
+	        "-I/Users/dg/Workspace/void/github/source/data/.",
+	        "-I/Users/dg/Workspace/void/github/source/data/..",
+	        "-I/Users/dg/Workspace/void/github/source/graphics",
+	        "-I/Users/dg/Workspace/void/github/source/graphics/.",
+	        "-I/Users/dg/Workspace/void/github/source/graphics/..",
+	        "-I/Users/dg/Workspace/void/github/source/interface",
+	        "-I/Users/dg/Workspace/void/github/source/interface/.",
+	        "-I/Users/dg/Workspace/void/github/source/interface/..",
+	        "-I/Users/dg/Workspace/void/github/source/runtime",
+	        "-I/Users/dg/Workspace/void/github/source/runtime/.",
+	        "-I/Users/dg/Workspace/void/github/source/runtime/..",
+	        "-I/Users/dg/Workspace/void/github/source/apps",
+	        "-I/Users/dg/Workspace/void/github/source/apps/.",
+	        "-I/Users/dg/Workspace/void/github/source/apps/.."
+         ]
+    }
+}
