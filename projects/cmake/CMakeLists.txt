@@ -7,7 +7,9 @@ message(STATUS "Using source dir '${CMAKE_CURRENT_SOURCE_DIR}'" ...)
 
 option(VOID_RELEASE 				"Build installers and packages for release." OFF)
 option(VOID_BUILD_SHARED_LIBS       "Build shared libraries" OFF)
-option(VOID_BUILD_APPS 				"Build applications and tools." ON)
+option(VOID_BUILD_TOOLS             "Build command line tools." ON)
+option(VOID_BUILD_APPS 				"Build applications." OFF)
+option(VOID_BUILD_FRAMEWORK         "Build complete framework." OFF)
 option(VOID_BUILD_TESTS 			"Build unit tests and verification tools." OFF)
 option(VOID_USE_ALIGNED_TYPES       "Use aligned scalar types." OFF)
 option(VOID_USE_EXTRACTED_SYMBOLS	"Use extracted symbols (generated via preprocessing tool symex)." ON)
@@ -27,6 +29,10 @@ if(VOID_USE_OPENGL)
 option(VOID_USE_GLUT		 		"Build the GLUT runtime library." ON)
 endif()
 
+if(VOID_BUILD_APPS)
+set(VOID_BUILD_FRAMEWORK            ON)
+endif()
+
 include(BuildSettings)
 
 set( VD_ROOT_DIR					${CMAKE_CURRENT_SOURCE_DIR} )
@@ -38,11 +44,18 @@ set( VD_RESOURCE_DIR				${VD_ROOT_DIR}/resources )
 set( VD_PLUGINS_DIR					${VD_ROOT_DIR}/plugins )
 set( VD_EXT_DIR						${VD_ROOT_DIR}/external )
 
+
+if(VOID_BUILD_FRAMEWORK)
+message(STATUS "Building framework ...")
 include(BuildExternal)
 include(BuildPlatform)
 include(BuildFramework)
+endif()
 
-add_subdirectory (tools/symex)
+if(VOID_BUILD_TOOLS)
+message(STATUS "Building tools ...")
+include(BuildTools)
+endif()
 
 if(VOID_BUILD_APPS)
 message(STATUS "Building applications ...")
