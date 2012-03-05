@@ -27,129 +27,99 @@
 
 // ============================================================================================== //
 
-#include "core/core.h"
+#if 0
+template <typename T>
+struct VD_API Enumerate
+{   
+    static vd::u32 ToId(const T& v)
+    {
+        return 0;
+    }
+
+    static T FromId(const vd::u32 v)
+    {
+        return 0;
+    }
+
+    static vd::string ToString(const T& v)
+    {
+        return 0;
+    }
+
+    static T FromString(const vd::string& str)
+    {
+        return T();
+    }
+};
+#endif
 
 // ============================================================================================== //
 
-#define VD_DECLARE_ENUM(StructName, ...)    \
-struct VD_API StructName \
-{    \
-  static const vd::u32 Count = VD_PP_VA_ARG_COUNT(__VA_ARGS__);    \
-  enum Value    \
-  {    \
-      	VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ONE_BASED_ENUM_VALUE,__VA_ARGS__)    \
-        Invalid ## StructName, \
-      	LastValue \
-  };    \
-  static const bool IsValid(StructName::Value value) \
-  { \
-		return ToInteger(value) < VD_U32_MAX; \
-  } \
-  static const char* ToString(vd::u32 value) \
-  { \
-		switch (value) \
-		{ \
-			VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ENUM_VALUE_TO_STRING,__VA_ARGS__)    \
-      case Invalid ## StructName: return "Invalid" VD_PP_STRINGIZE(StructName); \
-			case LastValue: return "LastValue"; \
-			default: \
-			VD_NO_SWITCH_DEFAULT; \
-		} \
-		return NULL; \
-  } \
-  static const vd::u32 ToInteger(StructName::Value value) \
-  { \
-    switch (value) \
-    { \
-        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ONE_BASED_ENUM_VALUE_TO_INT,__VA_ARGS__) \
-      case Invalid ## StructName: return VD_U32_MAX; \
-      case LastValue: return VD_U32_MAX; \
-      default: \
-        VD_NO_SWITCH_DEFAULT; \
-    } \
-    return VD_U32_MAX; \
-  } \
-  static const StructName::Value FromInteger(vd::u32 value) \
-  { \
-    switch (value) \
-    { \
-        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ENUM_INT_TO_VALUE,__VA_ARGS__) \
-      case VD_U32_MAX: return Invalid ## StructName; \
-      default: \
-        VD_NO_SWITCH_DEFAULT; \
-    } \
-    return Invalid ## StructName; \
-  } \
+#define VD_DECLARE_ENUM_STARTING_FROM(StructName, StartFrom, ...)                                 \
+struct VD_API StructName                                                                          \
+{                                                                                                 \
+    static const vd::u32 Count = VD_PP_VA_ARG_COUNT(__VA_ARGS__);                                 \
+    static const vd::u32 StartIndex = StartFrom;                                                  \
+    static const vd::u32 EndIndex = StructName::StartIndex + StructName::Count + 1;               \
+    enum Value                                                                                    \
+    {                                                                                             \
+        VD_PP_PASS_ENUM_ARGS(VD_PP_EXPAND_ENUM_ENTRY,__VA_ARGS__)                                 \
+        Invalid                                                                                   \
+    };                                                                                            \
+    static const bool IsValid(StructName::Value value)                                            \
+    {                                                                                             \
+  		  return ToInteger(value) < StructName::EndIndex;                                         \
+    }                                                                                             \
+    static vd::cstr ToString(StructName::Value value)                                             \
+    {                                                                                             \
+    		switch (value)                                                                        \
+    		{                                                                                     \
+    			  VD_PP_PASS_ENUM_ARGS(VD_PP_EXPAND_ENUM_VALUE_TO_STRING,__VA_ARGS__)             \
+            case StructName::Invalid: return (vd::cstr)(VD_PP_STRINGIZE(StructName) "::Invalid"); \
+    			  default: VD_NO_SWITCH_DEFAULT;                                                  \
+        }                                                                                         \
+    		return NULL;                                                                          \
+    }                                                                                             \
+    static const vd::u32 ToInteger(StructName::Value value)                                       \
+    {                                                                                             \
+        switch (value)                                                                            \
+        {                                                                                         \
+            VD_PP_PASS_ENUM_ARGS(VD_PP_EXPAND_ENUM_VALUE_TO_U32,__VA_ARGS__)                      \
+            case StructName::Invalid: return StructName::EndIndex;                                \
+            default: VD_NO_SWITCH_DEFAULT;                                                        \
+        }                                                                                         \
+        return StructName::EndIndex;                                                              \
+    }                                                                                             \
+    static const StructName::Value FromInteger(vd::u32 value)                                     \
+    {                                                                                             \
+        switch (value)                                                                            \
+        {                                                                                         \
+            VD_PP_PASS_ENUM_ARGS(VD_PP_EXPAND_ENUM_U32_TO_VALUE,__VA_ARGS__)                      \
+            case StructName::EndIndex: return StructName::Invalid;                                \
+            default: VD_NO_SWITCH_DEFAULT;                                                        \
+        }                                                                                         \
+        return StructName::Invalid;                                                               \
+    }                                                                                             \
 }
 
-#define VD_DECLARE_ENUM_START_FROM_ZERO(StructName, ...)    \
-struct VD_API StructName \
-{    \
-  static const vd::u32 Count = VD_PP_VA_ARG_COUNT(__VA_ARGS__);    \
-  enum Value    \
-  {    \
-        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ZERO_BASED_ENUM_VALUE,__VA_ARGS__)    \
-        Invalid ## StructName, \
-        LastValue \
-  };    \
-  static const bool IsValid(StructName::Value value) \
-  { \
-    	return ToInteger(value) >= 0 && ToInteger(value) < VD_U32_MAX; \
-  } \
-  static const char* ToString(vd::u32 value) \
-  { \
-    switch (value) \
-    { \
-        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ENUM_VALUE_TO_STRING,__VA_ARGS__)    \
-      case Invalid ## StructName: return "Invalid" VD_PP_STRINGIZE(StructName); \
-      case LastValue: return "LastValue"; \
-      default: \
-        VD_NO_SWITCH_DEFAULT; \
-    } \
-    return NULL; \
-  } \
-  static const vd::u32 ToInteger(StructName::Value value) \
-  { \
-    switch (value) \
-    { \
-        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ZERO_BASED_ENUM_VALUE_TO_INT,__VA_ARGS__) \
-      case Invalid ## StructName: return VD_U32_MAX; \
-      case LastValue: return VD_U32_MAX; \
-      default: \
-        VD_NO_SWITCH_DEFAULT; \
-    } \
-    return VD_U32_MAX; \
-  } \
-  static const StructName::Value FromInteger(vd::u32 value) \
-  { \
-    switch (value) \
-    { \
-        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ENUM_INT_TO_VALUE,__VA_ARGS__) \
-      default: \
-        VD_NO_SWITCH_DEFAULT; \
-    } \
-    return LastValue; \
-  } \
-}
 
 // ============================================================================================== //
 
-#define VD_DECLARE_ONE_BASED_ENUM_VALUE(v,n) \
-  v = n,
+#define VD_DECLARE_ENUM(StructName, ...)                                                          \
+  VD_DECLARE_ENUM_STARTING_FROM(StructName, 0, __VA_ARGS__)
 
-#define VD_DECLARE_ONE_BASED_ENUM_VALUE_TO_INT(v,n) \
-  case v: return n;
+// ============================================================================================== //
 
-#define VD_DECLARE_ZERO_BASED_ENUM_VALUE(v,n) \
-	v = n-1,
+#define VD_PP_EXPAND_ENUM_ENTRY(v,n) \
+  v = (n + StartIndex - 1),
 
-#define VD_DECLARE_ZERO_BASED_ENUM_VALUE_TO_INT(v,n) \
-  case v: return n-1;
+#define VD_PP_EXPAND_ENUM_VALUE_TO_U32(v,n) \
+  case v: return (n + StartIndex - 1);
 
-#define VD_DECLARE_ENUM_INT_TO_VALUE(v,n) \
+#define VD_PP_EXPAND_ENUM_U32_TO_VALUE(v,n) \
   case n: return v;
 
-#define VD_DECLARE_ENUM_VALUE_TO_STRING(v,n) \
+#define VD_PP_EXPAND_ENUM_VALUE_TO_STRING(v,n) \
 	case v: return VD_PP_STRINGIZE(v);
 
 // ============================================================================================== //

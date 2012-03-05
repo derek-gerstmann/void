@@ -320,9 +320,28 @@ void ExportColumns(
     size_t p = 0;
     size_t e = 0;
     size_t c = 0;
-    static const char* comp = "XYZW0123456789";
+    
     char filename[4096] = {0};
     int columns = 0;
+
+    static const char* comp = "XYZW0123456789";
+    
+    static const int default_order[] = 
+    {
+	GADGET_IO_ID,
+	GADGET_IO_TYPE,
+	GADGET_IO_TSTP,
+	GADGET_IO_POS,
+	GADGET_IO_VEL,
+	GADGET_IO_MASS,
+	GADGET_IO_U,
+	GADGET_IO_RHO,
+	GADGET_IO_HSML,
+	GADGET_IO_POT,
+	GADGET_IO_ACCEL,
+	GADGET_IO_DTENTR,
+    };
+    
 
     size_t total_count = gs->TotalParticleCount;
 
@@ -346,11 +365,7 @@ void ExportColumns(
     c = 0;
     for(i = 0; i < GADGET_IO_NBLOCKS; i++, c++)
     {
-        gs_block_type_t block_type =  (gs_block_type_t)i; 
-        if(block_type == GADGET_IO_ID)
-            continue;
-
-        block_type = (i == 0) ? GADGET_IO_ID : block_type;
+        gs_block_type_t block_type = (gs_block_type_t)default_order[i]; 
         void* ptr = gsGetBlockDataPtr(gs, block_type);
         if(ptr == NULL)
             continue;
@@ -381,11 +396,7 @@ void ExportColumns(
         c = 0;
         for(i = 0; i < GADGET_IO_NBLOCKS; i++, c++)
         {
-            gs_block_type_t block_type =  (gs_block_type_t)i; 
-            if(block_type == GADGET_IO_ID)
-                continue;
-
-            block_type = (i == 0) ? GADGET_IO_ID : block_type;
+            gs_block_type_t block_type =  (gs_block_type_t)default_order[i]; 
             void* ptr = gsGetBlockDataPtr(gs, block_type);
             if(ptr == NULL)
                 continue;
@@ -466,11 +477,11 @@ void ExportBlocks(
     const char* prefix)
 {
     int i;
-    int ascii = strcasestr(opt->format, "asc") != NULL;
-    int all = strcasestr (opt->data, "all") != NULL;
+    int ascii = strcasestr(opt->format, "asc") != 0;
+    int all = strcasestr (opt->data, "all") != 0;
     
     // Type will always be loaded so we only export if requested
-    if(gs->Data.Type && (all || strcasestr(opt->data, "type") != NULL))
+    if(gs->Data.Type && (all || strcasestr(opt->data, "type") != 0))
     {
         ExportDataBlock( GADGET_IO_TYPE, prefix, gs->TotalParticleCount, gs->Data.Type, ascii);
         gsDestroyBlockData(gs, GADGET_IO_TYPE);
@@ -494,11 +505,11 @@ void gsExport(
     gs_data_t* gs,
     const char* prefix)
 {
-	int all = strcasestr (opt->data, "all") != NULL;
-    int csv = strcasestr (opt->format, "csv") != NULL;
+	int all = strcasestr (opt->data, "all") != 0;
+    int csv = strcasestr (opt->format, "csv") != 0;
 	
 	// Export the header if requested
-	if(all || strcasestr(opt->data, "hdr") != NULL )
+	if(all || strcasestr(opt->data, "hdr") != 0 )
 	{
 	    gsExportHeader(opt, gs, prefix);
 	}
@@ -524,7 +535,7 @@ gsLoadSnapshotData(
     int all = 0;    
 	int i;
 	
-	all = strcasestr(opt->data, "all") != NULL;
+	all = strcasestr(opt->data, "all") != 0;
     for(i = 0; i < GADGET_IO_NBLOCKS; i++)
     	if(all || strcasestr(opt->data, gsGetBlockLabel(i)))
     		req_data[i] = 1;
@@ -532,7 +543,7 @@ gsLoadSnapshotData(
 	if(opt->reorder)
 		req_data[GADGET_IO_ID] = 1;
 		
-	all = strcasestr(opt->type, "all") != NULL;
+	all = strcasestr(opt->type, "all") != 0;
     for(i = 0; i < GADGET_PT_NTYPES; i++)
     	if(all || strcasestr(opt->type, gsGetBlockLabel(i)))
     		req_types[i] = 1;

@@ -116,7 +116,7 @@ typedef enum _gs_block_type_t
 	GADGET_IO_VEL		=  1,
 	GADGET_IO_ID		=  2,
 	GADGET_IO_MASS		=  3,
-	GADGET_IO_U			=  4,
+	GADGET_IO_U		=  4,
 	GADGET_IO_RHO		=  5,
 	GADGET_IO_HSML		=  6,
 	GADGET_IO_POT		=  7,

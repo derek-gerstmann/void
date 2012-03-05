@@ -22,7 +22,7 @@
 //
 // ============================================================================================== //
 //
-// Based on Intel math primitives contained in Embree.  Their License follows:
+// Based on Intel math primitives contained in Embree -- License follows:
 //
 // ============================================================================================== //
 // Copyright 2009-2011 Intel Corporation
@@ -47,8 +47,10 @@
 
 #include "core/core.h"
 #include "core/builtins.h"
-#include "constants/constants.h"
+#include "constants/types.h"
+
 #include <cmath>
+#include <cassert>
 
 // ============================================================================================== //
 
@@ -64,7 +66,7 @@ VD_FORCE_INLINE bool finite(vd::f32 x) { return _finite(x) != 0; }
 #endif
 #endif
 
-// ============================================================================================== //
+// ---------------------------------------------------------------------------------------------- //
 
 VD_FORCE_INLINE
 vd::f32 Sign(vd::f32 x)
@@ -223,8 +225,7 @@ bool IsWithinUlps(
     return false;
 }
 
-// ============================================================================================== //
-
+// ---------------------------------------------------------------------------------------------- //
 
 VD_FORCE_INLINE
 vd::f64 Abs(vd::f64 x)
@@ -383,7 +384,7 @@ bool IsWithinUlps(
     return false;
 }
 
-// ============================================================================================== //
+// ---------------------------------------------------------------------------------------------- //
 
 template <typename T> VD_FORCE_INLINE
 T Max(T a, T b)
@@ -466,10 +467,286 @@ T Cos2Sin(T x)
 // ============================================================================================== //
 
 template<typename T>
-struct v2
+struct v1
 {
     T x, y;
     typedef T ScalarType;
+    enum {N = 1};
+
+    VD_FORCE_INLINE
+    v1() {}
+
+    VD_FORCE_INLINE
+    v1(const v1& v) { x = v.x; }
+
+    template<typename T1> VD_FORCE_INLINE
+    v1(const v1<T1>& a) : x(T(a.x)) {}
+
+    template<typename T1> VD_FORCE_INLINE
+    v1& operator= (const v1<T1>& v) {x = v.x; return *this; }
+
+    VD_FORCE_INLINE explicit
+    v1(const T& a) : x(a), y(a) {}
+
+    VD_FORCE_INLINE explicit
+    v1(const T& x, const T& y) : x(x), y(y) {}
+
+    VD_FORCE_INLINE explicit
+    v1(const T* a, vd::u32 stride = 1) : x(a[0]), y(a[stride]) {}
+
+    VD_FORCE_INLINE
+    v1(Constants::ZeroValue) : x(Constants::Zero), y(Constants::Zero) {}
+
+    VD_FORCE_INLINE
+    v1(Constants::OneValue) : x(Constants::One), y(Constants::One) {}
+
+    VD_FORCE_INLINE
+    v1(Constants::PosInfValue) : x(Constants::PosInf), y(Constants::PosInf) {}
+
+    VD_FORCE_INLINE
+    v1(Constants::NegInfValue) : x(Constants::NegInf), y(Constants::NegInf) {}
+
+    VD_FORCE_INLINE const T&
+    operator [](size_t axis) const
+    {
+        assert(axis < 2);
+        return (&x)[axis];
+    }
+
+    VD_FORCE_INLINE T&
+    operator [](size_t axis)       
+    {
+        assert(axis < 2); 
+        return (&x)[axis]; 
+    }
+};
+
+// ---------------------------------------------------------------------------------------------- //
+
+template <typename T> VD_FORCE_INLINE
+v1<T> operator+ (const v1<T>& a)
+{
+    return v1<T>(+a.x);
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> operator- (const v1<T>& a)
+{
+    return v1<T>(-a.x);
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> Abs(const v1<T>& a)
+{
+    return v1<T>(Abs(a.x));
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> Rcp(const v1<T>& a)
+{
+    return v1<T>(Rcp(a.x));
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> Sqrt(const v1<T>& a)
+{
+    return v1<T>(Sqrt(a.x));
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> RcpSqrt(const v1<T>& a)
+{
+    return v1<T>(RcpSqrt(a.x));
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> operator+ (const v1<T>& a, const v1<T>& b)
+{
+    return v1<T>(a.x + b.x);
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> operator- (const v1<T>& a, const v1<T>& b)
+{
+    return v1<T>(a.x - b.x);
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> operator* (const v1<T>& a, const v1<T>& b)
+{
+    return v1<T>(a.x * b.x);
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> operator* (const T& a, const v1<T>& b)
+{
+    return v1<T>(a * b.x);
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> operator* (const v1<T>& a, const T& b)
+{
+    return v1<T>(a.x * b);
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> operator/ (const v1<T>& a, const v1<T>& b)
+{
+    return v1<T>(a.x / b.x);
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> operator/ (const v1<T>& a, const T& b)
+{
+    return v1<T>(a.x / b.x);
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> operator/ (const T& a, const v1<T>& b)
+{
+    return v1<T>(a / b.x);
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> Min(const v1<T>& a, const v1<T>& b)
+{
+    return v1<T>(Min(a.x, b.x));
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> Max(const v1<T>& a, const v1<T>& b)
+{
+    return v1<T>(Max(a.x, b.x));
+}
+
+template <typename T> VD_FORCE_INLINE
+T Dot(const v1<T>& a, const v1<T>& b)
+{
+    return a.x * b.x;
+}
+
+template <typename T> VD_FORCE_INLINE
+T Length(const v1<T>& a)
+{
+    return Sqrt(Dot(a, a));
+}
+
+template <typename T> VD_FORCE_INLINE
+T LengthSqr(const v1<T>& a)
+{
+    return (Dot(a, a));
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> Normalise(const v1<T>& a)
+{
+    return a * RcpSqrt(Dot(a, a));
+}
+
+template <typename T> VD_FORCE_INLINE
+T Distance(const v1<T>& a, const v1<T>& b)
+{
+    return Length(a - b);
+}
+
+template <typename T> VD_FORCE_INLINE
+T DistanceSqr(const v1<T>& a, const v1<T>& b)
+{
+    return LengthSqr(a - b);
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T>& operator+= (v1<T>& a, const v1<T>& b)
+{
+    a.x += b.x;
+    return a;
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T>& operator-= (v1<T>& a, const v1<T>& b)
+{
+    a.x -= b.x; 
+    return a;
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T>& operator*= (v1<T>& a, const T& b)
+{
+    a.x *= b; 
+    return a;
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T>& operator/= (v1<T>& a, const T& b)
+{
+    a.x /= b;
+    return a;
+}
+
+template <typename T> VD_FORCE_INLINE
+T ReduceAdd(const v1<T>& a)
+{
+    return a.x;
+}
+
+template <typename T> VD_FORCE_INLINE
+T ReduceMultiply(const v1<T>& a)
+{
+    return a.x;
+}
+
+template <typename T> VD_FORCE_INLINE
+T ReduceMin(const v1<T>& a)
+{
+    return a.x;
+}
+
+template <typename T> VD_FORCE_INLINE
+T ReduceMax(const v1<T>& a)
+{
+    return a.x;
+}
+
+template <typename T> VD_FORCE_INLINE
+bool operator== (const v1<T>& a, const v1<T>& b)
+{
+    return a.x == b.x;
+}
+
+template <typename T> VD_FORCE_INLINE
+bool operator!= (const v1<T>& a, const v1<T>& b)
+{
+    return a.x != b.x;
+}
+
+template <typename T> VD_FORCE_INLINE
+bool operator< (const v1<T>& a, const v1<T>& b)
+{
+    if(a.x != b.x) 
+        return a.x < b.x;
+
+    return false;
+}
+
+template <typename T> VD_FORCE_INLINE
+v1<T> Select(bool s, const v1<T>& t, const v1<T>& f)
+{
+    return v1<T>(Select(s, t.x, f.x));
+}
+
+template <typename T> VD_FORCE_INLINE
+std::ostream& operator<<(std::ostream& cout, const v1<T>& a)
+{
+    return cout << "(" << a.x << ")";
+}
+
+// ============================================================================================== //
+
+template<typename T>
+struct v2
+{
+    T x, y;
+    typedef T ScalarValue;
     enum {N = 2};
 
     VD_FORCE_INLINE
@@ -494,16 +771,16 @@ struct v2
     v2(const T* a, vd::u32 stride = 1) : x(a[0]), y(a[stride]) {}
 
     VD_FORCE_INLINE
-    v2(Constants::ZeroType) : x(Constants::Zero), y(Constants::Zero) {}
+    v2(Constants::ZeroValue) : x(Constants::Zero), y(Constants::Zero) {}
 
     VD_FORCE_INLINE
-    v2(Constants::OneType) : x(Constants::One), y(Constants::One) {}
+    v2(Constants::OneValue) : x(Constants::One), y(Constants::One) {}
 
     VD_FORCE_INLINE
-    v2(Constants::PosInfType) : x(Constants::PosInf), y(Constants::PosInf) {}
+    v2(Constants::PosInfValue) : x(Constants::PosInf), y(Constants::PosInf) {}
 
     VD_FORCE_INLINE
-    v2(Constants::NegInfType) : x(Constants::NegInf), y(Constants::NegInf) {}
+    v2(Constants::NegInfValue) : x(Constants::NegInf), y(Constants::NegInf) {}
 
     VD_FORCE_INLINE const T&
     operator [](size_t axis) const
@@ -789,25 +1066,25 @@ struct v3
     }
 
     VD_FORCE_INLINE
-    v3(Constants::ZeroType)   : x(Constants::Zero), y(Constants::Zero), z(Constants::Zero)
+    v3(Constants::ZeroValue)   : x(Constants::Zero), y(Constants::Zero), z(Constants::Zero)
     {
         // EMPTY!
     }
 
     VD_FORCE_INLINE
-    v3(Constants::OneType)    : x(Constants::One), y(Constants::One), z(Constants::One)
+    v3(Constants::OneValue)    : x(Constants::One), y(Constants::One), z(Constants::One)
     {
         // EMPTY!
     }
 
     VD_FORCE_INLINE
-    v3(Constants::PosInfType) : x(Constants::PosInf), y(Constants::PosInf), z(Constants::PosInf)
+    v3(Constants::PosInfValue) : x(Constants::PosInf), y(Constants::PosInf), z(Constants::PosInf)
     {
         // EMPTY!
     }
 
     VD_FORCE_INLINE
-    v3(Constants::NegInfType) : x(Constants::NegInf), y(Constants::NegInf), z(Constants::NegInf)
+    v3(Constants::NegInfValue) : x(Constants::NegInf), y(Constants::NegInf), z(Constants::NegInf)
     {
         // EMPTY!
     }
@@ -1111,25 +1388,25 @@ struct v4
     }
 
     VD_FORCE_INLINE
-    v4(Constants::ZeroType)   : x(Constants::Zero), y(Constants::Zero), z(Constants::Zero), w(Constants::Zero)
+    v4(Constants::ZeroValue)   : x(Constants::Zero), y(Constants::Zero), z(Constants::Zero), w(Constants::Zero)
     {
         // EMPTY!
     }
 
     VD_FORCE_INLINE
-    v4(Constants::OneType)    : x(Constants::One),  y(Constants::One),  z(Constants::One),  w(Constants::One)
+    v4(Constants::OneValue)    : x(Constants::One),  y(Constants::One),  z(Constants::One),  w(Constants::One)
     {
         // EMPTY!
     }
 
     VD_FORCE_INLINE
-    v4(Constants::PosInfType) : x(Constants::PosInf), y(Constants::PosInf), z(Constants::PosInf), w(Constants::PosInf)
+    v4(Constants::PosInfValue) : x(Constants::PosInf), y(Constants::PosInf), z(Constants::PosInf), w(Constants::PosInf)
     {
         // EMPTY!
     }
 
     VD_FORCE_INLINE
-    v4(Constants::NegInfType) : x(Constants::NegInf), y(Constants::NegInf), z(Constants::NegInf), w(Constants::NegInf)
+    v4(Constants::NegInfValue) : x(Constants::NegInf), y(Constants::NegInf), z(Constants::NegInf), w(Constants::NegInf)
     {
         // EMPTY!
     }
@@ -1411,10 +1688,10 @@ struct q4
     q4(const T& yaw, const T& pitch, const T& roll);
 
     VD_FORCE_INLINE
-    q4(Constants::ZeroType) : r(Constants::Zero), i(Constants::Zero), j(Constants::Zero), k(Constants::Zero) {}
+    q4(Constants::ZeroValue) : r(Constants::Zero), i(Constants::Zero), j(Constants::Zero), k(Constants::Zero) {}
 
     VD_FORCE_INLINE
-    q4(Constants::OneType) : r(Constants::One), i(Constants::Zero), j(Constants::Zero), k(Constants::Zero) {}
+    q4(Constants::OneValue) : r(Constants::One), i(Constants::Zero), j(Constants::Zero), k(Constants::Zero) {}
 
     static VD_FORCE_INLINE q4
     Rotate(const v3<T>& u, const T& r)
@@ -1790,7 +2067,7 @@ struct m3
     }
 
     VD_FORCE_INLINE
-    m3(Constants::ZeroType)
+    m3(Constants::ZeroValue)
     {
         c[0] = v3<T>(Constants::Zero);
         c[1] = v3<T>(Constants::Zero);
@@ -1798,7 +2075,7 @@ struct m3
     }
 
     VD_FORCE_INLINE
-    m3(Constants::OneType)
+    m3(Constants::OneValue)
     {
         c[0] = v3<T>(Constants::One, Constants::Zero, Constants::Zero);
         c[1] = v3<T>(Constants::Zero, Constants::One, Constants::Zero);
@@ -2038,10 +2315,10 @@ struct a4
     template<typename L1>
     VD_FORCE_INLINE explicit a4(const a4<L1>& s) : l(s.l), p(s.p) {}
 
-    VD_FORCE_INLINE a4(Constants::ZeroType) : l(Constants::Zero), p(Constants::Zero) {}
+    VD_FORCE_INLINE a4(Constants::ZeroValue) : l(Constants::Zero), p(Constants::Zero) {}
 
     VD_FORCE_INLINE
-    a4(Constants::OneType)  : l(Constants::One),  p(Constants::Zero) {}
+    a4(Constants::OneValue)  : l(Constants::One),  p(Constants::Zero) {}
 
     /*! Static methods */
     static VD_FORCE_INLINE
@@ -2208,7 +2485,7 @@ struct m4
 
     VD_FORCE_INLINE m4(void) {}
 
-    VD_FORCE_INLINE m4(Constants::OneType)
+    VD_FORCE_INLINE m4(Constants::OneValue)
     {
         c[0] = v4<T>(Constants::One, Constants::Zero, Constants::Zero, Constants::Zero);
         c[1] = v4<T>(Constants::Zero, Constants::One, Constants::Zero, Constants::Zero);
@@ -2217,7 +2494,7 @@ struct m4
     }
 
     VD_FORCE_INLINE
-    m4(Constants::ZeroType) 
+    m4(Constants::ZeroValue) 
     {
     	c[0] = c[1] = c[2] = c[3] = Constants::Zero;
     }
@@ -2613,39 +2890,6 @@ std::ostream& operator<<(std::ostream& cout, m4<T> m)
 // ============================================================================================== //
 
 VD_CORE_NAMESPACE_END();
-
-// ============================================================================================== //
-
-VD_NAMESPACE_BEGIN();
-
-// ============================================================================================== //
-
-typedef VD_CORE_NAMESPACE::v2<bool> 	v2b;
-typedef VD_CORE_NAMESPACE::v2<vd::i32> 	v2i32;
-typedef VD_CORE_NAMESPACE::v2<vd::u32>  v2u32;
-typedef VD_CORE_NAMESPACE::v2<vd::f32> 	v2f32;
-typedef VD_CORE_NAMESPACE::v2<vd::f64>  v2f64;
-typedef VD_CORE_NAMESPACE::v3<bool> 	v3b;
-typedef VD_CORE_NAMESPACE::v3<vd::i32> 	v3i32;
-typedef VD_CORE_NAMESPACE::v3<vd::u32>  v3u32;
-typedef VD_CORE_NAMESPACE::v3<vd::f32> 	v3f32;
-typedef VD_CORE_NAMESPACE::v3<vd::f64>  v3f64;
-typedef VD_CORE_NAMESPACE::v4<bool> 	v4b;
-typedef VD_CORE_NAMESPACE::v4<vd::i32> 	v4i32;
-typedef VD_CORE_NAMESPACE::v4<vd::i32>  v4u32;
-typedef VD_CORE_NAMESPACE::v4<vd::f32> 	v4f32;
-typedef VD_CORE_NAMESPACE::v4<vd::f64>  v4f64;
-typedef VD_CORE_NAMESPACE::q4<vd::f32> 	q4f32;
-typedef VD_CORE_NAMESPACE::q4<vd::f64>  q4f64;
-typedef VD_CORE_NAMESPACE::m3<vd::f32> 	m3f32;
-typedef VD_CORE_NAMESPACE::m3<vd::f64> 	m3f64;
-typedef VD_CORE_NAMESPACE::a4<m3f32> 	a4f32;
-typedef VD_CORE_NAMESPACE::m4<vd::f32> 	m4f32;
-typedef VD_CORE_NAMESPACE::m4<vd::f64> 	m4f64;
-
-// ============================================================================================== //
-
-VD_NAMESPACE_END();
 
 // ============================================================================================== //
 

@@ -2,7 +2,7 @@
 	"folders":
 	[
 		{
-			"path": "/Users/dg/Workspace/void/github"
+			"path": "/Users/dg/Workspace/void/icrar"
 		}
 	],
 	
@@ -17,27 +17,27 @@
 	        "-I/usr/lib/clang/2.1/include/",
 	        "-I/usr/lib/gcc/i686-apple-darwin10/4.2.1/include/",
 	        "-I/usr/lib/gcc/i686-apple-darwin11/4.2.1/include/",
-	        "-I/Users/dg/Workspace/void/github/source",
-	        "-I/Users/dg/Workspace/void/github/source/.",
-	        "-I/Users/dg/Workspace/void/github/source/..",
-	        "-I/Users/dg/Workspace/void/github/source/core",
-	        "-I/Users/dg/Workspace/void/github/source/core/.",
-	        "-I/Users/dg/Workspace/void/github/source/core/..",
-	        "-I/Users/dg/Workspace/void/github/source/data.",
-	        "-I/Users/dg/Workspace/void/github/source/data/.",
-	        "-I/Users/dg/Workspace/void/github/source/data/..",
-	        "-I/Users/dg/Workspace/void/github/source/graphics",
-	        "-I/Users/dg/Workspace/void/github/source/graphics/.",
-	        "-I/Users/dg/Workspace/void/github/source/graphics/..",
-	        "-I/Users/dg/Workspace/void/github/source/interface",
-	        "-I/Users/dg/Workspace/void/github/source/interface/.",
-	        "-I/Users/dg/Workspace/void/github/source/interface/..",
-	        "-I/Users/dg/Workspace/void/github/source/runtime",
-	        "-I/Users/dg/Workspace/void/github/source/runtime/.",
-	        "-I/Users/dg/Workspace/void/github/source/runtime/..",
-	        "-I/Users/dg/Workspace/void/github/source/apps",
-	        "-I/Users/dg/Workspace/void/github/source/apps/.",
-	        "-I/Users/dg/Workspace/void/github/source/apps/.."
+	        "-I/Users/dg/Workspace/void/icrar/void/source",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/.",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/..",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/core",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/core/.",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/core/..",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/data.",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/data/.",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/data/..",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/graphics",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/graphics/.",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/graphics/..",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/interface",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/interface/.",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/interface/..",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/runtime",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/runtime/.",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/runtime/..",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/apps",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/apps/.",
+	        "-I/Users/dg/Workspace/void/icrar/void/source/apps/.."
          ]
     }
 }

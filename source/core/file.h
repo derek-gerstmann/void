@@ -43,7 +43,6 @@ class FileAccess : public Object
 {
 public:
 	VD_DECLARE_ENUM(Mode,
-        Invalid,
         ReadOnly,
         WriteOnly,
         ReadOnlySwapEndian,

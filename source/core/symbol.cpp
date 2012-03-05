@@ -22,6 +22,11 @@
 //
 // ============================================================================================== //
 
+
+#include "core/core.h"
+#include "constants/symbols.h"
+#include "containers/containers.h"
+
 #include "core/symbol.h"
 #include "core/macros.h"
 #include "core/memory.h"
@@ -31,9 +36,6 @@
 #include "core/logging.h"
 #include "core/threading.h"
 #include "core/registry.h"
-
-#include "constants/constants.h"
-#include "containers/containers.h"
 
 #include <cstring>
 

@@ -1,0 +1,4 @@
+{
+	"cmd": ["cd build"],
+	"cmd": ["make"]
+}

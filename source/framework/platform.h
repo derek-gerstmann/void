@@ -31,17 +31,8 @@
 // known predefined macros for standard compilers
 
 // ============================================================================================== //
-    
-// Macros for safer preprocessor detection of defines, which causes a compiler error if the 
-// tested expression isn't defined:
-//
-// #define VD_SUPER_FEATURE          VD_ON
-//
-// #if VD_USING( VD_SUPER_FEATURE )
-// ....
-// #endif
 
-#define VD_ON             			       true
+#define VD_ON             			       1
 #define VD_PRAGMA(x)                   _Pragma (#x)
 #define VD_TODO(x)                     VD_PRAGMA(message ("TODO - " #x))
 #define VD_INFO(x)                     VD_PRAGMA(message ("INFO - " #x))

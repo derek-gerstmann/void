@@ -1,25 +1,24 @@
 set( VD_EXT_SIMD_DIR				${VD_EXT_DIR}/simd )
-set( VD_EXT_EIGEN_DIR				${VD_EXT_DIR}/eigen )
 set( VD_EXT_BOOST_DIR				${VD_EXT_DIR}/boost )
 
 include_directories(				${VD_EXT_SIMD_DIR}/include )
 include_directories(				${VD_EXT_BOOST_DIR}/include )
-include_directories(			    ${VD_EXT_EIGEN_DIR}/include )
 
 file( GLOB VD_EXT_BOOST_LIB			${VD_EXT_BOOST_DIR}/lib/${VD_OS_NAME}/*.${VD_STATIC_LIB_EXT} )
-set( VD_EXT_LIB 				    ${VD_EXT_BOOST_LIB} ${VD_EXT_SIMD_LIB} )
+set( VD_EXT_LIB 				    ${VD_EXT_BOOST_LIB} ${VD_EXT_SIMD_LIB} ${VD_EXT_LIB} )
+
+if(VOID_USE_HALF)
+	set( VD_EXT_HALF_DIR			${VD_EXT_DIR}/half )
+	file( GLOB VD_EXT_HALF_SRC		${VD_EXT_HALF_DIR}/src/*.cpp )
+	include_directories(			${VD_EXT_HALF_DIR}/include)
+	set( VD_EXT_SRC 				${VD_EXT_HALF_SRC} ${VD_EXT_SRC} )
+endif()
 
 if(VOID_USE_ASMLIB)
 	set( VD_EXT_ALIB_DIR			${VD_EXT_DIR}/alib )
 	file( GLOB VD_EXT_ALIB_LIB		${VD_EXT_ALIB_DIR}/lib/${VD_OS_NAME}/*.${VD_STATIC_LIB_EXT} )
 	include_directories(			${VD_EXT_ALIB_DIR}/include)
 	set( VD_EXT_LIB 				${VD_EXT_ALIB_LIB} ${VD_EXT_LIB} )
-endif()
-
-if(VOID_USE_BTPL)
-	set( VD_EXT_BTPL_DIR			${VD_EXT_DIR}/btpl )
-	file( GLOB VD_EXT_BTPL_LIB 		${VD_EXT_BTPL_DIR}/lib/${VD_OS_NAME}/*.${VD_STATIC_LIB_EXT} )
-	set( VD_EXT_LIB 				${VD_EXT_BTPL_LIB} ${VD_EXT_LIB} )	
 endif()
 
 if(VOID_USE_OPENGL)
@@ -33,10 +32,9 @@ if(VOID_USE_OPENGL)
 	file( GLOB VD_EXT_FTGL_SRC 	 	${VD_EXT_FTGL_DIR}/src/*.c )
 	file( GLOB VD_EXT_GLEW_LIB		${VD_EXT_GLEW_DIR}/lib/${VD_OS_NAME}/*.${VD_STATIC_LIB_EXT} )
 	file( GLOB VD_EXT_FT_LIB 	 	${VD_EXT_FT_DIR}/lib/${VD_OS_NAME}/*.${VD_STATIC_LIB_EXT} )
-	set( VD_EXT_SRC 				${VD_EXT_FTGL_SRC} ${VD_EXT_GLSW_SRC} )
+	set( VD_EXT_SRC 				${VD_EXT_FTGL_SRC} ${VD_EXT_GLSW_SRC} ${VD_EXT_SRC} )
 
 	include_directories(
-		${VD_EXT_EIGEN_DIR}/unsupported
 		${VD_EXT_FT_DIR}/include
 		${VD_EXT_FTGL_DIR}/include
 		${VD_EXT_GLEW_DIR}/src
@@ -64,6 +62,7 @@ if(VOID_USE_JSON)
 	set( VD_EXT_JSON_DIR			${VD_EXT_DIR}/json )
 	file( GLOB VD_EXT_JSON_SRC		${VD_EXT_JSON_DIR}/src/*.cpp )
 	include_directories(			${VD_EXT_JSON_DIR}/src  ${VD_EXT_JSON_DIR}/include )
+	set( VD_EXT_SRC 				${VD_EXT_JSON_SRC} ${VD_EXT_SRC} )
 endif()
 
 if(VOID_USE_MSGPACK)
@@ -120,6 +119,7 @@ if(VOID_USE_SKIA)
 	file( GLOB VD_EXT_SKIA_LIB 		${VD_EXT_SKIA_DIR}/lib/${VD_OS_NAME}/*.${VD_STATIC_LIB_EXT} )
 	file( GLOB VD_EXT_SKIA_SRC 		${VD_EXT_SKIA_DIR}/src/${VD_OS_NAME}/*.h ${VD_EXT_SKIA_DIR}/src/${VD_OS_NAME}/*.cpp ${VD_EXT_SKIA_DIR}/src/${VD_OS_NAME}/*.mm )	
 	set( VD_EXT_LIB     			${VD_EXT_SKIA_LIB} ${VD_EXT_LIB} )
+	set( VD_EXT_SRC 				${VD_EXT_SKIA_SRC} ${VD_EXT_SRC} )
 	
 	if(APPLE)
 		add_definitions(-DSK_BUILD_FOR_MAC=1)

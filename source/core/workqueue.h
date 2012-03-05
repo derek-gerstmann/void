@@ -43,7 +43,6 @@ VD_CORE_NAMESPACE_BEGIN();
 // ============================================================================================== //
 
 VD_DECLARE_ENUM(WorkStatus,
-    Invalid,
     Queued,
     Running,
     Complete,

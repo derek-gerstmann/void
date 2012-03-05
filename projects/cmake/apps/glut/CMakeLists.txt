@@ -21,20 +21,16 @@ find_library( GLUT_LIBRARY Glut )
 set(VD_CXX_STD_FLAGS ${VD_CXX_STD_FLAGS} "-fno-rtti")
     
 set( VD_APPS_GLUT_DEMO_ALL_SRC 
-	${VD_ALL_SRC} 
 	${VD_APPS_GLUT_DEMO_SRC}
 )
 
 set( VD_APPS_GLUT_DEMO_ALL_INC
-	${VD_ALL_INC} 
 	${VD_APPS_GLUT_DEMO_INC}
 )
 
 include_directories(
     ${VD_APPS_DIR}/glut
-    ${VD_INTERFACE_DIR}/glut
 )
-
 
 if(VOID_USE_EXTRACTED_SYMBOLS)
     set( VD_SYMEX_FILELIST ${VD_APPS_GLUT_DEMO_ALL_SRC} ${VD_APPS_GLUT_DEMO_ALL_INC} ${VD_PLATFORM_SRC} )
@@ -58,7 +54,6 @@ target_link_libraries( GlutDemo
 	VdExternal 
 	VdFramework 
 	VdPlatform 
-    VdGlutRuntime
 	${GLUT_LIBRARY}
 )
 

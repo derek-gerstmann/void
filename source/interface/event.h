@@ -47,7 +47,6 @@ public :
 	typedef VD_CORE_SCOPE::Function< vd::status ( const Event& ) > Callback;
 	
 	VD_DECLARE_ENUM(Type,
-    	Invalid,
         Startup,                 
         Shutdown,                 
         Update,                 

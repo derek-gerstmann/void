@@ -4,6 +4,18 @@
 		"selected_items":
 		[
 			[
+				"VD_US",
+				"VD_USE_HALF"
+			],
+			[
+				"VD_USE",
+				"VD_USE_HALF_FP16"
+			],
+			[
+				"VD_DE",
+				"VD_DECLARE_ENUM_STARTING_FROM"
+			],
+			[
 				"Fr",
 				"m_FrameRateLimit"
 			],
@@ -383,153 +395,6 @@
 	},
 	"buffers":
 	[
-		{
-			"contents": "// ============================================================================================== //\n//\n// License:		The Lesser GNU Public License (LGPL) v3.0.\n//\n// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA).\n//				As well as the shoulders of many giants...\n//\n// This file is part of the Void framework.\n//\n// The Void framework is free software: you can redistribute it and/or modify\n// it under the terms of the GNU General Public License as published by\n// the Free Software Foundation, either version 3 of the License, or\n// (at your option) any later version.\n//\n// The Void framework is distributed in the hope that it will be useful,\n// but WITHOUT ANY WARRANTY; without even the implied warranty of\n// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n// GNU General Public License for more details.\n//\n// You should have received a copy of the GNU General Public License\n// along with the Void framework.  If not, see <http://www.gnu.org/licenses/>.\n//\n// ============================================================================================== //\n\n#ifndef VD_ENUM_INCLUDED\n#define VD_ENUM_INCLUDED\n\n// ============================================================================================== //\n\n#include \"vd.h\"\n\n// ============================================================================================== //\n\n#define VD_DECLARE_ENUM(StructName, ...)    \\\nstruct VD_API StructName \\\n{    \\\n  static const size_t Count = VD_PP_VA_ARG_COUNT(__VA_ARGS__);    \\\n  enum Value    \\\n  {    \\\n      	VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ONE_BASED_ENUM_VALUE,__VA_ARGS__)    \\\n      	LastValue \\\n  };    \\\n  static const char* ToString(vd::u32 value) \\\n  { \\\n    switch (value) \\\n    { \\\n        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ENUM_VALUE_TO_STRING,__VA_ARGS__)    \\\n      case LastValue: return \"LastValue\"; \\\n      default: \\\n        VD_NO_SWITCH_DEFAULT; \\\n    } \\\n    return NULL; \\\n  } \\\n  static const vd::u32 ToInteger(StructName::Value value) \\\n  { \\\n    switch (value) \\\n    { \\\n        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ONE_BASED_ENUM_VALUE_TO_INT,__VA_ARGS__) \\\n      case LastValue: return VD_U32_MAX; \\\n      default: \\\n        VD_NO_SWITCH_DEFAULT; \\\n    } \\\n    return VD_U32_MAX; \\\n  } \\\n  static const StructName::Value FromInteger(vd::u32 value) \\\n  { \\\n    switch (value) \\\n    { \\\n        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ENUM_INT_TO_VALUE,__VA_ARGS__) \\\n      default: \\\n        VD_NO_SWITCH_DEFAULT; \\\n    } \\\n    return LastValue; \\\n  } \\\n}\n\n#define VD_DECLARE_ENUM_START_FROM_ZERO(StructName, ...)    \\\nstruct VD_API StructName \\\n{    \\\n  static const size_t Count = VD_PP_VA_ARG_COUNT(__VA_ARGS__);    \\\n  enum Value    \\\n  {    \\\n        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ZERO_BASED_ENUM_VALUE,__VA_ARGS__)    \\\n        LastValue \\\n  };    \\\n  static const char* ToString(vd::u32 value) \\\n  { \\\n    switch (value) \\\n    { \\\n        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ENUM_VALUE_TO_STRING,__VA_ARGS__)    \\\n      case LastValue: return \"LastValue\"; \\\n      default: \\\n        VD_NO_SWITCH_DEFAULT; \\\n    } \\\n    return NULL; \\\n  } \\\n  static const vd::u32 ToInteger(StructName::Value value) \\\n  { \\\n    switch (value) \\\n    { \\\n        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ZERO_BASED_ENUM_VALUE_TO_INT,__VA_ARGS__) \\\n      case LastValue: return VD_U32_MAX; \\\n      default: \\\n        VD_NO_SWITCH_DEFAULT; \\\n    } \\\n    return VD_U32_MAX; \\\n  } \\\n  static const StructName::Value FromInteger(vd::u32 value) \\\n  { \\\n    switch (value) \\\n    { \\\n        VD_PP_PASS_ENUM_ARGS(VD_DECLARE_ENUM_INT_TO_VALUE,__VA_ARGS__) \\\n      default: \\\n        VD_NO_SWITCH_DEFAULT; \\\n    } \\\n    return LastValue; \\\n  } \\\n}\n\n// ============================================================================================== //\n\n#define VD_DECLARE_ONE_BASED_ENUM_VALUE(v,n) \\\n  v = n,\n\n#define VD_DECLARE_ONE_BASED_ENUM_VALUE_TO_INT(v,n) \\\n  case v: return n;\n\n#define VD_DECLARE_ZERO_BASED_ENUM_VALUE(v,n) \\\n	v = n-1,\n\n#define VD_DECLARE_ZERO_BASED_ENUM_VALUE_TO_INT(v,n) \\\n  case v: return n-1;\n\n#define VD_DECLARE_ENUM_INT_TO_VALUE(v,n) \\\n  case n: return v;\n\n#define VD_DECLARE_ENUM_VALUE_TO_STRING(v,n) \\\n	case v: return VD_PP_STRINGIZE(v);\n\n// ============================================================================================== //\n\n#endif // VD_ENUM_INCLUDED\n\n",
-			"file": "/Users/dg/Workspace/void/github/source/core/enum.h",
-			"file_size": 4324,
-			"file_write_time": 1328383568000000,
-			"settings":
-			{
-				"buffer_size": 4324,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/source/compute/context.cpp",
-			"settings":
-			{
-				"buffer_size": 2054,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/source/graphics/types.h",
-			"settings":
-			{
-				"buffer_size": 2121,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/projects/cmake/BuildFramework.cmake",
-			"settings":
-			{
-				"buffer_size": 7020,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/projects/cmake/BuildSettings.cmake",
-			"settings":
-			{
-				"buffer_size": 2182,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/source/framework/platform.h",
-			"settings":
-			{
-				"buffer_size": 14909,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/apps/gui/widgets.cpp",
-			"settings":
-			{
-				"buffer_size": 8059,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/apps/gui/demo.h",
-			"settings":
-			{
-				"buffer_size": 4024,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/apps/gui/demo.cpp",
-			"settings":
-			{
-				"buffer_size": 13424,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/apps/gui/widgets.h",
-			"settings":
-			{
-				"buffer_size": 4873,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/apps/vast/widgets.h",
-			"settings":
-			{
-				"buffer_size": 4566,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/apps/vast/widgets.cpp",
-			"settings":
-			{
-				"buffer_size": 4461,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/source/interface/glut/window.cpp",
-			"settings":
-			{
-				"buffer_size": 21225,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/source/interface/window.h",
-			"settings":
-			{
-				"buffer_size": 4584,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/source/interface/cocoa/window.h",
-			"settings":
-			{
-				"buffer_size": 4553,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/source/interface/glut/window.h",
-			"settings":
-			{
-				"buffer_size": 4583,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/source/interface/cocoa/window.cpp",
-			"settings":
-			{
-				"buffer_size": 9927,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/dg/Workspace/void/github/source/interface/cocoa/CustomWindow.m",
-			"settings":
-			{
-				"buffer_size": 5867,
-				"line_ending": "Unix"
-			}
-		}
 	],
 	"build_system": "",
 	"command_palette":
@@ -574,7 +439,7 @@
 	},
 	"console":
 	{
-		"height": 136.0
+		"height": 301.0
 	},
 	"distraction_free":
 	{
@@ -587,6 +452,72 @@
 	},
 	"file_history":
 	[
+		"/Users/dg/Workspace/void/icrar/void/source/framework/macros.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/traits.cpp",
+		"/Users/dg/Workspace/void/icrar/void/projects/cmake/UseFramework.cmake",
+		"/Users/dg/Workspace/void/icrar/void/projects/cmake/BuildFramework.cmake",
+		"/Users/dg/Workspace/void/icrar/void/projects/cmake/external/f16tof32/CMakeLists.txt",
+		"/Users/dg/Workspace/void/icrar/void/projects/cmake/external/f16elut/CMakeLists.txt",
+		"/Users/dg/Workspace/void/icrar/void/projects/cmake/CMakeLists.txt",
+		"/Users/dg/Workspace/void/icrar/void/source/vd.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/core.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/types.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/symbol.h",
+		"/Users/dg/Workspace/void/icrar/void/source/framework/uid.h",
+		"/Users/dg/Workspace/void/icrar/void/source/constants/values.h",
+		"/Users/dg/Workspace/void/icrar/void/source/concurrent/intrinsics.h",
+		"/Users/dg/Workspace/void/icrar/void/projects/cmake/BuildExternalTools.cmake",
+		"/Users/dg/Workspace/void/icrar/void/projects/cmake/BuildSettings.cmake",
+		"/Users/dg/Workspace/void/icrar/void/projects/cmake/BuildSymEx.cmake",
+		"/Users/dg/Workspace/void/icrar/void/projects/cmake/tools/symex/CMakeLists.txt",
+		"/Users/dg/Workspace/void/icrar/void/projects/cmake/BuildExternal.cmake",
+		"/Users/dg/Workspace/void/icrar/void/source/core/status.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/builtins.cpp",
+		"/Users/dg/Workspace/void/icrar/void/source/framework/types.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/framework.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/locking.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/logging.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/file.h",
+		"/Users/dg/Workspace/void/icrar/void/source/framework/traits.h",
+		"/Users/dg/Workspace/void/icrar/void/source/framework/limits.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/file.cpp",
+		"/Users/dg/Workspace/void/icrar/void/source/constants/constants.h",
+		"/Users/dg/Workspace/void/icrar/void/source/constants/types.h",
+		"/Users/dg/Workspace/void/icrar/void/source/constants/symbols.h",
+		"/Users/dg/Workspace/void/icrar/void/projects/cmake/FindCppCheck.cpp",
+		"/Users/dg/Workspace/void/icrar/void/tools/symex/CMakeLists.txt",
+		"/Users/dg/Workspace/void/icrar/void/source/core/builtins.h",
+		"/Users/dg/Workspace/void/icrar/void/source/framework/platform.h",
+		"/Users/dg/Workspace/void/icrar/void/external/ftgl/include/freetype-gl.h",
+		"/Users/dg/Workspace/void/icrar/void/source/framework/vd.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/numerics.h",
+		"/Users/dg/Library/Application Support/Sublime Text 2/Packages/Default/Preferences.sublime-settings",
+		"/Users/dg/Workspace/void/icrar/void/source/core/utilities.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/entity.cpp",
+		"/Users/dg/Workspace/void/icrar/void/source/formats/hdf.h",
+		"/Users/dg/Workspace/void/icrar/void/source/core/locking.cpp",
+		"/Users/dg/Workspace/void/icrar/void/source/core/threading.h",
+		"/Users/dg/Workspace/void/icrar/void/source/constants/extracted/symbols.h",
+		"/Users/dg/Workspace/void/icrar/void/source/framework/enum.h",
+		"/Volumes/Storage/Downloads/stackless-322-export/Stackless/core/stackless_structs.h",
+		"/Users/dg/Workspace/void/github/source/interface/cocoa/CustomWindow.m",
+		"/Users/dg/Workspace/void/github/source/interface/cocoa/window.cpp",
+		"/Users/dg/Workspace/void/github/source/interface/glut/window.h",
+		"/Users/dg/Workspace/void/github/source/interface/cocoa/window.h",
+		"/Users/dg/Workspace/void/github/source/interface/window.h",
+		"/Users/dg/Workspace/void/github/source/interface/glut/window.cpp",
+		"/Users/dg/Workspace/void/github/apps/vast/widgets.cpp",
+		"/Users/dg/Workspace/void/github/apps/vast/widgets.h",
+		"/Users/dg/Workspace/void/github/apps/gui/widgets.h",
+		"/Users/dg/Workspace/void/github/apps/gui/demo.cpp",
+		"/Users/dg/Workspace/void/github/apps/gui/demo.h",
+		"/Users/dg/Workspace/void/github/apps/gui/widgets.cpp",
+		"/Users/dg/Workspace/void/github/source/framework/platform.h",
+		"/Users/dg/Workspace/void/github/projects/cmake/BuildSettings.cmake",
+		"/Users/dg/Workspace/void/github/projects/cmake/BuildFramework.cmake",
+		"/Users/dg/Workspace/void/github/source/graphics/types.h",
+		"/Users/dg/Workspace/void/github/source/compute/context.cpp",
+		"/Users/dg/Workspace/void/github/source/core/enum.h",
 		"/Users/dg/Library/Mail Downloads/um_lite/um_runtime/um_runtime.cpp",
 		"/Volumes/Storage/Downloads/freeglut-2.8.0/README.mac",
 		"/Users/dg/Workspace/void/github/source/framework/types.h",
@@ -600,7 +531,6 @@
 		"/Users/dg/Workspace/void/github/source/framework/uid.h",
 		"/Users/dg/Workspace/void/github/source/framework/version.h",
 		"/Users/dg/Workspace/void/github/source/framework/preprocess.h",
-		"/Users/dg/Workspace/void/github/source/framework/platform.h",
 		"/Users/dg/Workspace/void/github/source/framework/namespace.h",
 		"/Users/dg/Workspace/void/github/source/framework/internal.h",
 		"/Users/dg/Workspace/void/github/source/framework/external.h",
@@ -618,8 +548,6 @@
 		"/Users/dg/Workspace/void/github/apps/vast/config.h",
 		"/Users/dg/Workspace/void/github/apps/vast/vast.cpp",
 		"/Users/dg/Workspace/lux/luxrays/include/luxrays/luxrays.h",
-		"/Users/dg/Workspace/void/github/source/core/enum.h",
-		"/Users/dg/Workspace/void/github/source/interface/glut/window.cpp",
 		"/Users/dg/Workspace/void/github/source/graphics/shader.cpp",
 		"/Users/dg/Workspace/void/github/source/core/builtins.h",
 		"/Users/dg/Workspace/void/github/source/graphics/system.cpp",
@@ -647,74 +575,11 @@
 		"/Users/dg/Workspace/void/github/source/core/system.cpp",
 		"/Users/dg/Workspace/void/github/apps/glut/main.cpp",
 		"/Users/dg/Workspace/void/github/source/runtime/application.h",
-		"/Users/dg/Workspace/void/github/apps/gui/demo.h",
 		"/Users/dg/Workspace/void/github/source/interface/types.h",
 		"/Users/dg/Workspace/void/github/source/runtime/system.cpp",
 		"/Users/dg/Workspace/void/github/projects/cmake/apps/vast/CMakeLists.txt",
 		"/Users/dg/Workspace/void/github/projects/cmake/apps/gui/CMakeLists.txt",
-		"/Users/dg/Workspace/void/github/projects/cmake/apps/glut/CMakeLists.txt",
-		"/Users/dg/Workspace/void/github/source/interface/window.cpp",
-		"/Users/dg/Workspace/void/github/projects/cmake/BuildFramework.cmake",
-		"/Users/dg/Workspace/void/github/source/interface/window.h",
-		"/Users/dg/Workspace/void/github/source/runtime/context.h",
-		"/Users/dg/Workspace/void/github/apps/glut/demo.cpp",
-		"/Users/dg/Workspace/void/github/apps/glut/demo.h",
-		"/Users/dg/Workspace/void/github/source/interface/glut/window.h",
-		"/Users/dg/Workspace/void/github/source/runtime/runtime.h",
-		"/Users/dg/Workspace/void/github/source/interface/gwen/context.cpp",
-		"/Users/dg/Workspace/void/github/source/interface/gwen/context.h",
-		"/Users/dg/Workspace/void/github/source/graphics/context.cpp",
-		"/Users/dg/Workspace/void/github/source/runtime/system.h",
-		"/Users/dg/Workspace/void/github/source/interface/gwen/renderer.cpp",
-		"/Users/dg/Workspace/void/github/source/interface/gwen/renderer.h",
-		"/Users/dg/Workspace/void/github/source/runtime/application.cpp",
-		"/Users/dg/Workspace/void/github/source/runtime/context.cpp",
-		"/Users/dg/Workspace/void/github/source/core/statistics.h",
-		"/Users/dg/Workspace/void/github/apps/gui/demo.cpp",
-		"/Users/dg/Workspace/void/github/source/runtime/glut/window.h",
-		"/Users/dg/Workspace/void/github/source/runtime/types.h",
-		"/Users/dg/Workspace/void/github/source/runtime/glut/window.cpp",
-		"/Users/dg/Workspace/void/github/source/core/statistic.h",
-		"/Volumes/Storage/Downloads/WaveletPipeRecon/Makefile",
-		"/Volumes/Storage/Downloads/wavelet_raster/wavelet_raster/insert_bez2.cpp",
-		"/Users/dg/Workspace/void/github/source/core/filename.h",
-		"/Volumes/Storage/Downloads/tris2indicator/tris2indicator/octree.h",
-		"/Users/dg/Workspace/void/github/source/constants/constants.h",
-		"/Users/dg/Workspace/void/github/source/core/symbol.h",
-		"/Users/dg/Workspace/void/github/source/graphics/gl/namespace.h",
-		"/Users/dg/Workspace/void/github/source/graphics/gl/opengl.h",
-		"/Users/dg/Workspace/void/github/apps/vast/main.cpp",
-		"/Users/dg/Workspace/void/github/source/core/workqueue.cpp",
-		"/Users/dg/Workspace/void/github/source/core/threading.cpp",
-		"/Users/dg/Workspace/void/github/source/graphics/types.h",
-		"/Users/dg/Workspace/void/github/source/graphics/framebuffer.cpp",
-		"/Users/dg/Workspace/void/github/source/graphics/framebuffer.h",
-		"/Users/dg/Workspace/void/github/source/graphics/buffer.cpp",
-		"/Users/dg/Workspace/void/github/source/graphics/buffer.h",
-		"/Volumes/Storage/Downloads/luxrays-8d8fa9bb556f/include/luxrays/core/acceleretor.h",
-		"/Volumes/Storage/Software/Storage/bil/v0.6.0/examples/test_bil_raw.c",
-		"/Volumes/Storage/Downloads/trender-SDL-1.04/src/Object3D.cc",
-		"/Users/dg/Workspace/void/github/source/interface/gwen/types.h",
-		"/Users/dg/Workspace/void/github/source/render/system.h",
-		"/Users/dg/Workspace/void/github/source/render/system.cpp",
-		"/Users/dg/Workspace/void/github/source/interface/system.h",
-		"/Users/dg/Workspace/void/github/source/interface/system.cpp",
-		"/Users/dg/Workspace/void/github/source/graphics/system.h",
-		"/Users/dg/Workspace/void/github/projects/cmake/BuildSettings.cmake",
-		"/Users/dg/Workspace/void/github/source/core/symbol.cpp",
-		"/Users/dg/Workspace/void/github/apps/gui/widgets.cpp",
-		"/Users/dg/Workspace/void/github/source/interface/gwen/gwen.h",
-		"/Users/dg/Workspace/void/github/source/interface/gwen/namespace.h",
-		"/Users/dg/Workspace/void/github/apps/gui/widgets.h",
-		"/Users/dg/Workspace/void/github/apps/glut/config.h",
-		"/Users/dg/Workspace/void/github/source/graphics/texture.cpp",
-		"/Users/dg/Workspace/void/github/source/graphics/texture.h",
-		"/Users/dg/Workspace/void/github/source/storage/dataset.h",
-		"/Users/dg/Workspace/void/github/source/storage/types.h",
-		"/Users/dg/Workspace/void/github/source/storage/storage.h",
-		"/Users/dg/Workspace/void/github/source/storage/namespace.h",
-		"/Users/dg/Workspace/void/github/source/formats/types.h",
-		"/Users/dg/Workspace/void/github/source/formats/namespace.h"
+		"/Users/dg/Workspace/void/github/projects/cmake/apps/glut/CMakeLists.txt"
 	],
 	"find":
 	{
@@ -734,6 +599,40 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"APP",
+			"APPS",
+			"EXT_LIB",
+			"SRC",
+			"USE_HALF",
+			"VOID_USE_HALF",
+			"VD_SYMBOLS_H",
+			"NativeType",
+			"GetNativeType",
+			"TypeIdTraits",
+			"BaseType",
+			"Native",
+			"::GetType(",
+			"Type::",
+			"Native",
+			"Type",
+			"vdGLobal",
+			"Invalid",
+			"OffsetFrom",
+			"Address",
+			".y",
+			"v2",
+			"BaseType::Value",
+			"HALF",
+			"src",
+			"F16",
+			"vd::string",
+			"Inv",
+			"BaseTypeTraits",
+			"GetDimensions",
+			"GetNativeType",
+			"NativeType::",
+			"include",
+			"DataTypeTraits",
 			"state",
 			"main",
 			"GetConfig",
@@ -827,41 +726,7 @@
 			"RHO",
 			"Gas",
 			"Density",
-			"m_RequestedTypes",
-			"TypeRequest",
-			"fseek",
-			"ReadBlockData",
-			"Smoothing",
-			"Smoothin",
-			"cmin",
-			"Color",
-			"ColorBlock",
-			"cmin",
-			"= x",
-			"ParticleCountTotal",
-			"ReadBlock",
-			"dx",
-			"ReadBlo",
-			"m_RequestedTypes",
-			"Filtered",
-			"CreateBlockData",
-			"ReadBlock",
-			"ReadHeader",
-			"m_FilteredParticleCount",
-			"ReadBlock",
-			"SwapParticleAt",
-			"Requ",
-			"SwapPart",
-			"Filter",
-			"Type",
-			"Load",
-			"req_data",
-			"Typ",
-			"Den",
-			"1 * 1024 * 1024;",
-			"2 * 1024 * 1024",
-			"ColorBlock",
-			"ColorBlo"
+			"m_RequestedTypes"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -869,6 +734,23 @@
 		"regex": false,
 		"replace_history":
 		[
+			"EXT_TOOLS",
+			"vd::TypeId",
+			"GetBaseTypeId",
+			"TypeTraits",
+			"TypeId",
+			"::GetTypeId(",
+			"TypeId::",
+			"",
+			"Value",
+			"v1",
+			"int",
+			"vd::cstr",
+			"NativeTypeTraits",
+			"GetBitSize",
+			"GetEnum",
+			"BaseType::",
+			"BaseTypeTraits",
 			"VD_",
 			"DLL_INTERNAL",
 			"VD_",
@@ -979,24 +861,7 @@
 			"",
 			"m_Config.",
 			"",
-			"RUNTIME",
-			"",
-			"vd::u64",
-			"",
-			"ScopedMutex",
-			"VD_CORE_SCOPE::",
-			"globals::ActiveWindow",
-			"globals::IsExiting",
-			"",
-			"RUNTIME",
-			"INTERFACE",
-			"RENDER",
-			"",
-			"RENDER",
-			"name.GetId()",
-			"index",
-			"vd::u64",
-			"vdGetFunctionFactory"
+			"RUNTIME"
 		],
 		"reverse": false,
 		"show_context": true,
@@ -1007,500 +872,18 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "/Users/dg/Workspace/void/github/source/core/enum.h",
-					"settings":
-					{
-						"buffer_size": 4324,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1274,
-								1274
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "/Users/dg/Workspace/void/github/source/compute/context.cpp",
-					"settings":
-					{
-						"buffer_size": 2054,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1139,
-								1139
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 243.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "/Users/dg/Workspace/void/github/source/graphics/types.h",
-					"settings":
-					{
-						"buffer_size": 2121,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1753,
-								1753
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "/Users/dg/Workspace/void/github/projects/cmake/BuildFramework.cmake",
-					"settings":
-					{
-						"buffer_size": 7020,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4196,
-								4196
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 2420.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "/Users/dg/Workspace/void/github/projects/cmake/BuildSettings.cmake",
-					"settings":
-					{
-						"buffer_size": 2182,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								637,
-								637
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "/Users/dg/Workspace/void/github/source/framework/platform.h",
-					"settings":
-					{
-						"buffer_size": 14909,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								14657,
-								14657
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 5633.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "/Users/dg/Workspace/void/github/apps/gui/widgets.cpp",
-					"settings":
-					{
-						"buffer_size": 8059,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2364,
-								2364
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 563.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "/Users/dg/Workspace/void/github/apps/gui/demo.h",
-					"settings":
-					{
-						"buffer_size": 4024,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3633,
-								3633
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1297.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "/Users/dg/Workspace/void/github/apps/gui/demo.cpp",
-					"settings":
-					{
-						"buffer_size": 13424,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								10049,
-								10051
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 6131.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "/Users/dg/Workspace/void/github/apps/gui/widgets.h",
-					"settings":
-					{
-						"buffer_size": 4873,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3533,
-								3533
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1807.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 10,
-					"file": "/Users/dg/Workspace/void/github/apps/vast/widgets.h",
-					"settings":
-					{
-						"buffer_size": 4566,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4566,
-								4566
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 974.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 11,
-					"file": "/Users/dg/Workspace/void/github/apps/vast/widgets.cpp",
-					"settings":
-					{
-						"buffer_size": 4461,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4461,
-								4461
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 120.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 12,
-					"file": "/Users/dg/Workspace/void/github/source/interface/glut/window.cpp",
-					"settings":
-					{
-						"buffer_size": 21225,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								8626,
-								8631
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 4360.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 13,
-					"file": "/Users/dg/Workspace/void/github/source/interface/window.h",
-					"settings":
-					{
-						"buffer_size": 4584,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2548,
-								2548
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 723.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 14,
-					"file": "/Users/dg/Workspace/void/github/source/interface/cocoa/window.h",
-					"settings":
-					{
-						"buffer_size": 4553,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4063,
-								4063
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1348.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 15,
-					"file": "/Users/dg/Workspace/void/github/source/interface/glut/window.h",
-					"settings":
-					{
-						"buffer_size": 4583,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4119,
-								3917
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1382.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 16,
-					"file": "/Users/dg/Workspace/void/github/source/interface/cocoa/window.cpp",
-					"settings":
-					{
-						"buffer_size": 9927,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2897,
-								2897
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1953.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 17,
-					"file": "/Users/dg/Workspace/void/github/source/interface/cocoa/CustomWindow.m",
-					"settings":
-					{
-						"buffer_size": 5867,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2917,
-								2917
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Objective-C/Objective-C.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1264.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				}
+			]
+		},
+		{
+			"sheets":
+			[
+			]
+		},
+		{
+			"sheets":
+			[
 			]
 		}
 	],
@@ -1521,11 +904,25 @@
 				0,
 				1,
 				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			],
+			[
+				2,
+				0,
+				3,
+				1
 			]
 		],
 		"cols":
 		[
 			0.0,
+			0.404930701307,
+			0.984577421345,
 			1.0
 		],
 		"rows":
@@ -1560,6 +957,6 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 276.0,
+	"side_bar_width": 345.0,
 	"status_bar_visible": true
 }

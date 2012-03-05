@@ -26,7 +26,9 @@
 
 #include "raw.h"
 
+#ifdef __APPLE__
 #include <libc.h>
+#endif
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <sys/types.h>

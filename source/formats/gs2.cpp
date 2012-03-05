@@ -1039,7 +1039,7 @@ GadgetDataset::Open(
 	vdLogInfo("Opening dataset '%s' from '%d-%d' with padded index '%d' ...",
 		m_FilePrefix.c_str(), m_StartFileIndex, m_EndFileIndex, m_FileNumberPadding);
 	
-	m_DataCache.Setup(2 * Constants::GB, 
+	m_DataCache.Setup(2 * Constants::MemorySize::GB, 
 		VD_BIND_MEMBER_FUNCTION(this, &GadgetDataset::OnFetch), 
 		VD_BIND_MEMBER_FUNCTION(this, &GadgetDataset::OnEvict)
 	);

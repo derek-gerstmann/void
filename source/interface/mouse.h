@@ -36,7 +36,6 @@ class Mouse
 public :
 	
 	VD_DECLARE_ENUM(Button,
-		Invalid,
 		Left,
 		Right,
 		Middle,

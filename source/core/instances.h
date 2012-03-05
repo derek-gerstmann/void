@@ -1,9 +1,9 @@
 // ============================================================================================== //
 //
-// License:		The Lesser GNU Public License (LGPL) v3.0.
+// License:     The Lesser GNU Public License (LGPL) v3.0.
 // 
-// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA). 
-//				As well as the shoulders of many giants...
+// Author(s):   Derek Gerstmann. The University of Western Australia (UWA). 
+//              As well as the shoulders of many giants...
 //
 // This file is part of the Void framework.
 //
@@ -22,23 +22,38 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_FRAMEWORK_INCLUDED
-#define VD_FRAMEWORK_INCLUDED
+#ifndef VD_CORE_INSTANCES_INCLUDED
+#define VD_CORE_INSTANCES_INCLUDED
+
+#include "core/core.h"
+#include "core/object.h"
+
+#include <string>
 
 // ============================================================================================== //
 
-#include "framework/version.h"
-#include "framework/namespace.h"
-#include "framework/platform.h"
-#include "framework/visibility.h"
-#include "framework/macros.h"
-#include "framework/preprocess.h"
-#include "framework/enum.h"
-#include "framework/types.h"
+VD_CORE_NAMESPACE_BEGIN();
+
+// ============================================================================================== //
+    
+class InstanceRegistry : public Core::Entity
+{
+public:
+
+    InstanceRegistry() : Entity() {}
+
+    VD_DECLARE_ENTITY(InstanceRegistry, Registry);
+
+protected:
+
+    VD_DISABLE_COPY_CONSTRUCTORS(InstanceRegistry);
+
+};
 
 // ============================================================================================== //
 
-#endif // VD_FRAMEWORK_INCLUDED
+VD_CORE_NAMESPACE_END();
 
 // ============================================================================================== //
-// END FILE
+
+#endif

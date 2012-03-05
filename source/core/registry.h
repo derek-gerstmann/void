@@ -36,7 +36,7 @@ VD_CORE_NAMESPACE_BEGIN();
 // ============================================================================================== //
 
 template<class T>
-class Registry
+class ValueRegistry
 {
 public:
 	typedef T ValueType;
@@ -52,7 +52,7 @@ public:
 		vd::u16 Next;
 	};
 
-	Registry() 
+	ValueRegistry() 
 	:	m_Size(0),
 		m_FreeListHead(0),
 		m_FreeListTail(0)

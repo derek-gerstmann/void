@@ -27,8 +27,7 @@
 #include "core/endian.h"
 #include "core/logging.h"
 #include "core/memory.h"
-#include "constants/constants.h"
-
+#include "core/symbol.h"
 #include <sys/stat.h>
 
 // ============================================================================================== //

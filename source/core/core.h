@@ -29,6 +29,7 @@
 
 #include "vd.h"
 #include "core/namespace.h"
+#include "constants/constants.h"
 #include "core/types.h"
 
 // ============================================================================================== //

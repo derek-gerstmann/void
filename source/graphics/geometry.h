@@ -67,7 +67,6 @@ public:
 		UserAttrib7);
 
     VD_DECLARE_ENUM(PrimitiveType,
-        Invalid,
         Points,
         Lines,
         LineStrip,

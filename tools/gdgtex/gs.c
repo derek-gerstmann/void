@@ -243,8 +243,8 @@ gsSkipToNextBlock(
 	FILE* fh)
 {
     int dummy;
-    fread(&dummy, sizeof(dummy), 1, fh);
-	return dummy;
+    size_t read = fread(&dummy, sizeof(dummy), 1, fh);
+	return read;
 }
 
 #if 0

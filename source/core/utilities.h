@@ -76,6 +76,29 @@ namespace Convert
 
 };
 
+template <typename T>
+inline intptr_t OffsetFrom(T x) {
+  return x - static_cast<T>(0);
+}
+
+template <typename T>
+inline T AddressFrom(intptr_t x) {
+  return static_cast<T>(static_cast<T>(0) + x);
+}
+
+template <typename T, typename U>
+inline bool IsAligned(T value, U alignment) 
+{
+    return (value & (alignment - 1)) == 0;
+}
+
+inline bool IsAddressAligned(
+    vd::address addr, intptr_t alignment, int offset = 0) 
+{
+    intptr_t offs = OffsetFrom(addr + offset);
+    return IsAligned(offs, alignment);
+}
+
 // ============================================================================================== //
 
 VD_CORE_NAMESPACE_END();

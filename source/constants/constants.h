@@ -30,14 +30,9 @@
 #include "vd.h"
 #include "constants/namespace.h"
 #include "constants/types.h"
-
-// ============================================================================================== //
-
-#if defined(VD_USE_EXTRACTED_SYMBOLS)
-#if !defined(VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE)
-#include "constants/extracted/symbols.h"
-#endif
-#endif
+#include "constants/values.h"
+#include "constants/symbols.h"
+#include "core/core.h"
 
 // ============================================================================================== //
 

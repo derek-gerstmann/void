@@ -41,8 +41,8 @@ class MemoryMappedFile : public Object
 public:
 
 	VD_DECLARE_ENUM(AccessMode,
-		Invalid,
 		ReadOnly,
+        WriteOnly,
 		ReadWrite);
 
 	/// Map the specified file into memory

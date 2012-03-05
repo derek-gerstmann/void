@@ -40,7 +40,6 @@ VD_GRAPHICS_NAMESPACE_BEGIN();
 struct ChannelFormat
 {
 	VD_DECLARE_ENUM(Order,
-		Invalid,
 		Alpha,
 		Luminance,
 		R,

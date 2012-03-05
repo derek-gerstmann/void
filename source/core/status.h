@@ -36,7 +36,6 @@ VD_CORE_NAMESPACE_BEGIN();
 struct Status
 {
 	VD_DECLARE_ENUM(Code,
-		Invalid,
 		Success,
 		FatalError,
 		UncaughtException,

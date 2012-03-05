@@ -40,7 +40,6 @@ class Keyboard
 public :
 
 	VD_DECLARE_ENUM(KeyCode,	
-		Invalid,				
 		A, 
 		B, 
 		C, 

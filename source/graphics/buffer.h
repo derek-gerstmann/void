@@ -42,7 +42,6 @@ class Buffer : public Object
 public:
 
 	VD_DECLARE_ENUM(TargetType,
-		Invalid,
 		ArrayBuffer,
 		IndexBuffer,
 		PixelBuffer,
@@ -51,7 +50,6 @@ public:
 		TextureBuffer);
 		
 	VD_DECLARE_ENUM(AttributeType,
-		Invalid,
 		Index,
 		Position,
 		Normal,
@@ -60,7 +58,6 @@ public:
 		UserAttrib);
 
 	VD_DECLARE_ENUM(DataType,
-		Invalid,
 		U8,
 		U16,
 		U32,
@@ -72,19 +69,16 @@ public:
 		F64);
 
 	VD_DECLARE_ENUM(UsageMode,
-		Invalid,
 		Static,
 		Stream,
 		Dynamic);
 
 	VD_DECLARE_ENUM(AccessMode,
-		Invalid,
 		ReadOnly,
 		WriteOnly,
 		ReadWrite);
 
     VD_DECLARE_ENUM(State,
-        Invalid,
         Allocated,
         Orphaned,
         Bound,

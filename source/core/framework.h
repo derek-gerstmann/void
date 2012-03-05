@@ -27,6 +27,7 @@
 
 // ============================================================================================== //
 
+#include "vd.h"
 #include "core/core.h"
 #include "core/types.h"
 #include "core/status.h"

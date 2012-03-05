@@ -29,7 +29,7 @@
 
 #include "core/core.h"
 #include "core/numerics.h"
-#include "constants/constants.h"
+#include "constants/values.h"
 
 // ============================================================================================== //
 
@@ -43,7 +43,13 @@ FastSqrt(const vd::f32 fV);
 vd::f32
 FastRsqrt(const vd::f32 fV);
 
-// ============================================================================================== //
+vd::i32 
+DivideUp(vd::i32 a, vd::i32 b);
+
+vd::u32 
+NearestPowerOfTwo(vd::u32 x);
+
+// --------------------------------------------------------------------------------------------- //
 
 int 
 DilateEven(const int iX);
@@ -51,20 +57,50 @@ DilateEven(const int iX);
 int
 DilateOdd(const int iX);
 
+// --------------------------------------------------------------------------------------------- //
+
 int
 MortonIndex2D(const int row, const int col);
 
 int
 MortonIndex2DPadded(const int row, const int col, const int size);
 
-unsigned int 
-NearestPowerOfTwo(unsigned int x);
+// --------------------------------------------------------------------------------------------- //
 
-unsigned int 
-NextPowerOfTwo(unsigned int x);
+template <typename T>
+int Compare(const T& a, const T& b) {
+    if (a == b)
+        return 0;
+    else if (a < b)
+        return -1;
+    else
+        return 1;
+}
 
-int 
-DivideUp(int a, int b);
+template <typename T>
+int PointerValueCompare(const T* a, const T* b) 
+{
+    return Compare<T>(*a, *b);
+}
+
+inline vd::u32 RoundUpToPowerOf2(vd::u32 x) 
+{
+//    vdGlobalAssert(x <= 0x80000000u);
+    x = x - 1;
+    x = x | (x >> 1);
+    x = x | (x >> 2);
+    x = x | (x >> 4);
+    x = x | (x >> 8);
+    x = x | (x >> 16);
+    return x + 1;
+}
+
+inline vd::u32 RoundDownToPowerOf2(vd::u32 x) 
+{
+    vd::u32 rounded_up = RoundUpToPowerOf2(x);
+    if (rounded_up > x) return rounded_up >> 1;
+    return rounded_up;
+}
 
 // ============================================================================================== //
 
