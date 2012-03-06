@@ -118,6 +118,50 @@ ToUpperCase(const std::string& old)
 	return str;
 }
 
+vd::string 
+FormatString( 
+    const char* fmt, ...)
+{
+    char tmp[512] = {0};
+    char *msg = tmp;
+    va_list iterator;
+
+#if defined(VD_TARGET_WINDOWS)
+
+    va_start(iterator, fmt);
+    size_t size = _vscprintf(fmt, iterator) + 1;
+    if(size >= sizeof(tmp))
+    {
+        // Temp buffer overflow! -- dynamically allocate memory
+        msg = VD_NEW_ARRAY(char, size + 1);
+        Memory::MemSet(msg, 0, size);
+    }
+    vsnprintf_s(msg, size, size - 1, fmt, iterator);
+    va_end(iterator);
+
+#else
+
+    va_start(iterator, fmt);
+    size_t size = vsnprintf(tmp, sizeof(tmp), fmt, iterator);
+    va_end(iterator);
+    if(size >= sizeof(tmp))
+    {
+        // Temp buffer overflow! -- dynamically allocate memory
+        msg = VD_NEW_ARRAY(char, size + 1);
+        Memory::MemSet(msg, 0, size);
+        va_start(iterator, fmt);
+        vsnprintf(msg, size + 1, fmt, iterator);
+        va_end(iterator);
+    }
+
+#endif
+
+    vd::string result(msg);
+    if(msg != tmp)
+        VD_DELETE_ARRAY(msg);
+
+    return result;
+}
 // ============================================================================================== //
 
 } // END NAMESPACE: Convert

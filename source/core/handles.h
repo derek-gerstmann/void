@@ -28,8 +28,6 @@
 // ============================================================================================== //
 
 #include "core/core.h"
-#include "core/atomics.h"
-#include "core/utilities.h"
 
 // ============================================================================================== //
 
@@ -95,8 +93,9 @@ public:
     inline T* Get() { return m_Ptr; }
     inline const T* Get() const { return m_Ptr; }
 
-    inline std::string ToString() const
+    inline vd::string ToString() const
     {
+#if 0
         if(m_Ptr == NULL)
             return FormatString("Handle<%s>[null]",
                                 T::Class->GetName().c_str());
@@ -104,6 +103,8 @@ public:
             return FormatString("Handle<%s>[Handle=%i, ptr=%s]",
                                 m_Ptr->GetMetaClass()->GetName().c_str(),
                                 m_Ptr->GetRefCount(), m_Ptr->ToString().c_str());
+#endif
+        return vd::string("Handle");
     }
 private:
     T* m_Ptr;

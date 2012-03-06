@@ -32,7 +32,6 @@
 
 // ============================================================================================== //
 
-#define VD_ON             			       1
 #define VD_PRAGMA(x)                   _Pragma (#x)
 #define VD_TODO(x)                     VD_PRAGMA(message ("TODO - " #x))
 #define VD_INFO(x)                     VD_PRAGMA(message ("INFO - " #x))
@@ -52,75 +51,75 @@
 
 #if (defined(__i386__) || defined(_M_IX86) || defined(__I86__) || defined(__INTEL__))
   #define VD_ARCH_NAME                   "x86"
-  #define VD_ARCH_X86                    VD_ON
+  #define VD_ARCH_X86                    1
 #elif (defined(__x86_64__) || defined(__x86_64) || defined(_M_X64))
   #define VD_ARCH_NAME                   "x86_64"
-  #define VD_ARCH_X86                    VD_ON
-  #define VD_ARCH_X86_64                 VD_ON
+  #define VD_ARCH_X86                    1
+  #define VD_ARCH_X86_64                 1
 #elif (defined(__amd64__) || defined(__amd64))
   #define VD_ARCH_NAME                   "AMD64"
-  #define VD_ARCH_X86                    VD_ON
-  #define VD_ARCH_X86_64                 VD_ON
+  #define VD_ARCH_X86                    1
+  #define VD_ARCH_X86_64                 1
 #elif (defined(__arm__) || defined(_ARM))
   #define VD_ARCH_NAME                   "ARM"
-  #define VD_ARCH_ARM                    VD_ON
+  #define VD_ARCH_ARM                    1
 #elif (defined(__ppc__) || defined(_M_PPC) || defined(__powerpc__))
   #define VD_ARCH_NAME                   "PPC"
-  #define VD_ARCH_PPC                    VD_ON
+  #define VD_ARCH_PPC                    1
 #elif (defined(__mips__) || defined(_MIPS_ISA))
   #define VD_ARCH_NAME                   "MIPS"
-  #define VD_ARCH_MIPS                   VD_ON
+  #define VD_ARCH_MIPS                   1
 #elif (defined(__ia64__) || defined(_IA64) || defined(__ia64) || defined(_M_IA64) || defined(__itanium__))
   #define VD_ARCH_NAME                   "IA64"
-  #define VD_ARCH_IA64                   VD_ON
+  #define VD_ARCH_IA64                   1
 #else
   #error "Unknown CPU architecture detected!  Please update platform detection for this architecture!"
 #endif
 
 #if (defined(__SIZEOF_POINTER__) && (__SIZEOF_POINTER__ == 4))
-  #define VD_32BIT                       VD_ON
+  #define VD_32BIT                       1
   #define VD_ARCH_BITS                   32
   #define VD_ARCH_BITS_INFO              "32-bit"
   #if defined(VD_64BIT)
        #undef VD_64BIT
   #endif
 #elif (defined(__SIZEOF_POINTER__) && (__SIZEOF_POINTER__ == 8))
-  #define VD_64BIT                       VD_ON
+  #define VD_64BIT                       1
   #define VD_ARCH_BITS                   64
   #define VD_ARCH_BITS_INFO              "64-bit"
   #if defined(VD_32BIT)
        #undef VD_32BIT
   #endif
 #elif (defined(_WIN64) || defined(_M_X64))
-  #define VD_64BIT                       VD_ON
+  #define VD_64BIT                       1
   #define VD_ARCH_BITS                   64
   #define VD_ARCH_BITS_INFO              "64-bit"
   #if defined(VD_32BIT)
        #undef VD_32BIT
   #endif
 #elif (defined(__LP64__) || defined(_LP64))
-  #define VD_64BIT                       VD_ON
+  #define VD_64BIT                       1
   #define VD_ARCH_BITS                   64
   #define VD_ARCH_BITS_INFO              "64-bit"
   #if defined(VD_32BIT)
        #undef VD_32BIT
   #endif
 #elif defined(VD_ARCH_IA64)
-  #define VD_64BIT                       VD_ON
+  #define VD_64BIT                       1
   #define VD_ARCH_BITS                   64
   #define VD_ARCH_BITS_INFO              "64-bit"
   #if defined(VD_32BIT)
        #undef VD_32BIT
   #endif
 #elif defined(VD_ARCH_X86_64)
-  #define VD_64BIT                       VD_ON
+  #define VD_64BIT                       1
   #define VD_ARCH_BITS                   64
   #define VD_ARCH_BITS_INFO              "64-bit"
   #if defined(VD_32BIT)
        #undef VD_32BIT
   #endif
 #elif defined(VD_ARCH_X86)
-  #define VD_32BIT                       VD_ON
+  #define VD_32BIT                       1
   #define VD_ARCH_BITS                   32
   #define VD_ARCH_BITS_INFO              "32-bit"
   #if defined(VD_64BIT)
@@ -175,25 +174,25 @@
 #if defined(__WIN32__)
   #define WIN32_LEAN_AND_MEAN
   #include <windows.h>
-  #define VD_TARGET_WINDOWS              VD_ON
+  #define VD_TARGET_WINDOWS              1
   #define VD_TARGET_OS_NAME              "Windows"
 #elif defined(__MACOSX__) 
   #include <AvailabilityMacros.h>
   #include <sys/sysctl.h>
   #include <mach-o/dyld.h>
-  #define VD_USE_POSIX               	   VD_ON
-  #define VD_TARGET_OSX		               VD_ON
+  #define VD_USE_POSIX               	   1
+  #define VD_TARGET_OSX		               1
   #define VD_TARGET_OS_NAME 		         "OSX"
 #elif defined(__LINUX__)
-  #define VD_USE_POSIX                   VD_ON
-  #define VD_TARGET_LINUX	               VD_ON
+  #define VD_USE_POSIX                   1
+  #define VD_TARGET_LINUX	               1
   #define VD_TARGET_OS_NAME 		         "Linux"
 #elif defined(__UNIX__)
   #include <unistd.h>
   #if defined(_POSIX_VERSION)
-  #define VD_USE_POSIX                   VD_ON
+  #define VD_USE_POSIX                   1
   #endif
-  #define VD_TARGET_UNIX		             VD_ON
+  #define VD_TARGET_UNIX		             1
   #define VD_TARGET_OS_NAME 		         "Unix"
 #else
   #error "Failed to detect Operating System!  Please update platform detection for this OS!"
@@ -205,26 +204,26 @@
 
 #if defined(__clang__)
   #define VD_COMPILER_NAME               "clang"
-  #define VD_COMPILER_CLANG               VD_ON
+  #define VD_COMPILER_CLANG               1
 #elif defined(__llvm__)
   #define VD_COMPILER_NAME               "llvm-gcc"
-  #define VD_COMPILER_LLVM               VD_ON
-  #define VD_COMPILER_GCC                VD_ON
+  #define VD_COMPILER_LLVM               1
+  #define VD_COMPILER_GCC                1
 #elif defined(__GNUC__)
   #define VD_COMPILER_NAME               "gcc"
-  #define VD_COMPILER_GCC                VD_ON
+  #define VD_COMPILER_GCC                1
 #elif defined(_MSC_VER)
   #define VD_COMPILER_NAME               "msvc"
-  #define VD_COMPILER_MSVC               VD_ON
+  #define VD_COMPILER_MSVC               1
 #elif defined(__MINGW32__)
   #define VD_COMPILER_NAME               "mingw32"
-  #define VD_COMPILER_MINGW              VD_ON
+  #define VD_COMPILER_MINGW              1
 #elif defined(__MINGW64__)
   #define VD_COMPILER_NAME               "mingw64"
-  #define VD_COMPILER_MINGW              VD_ON
+  #define VD_COMPILER_MINGW              1
 #elif (defined(__INTEL_COMPILER) || defined(__ICC))
   #define VD_COMPILER_NAME               "icc"
-  #define VD_COMPILER_ICC                VD_ON
+  #define VD_COMPILER_ICC                1
 #else
   #error "Unknown compiler detected!  Please update platform detection for this compiler!"
 #endif
@@ -358,7 +357,7 @@
 #define vdDebugBreak()       		       asm ("int $3")
 
 #if (__GNUC__ >= 4)
-#define VD_USE_GCC_ATOMICS		         VD_ON
+#define VD_USE_GCC_ATOMICS		         1
 #endif
 
 // ============================================================================================== //

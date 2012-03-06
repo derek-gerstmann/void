@@ -37,6 +37,8 @@
 #include "framework/limits.h"
 #include "framework/types.h"
 #include "framework/traits.h"
+#include "core/namespace.h"
+#include "core/types.h"
 
 // ============================================================================================== //
 

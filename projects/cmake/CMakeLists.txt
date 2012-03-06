@@ -49,6 +49,7 @@ include(BuildExternalTools)
 include(BuildExternal)
 include(BuildPlatform)
 include(UseFramework)
+include(UseSymbols)
 
 if(VOID_BUILD_TOOLS)
 message(STATUS "Building tools ...")

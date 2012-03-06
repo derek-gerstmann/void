@@ -68,6 +68,7 @@ public:
 
 // ============================================================================================== //
 
+#if !defined(vdException)
 #if defined(VD_NDEBUG) || defined(VD_RELEASE_BUILD)
 
 // ============================================================================================== //
@@ -81,20 +82,22 @@ public:
 
 // ============================================================================================== //
     
-/// Object specific exception with a custom error message
-#define vdException(exception, explanation)  do { \
-    vdLogError("Exception \"%s\" caught in %s:%i (" explanation ")", \
-        #exception, __FILE__, __LINE__); \
+/// Scope specific exception with a custom error message
+#define vdException(exception, fmt, ...)  do {                                                      \
+        vdLogError("Exception '%s' caught in %s:%i!", #exception, __FILE__, __LINE__);              \
+        vdLogError(fmt, ## __VA_ARGS__);                                                            \
     } while (0)
     
 /// Global exception with a custom error message
-#define vdGlobalException(exception, explanation)  do { \
-    vdLogGlobalError("Exception \"%s\" caught in %s:%i (" explanation ")", \
-        #exception, __FILE__, __LINE__); \
+#define vdGlobalException(exception, fmt, ...)  do {                                                \
+        vdLogGlobalError("Exception '%s' caught in %s:%i!", #exception, __FILE__, __LINE__);        \
+        vdLogGlobalError(fmt, ## __VA_ARGS__);                                                      \
     } while (0)
     
+    
 #endif
-
+#endif
+    
 // ============================================================================================== //
 
 VD_CORE_NAMESPACE_END();

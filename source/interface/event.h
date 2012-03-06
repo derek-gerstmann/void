@@ -44,7 +44,7 @@ class Event
 
 public :
 
-	typedef VD_CORE_SCOPE::Function< vd::status ( const Event& ) > Callback;
+	typedef Core::Function< vd::status ( const Event& ) > Callback;
 	
 	VD_DECLARE_ENUM(Type,
         Startup,                 
@@ -87,13 +87,13 @@ public :
 
     struct TextEvent
     {
-        vd::u32 Unicode; 
+        vd::u32              Unicode; 
     };
 
     struct MouseMoveEvent
     {
-        vd::i32 X; 
-        vd::i32 Y; 
+        vd::i32              X; 
+        vd::i32              Y; 
     };
 
     struct MouseButtonEvent
@@ -105,14 +105,14 @@ public :
 
     struct MouseWheelEvent
     {
-        int Delta; 
-        vd::i32 X;     
-        vd::i32 Y;     
+        int                  Delta; 
+        vd::i32              X;     
+        vd::i32              Y;     
     };
 
 	struct UpdateEvent
 	{
-		vd::f64 Time;		
+		vd::f64              Time;		
 	};
 	
     union

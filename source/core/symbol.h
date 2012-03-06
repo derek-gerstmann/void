@@ -49,7 +49,7 @@ private:
 public:
 
 	explicit Symbol();
-	explicit Symbol(const vd::uid hash, const char* str, bool track=true);
+	explicit Symbol(const vd::uid key, const char* str, bool track=true);
 	explicit Symbol(const char* str);
 	Symbol(const Symbol& other);
 	virtual ~Symbol();
@@ -63,7 +63,7 @@ public:
 	operator const char* () const { return m_Str; }
 	const char* c_str() const { return m_Str; }
 	const char* GetStr() const { return m_Str; }
-	vd::uid GetHash() const { return m_Hash; }
+	vd::uid GetKey() const { return m_Key; }
 	vd::u64 GetId() const { return m_Id; }
 	bool IsValid() const;
 
@@ -84,7 +84,7 @@ protected:
 private:
 
 	vd::u64 m_Id;
-	vd::uid m_Hash;
+	vd::uid m_Key;
 	const char* m_Str;
 };
 
@@ -95,7 +95,7 @@ struct SymbolEqualTo
 {
     bool operator()(Symbol const& x, Symbol const& y) const
     {
-    	return x.GetHash() == y.GetHash();
+    	return x.GetKey() == y.GetKey();
     }
 };
 
@@ -104,7 +104,7 @@ struct SymbolHash
 {
     vd::uid operator()(Symbol const& x) const
     {
-    	return x.GetHash();
+    	return x.GetKey();
     }
 };
 

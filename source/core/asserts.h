@@ -41,11 +41,11 @@ VD_CORE_NAMESPACE_BEGIN();
 // ============================================================================================== //
 
 #define vdAssert(cond) ((void) 0)
-#define vdAssertMsg(cond, explanation) ((void) 0)
+#define vdAssertMsg(cond, fmt, ...) ((void) 0)
 #define vdGlobalAssert(cond) ((void) 0)
-#define vdGlobalAssertMsg(cond, explanation) ((void) 0)
-#define vdException(cond, explanation) ((void) 0)
-#define vdGlobalException(cond, explanation) ((void) 0)
+#define vdGlobalAssertMsg(cond, fmt, ...) ((void) 0)
+#define vdException(cond, fmt, ...) ((void) 0)
+#define vdGlobalException(cond, fmt, ...) ((void) 0)
 
 // ============================================================================================== //
 
@@ -53,48 +53,46 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-/// Object specific assertion with a custom error message
+/// Scope specific assertion with a custom error message
 #define vdAssert(cond) do { \
-	if (((cond) ? false : true)) { \
-		vdLogError("Assertion \"%s\" failed in %s:%i", \
-					#cond, __FILE__, __LINE__); \
-		} \
+	if (((cond) ? false : true)) { 																	\
+			vdLogError("Assertion \"%s\" failed in %s:%i!", #cond, __FILE__, __LINE__);				\
+		} 																							\
 	} while (0)
 
 /// Global assertion with a custom error message
-#define vdGlobalAssert(cond) do { \
-	if (((cond) ? false : true)) { \
-		vdLogGlobalError("Assertion \"%s\" failed in %s:%i", \
-			#cond, __FILE__, __LINE__); \
-		} \
+#define vdGlobalAssert(cond) do { 																	\
+	if (((cond) ? false : true)) { 																	\
+			vdLogGlobalError("Assertion \"%s\" failed in %s:%i!", #cond, __FILE__, __LINE__);		\
+		} 																							\
 	} while (0)
 
-/// Object specific assertion with a custom error message
-#define vdAssertMsg(cond, explanation) do { \
-	if (((cond) ? false : true)) { \
-		vdLogError("Assertion \"%s\" failed in %s:%i (" explanation ")", \
-			#cond, __FILE__, __LINE__); \
-		} \
+/// Scope specific assertion with a custom error message
+#define vdAssertMsg(cond, fmt, ...) do { 															\
+	if (((cond) ? false : true)) { 																	\
+			vdLogError("Assertion '%s' failed in %s:%i!", #cond, __FILE__, __LINE__);				\
+			vdLogError(fmt, ## __VA_ARGS__); 														\
+		} 																							\
 	} while (0)
 
 /// Global assertion with a custom error message
-#define vdGlobalAssertMsg(cond, explanation) do { \
-	if (((cond) ? false : true)) { \
-		vdLogGlobalError("Assertion \"%s\" failed in %s:%i (" explanation ")", \
-			#cond, __FILE__, __LINE__); \
-		} \
+#define vdGlobalAssertMsg(cond, fmt, ...) do { 														\
+		if (((cond) ? false : true)) { 																\
+			vdLogGlobalError("Assertion '%s' failed in %s:%i!", #cond, __FILE__, __LINE__);			\
+			vdLogGlobalError(fmt, ## __VA_ARGS__); 													\
+		} 																							\
 	} while (0)
 	
-/// Object specific exception with a custom error message
-#define vdException(exception, explanation)  do { \
-	vdLogError("Exception \"%s\" caught in %s:%i (" explanation ")", \
-		#exception, __FILE__, __LINE__); \
+/// Scope specific exception with a custom error message
+#define vdException(exception, fmt, ...)  do { 														\
+		vdLogError("Exception '%s' caught in %s:%i!", #exception, __FILE__, __LINE__);				\
+		vdLogError(fmt, ## __VA_ARGS__); 															\
 	} while (0)
 	
 /// Global exception with a custom error message
-#define vdGlobalException(exception, explanation)  do { \
-	vdLogGlobalError("Exception \"%s\" caught in %s:%i (" explanation ")", \
-		#exception, __FILE__, __LINE__); \
+#define vdGlobalException(exception, fmt, ...)  do {											    \
+		vdLogGlobalError("Exception '%s' caught in %s:%i!", #exception, __FILE__, __LINE__);		\
+		vdLogGlobalError(fmt, ## __VA_ARGS__); 														\
 	} while (0)
 	
 #endif

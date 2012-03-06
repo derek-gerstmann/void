@@ -299,10 +299,10 @@ GenerateDigest(
 		std::stringstream stream;
 		
 		vd::uid id = Hashing::Murmur(it->c_str(), it->length());
-    	if(id.high() == 0)
-        	stream << std::hex << "0x" << id.low() << "ULL" << std::dec;
+    	if(id.GetUpper() == 0)
+        	stream << std::hex << "0x" << id.GetLower() << "ULL" << std::dec;
 	    else
-    	    stream << std::hex << "0x" << id.high() << "ULL, " << "0x" << id.low() << "ULL" << std::dec;
+    	    stream << std::hex << "0x" << id.GetUpper() << "ULL, " << "0x" << id.GetLower() << "ULL" << std::dec;
     	   
 		digests.push_back( stream.str() );
 	}

@@ -46,7 +46,6 @@ class SphPointBasedRenderer : public Object
 public:
     
 	VD_DECLARE_ENUM(DisplayMode,
-		Invalid,
 		Points,
 		Splats);
 

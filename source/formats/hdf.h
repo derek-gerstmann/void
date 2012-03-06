@@ -31,12 +31,15 @@
 
 // ============================================================================================== //
 
+#include <hdf5.h>
+#include "vd.h"
 #include "formats/formats.h"
 #include "core/core.h"
 #include "core/status.h"
 #include "core/entity.h"
 #include "core/memory.h"
 #include "core/atomics.h"
+#include "core/utilities.h"
 #include "core/workqueue.h"
 #include "runtime/runtime.h"
 #include "runtime/context.h"
@@ -48,71 +51,117 @@ VD_FORMATS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-#include <hdf5.h>
+namespace Hdf
+{
 
 // ============================================================================================== //
 
-namespace Hdf
-{
+// Built-in compression modules
+VD_DECLARE_ENUM(Compressor,
+    None, 
+    Deflate,
+    Shuffle,
+    Fletcher,
+    SZip,
+    NBit,
+    ScaleOffset);
+
+// Compile time enabled features
+VD_DECLARE_ENUM(Feature,
+    ZLib,
+    SZip,
+    Parallel,
+    MPI);
+
+// ============================================================================================== //
+
+template <typename T>
+struct TypeConverter 
+{  
+    static hid_t ToNative() 
+    {
+        return 0;
+    }
+};
+
+template <> inline hid_t TypeConverter<vd::i8>::ToNative()       { return H5T_NATIVE_CHAR;  }
+template <> inline hid_t TypeConverter<vd::i16>::ToNative()      { return H5T_NATIVE_SHORT; }
+template <> inline hid_t TypeConverter<vd::i32>::ToNative()      { return H5T_NATIVE_INT; }
+template <> inline hid_t TypeConverter<vd::i64>::ToNative()      { return H5T_NATIVE_LONG; }
+template <> inline hid_t TypeConverter<vd::u8>::ToNative()       { return H5T_NATIVE_UCHAR; }
+template <> inline hid_t TypeConverter<vd::u16>::ToNative()      { return H5T_NATIVE_USHORT; }
+template <> inline hid_t TypeConverter<vd::u32>::ToNative()      { return H5T_NATIVE_UINT; }
+template <> inline hid_t TypeConverter<vd::u64>::ToNative()      { return H5T_NATIVE_ULONG; }
+template <> inline hid_t TypeConverter<vd::f16>::ToNative()      { return H5T_NATIVE_USHORT; }
+template <> inline hid_t TypeConverter<vd::f32>::ToNative()      { return H5T_NATIVE_FLOAT; }
+template <> inline hid_t TypeConverter<vd::f64>::ToNative()      { return H5T_NATIVE_DOUBLE; }
 
 // ============================================================================================== //
 
 class Entity
 {
 public:
-    Entity() : m_HdfId(-1)   { }
-    hid_t GetHdfId() const   { return m_HdfId; }
-    operator hid_t()         { return m_HdfId; }
+    Entity() : m_Hid(-1)    { }
+    hid_t GetHid() const    { return m_Hid; }
+    operator hid_t()        { return m_Hid; }
 protected:
-    hid_t m_HdfId;
+    hid_t m_Hid;
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
-class AttriDataAccess : public Hdf::Entity
+class AttribDataAccess : public Hdf::Entity
 {
 public:
 
-    AttriDataAccess(hid_t location, const vd::string& name)
+    AttribDataAccess(
+        hid_t location, 
+        const vd::string& name)
     {
-        m_HdfId = H5Aopen(location, name.c_str(), H5P_DEFAULT);
-        if(m_HdfId < 0)
-            vdLogGlobalError("Couldn't open attribute " + name);
+        m_Hid = H5Aopen(location, name.c_str(), H5P_DEFAULT);
+        if(m_Hid < 0)
+            vdLogGlobalError("Couldn't open attribute: '%s'", name.c_str());
     }
 
-    AttriDataAccess(hid_t location, const vd::string& name, hid_t aapl_id)
+    AttribDataAccess(
+        hid_t location, 
+        const vd::string& name, 
+        hid_t aapl_id)
     {
-        m_HdfId = H5Aopen(location, name.c_str(), aapl_id);
+        m_Hid = H5Aopen(location, name.c_str(), aapl_id);
 
-        if(m_HdfId < 0)
-            vdLogGlobalError("Couldn't open attribute " + name);
+        if(m_Hid < 0)
+            vdLogGlobalError("Couldn't open attribute: '%s'", name.c_str());
     }
 
-    ~AttriDataAccess()
+    ~AttribDataAccess()
     {
-        if(m_HdfId >= 0)
-            H5Aclose(m_HdfId);
+        if(m_Hid >= 0)
+            H5Aclose(m_Hid);
     }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
-class ScopedAttributeIdx : public Hdf::Entity
+class AttribIdxAccess : public Hdf::Entity
 {
 public:
-    ScopedAttributeIdx(hid_t location, unsigned idx)
-    {
-        m_HdfId = H5Aopen_idx(location, idx);
 
-        if(m_HdfId < 0)
+    AttribIdxAccess(
+        hid_t location, 
+        unsigned idx)
+    {
+        m_Hid = H5Aopen_idx(location, idx);
+
+        if(m_Hid < 0)
         {
-            vdLogGlobalError("Couldn't open attribute at index: ", ToString(idx));
+            vdLogGlobalError("Couldn't open attribute at index: '%d'", idx);
         }
     }
-    ~ScopedAttributeIdx()
+    ~AttribIdxAccess()
     {
-        if(m_HdfId >= 0)
-            H5Aclose(m_HdfId);
+        if(m_Hid >= 0)
+            H5Aclose(m_Hid);
     }
 };
 
@@ -121,22 +170,23 @@ public:
 class GroupCreate : public Hdf::Entity
 {
 public:
-    GroupCreate(hid_t parentLocation, const vd::string& name)
+    
+    GroupCreate(
+        hid_t location, 
+        const vd::string& name)
     {
-        m_HdfId = H5Gcreate(parentLocation, name.c_str(),
-                         H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        m_Hid = H5Gcreate(location, name.c_str(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
     }
-    GroupCreate(hid_t parentLocation, const vd::string& name,
-                    hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id)
+
+    GroupCreate(hid_t location, const vd::string& name, hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id)
     {
-        m_HdfId = H5Gcreate(parentLocation, name.c_str(),
-                         lcpl_id, gcpl_id, gapl_id);
+        m_Hid = H5Gcreate(location, name.c_str(), lcpl_id, gcpl_id, gapl_id);
     }
 
     ~GroupCreate()
     {
-        if(m_HdfId >= 0)
-            H5Gclose(m_HdfId);
+        if(m_Hid >= 0)
+            H5Gclose(m_Hid);
     }
 };
 
@@ -145,76 +195,82 @@ public:
 class GroupAccess : public Hdf::Entity
 {
 public:
+
     GroupAccess()
         : Hdf::Entity()
     {
         // Empty
     }
-    GroupAccess(hid_t parentLocation, const vd::string& name)
+    
+    GroupAccess(hid_t location, const vd::string& name)
     {
-        Open(parentLocation, name);
+        Open(location, name);
     }
-    GroupAccess(hid_t parentLocation, const vd::string& name, hid_t gapl_id)
+    
+    GroupAccess(hid_t location, const vd::string& name, hid_t gapl_id)
     {
-        Open(parentLocation, name, gapl_id);
+        Open(location, name, gapl_id);
     }
-    void Open(hid_t parentLocation, const vd::string& name)
+    
+    void Open(hid_t location, const vd::string& name)
     {
-        m_HdfId = H5Gopen(parentLocation, name.c_str(), H5P_DEFAULT);
+        m_Hid = H5Gopen(location, name.c_str(), H5P_DEFAULT);
     }
-    void Open(hid_t parentLocation, const vd::string& name, hid_t gapl_id)
+    
+    void Open(hid_t location, const vd::string& name, hid_t gapl_id)
     {
-        m_HdfId = H5Gopen(parentLocation, name.c_str(), gapl_id);
+        m_Hid = H5Gopen(location, name.c_str(), gapl_id);
     }
 
     ~GroupAccess()
     {
-        if(m_HdfId >= 0)
-            H5Gclose(m_HdfId);
+        if(m_Hid >= 0)
+            H5Gclose(m_Hid);
     }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
-class SpaceCreate : public Hdf::Entity
+class SpaceCreator : public Hdf::Entity
 {
 public:
-    SpaceCreate()
+    SpaceCreator()
         : Hdf::Entity()
     {
         // Empty
     }
-    SpaceCreate(H5S_class_t type)
+    SpaceCreator(H5S_class_t type)
     {
         Create(type);
     }
     void Create(H5S_class_t type)
     {
-        m_HdfId = H5Screate(type);
+        m_Hid = H5Screate(type);
     }
-    ~SpaceCreate()
+    ~SpaceCreator()
     {
-        if(m_HdfId >= 0)
-            H5Sclose(m_HdfId);
+        if(m_Hid >= 0)
+            H5Sclose(m_Hid);
     }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
-class DatasetCreate : public Hdf::Entity
+class DataCreator : public Hdf::Entity
 {
 public:
-    DatasetCreate(hid_t parentLocation, const vd::string& name,
-                    hid_t dtype_id, hid_t space_id, hid_t lcpl_id,
-                    hid_t dcpl_id, hid_t dapl_id)
+    DataCreator(
+        hid_t location, 
+        const vd::string& name,
+        hid_t dtype_id, hid_t space_id, hid_t lcpl_id,
+        hid_t dcpl_id, hid_t dapl_id)
     {
-        m_HdfId = H5Dcreate(parentLocation, name.c_str(), dtype_id, space_id,
-                         lcpl_id, dcpl_id, dapl_id);
+        m_Hid = H5Dcreate(location, name.c_str(), dtype_id, space_id, lcpl_id, dcpl_id, dapl_id);
     }
-    ~DatasetCreate()
+    ~DataCreator()
     {
-        if(m_HdfId >= 0)
-            H5Dclose(m_HdfId);
+        if(m_Hid >= 0)
+            H5Dclose(m_Hid);
     }
 };
 
@@ -225,15 +281,14 @@ class AttribSpaceAccess : public Hdf::Entity
 public:
     AttribSpaceAccess(hid_t dataset_id)
     {
-        m_HdfId = H5Aget_space(dataset_id);
-
-        if(m_HdfId < 0)
-            vdLogGlobalError("Couldn't get attribute space");
+        m_Hid = H5Aget_space(dataset_id);
+        if(m_Hid < 0)
+            vdLogGlobalError("Couldn't get attribute space for dataset: '%d'", (int)dataset_id);
     }
     ~AttribSpaceAccess()
     {
-        if(m_HdfId >= 0)
-            H5Sclose(m_HdfId);
+        if(m_Hid >= 0)
+            H5Sclose(m_Hid);
     }
 };
 
@@ -244,15 +299,14 @@ class AttribTypeAccess : public Hdf::Entity
 public:
     AttribTypeAccess(hid_t dataset_id)
     {
-        m_HdfId = H5Aget_type(dataset_id);
-
-        if(m_HdfId < 0)
-           vdLogGlobalError("Couldn't get attribute type");
+        m_Hid = H5Aget_type(dataset_id);
+        if(m_Hid < 0)
+           vdLogGlobalError("Couldn't get attribute type: '%d'", (int)dataset_id);
     }
     ~AttribTypeAccess()
     {
-        if(m_HdfId >= 0)
-            H5Tclose(m_HdfId);
+        if(m_Hid >= 0)
+            H5Tclose(m_Hid);
     }
 };
 
@@ -263,92 +317,91 @@ class NativeTypeAccess : public Hdf::Entity
 public:
     NativeTypeAccess(hid_t dataset_id, H5T_direction_t direction)
     {
-        m_HdfId = H5Tget_native_type(dataset_id, direction);
-
-        if(m_HdfId < 0)
-            vdLogGlobalError("Couldn't get native attribute type");
+        m_Hid = H5Tget_native_type(dataset_id, direction);
+        if(m_Hid < 0)
+            vdLogGlobalError("Couldn't get native attribute type: '%d'", (int)dataset_id);
     }
     ~NativeTypeAccess()
     {
-        if(m_HdfId >= 0)
-            H5Tclose(m_HdfId);
+        if(m_Hid >= 0)
+            H5Tclose(m_Hid);
     }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
-class DatasetAccess : public Hdf::Entity
+class DataAccess : public Hdf::Entity
 {
 public:
-    DatasetAccess()
+    DataAccess()
         : Hdf::Entity()
     {
         // Empty
     }
-    DatasetAccess(hid_t parentLocation, const vd::string& name, hid_t dapl_id)
+    DataAccess(hid_t location, const vd::string& name, hid_t dapl_id)
     {
-        Open(parentLocation, name, dapl_id);
+        Open(location, name, dapl_id);
     }
-    void Open(hid_t parentLocation, const vd::string& name, hid_t dapl_id)
+    void Open(hid_t location, const vd::string& name, hid_t dapl_id)
     {
-        m_HdfId = H5Dopen(parentLocation, name.c_str(), dapl_id);
+        m_Hid = H5Dopen(location, name.c_str(), dapl_id);
     }
-    ~DatasetAccess()
+    ~DataAccess()
     {
-        if(m_HdfId >= 0)
+        if(m_Hid >= 0)
         {
-            H5Dclose(m_HdfId);
+            H5Dclose(m_Hid);
         }
     }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
-class DatasetSpaceAccess : public Hdf::Entity
+class DataSpaceAccess : public Hdf::Entity
 {
 public:
-    DatasetSpaceAccess()
+    DataSpaceAccess()
         : Hdf::Entity()
     {
         // Empty
     }
-    DatasetSpaceAccess(hid_t dataset_id)
+    DataSpaceAccess(hid_t dataset_id)
     {
         Open(dataset_id);
     }
     void Open(hid_t dataset_id)
     {
-        m_HdfId = H5Dget_space(dataset_id);
+        m_Hid = H5Dget_space(dataset_id);
     }
-    ~DatasetSpaceAccess()
+    ~DataSpaceAccess()
     {
-        if(m_HdfId >= 0)
-            H5Sclose(m_HdfId);
+        if(m_Hid >= 0)
+            H5Sclose(m_Hid);
     }
 };
 
 // ---------------------------------------------------------------------------------------------- //
 
-class DatasetTypeAccess : public Hdf::Entity
+class DataTypeAccess : public Hdf::Entity
 {
 public:
-    DatasetTypeAccess()
+    DataTypeAccess()
         : Hdf::Entity()
     {
         // Empty
     }
-    DatasetTypeAccess(hid_t dataset_id)
+    DataTypeAccess(hid_t dataset_id)
     {
         Open(dataset_id);
     }
     void Open(hid_t dataset_id)
     {
-        m_HdfId = H5Dget_type(dataset_id);
+        m_Hid = H5Dget_type(dataset_id);
     }
-    ~DatasetTypeAccess()
+    ~DataTypeAccess()
     {
-        if(m_HdfId >= 0)
-            H5Tclose(m_HdfId);
+        if(m_Hid >= 0)
+            H5Tclose(m_Hid);
     }
 };
 
@@ -367,7 +420,7 @@ void ReadData(
     std::vector<T> &data);
 
 bool ReadAttribute(
-    hid_t location, c
+    hid_t location,
     const vd::string& name,
     vd::string& value);
 
@@ -414,7 +467,8 @@ bool WriteAttribute(
 
 // ---------------------------------------------------------------------------------------------- //
 
-bool IsSupported(Hdf::Support::Value value);
+bool IsSupported(Hdf::Feature::Value value);
+bool IsSupported(Hdf::Compressor::Value value);
 
 // ============================================================================================== //
 // Templated functions and classes
@@ -426,28 +480,25 @@ void WriteData(
     const vd::string& name,
     const std::vector<T> &data)
 {
-    hsize_t totalSize[1];
-    int components = Traits<T>::Dimensions();
-    totalSize[0] = data.size() * components;
+    hsize_t total_bytes[1];
+    int components = Core::TypeTraits<T>::GetComponents();
+    total_bytes[0] = data.size() * components;
+    hid_t type = Hdf::TypeConverter<T>::ToNative();
 
-    // Get the internal data type
-    hid_t type = DataTypeTraits<T>::Type();
+    SpaceCreator data_space(H5S_SIMPLE);
 
-    ScopedSpaceCreate dataSpace(H5S_SIMPLE);
-
-    if(dataSpace.GetHdfId() < 0)
+    if(data_space.GetHid() < 0)
         vdLogGlobalError("Couldn't create data space");
 
-    H5Sset_extent_simple(dataSpace.GetHdfId(), 1, totalSize, NULL);
+    H5Sset_extent_simple(data_space.GetHid(), 1, total_bytes, NULL);
 
-    ScopedDatasetCreate dataset(location, name.c_str(), type, dataSpace.GetHdfId(),
+    DataCreator data_access(location, name.c_str(), type, data_space.GetHid(),
                             H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
-    if(dataset.GetHdfId() < 0)
+    if(data_access.GetHid() < 0)
         vdLogGlobalError("Couldn't create data set");
 
-    hid_t err = H5Dwrite(dataset.GetHdfId(), type, H5S_ALL, H5S_ALL,
-                         H5P_DEFAULT, &data[0]);
+    hid_t err = H5Dwrite(data_access.GetHid(), type, H5S_ALL, H5S_ALL, H5P_DEFAULT, &data[0]);
 
     if(err < 0)
         vdLogGlobalError("Couldn't write data");
@@ -461,41 +512,40 @@ void ReadData(
     const vd::string& name,
     std::vector<T> &data)
 {
-    int components = FieldTraits<T>::dataDims();
+    int components = Core::TypeTraits<T>::GetComponents();
     hsize_t dims[1];
 
-    DatasetAccess dataset(location, name.c_str(), H5P_DEFAULT);
+    DataAccess data_access(location, name.c_str(), H5P_DEFAULT);
+    if(data_access.GetHid() < 0)
+        vdLogGlobalError("Couldn't open data set: '%s'", name.c_str());
 
-    if(dataset.GetHdfId() < 0)
-        vdLogGlobalError("Couldn't open data set: " + name);
+    DataSpaceAccess data_space(data_access.GetHid());
+    DataTypeAccess data_type(data_access.GetHid());
+    H5Sget_simple_extent_dims(data_space.GetHid(), dims, NULL);
 
-    DatasetSpaceAccess dataSpace(dataset.GetHdfId());
-    DatasetTypeAccess dataType(dataset.GetHdfId());
-    H5Sget_simple_extent_dims(dataSpace.GetHdfId(), dims, NULL);
+    if(data_space.GetHid() < 0)
+        vdLogGlobalError("Couldn't get data space: '%s'", name.c_str());
 
-    if(dataSpace.GetHdfId() < 0)
-        vdLogGlobalError("Couldn't get data space");
+    if(data_type.GetHid() < 0)
+        vdLogGlobalError("Couldn't get data type: '%s'", name.c_str());
 
-    if(dataType.GetHdfId() < 0)
-        vdLogGlobalError("Couldn't get data type");
+    int result_size = dims[0] / components;
 
-    int reportedSize = dims[0] / components;
-
-    // Resize target
     data.clear();
-    data.resize(reportedSize);
+    data.resize(result_size);
 
-    // Get the internal data type
-    hid_t type = DataTypeTraits<T>::Type();
-
-    if(H5Dread(dataset.GetHdfId(), type, H5S_ALL, H5S_ALL,
-               H5P_DEFAULT, &data[0]) < 0)
+    hid_t type = Hdf::TypeConverter<T>::ToNative();
+    if(H5Dread(data_access.GetHid(), type, H5S_ALL, H5S_ALL, H5P_DEFAULT, &data[0]) < 0)
     {
         vdLogGlobalError("Couldn't read simple data");
     }
 }
 
-// ============================================================================================== //
+// ---------------------------------------------------------------------------------------------- //
+
+}   // END NAMESPACE: Hdf
+
+// ---------------------------------------------------------------------------------------------- //
 
 VD_FORMATS_NAMESPACE_END();
 

@@ -41,7 +41,6 @@ class TiledRenderer : public Object
 public:
 
     VD_DECLARE_ENUM(RowOrder,
-                    Invalid,
                     TopToBottom,
                     BottomToTop);
 

@@ -32,7 +32,6 @@
 #include "constants/types.h"
 #include "constants/values.h"
 #include "constants/symbols.h"
-#include "core/core.h"
 
 // ============================================================================================== //
 

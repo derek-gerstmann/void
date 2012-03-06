@@ -36,6 +36,7 @@
 #include "core/logging.h"
 #include "core/threading.h"
 #include "core/registry.h"
+#include "core/utilities.h"
 
 #include <cstring>
 
@@ -79,14 +80,14 @@ public:
 	vd::uid Add(Symbol& symbol)
 	{
 		if(symbol.IsValid() == false)
-			return vd::uid::Zero;
+			return Constants::Zero;
 
 		if(symbol.m_Str != NULL)
 		{
 			vd::u64 index = 0;
-			vd::uid key = symbol.m_Hash;
+			vd::uid key = symbol.m_Key;
 			vd::string str = vd::string(symbol.m_Str);
-			if(key == vd::uid::Zero)
+			if(key == Constants::Zero)
 			{
 				key = Hashing::Murmur(str.c_str(), str.length());
 			}
@@ -97,17 +98,17 @@ public:
 				index = m_StringTable.size();
 				m_StringTable.push_back(str);
 				symbol.m_Str = m_StringTable[index].c_str();
-				symbol.m_Hash = key;
+				symbol.m_Key = key;
 				symbol.m_Id = index;
 				m_SymbolMap[key] = symbol;
 
 				vdLogInfo("Symbol[%s] : Adding symbol [%02d] : [%s] '%s'", 
-					str.c_str(), index, key.ToString().c_str(), AsString(symbol));
+					str.c_str(), index, Convert::ToString(key).c_str(), AsString(symbol));
 			}
 			return key;
 		}
 
-		return vd::uid::Zero;
+		return Constants::Zero;
 	}
 	
 	const Symbol& 
@@ -139,13 +140,13 @@ public:
 		if(symbol.IsValid() == false)
 			return false;
 			
-		vd::uid key = symbol.GetHash();
+		vd::uid key = symbol.GetKey();
 		return Exists(key);
 	}
 	
 	bool Remove(const Symbol& symbol)
 	{
-		return Remove(symbol.GetHash());
+		return Remove(symbol.GetKey());
 	}
 	
 	bool Remove(const vd::uid key)
@@ -209,30 +210,30 @@ Symbol::Symbol(
 { 
 	m_Str = str;
 	m_Id = 0;
-	m_Hash = 0;
+	m_Key = 0;
 }
 
 Symbol::Symbol(
-	const vd::uid hash, 
+	const vd::uid key, 
 	const char* str,
 	bool track
 ) :
 	m_Next(NULL),
 	m_Id(0),
-	m_Hash(vd::uid::Zero),
+	m_Key(),
 	m_Str("<NULL>")
 { 
-	m_Hash = hash;
+	m_Key = key;
 	m_Str = str;
 
-	if(track && hash && str)
+	if(track && key && str)
 		RegisterSelf();
 }
 
 Symbol::Symbol() : 
 	m_Next(NULL),
 	m_Id(0),
-	m_Hash(vd::uid::Zero),
+	m_Key(),
 	m_Str("<NULL>")
 { 
 
@@ -241,7 +242,7 @@ Symbol::Symbol() :
 Symbol::~Symbol() 
 { 
 	m_Id = 0;
-	m_Hash = vd::uid::Zero;
+	m_Key = 0;
 	m_Str = NULL;
 }
 
@@ -249,7 +250,7 @@ Symbol::Symbol(
 	const Symbol& other) 
 {
 	m_Id = other.m_Id;
-	m_Hash = other.m_Hash;
+	m_Key = other.m_Key;
 	m_Str = other.m_Str;
 }
 
@@ -260,7 +261,7 @@ Symbol::operator=(const Symbol& other)
 		return *this;
 		
 	m_Id = other.m_Id;
-	m_Hash = other.m_Hash;
+	m_Key = other.m_Key;
 	m_Str = other.m_Str;
 	return *this;
 }
@@ -268,19 +269,19 @@ Symbol::operator=(const Symbol& other)
 bool 
 Symbol::operator==(const Symbol& other) const
 {
-	return (m_Hash == other.m_Hash);
+	return (m_Key == other.m_Key);
 }
 
 bool 
 Symbol::operator!=(const Symbol& other) const
 {
-	return (m_Hash != other.m_Hash);
+	return (m_Key != other.m_Key);
 }
 
 bool 
 Symbol::operator<(const Symbol& other) const
 {
-	return (m_Hash < other.m_Hash);
+	return (m_Key < other.m_Key);
 }
 
 bool 
@@ -292,7 +293,7 @@ Symbol::IsValid() const
 vd::uid 
 Symbol::Register(const char* bytes)	
 {		
-	vd::uid key = vd::uid::Zero;
+	vd::uid key = Constants::Zero;
 	if(bytes == NULL)
 		return key;
 		
@@ -335,7 +336,7 @@ Symbol::CreateRegistry(void)
 	Symbol* sym = SymbolListHead; 
 	while(sym != NULL)
 	{
-		if(existing.find(sym->m_Hash) == existing.end())
+		if(existing.find(sym->m_Key) == existing.end())
 		{
 			vd::uid key = Symbol::Register(*sym);
 			// const Symbol& s = Symbol::Retrieve(key);
@@ -365,7 +366,7 @@ AsString(const Symbol& symbol)
 vd::uid
 AsId(const Symbol& symbol)
 {
-	return symbol.GetHash();
+	return symbol.GetKey();
 }
 
 // ============================================================================================== //

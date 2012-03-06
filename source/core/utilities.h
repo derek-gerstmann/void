@@ -29,6 +29,7 @@
 
 #include "core/core.h"
 #include "core/object.h"
+#include "core/asserts.h"
 
 // ============================================================================================== //
 
@@ -53,10 +54,60 @@ namespace Convert
     	return os.str(); 
     }
 
+    template <typename T> VD_INLINE
+    T FromString(const vd::string& str)
+    {
+
+    }
+
+    template <> VD_INLINE
+    vd::uid FromString( const vd::string& str )
+    {
+        char* next = 0;
+        vd::u64 upper = 0;
+        vd::u64 lower = 0;
+
+#if defined(VD_COMPILER_MSVC)
+        upper = ::_strtoui64( str.c_str(), &next, 16 );
+#else
+        upper = ::strtoull( str.c_str(), &next, 16 );
+#endif
+        assert( next != str.c_str() );
+        if( *next == '\0' ) 
+        {
+            lower = upper;
+            upper = 0;
+        }
+        else
+        {
+            assert( *next == ':' );
+            ++next;
+#if defined(VD_COMPILER_MSVC)
+            lower = ::_strtoui64( next, 0, 16 );
+#else
+            lower = ::strtoull( next, 0, 16 );
+#endif
+        }
+        return vd::uid(upper, lower);
+    }
+
     template <> VD_INLINE
     vd::string ToString(const Object& obj)
     {
         return obj.ToString();
+    }
+
+    template <> VD_INLINE
+    vd::string ToString(const vd::uid& uid)
+    {
+        std::stringstream stream;
+        if(uid.GetUpper() == 0)
+            stream << std::hex << uid.GetLower() << std::dec;
+        else
+            stream << std::hex << uid.GetUpper() << ':' << uid.GetLower() << std::dec;
+
+        const std::string str = stream.str();
+        return str;
     }
 
     vd::string 
@@ -74,6 +125,8 @@ namespace Convert
     vd::string 
     ToUpperCase(const vd::string& str);
 
+    vd::string
+    FormatString(const char* fmt, ...);
 };
 
 template <typename T>

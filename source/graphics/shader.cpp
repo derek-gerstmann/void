@@ -566,8 +566,8 @@ Shader::BindSamplers()
 		{
 #if defined(VD_DEBUG_SHADERS)			
 			vdLogInfo("Shader[%s] : MISSING Sampler [%02d] %s [%s] : %s !!", 
-				m_Name.c_str(), slot, AsString(name), name.GetHash().ToString().c_str(), 
-				AsString(Shader::GetTypeName(m_UniformTypes[name.GetHash()])));
+				m_Name.c_str(), slot, AsString(name), name.GetKey().ToString().c_str(), 
+				AsString(Shader::GetTypeName(m_UniformTypes[name.GetKey()])));
 #endif
 			continue;
 		}
@@ -576,8 +576,8 @@ Shader::BindSamplers()
 
 #if defined(VD_DEBUG_SHADERS)			
 		vdLogInfo("Shader[%s] : Binding Sampler [%02d] %s [%s] : %s [%08d]", 
-			m_Name.c_str(), slot, AsString(name), name.GetHash().ToString().c_str(), 
-			AsString(Shader::GetTypeName(m_UniformTypes[name.GetHash()])),
+			m_Name.c_str(), slot, AsString(name), name.GetKey().ToString().c_str(), 
+			AsString(Shader::GetTypeName(m_UniformTypes[name.GetKey()])),
 			texture);
 #else
     	VD_IGNORE_UNUSED(name);
@@ -606,8 +606,8 @@ Shader::UnbindSamplers()
 
 #if defined(VD_DEBUG_SHADERS)			
 		vdLogInfo("Shader[%s] : Unbinding Sampler [%02d] %s [%s] : %s [%08d]", 
-			m_Name.c_str(), slot, AsString(name), name.GetHash().ToString().c_str(), 
-			AsString(Shader::GetTypeName(m_UniformTypes[name.GetHash()])),
+			m_Name.c_str(), slot, AsString(name), name.GetKey().ToString().c_str(), 
+			AsString(Shader::GetTypeName(m_UniformTypes[name.GetKey()])),
 			texture);
 #else
     	VD_IGNORE_UNUSED(name);
@@ -633,7 +633,7 @@ Shader::BindAttributes()
 		Geometry::AttributeSlot::Value attrib = (Geometry::AttributeSlot::Value)slot;
 
 		vdLogInfo("Shader[%s] : Binding Attribute [%02d] %s [%s] : %s", 
-			m_Name.c_str(), slot, AsString(name), name.GetHash().ToString().c_str(), 
+			m_Name.c_str(), slot, AsString(name), name.GetKey().ToString().c_str(), 
 			Geometry::AttributeSlot::ToString(attrib));
 
 	    glBindAttribLocation(m_Handle, slot, AsString(name));
@@ -686,7 +686,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		const Symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.GetHash();
+		vd::uid key = name.GetKey();
 
 		if(m_Uniforms.IsA(ParamSet::I32, name) && m_UniformSlots.count(key))
 		{
@@ -705,7 +705,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		const Symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.GetHash();
+		vd::uid key = name.GetKey();
 
 		if(m_Uniforms.IsA(ParamSet::F32, name) && m_UniformSlots.count(key))
 		{
@@ -724,7 +724,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		const Symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.GetHash();
+		vd::uid key = name.GetKey();
 
 		if(m_Uniforms.IsA(ParamSet::V2F32, name) && m_UniformSlots.count(key))
 		{
@@ -743,7 +743,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		const Symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.GetHash();
+		vd::uid key = name.GetKey();
 		if(m_Uniforms.IsA(ParamSet::V3F32, name) && m_UniformSlots.count(key))
 		{
 			GLint slot = m_UniformSlots[key];
@@ -761,7 +761,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		const Symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.GetHash();
+		vd::uid key = name.GetKey();
 
 		if(m_Uniforms.IsA(ParamSet::V4F32, name) && m_UniformSlots.count(key))
 		{
@@ -780,7 +780,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		const Symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.GetHash();
+		vd::uid key = name.GetKey();
 
 		if(m_Uniforms.IsA(ParamSet::M3F32, name) && m_UniformSlots.count(key))
 		{
@@ -809,7 +809,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		const Symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.GetHash();
+		vd::uid key = name.GetKey();
 
 		if(m_Uniforms.IsA(ParamSet::M4F32, name) && m_UniformSlots.count(key))
 		{
@@ -992,8 +992,8 @@ vd::i32
 Shader::GetSamplerSlot(
 	const Symbol& name)
 {
-	if(m_SamplerSlots.count(name.GetHash()))
-		return m_SamplerSlots[name.GetHash()];
+	if(m_SamplerSlots.count(name.GetKey()))
+		return m_SamplerSlots[name.GetKey()];
 	return Shader::InvalidSlot;
 }
 
@@ -1001,8 +1001,8 @@ vd::i32
 Shader::GetUniformSlot(
 	const Symbol& name)
 {
-	if(m_UniformSlots.count(name.GetHash()))
-		return m_UniformSlots[name.GetHash()];
+	if(m_UniformSlots.count(name.GetKey()))
+		return m_UniformSlots[name.GetKey()];
 	return Shader::InvalidSlot;
 }
 
@@ -1010,8 +1010,8 @@ vd::i32
 Shader::GetAttributeSlot(
 	const Symbol& name)
 {
-	if(m_AttributeSlots.count(name.GetHash()))
-		return m_AttributeSlots[name.GetHash()];
+	if(m_AttributeSlots.count(name.GetKey()))
+		return m_AttributeSlots[name.GetKey()];
 	return Shader::InvalidSlot;
 }
 
@@ -1020,9 +1020,9 @@ Shader::BindTexture(
 	const Symbol& name,
 	vd::i32 texture)
 {
-	if(m_SamplerSlots.count(name.GetHash()))
+	if(m_SamplerSlots.count(name.GetKey()))
 	{
-		m_SamplerBindings[name.GetHash()] = texture;
+		m_SamplerBindings[name.GetKey()] = texture;
 		return true;
 	}
 	return false;
@@ -1033,9 +1033,9 @@ Shader::UnbindTexture(
 	const Symbol& name,
 	vd::i32 texture)
 {
-	if(m_SamplerSlots.count(name.GetHash()))
+	if(m_SamplerSlots.count(name.GetKey()))
 	{
-		m_SamplerBindings.erase(name.GetHash());
+		m_SamplerBindings.erase(name.GetKey());
 		return true;
 	}
 	return false;
@@ -1047,9 +1047,9 @@ Shader::BindAttribute(
 	const Symbol& name,
 	vd::i32 texture)
 {
-	if(m_AttributeSlots.count(name.GetHash()))
+	if(m_AttributeSlots.count(name.GetKey()))
 	{
-		m_AttributeSlots[name.GetHash()] = texture;
+		m_AttributeSlots[name.GetKey()] = texture;
 		return true;
 	}
 	return false;
@@ -1060,9 +1060,9 @@ Shader::UnbindAttribute(
 	const Symbol& name,
 	vd::i32 texture)
 {
-	if(m_AttributeSlots.count(name.GetHash()))
+	if(m_AttributeSlots.count(name.GetKey()))
 	{
-		m_AttributeSlots.erase(name.GetHash());
+		m_AttributeSlots.erase(name.GetKey());
 		return true;
 	}
 	return false;

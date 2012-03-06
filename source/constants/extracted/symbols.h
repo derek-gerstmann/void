@@ -1,9 +1,9 @@
-#ifndef VD_CONSTANTS_EXTRACTED_SYMBOLS_INCLUDED
-#define VD_CONSTANTS_EXTRACTED_SYMBOLS_INCLUDED
+#ifndef VD_CONSTANTS_EXTRACTED_GLOBAL_SYMBOLS_INCLUDED
+#define VD_CONSTANTS_EXTRACTED_GLOBAL_SYMBOLS_INCLUDED
 
 // ================================================================================================ //
 
-#include "core/core.h"
+#include "vd.h"
 #include "core/symbol.h"
 #include "constants/constants.h"
 
@@ -13,10 +13,10 @@ VD_CONSTANTS_NAMESPACE_BEGIN();
 
 // ================================================================================================ //
 
-#define VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE	VD_CONSTANTS_NAMESPACE::extracted::Symbols
+#define VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE	VD_CONSTANTS_NAMESPACE::Symbols::Global
 
-namespace extracted {
 namespace Symbols {
+namespace Global {
 
 // ================================================================================================ //
 
@@ -351,8 +351,8 @@ Table[] =
 
 // ================================================================================================ //
 
+} // end namespace: Global
 } // end namespace: Symbols
-} // end namespace: extracted
 
 // ================================================================================================ //
 
@@ -360,5 +360,5 @@ VD_CONSTANTS_NAMESPACE_END();
 
 // ================================================================================================ //
 
-#endif // VD_CONSTANTS_EXTRACTED_SYMBOLS_INCLUDED
+#endif // VD_CONSTANTS_EXTRACTED_GLOBAL_SYMBOLS_INCLUDED
 

@@ -597,7 +597,7 @@ Window::RemoveAllEventHandlers()
 	m_Mutex.Lock();
 	for(vd::u32 i = 0; i < Event::Type::Count; ++i)
 	{
-		vd::u64 kind = (vd::u64)i;
+		vd::u32 kind = (vd::u32)i;
 		if(m_Handlers[kind].size())
 			RemoveEventHandlers(Event::Type::FromInteger(kind));
 	}
@@ -609,8 +609,8 @@ Window::ProcessEvent( Event& event )
 {
 	ScopedMutex locker(&m_Mutex);
 
-	vd::u64 kind = (vd::u64)event.Kind;
-	if(!m_Handlers[kind].empty())
+	vd::u32 kind = Event::Type::ToInteger(event.Kind);
+	if(m_Handlers[kind].empty() == false)
 	{
 		EventChannel::iterator it;
 		for(it = m_Handlers[kind].begin(); it != m_Handlers[kind].end(); ++it)
@@ -618,11 +618,11 @@ Window::ProcessEvent( Event& event )
 			(*it)(event);
 		}		
 	}
-	else if(!m_DeferredHandlers[kind].empty())
+	else if(m_DeferredHandlers[kind].empty() == false)
 	{
-		vdLogDebug("Deferring event [%d] '%s' [%d] ... ", 
-			(int)event.Kind,
+		vdLogDebug("Deferring event '%s' [%d of %d] ... ", 
 			Event::Type::ToString(event.Kind),
+			kind,
 			(int)m_DeferredHandlers[kind].size());
 		m_Events.push_back(event);
 	}
@@ -634,7 +634,7 @@ Window::PollEvent( Event& event )
 {
 	ScopedMutex locker(&m_Mutex);
 
-	if(!m_Events.empty())
+	if(m_Events.empty() == false)
 	{
 		event = m_Events.at(0);
 		m_Events.erase(m_Events.begin());
@@ -651,10 +651,10 @@ Window::AddEventHandler(
 {
 	ScopedMutex locker(&m_Mutex);
 
-	vd::u64 kind = (vd::u64)value;
+	vd::u32 kind = Event::Type::ToInteger(value);
 
 	vdLogDebug("Adding event handler for [%d] '%s' ... ", 
-		(int)value,
+		(int)kind,
 		Event::Type::ToString(value));
 	
 	if(deferred)
@@ -708,13 +708,13 @@ Window::RemoveEventHandlers(
 {
 	ScopedMutex locker(&m_Mutex);
 
-	vd::u64 kind = (vd::u64)value;
-	if(!m_Handlers[kind].empty())
+	vd::u32 kind = Event::Type::ToInteger(value);
+	if(m_Handlers[kind].empty() == false)
 	{
 		m_Handlers[kind].clear();
 	}
 
-	if(!m_DeferredHandlers[kind].empty())
+	if(m_DeferredHandlers[kind].empty() == false)
 	{
 		m_DeferredHandlers[kind].clear();
 	}
@@ -755,20 +755,20 @@ Window::FlushEvents(void)
 	for(evit = m_Events.begin(); evit != m_Events.end(); ++evit)
 	{
 		const Event& event = (*evit);
-		vd::u64 kind = (vd::u64)event.Kind;
+		vd::u32 kind = Event::Type::ToInteger(event.Kind);
 
-		vdLogInfo("Processing deferred event '%s' ... ", 
-			Event::Type::ToString(event.Kind));
+		vdLogInfo("Processing deferred event '%s' ... ", Event::Type::ToString(event.Kind));
 
 		EventChannel::iterator dhit;
 		for(dhit = m_DeferredHandlers[kind].begin(); dhit != m_DeferredHandlers[kind].end(); ++dhit)
 		{
-			vd::status status = (*dhit)(event);
-			if(status != Status::Code::Success)
+			vd::status result = (*dhit)(event);
+			Status::Code::Value code = Status::Code::FromInteger(result);
+			if(code != Status::Code::Success)
 			{
 				vdLogInfo("Event handler for '%s' returned '%s' status!", 
-					Event::Type::ToString(kind),  
-					Status::Code::ToString(status));  
+					Event::Type::ToString(event.Kind),  
+					Status::Code::ToString(code));  
 			}
 		}		
 	}

@@ -28,9 +28,4 @@ add_dependencies( VdSymEx
     ${VD_ALL_OPT_SRC} ${VD_ALL_OPT_INC} 
     ${VD_PLATFORM_SRC} ${VD_TOOLS_SYMEX_SRC} )
     
-add_custom_target( VdExtractSymbols ALL DEPENDS 
-	${VD_ALL_SRC} ${VD_ALL_INC} 
-    ${VD_PLATFORM_SRC} 
-    ${VD_TOOLS_SYMEX_SRC} )
-
 message(STATUS "Configured SymEx ...")

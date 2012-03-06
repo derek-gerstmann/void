@@ -28,11 +28,9 @@
 // ============================================================================================== //
 
 #include "core/core.h"
-#include "core/object.h"
-#include "core/handles.h"
-#include "core/symbol.h"
-#include "core/locking.h"
 #include "core/threading.h"
+#include "core/locking.h"
+#include "core/handles.h"
 #include "containers/containers.h"
         
 VD_IMPORT(Containers, Vector);

@@ -58,6 +58,7 @@ extern "C" {
 
 // ============================================================================================== //
 
+#if 0
 static void
 vdNullCallback(void){}
 
@@ -81,6 +82,7 @@ vdNullEntryCallback(int state){}
 
 static void
 vdNullSpecialKeyCallback(int key, int x, int y){}
+#endif
 
 // ============================================================================================== //
 
@@ -380,7 +382,7 @@ Window::FlushEvents(void)
 	for(evit = m_Events.begin(); evit != m_Events.end(); ++evit)
 	{
 		const Event& event = (*evit);
-		vd::u64 kind = (vd::u64)event.Kind;
+		vd::u32 kind = Event::Type::ToInteger(event.Kind);
 
 		vdLogInfo("Processing deferred event '%s' ... ", 
 			Event::Type::ToString(event.Kind));
@@ -388,12 +390,13 @@ Window::FlushEvents(void)
 		EventChannel::iterator dhit;
 		for(dhit = m_DeferredHandlers[kind].begin(); dhit != m_DeferredHandlers[kind].end(); ++dhit)
 		{
-			vd::status status = (*dhit)(event);
-			if(status != Status::Code::Success)
+			vd::status result = (*dhit)(event);
+			Core::Status::Code::Value code = Core::Status::Code::FromInteger(result);
+			if(code != Status::Code::Success)
 			{
 				vdLogInfo("Event handler for '%s' returned '%s' status!", 
-					Event::Type::ToString(kind),  
-					Status::Code::ToString(status));  
+					Event::Type::ToString(event.Kind),  
+					Core::Status::Code::ToString(code));  
 			}
 		}		
 	}

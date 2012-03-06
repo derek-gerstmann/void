@@ -25,6 +25,7 @@
 #ifndef VD_GRAPHICS_IMAGE_INCLUDED
 #define VD_GRAPHICS_IMAGE_INCLUDED
 
+#include "vd.h"
 #include "graphics/graphics.h"
 #include "containers/containers.h"
 
@@ -108,7 +109,6 @@ struct ChannelFormat
 struct ColorSpaceFormat
 {
 	VD_DECLARE_ENUM(Hint,
-		Invalid,
 		Linear,
 		GammaCorrected,
 		sRGB,

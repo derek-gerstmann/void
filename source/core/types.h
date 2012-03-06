@@ -192,7 +192,7 @@ struct TypeTraits
         return TypeId::ToString(TypeId::Invalid);
     }
 
-    static TypeId::Value GetEnum() 
+    static TypeId::Value GetTypeId() 
     {
         return TypeId::Invalid;
     }
@@ -212,7 +212,7 @@ struct TypeTraits
         return 0;
     }
 
-    static int GetDimensions()
+    static int GetComponents()
     {
         return 0;
     }
@@ -322,53 +322,53 @@ template <> inline vd::TypeId::Value TypeTraits<vd::v4f64>::GetBaseTypeId()    {
 
 // ---------------------------------------------------------------------------------------------- //
 
-template <> inline TypeId::Value TypeTraits<vd::i8>::GetEnum()       {  return TypeId::I8; }
-template <> inline TypeId::Value TypeTraits<vd::i16>::GetEnum()      {  return TypeId::I16; }
-template <> inline TypeId::Value TypeTraits<vd::i32>::GetEnum()      {  return TypeId::I32; }
-template <> inline TypeId::Value TypeTraits<vd::i64>::GetEnum()      {  return TypeId::I64; }
-template <> inline TypeId::Value TypeTraits<vd::u8>::GetEnum()       {  return TypeId::U8; }
-template <> inline TypeId::Value TypeTraits<vd::u16>::GetEnum()      {  return TypeId::U16; }
-template <> inline TypeId::Value TypeTraits<vd::u32>::GetEnum()      {  return TypeId::U32; }
-template <> inline TypeId::Value TypeTraits<vd::u64>::GetEnum()      {  return TypeId::U64; }
-template <> inline TypeId::Value TypeTraits<vd::f16>::GetEnum()      {  return TypeId::F16; }
-template <> inline TypeId::Value TypeTraits<vd::f32>::GetEnum()      {  return TypeId::F32; }
-template <> inline TypeId::Value TypeTraits<vd::f64>::GetEnum()      {  return TypeId::F64; }
+template <> inline TypeId::Value TypeTraits<vd::i8>::GetTypeId()       {  return TypeId::I8; }
+template <> inline TypeId::Value TypeTraits<vd::i16>::GetTypeId()      {  return TypeId::I16; }
+template <> inline TypeId::Value TypeTraits<vd::i32>::GetTypeId()      {  return TypeId::I32; }
+template <> inline TypeId::Value TypeTraits<vd::i64>::GetTypeId()      {  return TypeId::I64; }
+template <> inline TypeId::Value TypeTraits<vd::u8>::GetTypeId()       {  return TypeId::U8; }
+template <> inline TypeId::Value TypeTraits<vd::u16>::GetTypeId()      {  return TypeId::U16; }
+template <> inline TypeId::Value TypeTraits<vd::u32>::GetTypeId()      {  return TypeId::U32; }
+template <> inline TypeId::Value TypeTraits<vd::u64>::GetTypeId()      {  return TypeId::U64; }
+template <> inline TypeId::Value TypeTraits<vd::f16>::GetTypeId()      {  return TypeId::F16; }
+template <> inline TypeId::Value TypeTraits<vd::f32>::GetTypeId()      {  return TypeId::F32; }
+template <> inline TypeId::Value TypeTraits<vd::f64>::GetTypeId()      {  return TypeId::F64; }
 
-template <> inline TypeId::Value TypeTraits<vd::v2i8>::GetEnum()     {  return TypeId::V2I8; }
-template <> inline TypeId::Value TypeTraits<vd::v2i16>::GetEnum()    {  return TypeId::V2I16; }
-template <> inline TypeId::Value TypeTraits<vd::v2i32>::GetEnum()    {  return TypeId::V2I32; }
-template <> inline TypeId::Value TypeTraits<vd::v2i64>::GetEnum()    {  return TypeId::V2I64; }
-template <> inline TypeId::Value TypeTraits<vd::v2u8>::GetEnum()     {  return TypeId::V2U8; }
-template <> inline TypeId::Value TypeTraits<vd::v2u16>::GetEnum()    {  return TypeId::V2U16; }
-template <> inline TypeId::Value TypeTraits<vd::v2u32>::GetEnum()    {  return TypeId::V2U32; }
-template <> inline TypeId::Value TypeTraits<vd::v2u64>::GetEnum()    {  return TypeId::V2U64; }
-template <> inline TypeId::Value TypeTraits<vd::v2f16>::GetEnum()    {  return TypeId::V2F16; }
-template <> inline TypeId::Value TypeTraits<vd::v2f32>::GetEnum()    {  return TypeId::V2F32; }
-template <> inline TypeId::Value TypeTraits<vd::v2f64>::GetEnum()    {  return TypeId::V2F64; }
+template <> inline TypeId::Value TypeTraits<vd::v2i8>::GetTypeId()     {  return TypeId::V2I8; }
+template <> inline TypeId::Value TypeTraits<vd::v2i16>::GetTypeId()    {  return TypeId::V2I16; }
+template <> inline TypeId::Value TypeTraits<vd::v2i32>::GetTypeId()    {  return TypeId::V2I32; }
+template <> inline TypeId::Value TypeTraits<vd::v2i64>::GetTypeId()    {  return TypeId::V2I64; }
+template <> inline TypeId::Value TypeTraits<vd::v2u8>::GetTypeId()     {  return TypeId::V2U8; }
+template <> inline TypeId::Value TypeTraits<vd::v2u16>::GetTypeId()    {  return TypeId::V2U16; }
+template <> inline TypeId::Value TypeTraits<vd::v2u32>::GetTypeId()    {  return TypeId::V2U32; }
+template <> inline TypeId::Value TypeTraits<vd::v2u64>::GetTypeId()    {  return TypeId::V2U64; }
+template <> inline TypeId::Value TypeTraits<vd::v2f16>::GetTypeId()    {  return TypeId::V2F16; }
+template <> inline TypeId::Value TypeTraits<vd::v2f32>::GetTypeId()    {  return TypeId::V2F32; }
+template <> inline TypeId::Value TypeTraits<vd::v2f64>::GetTypeId()    {  return TypeId::V2F64; }
 
-template <> inline TypeId::Value TypeTraits<vd::v3i8>::GetEnum()     {  return TypeId::V3I8; }
-template <> inline TypeId::Value TypeTraits<vd::v3i16>::GetEnum()    {  return TypeId::V3I16; }
-template <> inline TypeId::Value TypeTraits<vd::v3i32>::GetEnum()    {  return TypeId::V3I32; }
-template <> inline TypeId::Value TypeTraits<vd::v3i64>::GetEnum()    {  return TypeId::V3I64; }
-template <> inline TypeId::Value TypeTraits<vd::v3u8>::GetEnum()     {  return TypeId::V3U8; }
-template <> inline TypeId::Value TypeTraits<vd::v3u16>::GetEnum()    {  return TypeId::V3U16; }
-template <> inline TypeId::Value TypeTraits<vd::v3u32>::GetEnum()    {  return TypeId::V3U32; }
-template <> inline TypeId::Value TypeTraits<vd::v3u64>::GetEnum()    {  return TypeId::V3U64; }
-template <> inline TypeId::Value TypeTraits<vd::v3f16>::GetEnum()    {  return TypeId::V3F16; }
-template <> inline TypeId::Value TypeTraits<vd::v3f32>::GetEnum()    {  return TypeId::V3F32; }
-template <> inline TypeId::Value TypeTraits<vd::v3f64>::GetEnum()    {  return TypeId::V3F64; }
+template <> inline TypeId::Value TypeTraits<vd::v3i8>::GetTypeId()     {  return TypeId::V3I8; }
+template <> inline TypeId::Value TypeTraits<vd::v3i16>::GetTypeId()    {  return TypeId::V3I16; }
+template <> inline TypeId::Value TypeTraits<vd::v3i32>::GetTypeId()    {  return TypeId::V3I32; }
+template <> inline TypeId::Value TypeTraits<vd::v3i64>::GetTypeId()    {  return TypeId::V3I64; }
+template <> inline TypeId::Value TypeTraits<vd::v3u8>::GetTypeId()     {  return TypeId::V3U8; }
+template <> inline TypeId::Value TypeTraits<vd::v3u16>::GetTypeId()    {  return TypeId::V3U16; }
+template <> inline TypeId::Value TypeTraits<vd::v3u32>::GetTypeId()    {  return TypeId::V3U32; }
+template <> inline TypeId::Value TypeTraits<vd::v3u64>::GetTypeId()    {  return TypeId::V3U64; }
+template <> inline TypeId::Value TypeTraits<vd::v3f16>::GetTypeId()    {  return TypeId::V3F16; }
+template <> inline TypeId::Value TypeTraits<vd::v3f32>::GetTypeId()    {  return TypeId::V3F32; }
+template <> inline TypeId::Value TypeTraits<vd::v3f64>::GetTypeId()    {  return TypeId::V3F64; }
 
-template <> inline TypeId::Value TypeTraits<vd::v4i8>::GetEnum()     {  return TypeId::V4I8; }
-template <> inline TypeId::Value TypeTraits<vd::v4i16>::GetEnum()    {  return TypeId::V4I16; }
-template <> inline TypeId::Value TypeTraits<vd::v4i32>::GetEnum()    {  return TypeId::V4I32; }
-template <> inline TypeId::Value TypeTraits<vd::v4i64>::GetEnum()    {  return TypeId::V4I64; }
-template <> inline TypeId::Value TypeTraits<vd::v4u8>::GetEnum()     {  return TypeId::V4U8; }
-template <> inline TypeId::Value TypeTraits<vd::v4u16>::GetEnum()    {  return TypeId::V4U16; }
-template <> inline TypeId::Value TypeTraits<vd::v4u32>::GetEnum()    {  return TypeId::V4U32; }
-template <> inline TypeId::Value TypeTraits<vd::v4u64>::GetEnum()    {  return TypeId::V4U64; }
-template <> inline TypeId::Value TypeTraits<vd::v4f16>::GetEnum()    {  return TypeId::V4F16; }
-template <> inline TypeId::Value TypeTraits<vd::v4f32>::GetEnum()    {  return TypeId::V4F32; }
-template <> inline TypeId::Value TypeTraits<vd::v4f64>::GetEnum()    {  return TypeId::V4F64; }
+template <> inline TypeId::Value TypeTraits<vd::v4i8>::GetTypeId()     {  return TypeId::V4I8; }
+template <> inline TypeId::Value TypeTraits<vd::v4i16>::GetTypeId()    {  return TypeId::V4I16; }
+template <> inline TypeId::Value TypeTraits<vd::v4i32>::GetTypeId()    {  return TypeId::V4I32; }
+template <> inline TypeId::Value TypeTraits<vd::v4i64>::GetTypeId()    {  return TypeId::V4I64; }
+template <> inline TypeId::Value TypeTraits<vd::v4u8>::GetTypeId()     {  return TypeId::V4U8; }
+template <> inline TypeId::Value TypeTraits<vd::v4u16>::GetTypeId()    {  return TypeId::V4U16; }
+template <> inline TypeId::Value TypeTraits<vd::v4u32>::GetTypeId()    {  return TypeId::V4U32; }
+template <> inline TypeId::Value TypeTraits<vd::v4u64>::GetTypeId()    {  return TypeId::V4U64; }
+template <> inline TypeId::Value TypeTraits<vd::v4f16>::GetTypeId()    {  return TypeId::V4F16; }
+template <> inline TypeId::Value TypeTraits<vd::v4f32>::GetTypeId()    {  return TypeId::V4F32; }
+template <> inline TypeId::Value TypeTraits<vd::v4f64>::GetTypeId()    {  return TypeId::V4F64; }
 
 // ---------------------------------------------------------------------------------------------- //
 
@@ -476,57 +476,57 @@ template <> inline int TypeTraits<vd::v4f64>::GetBitSize()    {  return 64; }
 
 // ---------------------------------------------------------------------------------------------- //
 
-template <> inline int TypeTraits<bool>::GetDimensions()         {  return 1; }
-template <> inline int TypeTraits<vd::i8>::GetDimensions()       {  return 1; }
-template <> inline int TypeTraits<vd::i16>::GetDimensions()      {  return 1; }
-template <> inline int TypeTraits<vd::i32>::GetDimensions()      {  return 1; }
-template <> inline int TypeTraits<vd::i64>::GetDimensions()      {  return 1; }
-template <> inline int TypeTraits<vd::u8>::GetDimensions()       {  return 1; }
-template <> inline int TypeTraits<vd::u16>::GetDimensions()      {  return 1; }
-template <> inline int TypeTraits<vd::u32>::GetDimensions()      {  return 1; }
-template <> inline int TypeTraits<vd::u64>::GetDimensions()      {  return 1; }
-template <> inline int TypeTraits<vd::f16>::GetDimensions()      {  return 1; }
-template <> inline int TypeTraits<vd::f32>::GetDimensions()      {  return 1; }
-template <> inline int TypeTraits<vd::f64>::GetDimensions()      {  return 1; }
+template <> inline int TypeTraits<bool>::GetComponents()         {  return 1; }
+template <> inline int TypeTraits<vd::i8>::GetComponents()       {  return 1; }
+template <> inline int TypeTraits<vd::i16>::GetComponents()      {  return 1; }
+template <> inline int TypeTraits<vd::i32>::GetComponents()      {  return 1; }
+template <> inline int TypeTraits<vd::i64>::GetComponents()      {  return 1; }
+template <> inline int TypeTraits<vd::u8>::GetComponents()       {  return 1; }
+template <> inline int TypeTraits<vd::u16>::GetComponents()      {  return 1; }
+template <> inline int TypeTraits<vd::u32>::GetComponents()      {  return 1; }
+template <> inline int TypeTraits<vd::u64>::GetComponents()      {  return 1; }
+template <> inline int TypeTraits<vd::f16>::GetComponents()      {  return 1; }
+template <> inline int TypeTraits<vd::f32>::GetComponents()      {  return 1; }
+template <> inline int TypeTraits<vd::f64>::GetComponents()      {  return 1; }
 
-template <> inline int TypeTraits<vd::v2b>::GetDimensions()      {  return 2; }
-template <> inline int TypeTraits<vd::v2i8>::GetDimensions()     {  return 2; }
-template <> inline int TypeTraits<vd::v2i16>::GetDimensions()    {  return 2; }
-template <> inline int TypeTraits<vd::v2i32>::GetDimensions()    {  return 2; }
-template <> inline int TypeTraits<vd::v2i64>::GetDimensions()    {  return 2; }
-template <> inline int TypeTraits<vd::v2u8>::GetDimensions()     {  return 2; }
-template <> inline int TypeTraits<vd::v2u16>::GetDimensions()    {  return 2; }
-template <> inline int TypeTraits<vd::v2u32>::GetDimensions()    {  return 2; }
-template <> inline int TypeTraits<vd::v2u64>::GetDimensions()    {  return 2; }
-template <> inline int TypeTraits<vd::v2f16>::GetDimensions()    {  return 2; }
-template <> inline int TypeTraits<vd::v2f32>::GetDimensions()    {  return 2; }
-template <> inline int TypeTraits<vd::v2f64>::GetDimensions()    {  return 2; }
+template <> inline int TypeTraits<vd::v2b>::GetComponents()      {  return 2; }
+template <> inline int TypeTraits<vd::v2i8>::GetComponents()     {  return 2; }
+template <> inline int TypeTraits<vd::v2i16>::GetComponents()    {  return 2; }
+template <> inline int TypeTraits<vd::v2i32>::GetComponents()    {  return 2; }
+template <> inline int TypeTraits<vd::v2i64>::GetComponents()    {  return 2; }
+template <> inline int TypeTraits<vd::v2u8>::GetComponents()     {  return 2; }
+template <> inline int TypeTraits<vd::v2u16>::GetComponents()    {  return 2; }
+template <> inline int TypeTraits<vd::v2u32>::GetComponents()    {  return 2; }
+template <> inline int TypeTraits<vd::v2u64>::GetComponents()    {  return 2; }
+template <> inline int TypeTraits<vd::v2f16>::GetComponents()    {  return 2; }
+template <> inline int TypeTraits<vd::v2f32>::GetComponents()    {  return 2; }
+template <> inline int TypeTraits<vd::v2f64>::GetComponents()    {  return 2; }
 
-template <> inline int TypeTraits<vd::v3b>::GetDimensions()      {  return 3; }
-template <> inline int TypeTraits<vd::v3i8>::GetDimensions()     {  return 3; }
-template <> inline int TypeTraits<vd::v3i16>::GetDimensions()    {  return 3; }
-template <> inline int TypeTraits<vd::v3i32>::GetDimensions()    {  return 3; }
-template <> inline int TypeTraits<vd::v3i64>::GetDimensions()    {  return 3; }
-template <> inline int TypeTraits<vd::v3u8>::GetDimensions()     {  return 3; }
-template <> inline int TypeTraits<vd::v3u16>::GetDimensions()    {  return 3; }
-template <> inline int TypeTraits<vd::v3u32>::GetDimensions()    {  return 3; }
-template <> inline int TypeTraits<vd::v3u64>::GetDimensions()    {  return 3; }
-template <> inline int TypeTraits<vd::v3f16>::GetDimensions()    {  return 3; }
-template <> inline int TypeTraits<vd::v3f32>::GetDimensions()    {  return 3; }
-template <> inline int TypeTraits<vd::v3f64>::GetDimensions()    {  return 3; }
+template <> inline int TypeTraits<vd::v3b>::GetComponents()      {  return 3; }
+template <> inline int TypeTraits<vd::v3i8>::GetComponents()     {  return 3; }
+template <> inline int TypeTraits<vd::v3i16>::GetComponents()    {  return 3; }
+template <> inline int TypeTraits<vd::v3i32>::GetComponents()    {  return 3; }
+template <> inline int TypeTraits<vd::v3i64>::GetComponents()    {  return 3; }
+template <> inline int TypeTraits<vd::v3u8>::GetComponents()     {  return 3; }
+template <> inline int TypeTraits<vd::v3u16>::GetComponents()    {  return 3; }
+template <> inline int TypeTraits<vd::v3u32>::GetComponents()    {  return 3; }
+template <> inline int TypeTraits<vd::v3u64>::GetComponents()    {  return 3; }
+template <> inline int TypeTraits<vd::v3f16>::GetComponents()    {  return 3; }
+template <> inline int TypeTraits<vd::v3f32>::GetComponents()    {  return 3; }
+template <> inline int TypeTraits<vd::v3f64>::GetComponents()    {  return 3; }
 
-template <> inline int TypeTraits<vd::v4b>::GetDimensions()      {  return 4; }
-template <> inline int TypeTraits<vd::v4i8>::GetDimensions()     {  return 4; }
-template <> inline int TypeTraits<vd::v4i16>::GetDimensions()    {  return 4; }
-template <> inline int TypeTraits<vd::v4i32>::GetDimensions()    {  return 4; }
-template <> inline int TypeTraits<vd::v4i64>::GetDimensions()    {  return 4; }
-template <> inline int TypeTraits<vd::v4u8>::GetDimensions()     {  return 4; }
-template <> inline int TypeTraits<vd::v4u16>::GetDimensions()    {  return 4; }
-template <> inline int TypeTraits<vd::v4u32>::GetDimensions()    {  return 4; }
-template <> inline int TypeTraits<vd::v4u64>::GetDimensions()    {  return 4; }
-template <> inline int TypeTraits<vd::v4f16>::GetDimensions()    {  return 4; }
-template <> inline int TypeTraits<vd::v4f32>::GetDimensions()    {  return 4; }
-template <> inline int TypeTraits<vd::v4f64>::GetDimensions()    {  return 4; }
+template <> inline int TypeTraits<vd::v4b>::GetComponents()      {  return 4; }
+template <> inline int TypeTraits<vd::v4i8>::GetComponents()     {  return 4; }
+template <> inline int TypeTraits<vd::v4i16>::GetComponents()    {  return 4; }
+template <> inline int TypeTraits<vd::v4i32>::GetComponents()    {  return 4; }
+template <> inline int TypeTraits<vd::v4i64>::GetComponents()    {  return 4; }
+template <> inline int TypeTraits<vd::v4u8>::GetComponents()     {  return 4; }
+template <> inline int TypeTraits<vd::v4u16>::GetComponents()    {  return 4; }
+template <> inline int TypeTraits<vd::v4u32>::GetComponents()    {  return 4; }
+template <> inline int TypeTraits<vd::v4u64>::GetComponents()    {  return 4; }
+template <> inline int TypeTraits<vd::v4f16>::GetComponents()    {  return 4; }
+template <> inline int TypeTraits<vd::v4f32>::GetComponents()    {  return 4; }
+template <> inline int TypeTraits<vd::v4f64>::GetComponents()    {  return 4; }
 
 // ============================================================================================== //
 

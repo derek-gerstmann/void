@@ -1259,7 +1259,6 @@ Context::Bind(
     vdAssert(Geometry::AttributeSlot::IsValid(attrib) == true);
     vdAssert(buffer != NULL);
 
-    vd::u32 index = Geometry::AttributeSlot::ToInteger(attrib);
     const Buffer::Data& data = buffer->GetData();
     GLuint components = data.Components;
     GLenum datatype = ConvertBufferDataTypeToGL(data.DataType);
@@ -1303,10 +1302,6 @@ Context::Unbind(
     Geometry::AttributeSlot::Value attrib,
     Buffer* buffer, vd::u32 slot)
 {
-    const Buffer::Data& data = buffer->GetData();
-    GLuint components = data.Components;
-    GLenum datatype = ConvertBufferDataTypeToGL(data.DataType);
-
     if(slot < Geometry::InvalidSlot)
     {    
         glDisableVertexAttribArray(slot);

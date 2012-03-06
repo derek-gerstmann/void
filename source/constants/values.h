@@ -66,6 +66,7 @@ static struct ZeroValue
     VD_FORCE_INLINE operator u16( ) const { return 0; }
     VD_FORCE_INLINE operator i8 ( ) const { return 0; }
     VD_FORCE_INLINE operator u8 ( ) const { return 0; }
+    VD_FORCE_INLINE operator uid ( ) const { static const uid v; return v; }
 #ifndef __MSVC__
     VD_FORCE_INLINE operator size_t( ) const { return 0; }
 #endif

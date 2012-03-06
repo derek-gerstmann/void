@@ -22,8 +22,10 @@
 //
 // ============================================================================================== //
 
-#include "graphics/image.h"
+#include "vd.h"
+#include "core/core.h"
 #include "core/asserts.h"
+#include "graphics/image.h"
 
 // ============================================================================================== //
 
@@ -31,7 +33,15 @@
 #include <string>
 #include <vector>
 
+#if defined(VD_USE_HALF)
+#include <half.h>
+#endif
+
 // ============================================================================================== //
+
+VD_GRAPHICS_NAMESPACE_BEGIN();
+
+typedef vd::f16 half;
 
 #include <OpenImageIO/imageio.h>
 
@@ -43,10 +53,6 @@ namespace
 	typedef OIIO_NAMESPACE::TypeDesc 	OiioTypeDesc;
 	const OIIO_NAMESPACE::stride_t		OiioAutoStride = OIIO_NAMESPACE::AutoStride;
 }
-
-// ============================================================================================== //
-
-VD_GRAPHICS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 

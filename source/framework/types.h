@@ -192,15 +192,202 @@ typedef u32 						  	       status;
 
 // ============================================================================================== //
 
+class uid
+{
+public:
+
+    uid(const u64 low = 0) 
+    {
+        m_Data[1] = 0;
+        m_Data[0] = low;
+    }
+
+    explicit uid(const u64 high, const u64 low)
+    {
+        m_Data[1] = high;
+        m_Data[0] = low;
+    }
+
+    explicit uid(const char* str)
+    {
+        *this = vd::string(str);
+    }
+
+    uid& operator = (const uid& rhs)
+    {
+        m_Data[1] = rhs.m_Data[1];
+        m_Data[0] = rhs.m_Data[0];
+        return *this;
+    }
+
+    uid& operator = (const u64 rhs)
+    {
+        m_Data[1] = 0;
+        m_Data[0] = rhs;
+        return *this;
+    }
+
+    uid& operator = (const vd::string& from);
+
+    operator bool() const
+    {
+        return m_Data[0] != 0;        
+    }
+    
+    bool operator == (const uid& rhs) const
+    { 
+        return m_Data[1] == rhs.m_Data[1] && m_Data[0] == rhs.m_Data[0]; 
+    }
+
+    bool operator != (const uid& rhs) const
+    { 
+        return m_Data[1] != rhs.m_Data[1] || m_Data[0] != rhs.m_Data[0]; 
+    }
+
+    bool operator < (const uid& rhs) const
+    {
+        if(m_Data[1] < rhs.m_Data[1])
+            return true;
+
+        if(m_Data[1] > rhs.m_Data[1])
+            return false;
+
+        return m_Data[0] < rhs.m_Data[0];
+    }
+
+    bool operator > (const uid& rhs) const
+    {
+        if(m_Data[1] > rhs.m_Data[1])
+            return true;
+
+        if(m_Data[1] < rhs.m_Data[1])
+            return false;
+
+        return m_Data[0] > rhs.m_Data[0];
+    }
+
+    bool operator <= (const uid& rhs) const
+    {
+        if(m_Data[1] < rhs.m_Data[1])
+            return true;
+
+        if(m_Data[1] > rhs.m_Data[1])
+            return false;
+
+        return m_Data[0] <= rhs.m_Data[0];
+    }
+
+    bool operator >= (const uid& rhs) const
+    {
+        if(m_Data[1] > rhs.m_Data[1])
+            return true;
+
+        if(m_Data[1] < rhs.m_Data[1])
+            return false;
+
+        return m_Data[0] >= rhs.m_Data[0];
+    }
+
+    uid& operator ++()
+    {
+        ++m_Data[0];
+
+        if(!m_Data[0])
+            ++m_Data[1];
+
+        return *this;
+    }
+
+    uid& operator --()
+    {
+        if(!m_Data[0])
+            --m_Data[1];
+
+        --m_Data[0];
+        return *this;
+    }
+
+    const u64& GetLower() const { return m_Data[0]; }
+    const u64& GetUpper() const { return m_Data[1]; }
+
+    u64& GetLower() { return m_Data[0]; }
+    u64& GetUpper() { return m_Data[1]; }
+
+private:
+    u64 m_Data[2];
+};
+
+inline std::ostream& operator << (std::ostream& os, const uid& id)
+{
+    if(id.GetUpper() == 0)
+        os << std::hex << id.GetLower() << std::dec;
+    else
+        os << std::hex << id.GetUpper() << ':' << id.GetLower() << std::dec;
+
+    return os;
+}
+
+inline uid operator+ (const uid& a, const u64& b)
+{
+    uid result = a;
+    result.GetLower() += b;
+
+    if(result.GetLower() < a.GetLower())
+        ++result.GetUpper();
+
+    return result;
+};
+
+inline uid operator- (const uid& a, const u64& b)
+{
+    uid result = a;
+    result.GetLower() -= b;
+
+    if(result.GetLower() > a.GetLower())
+        --result.GetUpper();
+
+    return result;
+};
+
+inline uid operator & (const uid& a, const uid& b)
+{
+    uid result = a;
+    result.GetLower() &= b.GetLower();
+    result.GetUpper() &= b.GetUpper();
+    return result;
+}
+
+inline uid operator | (const uid& a, const uid& b)
+{
+    uid result = a;
+    result.GetLower() |= b.GetLower();
+    result.GetUpper() |= b.GetUpper();
+    return result;
+}
+
+struct UidEqualTo : std::binary_function<vd::uid, vd::uid, bool>
+{
+    bool operator()(vd::uid const& x, vd::uid const& y) const
+    {
+        return x == y;
+    }
+};
+
+struct UidHash : std::unary_function<vd::uid, std::size_t>
+{
+    std::size_t operator()(vd::uid const& x) const
+    {
+        return x.GetLower();
+    }
+};
+
+// ============================================================================================== //
+
 #define vdSetTag(a, b, c, d)                   (((a) << 24) | ((b) << 16) | ((c) << 8) | (d))
 
 // ============================================================================================== //
 
 VD_NAMESPACE_END();
-
-// ============================================================================================== //
-
-#include "framework/uid.h"
 
 // ============================================================================================== //
 

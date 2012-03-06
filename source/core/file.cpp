@@ -22,8 +22,8 @@
 //
 // ============================================================================================== //
 
-#include "core/core.h"
 #include "core/file.h"
+#include "core/core.h"
 #include "core/endian.h"
 #include "core/logging.h"
 #include "core/memory.h"
