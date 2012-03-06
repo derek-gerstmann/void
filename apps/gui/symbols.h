@@ -1,5 +1,5 @@
-#ifndef VD_CONSTANTS_EXTRACTED_GLOBAL_SYMBOLS_INCLUDED
-#define VD_CONSTANTS_EXTRACTED_GLOBAL_SYMBOLS_INCLUDED
+#ifndef VD_CONSTANTS_EXTRACTED_DEMO_SYMBOLS_SCOPE
+#define VD_CONSTANTS_EXTRACTED_DEMO_SYMBOLS_SCOPE
 
 // ================================================================================================ //
 
@@ -14,11 +14,11 @@ VD_CONSTANTS_NAMESPACE_BEGIN();
 // ================================================================================================ //
 
 #ifndef VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE
-#define VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE	VD_CONSTANTS_NAMESPACE::Symbols::Global
+#define VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE	VD_CONSTANTS_NAMESPACE::Symbols::Demo
 #endif // VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE
 
 namespace Symbols {
-namespace Global {
+namespace Demo {
 
 // ================================================================================================ //
 
@@ -353,7 +353,7 @@ Table[] =
 
 // ================================================================================================ //
 
-} // end namespace: Global
+} // end namespace: Demo
 } // end namespace: Symbols
 
 // ================================================================================================ //
@@ -362,5 +362,5 @@ VD_CONSTANTS_NAMESPACE_END();
 
 // ================================================================================================ //
 
-#endif // VD_CONSTANTS_EXTRACTED_GLOBAL_SYMBOLS_INCLUDED
+#endif // VD_CONSTANTS_EXTRACTED_DEMO_SYMBOLS_SCOPE
 

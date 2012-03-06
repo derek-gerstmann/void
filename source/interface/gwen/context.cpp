@@ -25,7 +25,6 @@
 #include "interface/gwen/context.h"
 
 #include "core/core.h"
-#include "core/status.h"
 #include "core/asserts.h"
 #include "core/functions.h"
 
@@ -38,7 +37,6 @@ VD_INTERFACE_GWEN_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Status);
 VD_IMPORT(Core, Function);
 VD_IMPORT(Core, Symbol);
 
@@ -65,7 +63,7 @@ Context::Destroy()
 	VD_SAFE_DELETE( m_Canvas );
 	VD_SAFE_DELETE( m_Skin );
 	VD_SAFE_DELETE( m_Renderer );	
-	return Core::Status::Code::Success;
+	return Status::Code::Success;
 }
 
 Canvas*

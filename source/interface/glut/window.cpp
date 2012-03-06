@@ -35,7 +35,6 @@ VD_INTERFACE_GLUT_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Status);
 VD_IMPORT(Core, ScopedMutex);
 
 VD_IMPORT(Interface, Mouse);
@@ -588,7 +587,7 @@ vd::status
 Window::Destroy() 
 {
 	Close();
-	return Core::Status::Code::Success;
+	return Status::Code::Success;
 }
 
 void

@@ -39,24 +39,21 @@
 
 // ============================================================================================== //
 
-VD_GRAPHICS_NAMESPACE_BEGIN();
-
-typedef vd::f16 half;
-
+typedef VD_NAMESPACE_SCOPE::f16 half;
 #include <OpenImageIO/imageio.h>
 
+// ============================================================================================== //
+
+VD_GRAPHICS_NAMESPACE_BEGIN();
+
 namespace
-{
+{	
 	typedef OIIO_NAMESPACE::ImageSpec 	OiioImageSpec;
 	typedef OIIO_NAMESPACE::ImageInput 	OiioImageInput;
 	typedef OIIO_NAMESPACE::ImageOutput OiioImageOutput;
 	typedef OIIO_NAMESPACE::TypeDesc 	OiioTypeDesc;
 	const OIIO_NAMESPACE::stride_t		OiioAutoStride = OIIO_NAMESPACE::AutoStride;
 }
-
-// ============================================================================================== //
-
-VD_IMPORT(Core, Status);
 
 // ============================================================================================== //
 

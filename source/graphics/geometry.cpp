@@ -72,7 +72,7 @@ Geometry::Destroy()
         m_Context->Release(this);
 
     Reset();
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 const Geometry::Data&
@@ -90,7 +90,7 @@ Geometry::Attach(
     vd::u32 index = AttributeSlot::ToInteger(attrib);
     m_Data.Buffers[index] = buffer;
     m_Data.Bindings[index] = slot;
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 vd::status 
@@ -100,7 +100,7 @@ Geometry::Detach(
     vd::u32 index = AttributeSlot::ToInteger(attrib);
     m_Data.Buffers[index] = Geometry::InvalidBuffer;    
     m_Data.Bindings[index] = Geometry::InvalidSlot;    
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 void

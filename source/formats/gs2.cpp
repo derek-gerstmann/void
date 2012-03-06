@@ -45,7 +45,6 @@ VD_FORMATS_NAMESPACE_BEGIN();
 
 VD_IMPORT(Core, Thread);
 VD_IMPORT(Core, Memory);
-VD_IMPORT(Core, Status);
 VD_IMPORT(Core, Process);
 
 // ============================================================================================== //

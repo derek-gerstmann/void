@@ -32,7 +32,6 @@
 
 #include "core/core.h"
 #include "core/object.h"
-#include "core/status.h"
 
 #include "runtime/runtime.h"
 #include "interface/cocoa/namespace.h"

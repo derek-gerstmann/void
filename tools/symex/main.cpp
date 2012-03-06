@@ -376,6 +376,7 @@ GenerateHeader(
 
 	if(settings.NameSpaceList.size())
 	{
+		output << "#ifndef " << settings.NameSpaceMacro << std::endl;
 		output << "#define " << settings.NameSpaceMacro << "	VD_CONSTANTS_NAMESPACE::";
 		for(it = settings.NameSpaceList.begin(); it != settings.NameSpaceList.end(); ++it)
 		{
@@ -387,6 +388,8 @@ GenerateHeader(
 			}
 		}
 		output << std::endl;
+
+		output << "#endif // " << settings.NameSpaceMacro << std::endl;
 
 		output << std::endl;
 		for(it = settings.NameSpaceList.begin(); it != settings.NameSpaceList.end(); ++it)

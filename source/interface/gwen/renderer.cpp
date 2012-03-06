@@ -410,14 +410,14 @@ void Renderer::LoadTexture(
 	std::string fullpath = filesystem->Resolve(filename);
 
 	Graphics::ImageInput& input = Graphics::ImageInput::GetInstance();
-	if(input.Open(fullpath, format) != Core::Status::Code::Success)
+	if(input.Open(fullpath, format) != Status::Code::Success)
 	{
 		vdLogGlobalWarning("Failed to read image from file '%s'\n", fullpath.c_str() );
 		pTexture->failed = true;
 		return;
 	}
 	
-	if(input.Read(pixels) != Core::Status::Code::Success)
+	if(input.Read(pixels) != Status::Code::Success)
 	{
 		vdLogGlobalWarning("Failed to read image from file '%s'\n", fullpath.c_str());
 		pTexture->failed = true;

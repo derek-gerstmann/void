@@ -35,7 +35,6 @@ VD_INTERFACE_COCOA_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Status);
 VD_IMPORT(Core, ScopedMutex);
 
 VD_IMPORT(Interface, Mouse);
@@ -215,7 +214,7 @@ vd::status
 Window::Destroy() 
 {
 	Close();
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 void
@@ -391,12 +390,12 @@ Window::FlushEvents(void)
 		for(dhit = m_DeferredHandlers[kind].begin(); dhit != m_DeferredHandlers[kind].end(); ++dhit)
 		{
 			vd::status result = (*dhit)(event);
-			Core::Status::Code::Value code = Core::Status::Code::FromInteger(result);
+			Status::Code::Value code = Status::Code::FromInteger(result);
 			if(code != Status::Code::Success)
 			{
 				vdLogInfo("Event handler for '%s' returned '%s' status!", 
 					Event::Type::ToString(event.Kind),  
-					Core::Status::Code::ToString(code));  
+					Status::Code::ToString(code));  
 			}
 		}		
 	}

@@ -47,7 +47,7 @@ Context::~Context()
 vd::status
 Context::Destroy()
 {
-    return Core::Status::Code::Success;       
+    return Status::Code::Success;       
 }
 
 Runtime::Context*

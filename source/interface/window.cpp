@@ -58,7 +58,7 @@ Window::GetRuntime()
 vd::status 
 Window::Destroy()
 {
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 // ============================================================================================== //

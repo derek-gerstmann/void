@@ -80,25 +80,25 @@ typedef void*                                ptr;
 #include <stdint.h>
 
 #if defined(VD_USE_ALIGNED_TYPES)
-typedef int8_t          	                   flag    __attribute__((aligned(1)));
-typedef int8_t          	                   i8	  	 __attribute__((aligned(1)));
-typedef uint8_t         	                   u8		   __attribute__((aligned(1)));
-typedef int16_t         	                   i16     __attribute__((aligned(2)));
-typedef uint16_t        	                   u16     __attribute__((aligned(2)));
-typedef int32_t         	                   i32     __attribute__((aligned(4)));
-typedef uint32_t        	                   u32     __attribute__((aligned(4)));
-typedef int64_t         	                   i64     __attribute__((aligned(8)));
-typedef uint64_t        	                   u64     __attribute__((aligned(8)));
+typedef int8_t          	                 flag    __attribute__((aligned(1)));
+typedef int8_t          	                 i8	  	 __attribute__((aligned(1)));
+typedef uint8_t         	                 u8		 __attribute__((aligned(1)));
+typedef int16_t         	                 i16     __attribute__((aligned(2)));
+typedef uint16_t        	                 u16     __attribute__((aligned(2)));
+typedef int32_t         	                 i32     __attribute__((aligned(4)));
+typedef uint32_t        	                 u32     __attribute__((aligned(4)));
+typedef int64_t         	                 i64     __attribute__((aligned(8)));
+typedef uint64_t        	                 u64     __attribute__((aligned(8)));
 #if defined(VD_USE_HALF)
 typedef half                                 f16     __attribute__((aligned(2)));
 #else
 typedef u16                                  f16     __attribute__((aligned(2)));
 #endif
-typedef float           	                   f32     __attribute__((aligned(4)));
-typedef double          	                   f64		 __attribute__((aligned(8)));
+typedef float           	                 f32     __attribute__((aligned(4)));
+typedef double          	                 f64	 __attribute__((aligned(8)));
 typedef wchar_t                              wchar_t __attribute__((aligned(sizeof(wchar_t))));
 typedef size_t                               bytesize;
-typedef u32 				                         tag;
+typedef u32 				                 tag;
 #else
 typedef int8_t                               flag;
 typedef int8_t                               i8;
@@ -127,15 +127,15 @@ typedef void*                                ptr;
 // ============================================================================================== //
 
 #if     defined(VD_USE_DOUBLE_PRECISION)
-typedef f64                                     real;
+typedef f64                                  real;
 #ifdef VD_USE_SINGLE_PRECISION
 #undef VD_USE_SINGLE_PRECISION            
 #endif
 #elif   defined(VD_USE_SINGLE_PRECISION)
-typedef f32                                     real;
+typedef f32                                  real;
 #else
-#define VD_USE_SINGLE_PRECISION                 VD_ON
-typedef f32                                     real;
+#define VD_USE_SINGLE_PRECISION              1
+typedef f32                                  real;
 #warning "No numeric precision flag defined!  Using single precision floating-point for numeric values!"
 #endif
 
@@ -188,7 +188,54 @@ typedef std::string               		       vstr;
 
 typedef std::string 		          	       string;
 typedef std::ostringstream        		       stringstream;
-typedef u32 						  	       status;
+
+// ============================================================================================== //
+
+struct Status
+{
+    VD_DECLARE_ENUM(Code,
+        Success,
+        FatalError,
+        UncaughtException,
+        UnknownError,
+        RuntimeError,
+        ExecError,
+        StartupError,
+        ShutdownError,
+        Cancel,
+        Abort,
+        Queued,
+        Starting,
+        Running,
+        Exiting,
+        Defer,
+        Reject,
+        Accept,
+        Bypass,
+        OutOfMemory,
+        InvalidRequest,
+        InvalidContext,
+        InvalidValue,
+        InvalidEnum,
+        InvalidFile,
+        InvalidFileName,
+        InvalidDirectoryName,
+        InvalidResource,
+        InvalidSlot,
+        CreateError,
+        DestroyError,
+        OpenError,
+        CloseError,
+        LoadError,
+        ReadError,
+        WriteError,
+        SaveError,
+        UserStatus);
+};
+
+// ============================================================================================== //
+
+typedef Status::Code status;
 
 // ============================================================================================== //
 

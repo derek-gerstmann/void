@@ -26,7 +26,6 @@
 #include "core/system.h"
 #include "core/resources.h"
 #include "core/logging.h"
-#include "core/status.h"
 #include "constants/constants.h"
 
 #include <cstdio>
@@ -45,8 +44,6 @@
 // ============================================================================================== //
 
 VD_CORE_NAMESPACE_BEGIN();
-
-VD_IMPORT(Core, Status);
 
 // ============================================================================================== //
 

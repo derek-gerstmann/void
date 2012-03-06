@@ -276,7 +276,7 @@ SphPointBasedRenderer::Destroy()
 	{
 		m_Shader.Destroy();
 	}
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 void SphPointBasedRenderer::SetPointScale(

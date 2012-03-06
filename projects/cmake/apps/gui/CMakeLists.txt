@@ -38,18 +38,24 @@ include_directories(
 )
 
 if(VOID_USE_EXTRACTED_SYMBOLS)
-    set( VD_SYMEX_FILELIST ${VD_APPS_GUI_DEMO_ALL_SRC} ${VD_APPS_GUI_DEMO_ALL_INC} ${VD_PLATFORM_SRC} )
+    set( VD_APPS_GUI_SYMEX_FILELIST ${VD_APPS_GUI_DEMO_ALL_SRC} ${VD_APPS_GUI_DEMO_ALL_INC} ${VD_PLATFORM_SRC} )
     set( VD_APPS_GUI_DEMO_ALL_SRC ${VD_APPS_GUI_DEMO_ALL_SRC} ${VD_APPS_GUI_DEMO_SYMBOLS_H} )
-    add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=VD_ON )
-    add_custom_command ( 
-        OUTPUT ${VD_APPS_GUI_DEMO_SYMBOLS_H}
-        COMMENT "Extracting Static Symbols and Strings to ${VD_APPS_GUI_DEMO_SYMBOLS_H} ..."
-        COMMAND mkdir -p ${VD_EXTRACTED_DIR}
-        COMMAND VdSymEx ${VD_SYMEX_FILELIST} -i "core/core.h" -i "core/symbol.h" -i "constants/constants.h" -w "VD_CONSTANTS_EXTRACTED_DEMO_SYMBOLS_INCLUDED" -u "VD_CONSTANTS_EXTRACTED_DEMO_SYMBOLS_SCOPE" -n extracted -n demo -n Symbols -o ${VD_APPS_GUI_DEMO_SYMBOLS_H}
-        DEPENDS ${VD_SYMEX_FILELIST} ${VD_PLATFORM_SRC} ${VD_TOOLS_SYMEX_SRC}
-    )
+    
+    extract_symbols(
+        ${VD_APPS_GUI_DEMO_SYMBOLS_H} 
+        VD_CONSTANTS_EXTRACTED_DEMO_SYMBOLS_SCOPE 
+        VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE
+        Demo
+        ${VD_APPS_GUI_SYMEX_FILELIST})
+
+    add_custom_target(VdSymExDemoHeader ALL DEPENDS ${VD_APPS_GUI_SYMEX_FILELIST} ${VD_ALL_SRC} ${VD_ALL_INC} )
 endif()
 
+if(EXISTS ${VD_APPS_GUI_DEMO_SYMBOLS_H})
+    add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
+    add_definitions( -DVD_EXTRACTED_SYMBOLS_EXIST=1 )
+endif()
+    
 add_executable( GuiDemo WIN32 MACOSX_BUNDLE
     ${VD_APPS_GUI_DEMO_SRC} ${VD_APPS_GUI_DEMO_INC} ${VD_APPS_GUI_DEMO_SYMBOLS_H} )
 
@@ -57,8 +63,6 @@ target_link_libraries( GuiDemo
     VdExternal 
     VdFramework 
     VdPlatform 
-    VdGlutRuntime
-    VdGwenInterface
     ${GUI_LIBRARY}
 )
 

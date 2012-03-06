@@ -27,34 +27,6 @@
 
 // ============================================================================================== //
 
-#if 0
-template <typename T>
-struct VD_API Enumerate
-{   
-    static vd::u32 ToId(const T& v)
-    {
-        return 0;
-    }
-
-    static T FromId(const vd::u32 v)
-    {
-        return 0;
-    }
-
-    static vd::string ToString(const T& v)
-    {
-        return 0;
-    }
-
-    static T FromString(const vd::string& str)
-    {
-        return T();
-    }
-};
-#endif
-
-// ============================================================================================== //
-
 #define VD_DECLARE_ENUM_STARTING_FROM(StructName, StartFrom, ...)                                 \
 struct VD_API StructName                                                                          \
 {                                                                                                 \
@@ -66,11 +38,11 @@ struct VD_API StructName                                                        
         VD_PP_PASS_ENUM_ARGS(VD_PP_EXPAND_ENUM_ENTRY,__VA_ARGS__)                                 \
         Invalid                                                                                   \
     };                                                                                            \
-    static const bool IsValid(StructName::Value value)                                            \
+    static bool IsValid(const StructName::Value& value)                                           \
     {                                                                                             \
   		  return ToInteger(value) < StructName::EndIndex;                                         \
     }                                                                                             \
-    static vd::cstr ToString(StructName::Value value)                                             \
+    static vd::cstr ToString(const StructName::Value& value)                                      \
     {                                                                                             \
     		switch (value)                                                                        \
     		{                                                                                     \
@@ -80,7 +52,7 @@ struct VD_API StructName                                                        
         }                                                                                         \
     		return NULL;                                                                          \
     }                                                                                             \
-    static const vd::u32 ToInteger(StructName::Value value)                                       \
+    static vd::u32 ToInteger(const StructName::Value& value)                                      \
     {                                                                                             \
         switch (value)                                                                            \
         {                                                                                         \
@@ -90,7 +62,7 @@ struct VD_API StructName                                                        
         }                                                                                         \
         return StructName::EndIndex;                                                              \
     }                                                                                             \
-    static const StructName::Value FromInteger(vd::u32 value)                                     \
+    static StructName::Value FromInteger(const vd::u32 value)                                     \
     {                                                                                             \
         switch (value)                                                                            \
         {                                                                                         \
@@ -100,8 +72,26 @@ struct VD_API StructName                                                        
         }                                                                                         \
         return StructName::Invalid;                                                               \
     }                                                                                             \
+    StructName::Value Data;                                                                       \
+    VD_FORCE_INLINE StructName() { Data = StructName::Invalid; }                                  \
+    VD_FORCE_INLINE StructName(const vd::u32 i) { Data = FromInteger(i); }                        \
+    VD_FORCE_INLINE StructName(const StructName::Value& value) { Data = value; }                  \
+    VD_FORCE_INLINE operator bool() const { return IsValid(Data); }                               \
+    VD_FORCE_INLINE operator u32( ) const { return ToInteger(Data); }                             \
+    VD_FORCE_INLINE operator StructName::Value( ) const { return Data; }                          \
+    VD_FORCE_INLINE operator vd::cstr( ) const { return ToString(Data); }                         \
 }
 
+
+/*
+    VD_FORCE_INLINE StructName operator = (const StructName& rhs) { Data = rhs.Data; return *this; } \
+    VD_FORCE_INLINE bool operator == (const StructName& rhs) const { return Data == rhs.Data; }   \
+    VD_FORCE_INLINE bool operator != (const StructName& rhs) const { return Data != rhs.Data; }   \
+    VD_FORCE_INLINE bool operator < (const StructName& rhs) const { return Data < rhs.Data; }     \
+    VD_FORCE_INLINE bool operator > (const StructName& rhs) const { return Data > rhs.Data; }     \
+    VD_FORCE_INLINE bool operator <= (const StructName& rhs) const { return Data <= rhs.Data; }   \
+    VD_FORCE_INLINE bool operator >= (const StructName& rhs) const { return Data >= rhs.Data; }   \
+*/
 
 // ============================================================================================== //
 

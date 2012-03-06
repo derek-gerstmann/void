@@ -39,7 +39,6 @@ VD_GRAPHICS_OPENGL_NAMESPACE_BEGIN();
 // ============================================================================================== //
 
 VD_IMPORT(Core, Memory);
-VD_IMPORT(Core, Status);
 
 // ============================================================================================== //
 
@@ -346,7 +345,7 @@ Context::Destroy()
     m_Framebuffers.clear();
     m_Textures.clear();
     m_Shaders.clear();
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 vd::status 
@@ -1169,11 +1168,11 @@ Context::Submit(
     {
         vd::u32 index = data.Buffers[Geometry::AttributeSlot::Index];
         if(m_Buffers.size() < index)
-            return Core::Status::Code::Reject;
+            return Status::Code::Reject;
         
         Buffer* buffer = m_Buffers[index];
         if(buffer == NULL)
-            return Core::Status::Code::Reject;
+            return Status::Code::Reject;
 
         vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error pre submit index buffer.");
         Bind(buffer);
@@ -1210,11 +1209,11 @@ Context::Unbind(
     {
         vd::u32 index = data.Buffers[i];
         if(m_Buffers.size() < index)
-            return Core::Status::Code::Reject;
+            return Status::Code::Reject;
         
         Buffer* buffer = m_Buffers[i];
         if(buffer == NULL)
-            return Core::Status::Code::Reject;
+            return Status::Code::Reject;
         
         Geometry::AttributeSlot::Value attrib =  Geometry::AttributeSlot::FromInteger(i);
         Geometry::AttributeSlot::Value binding = Geometry::AttributeSlot::FromInteger(data.Bindings[i]);
@@ -1294,7 +1293,7 @@ Context::Bind(
     }    
 
     vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error enabling vertex attribute array!");        
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 vd::status
@@ -1325,7 +1324,7 @@ Context::Unbind(
 
     vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error disabling vertex attribute array!");     
        
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 // ============================================================================================== //

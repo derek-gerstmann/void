@@ -1,8 +1,8 @@
 // ============================================================================================== //
 //
 // License:		The Lesser GNU Public License (LGPL) v3.0.
-//
-// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA).
+// 
+// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA). 
 //				As well as the shoulders of many giants...
 //
 // This file is part of the Void framework.
@@ -22,35 +22,65 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_INTERFACE_GWEN_CONTEXT_INCLUDED
-#define VD_INTERFACE_GWEN_CONTEXT_INCLUDED
+#ifndef VD_DEMO_GLUT_INCLUDED
+#define VD_DEMO_GLUT_INCLUDED
 
 // ============================================================================================== //
 
+#include "core/core.h"
+#include "core/builtins.h"
+#include "core/utilities.h"
+#include "core/process.h"
+#include "containers/buffer.h"
+#include "graphics/graphics.h"
 #include "interface/interface.h"
-#include "interface/event.h"
-
 #include "interface/gwen/gwen.h"
-#include "interface/gwen/renderer.h"
-#include "interface/gwen/canvas.h"
-#include "interface/gwen/skin.h"
-#include "interface/gwen/input.h"
+#include "interface/gwen/context.h"
+#include "interface/glut/window.h"
+#include "runtime/application.h"
+
+#include "widgets.h"
+#include "config.h"
+
+#if defined(VD_USE_EXTRACTED_SYMBOLS)
+#include "symbols.h"
+#endif
 
 // ============================================================================================== //
 
-VD_INTERFACE_GWEN_NAMESPACE_BEGIN();
+VD_RUNTIME_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-class Context : public Core::Object
+VD_IMPORT(Interface, Event);
+VD_IMPORT(Containers, ParamSet);
+VD_IMPORT(Interface, Window);
+
+// ============================================================================================== //
+
+class Demo : public Application
 {
-public:
-	Context(Graphics::Context* graphics);
-	virtual ~Context(){ Destroy(); }
-	virtual vd::status Destroy();
 
-	Canvas* GetCanvas(void);
-	vd::status Initialize(vd::i32 width, vd::i32 height);
+public:
+    Demo();
+    virtual ~Demo();
+
+	virtual vd::status Initialize(int* argc = 0, void ** argv = 0);
+    virtual vd::status Startup(int* argc = 0, void ** argv = 0);
+    vd::status Execute();
+    virtual vd::status Shutdown();
+
+    vd::status OpenDataset(const char* filename);
+    vd::status LoadSettings(std::string filename);
+	vd::status Reshape(int width, int height);
+    vd::status LoadResources();
+    vd::status Render();
+
+    void SaveTiles();
+    void RenderFrame();
+    void RenderOverlay();
+    void ClearFrame();
+
     vd::status OnShutdown(const Event&);
     vd::status OnUpdate(const Event& event);
     vd::status OnKeyEvent(const Event & event);
@@ -61,31 +91,39 @@ public:
     vd::status OnMouseWheel(const Event & event);
     vd::status OnCloseEvent(const Event & event);
     vd::status OnDisplay(const Event & event);    
-    vd::status Render(void);
+    vd::status HandleKeys();
+    
+	VD_DECLARE_OBJECT(Demo);
+	
+protected:
 
-	VD_DECLARE_OBJECT(Context);
+	VD_DISABLE_COPY_CONSTRUCTORS(Demo);
 
+    vd::status CreateWindow(int* argc, void** argv);
+	vd::status UpdateData(void);
+	
+	void DrawScene();
+    void CaptureScreen();
+    void SaveScreen();
+    void SetFrameViewport();
+    void SetWindowViewport();
+    void SaveFramebuffer();
+    
 private:
 
-	VD_DISABLE_COPY_CONSTRUCTORS(Context);
-
-    vd::i32             m_Width;
-    vd::i32             m_Height;
-	Skin* 	            m_Skin;
-	Input* 	            m_Input;
-	Canvas*             m_Canvas;
-    Renderer*           m_Renderer; 
-    Graphics::Context*  m_Graphics;
+	Window* m_Window;
+    Interface::Gw::Context* m_Gui;
+    Interface::Gw::WindowControl* m_Controls;
+    ParamSet m_Params;
+    Config m_Config;
+    vd::f64 m_LastUpdate;
+    vd::status m_Status;
 };
 
 // ============================================================================================== //
 
-VD_INTERFACE_GWEN_NAMESPACE_END();
+VD_RUNTIME_NAMESPACE_END();
 
 // ============================================================================================== //
 
-#endif	// VD_INTERFACE_GWEN_CONTEXT_INCLUDED
-
-// ============================================================================================== //
-// end file
-
+#endif // VD_DEMO_GLUT_INCLUDED

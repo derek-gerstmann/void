@@ -33,7 +33,6 @@
 
 #include "formats/formats.h"
 #include "core/core.h"
-#include "core/status.h"
 #include "core/object.h"
 #include "core/memory.h"
 #include "core/atomics.h"

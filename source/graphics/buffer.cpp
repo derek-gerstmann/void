@@ -64,7 +64,7 @@ Buffer::Destroy()
 {
 	if(m_Context)
 		m_Context->Release(this);
-	return Core::Status::Code::Success;
+	return Status::Code::Success;
 }
 
 const Buffer::Data&

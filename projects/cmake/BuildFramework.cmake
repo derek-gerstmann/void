@@ -1,6 +1,8 @@
 
 if(VOID_USE_EXTRACTED_SYMBOLS)
+
     set( VD_SYMEX_FILELIST ${VD_ALL_SRC} ${VD_ALL_INC} ${VD_ALL_OPT_SRC} ${VD_ALL_OPT_INC} ${VD_PLATFORM_SRC} )
+
     file(MAKE_DIRECTORY ${VD_EXTRACTED_DIR} )
     
     extract_symbols(
@@ -10,13 +12,13 @@ if(VOID_USE_EXTRACTED_SYMBOLS)
         Global
         ${VD_SYMEX_FILELIST})
 
-    add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
-    add_definitions( -DVD_EXTRACTED_SYMBOLS_H="${VD_SYMBOLS_H}" )
     add_custom_target(VdSymExHeader ALL DEPENDS ${VD_SYMBOLS_H} ${VD_ALL_SRC} ${VD_ALL_INC} )
+
 endif()
 
 
 if(EXISTS ${VD_SYMBOLS_H})
+    add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
     add_definitions( -DVD_EXTRACTED_SYMBOLS_EXIST=1 )
 endif()
     

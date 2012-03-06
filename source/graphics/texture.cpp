@@ -33,7 +33,6 @@ VD_GRAPHICS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Status);
 VD_IMPORT(Core, Memory);
 
 // ============================================================================================== //
@@ -46,14 +45,16 @@ Texture::Load2D(
 	ImageFormat format;
 	ImageBuffer8u pixels;
 	ImageInput& input = ImageInput::GetInstance();
-	
-	if(input.Open(filename, format) != Status::Code::Success)
+
+    vd::status open = input.Open(filename, format);
+	if(open != Status::Code::Success)
 	{
 		vdLogGlobalWarning("Error: Failed to load texture from image file '%s'\n", filename.c_str());	
 		return false;
 	}
-	
-	if(input.Read(pixels) != Status::Code::Success)
+
+    vd::status read = input.Read(pixels);
+    if(read != Status::Code::Success)
 	{
 		vdLogGlobalWarning("Error: Failed to load texture from image file '%s'\n", filename.c_str());	
 		return false;

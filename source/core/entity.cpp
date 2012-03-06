@@ -50,8 +50,8 @@ Entity::Entity(const Entity*) :
 
 Entity::~Entity()
 {
-//    vd::i32 count = GetRefCount();
-//    vdGlobalAssertMsg( count == 0, "Deleting %s with reference count %i!", ToString().c_str(), count);
+    vd::i32 count = GetRefCount();
+    vdGlobalAssertMsg( count == 0, "Deleting %s with reference count %i!", ToString().c_str(), count);
 }
 
 vd::status

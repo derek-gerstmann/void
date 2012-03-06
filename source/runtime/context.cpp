@@ -23,7 +23,6 @@
 // ============================================================================================== //
 
 #include "runtime/context.h"
-#include "core/status.h"
 
 #if defined(VD_USE_GLUT_RUNTIME)
 #include "interface/glut/window.h"
@@ -53,7 +52,7 @@ Context::Destroy()
         m_FileSystem->Close();
     
     VD_DELETE(m_FileSystem);     
-    return Core::Status::Code::Success;   
+    return Status::Code::Success;   
 }
 
 vd::status 
@@ -61,7 +60,7 @@ Context::Setup(const Containers::ParamSet& params)
 {
     m_FileSystem = VD_NEW(Core::FileSystem);
     m_FileSystem->Open();
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 Core::FileSystem*
@@ -84,21 +83,21 @@ vd::status
 Context::Release(Interface::Window* w)
 {
     VD_SAFE_DELETE(w);
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 vd::status
 Context::Lock(void)
 {
     m_Mutex.Lock();
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 vd::status
 Context::Unlock(void)
 {
     m_Mutex.Unlock();
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 Core::Mutex*

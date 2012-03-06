@@ -35,7 +35,6 @@
 #include "vd.h"
 #include "formats/formats.h"
 #include "core/core.h"
-#include "core/status.h"
 #include "core/entity.h"
 #include "core/memory.h"
 #include "core/atomics.h"

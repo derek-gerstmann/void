@@ -22,97 +22,94 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_DATASET_HEADER_INCLUDED
-#define VD_DATASET_HEADER_INCLUDED
+#ifndef VD_DEMO_CONFIG_INCLUDED
+#define VD_DEMO_CONFIG_INCLUDED
 
 // ============================================================================================== //
 
-#include "storage/storage.h"
-
-#include "core/core.h"
-#include "core/cache.h"
-#include "core/containers.h"
-#include "core/object.h"
-#include "core/memory.h"
-#include "core/atomics.h"
-#include "core/workqueue.h"
-
-// ============================================================================================== //
-
-VD_STORAGE_NAMESPACE_BEGIN();
+#include "runtime/runtime.h"
+#include "containers/containers.h"
+#include "graphics/graphics.h"
+#include "graphics/viewport.h"
+#include "interface/interface.h"
+#include "interface/keyboard.h"
+#include "interface/mouse.h"
+#include "interface/event.h"
+#include "core/numerics.h"
 
 // ============================================================================================== //
 
-class DataGroup : public vd::core::Object
+VD_RUNTIME_NAMESPACE_BEGIN();
+
+// ============================================================================================== //
+
+VD_IMPORT(Core, Memory);
+VD_IMPORT(Interface, Event);
+VD_IMPORT(Interface, Mouse);
+VD_IMPORT(Interface, Keyboard);
+VD_IMPORT(Containers, AlignedMap);
+VD_IMPORT(Graphics, Viewport);
+
+// ============================================================================================== //
+
+struct Config
 {
-    DataSet();    
-    virtual ~DataSet();
+    typedef AlignedMap<vd::i32, vd::uid>::type KeyMapType;
 	
-	virtual void 
-	Destroy();
-
-	VD_DECLARE_OBJECT(DataGroup);
+    Config()
+	{
+	    Memory::MemSet(this, 0, sizeof(Config));
+	}
 	
-private:
+	~Config(){}
+	
+    struct
+    {
+		Graphics::Viewport Viewport;
+    } Window;
 
-	VD_DISABLE_COPY_CONSTRUCTORS(DataGroup);
+    struct
+    {
+        Event::KeyEvent Down[Keyboard::KeyCode::Count];
+        vd::i32 Pending;
+    } KeyState;
+
+    struct
+    {
+        KeyMapType KeyMap;
+        bool MouseDown[Mouse::Button::Count];
+        bool KeyDown[Keyboard::KeyCode::Count];
+        bool Ctrl[Keyboard::KeyCode::Count];
+        bool Alt[Keyboard::KeyCode::Count];
+        bool Shift[Keyboard::KeyCode::Count];
+    } Controls;
+
+    struct
+    {
+        bool Initialised;
+        vd::u64 LastRenderTime;
+        vd::u64 FrameCount;
+        vd::u64 TotalFrames;
+        vd::u64 StartTimeForFrame;
+        vd::u64 CurrentTimeForFrame;
+        bool Terminate;
+        bool Stale;
+        bool Paused;
+        bool FullScreen;
+    } Status;
+
+    struct
+    {
+        bool CaptureScreen;
+        bool OpenDataset;
+        bool Shutdown;
+    } Commands;
 };
 
 // ============================================================================================== //
 
-class DataSet : public vd::core::Object
-{
-public:
-    DataSet();    
-    virtual ~DataSet();
-	
-	virtual void 
-	Destroy();
-	
-	virtual vd::status 
-	Open(const vd::string& container, const vd::string& dataset, const vd::string& options) = 0;
-	
-	virtual vd::status 
-	Close() = 0;
-	
-	virtual vd::uid 
-	Resolve(const vd::string& parent, const vd::string& path) = 0;
-
-	virtual DataGroup* 
-	Load(vd::uid index) = 0;
-	
-	virtual DataGroup* 
-	Fetch(vd::uid index) = 0;
-
-	virtual vd::status 
-	Request(const DataRequest& request) = 0;
-
-	virtual vd::u64 GetEntryCount() const = 0;
-	virtual vd::uid GetStartIndex() const = 0;
-	virtual vd::uid GetEndIndex() const  = 0;
-	virtual vd::uid GetCurrentIndex() const  = 0;
-	virtual void SetCurrentIndex(vd::uid index) = 0;
-
-	virtual bool IsOpen() const = 0;
-	virtual bool IsResident(vd::i32 index) const = 0;
-	virtual bool IsPending(vd::i32 index) const = 0;
-	virtual bool IsReady(vd::i32 index) const = 0;
-
-	VD_DECLARE_OBJECT(DataSet);
-	
-private:
-
-	VD_DISABLE_COPY_CONSTRUCTORS(DataSet);
-};
+VD_RUNTIME_NAMESPACE_END();
 
 // ============================================================================================== //
 
-VD_STORAGE_NAMESPACE_END();
-
-// ============================================================================================== //
-
-#endif // VD_DATASET_HEADER_INCLUDED
-
-// ============================================================================================== //
-// END OF FILE
-
+#endif // VD_DEMO_CONFIG_INCLUDED

@@ -102,7 +102,7 @@ Shader::Destroy()
     if(m_Handle)
         glDeleteProgram(m_Handle);
     m_Handle = 0;
-    return Core::Status::Code::Success;
+    return Status::Code::Success;
 }
 
 bool
