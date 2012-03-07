@@ -82,10 +82,14 @@ add_definitions( -DVD_VERSION_NAMESPACE=${VOID_VERSION_NAMESPACE} )
 add_definitions( -DVD_VERSION_SUFFIX=${VOID_VERSION_SUFFIX} )
 
 if(VOID_BUILD_SHARED_LIBS)
-  set( VD_LIBRARY_TYPE SHARED )
-  add_definitions( -DVD_BUILD_SHARED_LIBRARY=1 )
+    set( VD_LIBRARY_TYPE SHARED )
+    add_definitions( -DVD_BUILD_SHARED_LIBRARY=1 )
 else()
-  set( VD_LIBRARY_TYPE STATIC )
+    set( VD_LIBRARY_TYPE STATIC )
+endif()
+
+if(VD_REVISION)
+    add_definitions( -DVD_REVISION="${VD_REVISION}" )
 endif()
 
 if(VOID_USE_HALF)

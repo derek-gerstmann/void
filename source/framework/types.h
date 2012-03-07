@@ -29,12 +29,6 @@
 
 #include "vd.h"
 
-#include <string>
-#include <vector>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-
 // ============================================================================================== //
 
 VD_NAMESPACE_BEGIN();

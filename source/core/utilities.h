@@ -33,12 +33,6 @@
 
 // ============================================================================================== //
 
-#include <string>
-#include <sstream>
-#include <iomanip>
-
-// ============================================================================================== //
-
 VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
@@ -128,6 +122,261 @@ namespace Convert
     vd::string
     FormatString(const char* fmt, ...);
 };
+
+    class Integer {
+
+    public:
+
+        vd::i32                 Value;
+
+        Integer(const vd::i32 value) {
+            Value = value;
+        }
+
+        Integer(const char* s) {
+            Value = Parse(s, 10);
+        }
+
+    public://int functionality
+        VD_INLINE char ToChar() {
+            return (char)Value;
+        }
+
+        VD_INLINE short ToShort() {
+            return (short)Value;
+        }
+
+        VD_INLINE int ToInteger() {
+            return Value;
+        }
+
+        VD_INLINE vd::u64 ToU64() {
+            return (_u64)Value;
+        }
+
+        VD_INLINE vd::f32 ToF32() {
+            return (vd::f32)Value;
+        }
+
+        VD_INLINE vd::f64 ToF64() 
+        {
+            return (vd::f64)Value;
+        }
+
+        VD_INLINE std::string ToString() 
+        {
+            std::stringstream lStream; 
+            lStream << Value;
+            return lStream.str();
+        }
+
+        VD_INLINE vd::uid ToKey() 
+        {
+            return vd::uid(Value);
+        }
+
+        VD_INLINE 
+        vd::i32 CompareTo(const Integer& rhs) 
+        {
+            vd::i32 us = Value;
+            vd::i32 them = rhs.Value;
+            return (us < them ? -1 : (us == them ? 0 : 1));
+        }
+
+    public:
+
+        VD_INLINE static 
+        vd::string ToString(int i, int radix) {
+            char tmp_buf[256*1];
+            Itoa (i, tmp_buf,radix);
+            return std::string(tmp_buf);
+        }
+
+        VD_INLINE static 
+        vd::string ToHexString(const int i) {
+            std::stringstream lStream; 
+            lStream.flags ( std::ios::hex );
+            lStream << i;
+            return lStream.str();
+        }
+
+        VD_INLINE static 
+        vd::string ToOctalString(const int i) {
+            std::stringstream lStream; 
+            lStream.flags ( std::ios::oct );
+            lStream << i;
+            return lStream.str();
+        }
+
+        VD_INLINE static 
+        vd::string ToBinaryString(const int i) {
+            char tmp_buf[256*1];
+            Itoa (i,tmp_buf,2);
+            return std::string(tmp_buf);
+        }
+
+        VD_INLINE static 
+        std::string toString(const int i) {
+            std::stringstream lStream;
+            lStream << i;
+            return lStream.str();
+        }
+
+        VD_INLINE static 
+        vd::i32 Parse(const char* s, const int radix) {
+            return strtol(s,NULL,radix);
+        }
+
+        VD_INLINE static 
+        vd::i32 Parse(const char* s) {
+            return parseInt(s,10);
+        }
+
+        VD_INLINE static 
+        vd::i32 GetHighestOneBit(int i) 
+        {
+            i |= (i >>  1);
+            i |= (i >>  2);
+            i |= (i >>  4);
+            i |= (i >>  8);
+            i |= (i >> 16);
+            return i - (i >> 1);
+        }
+
+        VD_INLINE static 
+        vd::i32 GetLowestOneBit(const int i) 
+        {
+            return i & -i;
+        }
+
+        VD_INLINE static 
+        vd::i32 GetNumberOfLeadingZeros(int i) 
+        {
+            if (i == 0)
+                return 32;
+            int n = 1;
+            if (i >> 16 == 0) { n += 16; i <<= 16; }
+            if (i >> 24 == 0) { n +=  8; i <<=  8; }
+            if (i >> 28 == 0) { n +=  4; i <<=  4; }
+            if (i >> 30 == 0) { n +=  2; i <<=  2; }
+            n -= i >> 31;
+            return n;
+        }
+
+        VD_INLINE static 
+        vd::i32 GetNumberOfTrailingZeros(int i) 
+        {
+            int y;
+            if (i == 0) return 32;
+            int n = 31;
+            y = i <<16; if (y != 0) { n = n -16; i = y; }
+            y = i << 8; if (y != 0) { n = n - 8; i = y; }
+            y = i << 4; if (y != 0) { n = n - 4; i = y; }
+            y = i << 2; if (y != 0) { n = n - 2; i = y; }
+            return n - ((i << 1) >> 31);
+        }
+
+        VD_INLINE static 
+        vd::i32 RotateLeft(const vd::i32 i, const vd::i32 distance) 
+        {
+            return (i << distance) | (i >> -distance);
+        }
+
+        VD_INLINE static 
+        vd::i32 RotateRight(const vd::i32 i, const vd::i32 distance) 
+        {
+            return (i >> distance) | (i << -distance);
+        }
+
+        VD_INLINE static 
+        vd::i32 Reverse(vd::i32 i) 
+        {
+            i = (i & 0x55555555) << 1 | (i >> 1) & 0x55555555;
+            i = (i & 0x33333333) << 2 | (i >> 2) & 0x33333333;
+            i = (i & 0x0f0f0f0f) << 4 | (i >> 4) & 0x0f0f0f0f;
+            i = (i << 24) | ((i & 0xff00) << 8) |
+                ((i >> 8) & 0xff00) | (i >> 24);
+            return i;
+        }
+
+        VD_INLINE static 
+        vd::i32 Signum(const vd::i32 i) 
+        {
+            return (i >> 31) | (-i >> 31);
+        }
+
+        VD_INLINE static 
+        vd::i32 ReverseBytes(const vd::i32 i) 
+        {
+            return ((i >> 24)           )  |
+                ((i >>   8) &   0xFF00)  |
+                ((i <<   8) & 0xFF0000)  |
+                ((i << 24));
+        }
+
+
+        VD_INLINE static 
+        vd::u32 GetNearestPowerOfTwo(const vd::u32 i) 
+        {
+            vd::u32 rc( 1 );
+            while (rc < i) {
+                rc <<= 1;
+            }
+            return rc;
+        }
+
+        VD_INLINE static 
+        vd::u32 Log2(const vd::u32 i) 
+        {
+            vd::u32 mask = 1;
+            vd::u32 count=0;
+            while(mask < i) 
+            {
+                mask <<= 1;
+                ++count;
+            }
+            return count;
+        }
+
+        VD_INLINE static 
+        vd::u32 GetBitCount(vd::u32 i) {
+            return bit_count(i);
+        }
+
+        VD_INLINE static _u32 GetLsbBitIndex(_u32 x) {
+            return first_lsb_bit_indx(x);
+        }
+
+        VD_INLINE static _u32 GetMsbBitIndex(_u32 x) {
+            return first_msb_bit_indx(x);
+        }
+
+    private:
+        VD_INLINE static char* ToAscii(int value, char* str, int radix) 
+        {
+            static char dig[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+            int n = 0, neg = 0;
+            unsigned int v;
+            char* p, *q;
+            char c;
+
+            if (radix == 10 && value < 0) {
+                value = -value;
+                neg = 1;
+            }
+            v = value;
+            do {
+                str[n++] = dig[v%radix];
+                v /= radix;
+            } while (v);
+            if (neg)
+                str[n++] = '-';
+            str[n] = '\0';
+            for (p = str, q = p + n/2; p != q; ++p, --q)
+                c = *p, *p = *q, *q = c;
+            return str;
+        }
+    };
 
 template <typename T>
 inline intptr_t OffsetFrom(T x) {

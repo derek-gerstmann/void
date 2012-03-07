@@ -16,7 +16,6 @@ if(VOID_USE_EXTRACTED_SYMBOLS)
 
 endif()
 
-
 if(EXISTS ${VD_SYMBOLS_H})
     add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
     add_definitions( -DVD_EXTRACTED_SYMBOLS_EXIST=1 )

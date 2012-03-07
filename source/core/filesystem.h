@@ -27,7 +27,6 @@
 
 #include "core/core.h"
 #include "core/system.h"
-#include "core/object.h"
 #include "containers/containers.h"
 
 // ============================================================================================== //
@@ -64,16 +63,16 @@ enum {
 
 // ============================================================================================== //
 
-class FileSystem : public Object
+class FileSystem
 {
 public:
 
-    typedef Containers::Vector< vd::string >::type         SearchPath;
+    typedef Containers::Vector< vd::string >::type          SearchPath;
 
 #if defined(VD_TARGET_WINDOWS)
-    typedef HANDLE              FileHandle;
+    typedef HANDLE                                          FileHandle;
 #elif (defined(VD_TARGET_OSX) || defined(VD_TARGET_UNIX))
-    typedef int                 FileHandle;
+    typedef int                                             FileHandle;
 #endif
 
     static const FileHandle InvalidFileHandle;
@@ -128,8 +127,6 @@ public:
     vd::string GetTemporaryDirectory(void);
     vd::string GetTemporaryFile(const vd::string& tmpdir, const vd::string& prefix, bool persistent);
     vd::string GetTemporaryPath(const vd::string& prefix, bool persistent);
-
-    VD_DECLARE_OBJECT(FileSystem);
 
 private:
 

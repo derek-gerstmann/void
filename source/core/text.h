@@ -28,8 +28,6 @@
 #include "core/core.h"
 #include "core/object.h"
 
-#include <string>
-
 // ============================================================================================== //
 
 VD_CORE_NAMESPACE_BEGIN();

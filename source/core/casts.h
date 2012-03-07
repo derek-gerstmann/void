@@ -30,12 +30,6 @@
 #include "core/core.h"
 #include "core/memory.h"
 
-#include <stdexcept>
-#include <typeinfo>
-#include <sstream>
-#include <cassert>
-#include <string>
-
 // ============================================================================================== //
 
 VD_CORE_NAMESPACE_BEGIN();

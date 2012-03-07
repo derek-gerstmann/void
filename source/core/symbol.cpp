@@ -38,8 +38,6 @@
 #include "core/registry.h"
 #include "core/utilities.h"
 
-#include <cstring>
-
 // ============================================================================================== //
 
 VD_CORE_NAMESPACE_BEGIN();

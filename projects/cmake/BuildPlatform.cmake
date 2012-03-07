@@ -1,13 +1,17 @@
 find_library( EXPAT_LIBRARY expat )
-find_library( ICONV_LIBRARY iconv )
 find_library( BZIP2_LIBRARY bz2 )
 
 set( VD_PLATFORM_LIBS 
 	${EXPAT_LIBRARY} 
-	${ICONV_LIBRARY} 
-	${BZIP2_LIBRARY} )
+	${BZIP2_LIBRARY} 
+)
 
-if(APPLE)
+file( GLOB VD_PLATFORM_SRC 
+    ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.c 
+    ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.cpp
+)
+
+if(VD_SYSTEM_OSX)
 
     find_library( COCOA_LIBRARY Cocoa )
 
@@ -18,9 +22,9 @@ if(APPLE)
 	set_source_files_properties( ${VD_OSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 	
     file( GLOB VD_PLATFORM_SRC 
-    	${VD_SRC_DIR}/*/osx/*.m 
-    	${VD_SRC_DIR}/*/osx/*.c
-    	${VD_SRC_DIR}/*/osx/*.cpp
+        ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.m 
+        ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.c 
+        ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.cpp
     	${VD_OSX_ICON_FILES}
     )
     
@@ -32,9 +36,9 @@ if(APPLE)
         /System/Library/Frameworks/IOKit.framework
         ${VD_PLATFORM_LIBS} 
 	)
+endif()
 
-else(WIN32)
-
+if(VD_SYSTEM_WIN)
     source_group( "Shaders" FILES ${VD_SHADERS} )
     source_group( "Build" FILES CMakeLists.txt )
     add_definitions( /wd4996 )
@@ -43,21 +47,12 @@ else(WIN32)
     set( VD_PLATFORM_LIBS opengl32 WIN32        
     	${VD_PLATFORM_LIBS} 
 	)
-
-
-else(LINUX)
-
-	# TODO
-    file( GLOB VD_PLATFORM_SRC ${VD_SRC_DIR}/*/lnx/*.c ${VD_SRC_DIR}/*/lnx/*.cpp)
-	
 endif()
 
-add_library( VdPlatform
-	${VD_PLATFORM_SRC}
-)
+if( ${VD_PLATFORM_SRC} )
+    add_library( VdPlatform ${VD_PLATFORM_SRC} )
+    target_link_libraries( VdPlatform ${VD_PLATFORM_LIBS} )
+endif()
 
-target_link_libraries( VdPlatform 
-	${VD_PLATFORM_LIBS} 
-)
 
 

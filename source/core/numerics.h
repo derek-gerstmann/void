@@ -49,9 +49,6 @@
 #include "core/builtins.h"
 #include "constants/types.h"
 
-#include <cmath>
-#include <cassert>
-
 // ============================================================================================== //
 
 VD_CORE_NAMESPACE_BEGIN();
@@ -65,6 +62,20 @@ VD_CORE_NAMESPACE_BEGIN();
 VD_FORCE_INLINE bool finite(vd::f32 x) { return _finite(x) != 0; }
 #endif
 #endif
+
+// ---------------------------------------------------------------------------------------------- //
+
+VD_FORCE_INLINE
+vd::i32 Abs(vd::i32 x)
+{
+    return (x > vd::i32(Constants::Zero)) ? x : -x;
+}
+
+VD_FORCE_INLINE
+vd::i64 Abs(vd::i64 x)
+{
+    return (x > vd::i64(Constants::Zero)) ? x : -x;
+}
 
 // ---------------------------------------------------------------------------------------------- //
 
@@ -216,10 +227,23 @@ VD_FORCE_INLINE
 bool IsWithinUlps(
     vd::f32 x, vd::f32 y, vd::f32 ulps)
 {
+    union value {
+        vd::f32 f;
+        vd::i32 i;
+    };
+
     vdStaticAssert( sizeof(vd::f32) == sizeof(vd::i32), TypeSizeMisMatch);
+
     if (x == y)
         return true;
-    vd::i32 delta = ::abs(*(vd::i32*)&x - *(vd::i32*)&y);
+
+    value vx;
+    value vy;
+    
+    vx.f = x;
+    vy.f = y;
+
+    vd::i32 delta = Abs(vx.i - vy.i);
     if (delta <= ulps)
         return true;
     return false;
@@ -375,12 +399,27 @@ VD_FORCE_INLINE
 bool IsWithinUlps(
     vd::f64 x, vd::f64 y, vd::f64 ulps)
 {
-    vdStaticAssert(sizeof(vd::f64) == sizeof(vd::i64), TypeSizeMisMatch);
+
+    union value {
+        vd::f64 f;
+        vd::i64 i;
+    };
+
+    vdStaticAssert( sizeof(vd::f32) == sizeof(vd::i32), TypeSizeMisMatch);
+
     if (x == y)
         return true;
-    vd::i64 delta = abs(*(vd::i64*)&x - *(vd::i64*)&y);
+
+    value vx;
+    value vy;
+    
+    vx.f = x;
+    vy.f = y;
+
+    vd::i64 delta = Abs(vx.i - vy.i);
     if (delta <= ulps)
         return true;
+
     return false;
 }
 
@@ -1343,22 +1382,13 @@ struct v4
     enum {N = 4};
 
     VD_FORCE_INLINE
-    v4()
-    {
-        // EMPTY!
-    }
+    v4() { }
 
     VD_FORCE_INLINE
-    v4(const v4& v)
-    {
-        x = v.x; y = v.y; z = v.z; w = v.w;
-    }
+    v4(const v4& v) : x(v.x), y(v.y), z(v.z), w(v.w) { }
 
     template<typename T1> VD_FORCE_INLINE
-    v4(const v4<T1>& a) : x(T(a.x)), y(T(a.y)), z(T(a.z)), w(T(a.w))
-    {
-        // EMPTY!
-    }
+    v4(const v4<T1>& a) : x(T(a.x)), y(T(a.y)), z(T(a.z)), w(T(a.w)) { }
 
     template<typename T1> VD_FORCE_INLINE
     v4& operator= (const v4<T1>& v)

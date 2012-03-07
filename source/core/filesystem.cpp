@@ -86,8 +86,7 @@ const FileSystem::FileHandle FileSystem::InvalidFileHandle = -1;
 
 // ============================================================================================== //
 
-FileSystem::FileSystem() : 
-    Core::Object()
+FileSystem::FileSystem()
 {
 
 }
@@ -226,11 +225,11 @@ FileSystem::FindInSearchPath(
 #else
         vd::string fullname = path + vd::string("/") + filename;
 #endif
-        vdLogInfo("Searching for file '%s' ...", fullname.c_str());
+        vdLogGlobalInfo("Searching for file '%s' ...", fullname.c_str());
 
         if(FileSystem::IsRegularFile(fullname))
         {
-            vdLogInfo("Found file '%s'!", fullname.c_str());
+            vdLogGlobalInfo("Found file '%s'!", fullname.c_str());
             return fullname;
         }
     }
@@ -377,7 +376,7 @@ FileSystem::OpenFile(
 
     if((flag & VD_FILE_OPEN_EXCL) && !(flag & VD_FILE_OPEN_CREATE))
     {
-        vdLogWarning("Failed to open file '%s'!", filepath.c_str());
+        vdLogGlobalWarning("Failed to open file '%s'!", filepath.c_str());
         return INVALID_HANDLE_VALUE;
     }
 
@@ -393,7 +392,7 @@ FileSystem::OpenFile(
     tfh = ::CreateFileA(filepath.c_str(), oflags, sharemode, NULL, createflags, attributes, NULL);
     if(tfh == INVALID_HANDLE_VALUE)
     {
-        vdLogWarning("Failed to open file '%s'!", filepath.c_str());
+        vdLogGlobalWarning("Failed to open file '%s'!", filepath.c_str());
         return tfh;
     }
 
@@ -497,7 +496,7 @@ FileSystem::GetTemporaryDirectory(void)
     DWORD nsz = ::GetTempPathA((DWORD)MAX_PATH, buffer);
     if(nsz == 0)
     {
-        vdLogWarning("Failed to locate suitable temporary directory!");
+        vdLogGlobalWarning("Failed to locate suitable temporary directory!");
         return tmpdir;        
     }
     tmpdir = vd::string(buffer);
@@ -514,7 +513,7 @@ FileSystem::GetTemporaryFile(
     char* buffer[MAX_PATH+15] = {0};
     if(0 == ::GetTempFileNameA(tmpdir.c_str(), prefix.c_str(), 0, buffer))
     {
-        vdLogWarning("Failed to locate suitable temporary file for '%s!", tmpdir.c_str());
+        vdLogGlobalWarning("Failed to locate suitable temporary file for '%s!", tmpdir.c_str());
         return filename;        
     }
 
@@ -639,7 +638,7 @@ FileSystem::OpenFile(
     tfh = open(filepath.c_str(), oflags, ConvertFlagsToFileMode(mode));
     if(tfh < 0)
     {
-        vdLogWarning("Failed to open file '%s'!", filepath.c_str());
+        vdLogGlobalWarning("Failed to open file '%s'!", filepath.c_str());
         return tfh;
     }
     return tfh;
@@ -765,8 +764,8 @@ FileSystem::GetTemporaryDirectory(void)
 
     if(cp == NULL)
     {
-        vdLogWarning("Failed to locate suitable temporary directory!");
-        vdLogWarning("Set one of the following ENV variables to a writeable location: '%s' '%s' '%s'!",
+        vdLogWavdLogGlobalWarningrning("Failed to locate suitable temporary directory!");
+        vdLogGlobalWarning("Set one of the following ENV variables to a writeable location: '%s' '%s' '%s'!",
             try_envs[0], try_envs[1], try_envs[2]);
         return filepath;
     }
@@ -801,7 +800,7 @@ FileSystem::GetTemporaryFile(
     if(fd == -1)
     {
         VD_DELETE_ARRAY(buffer);
-        vdLogWarning("Failed to create temporary file for '%s'!", tempfile.c_str());
+        vdLogGlobalWarning("Failed to create temporary file for '%s'!", tempfile.c_str());
         return vd::string();
     }
 
@@ -825,23 +824,19 @@ FileSystem::GetTemporaryPath(
     vd::string tempdir = GetTemporaryDirectory();
     if(tempdir.size() < 1)
     {
-        vdLogWarning("Failed to create temporary file for '%s'!", prefix.c_str());
+        vdLogGlobalWarning("Failed to create temporary file for '%s'!", prefix.c_str());
         return vd::string();
     }
 
     vd::string tempfile = GetTemporaryFile(tempdir, prefix, persistent);
     if(tempfile.size() < 1)
     {
-        vdLogWarning("Failed to create temporary file for '%s'!", tempfile.c_str());
+        vdLogGlobalWarning("Failed to create temporary file for '%s'!", tempfile.c_str());
         return vd::string();
     }
 
     return tempfile;
 }
-
-// ============================================================================================== //
-
-VD_IMPLEMENT_OBJECT(FileSystem, vd_sym(FileSystem), vd_sym(Object));
 
 // ============================================================================================== //
 

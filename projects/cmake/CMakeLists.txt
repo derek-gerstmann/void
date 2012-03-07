@@ -45,9 +45,17 @@ set( VD_RESOURCE_DIR				${VD_ROOT_DIR}/resources )
 set( VD_PLUGINS_DIR					${VD_ROOT_DIR}/plugins )
 set( VD_EXT_DIR						${VD_ROOT_DIR}/external )
 
+include(UseExternal)
+
+message(STATUS "Building external tools ...")
 include(BuildExternalTools)
+
+message(STATUS "Building external libs ...")
 include(BuildExternal)
+
+message(STATUS "Building platform ...")
 include(BuildPlatform)
+
 include(UseFramework)
 include(UseSymbols)
 

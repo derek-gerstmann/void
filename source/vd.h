@@ -26,6 +26,27 @@
 #define VD_FRAMEWORK_INCLUDED
 
 // ============================================================================================== //
+// Standard headers
+// ============================================================================================== //
+
+#include <climits>
+#include <cmath>
+#include <cstring>
+#include <cassert>
+
+#include <limits>
+#include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
+#include <stdexcept>
+#include <typeinfo>
+
+// ============================================================================================== //
+// Framework headers 
+// ============================================================================================== //
 
 #include "framework/version.h"
 #include "framework/namespace.h"
@@ -37,8 +58,6 @@
 #include "framework/limits.h"
 #include "framework/types.h"
 #include "framework/traits.h"
-#include "core/namespace.h"
-#include "core/types.h"
 
 // ============================================================================================== //
 

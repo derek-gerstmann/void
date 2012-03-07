@@ -77,7 +77,7 @@ add_dependencies( GuiDemo
 add_custom_target( GuiDemoResources ALL DEPENDS 
     ${VD_FONTS} ${VD_SHADERS} ${VD_TEXTURES} ${VD_APPS_GUI_DEMO_RESOURCES_TXT} )
 
-if(APPLE)
+if(VD_SYSTEM_OSX)
 
     set(MACOSX_BUNDLE_INFO_STRING "${VD_APP_NAME}")
     set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.icrar.${VD_APP_NAME}")

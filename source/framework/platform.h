@@ -299,23 +299,23 @@
 
 // Branch hint 
 #if !defined(VD_COMPILER_GCC)
-#define __builtin_expect(expr,b)       (expr)
+#define __builtin_expect(expr,b)         (expr)
 #endif
 
-#define VD_LIKELY(x)                   __builtin_expect (((x) ? 1 : 0), 1)
-#define VD_UNLIKELY(x)                 __builtin_expect (((x) ? 1 : 0), 0)
+#define VD_LIKELY(x)                     __builtin_expect (((x) ? 1 : 0), 1)
+#define VD_UNLIKELY(x)                   __builtin_expect (((x) ? 1 : 0), 0)
 
 // Various helper macros
-#define VD_STATIC_ARRAY_SIZE(x)        (sizeof(x) / sizeof(x[0]))
+#define VD_STATIC_ARRAY_SIZE(x)          (sizeof(x) / sizeof(x[0]))
 
 #if defined(VD_TARGET_WINDOWS)
   #define VD_NO_SWITCH_DEFAULT           VD_ASSUME(0)
   #define VD_ASSUME(hint)                __assume(hint)
 #else
   #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5))
-    #define VD_NO_SWITCH_DEFAULT           __builtin_unreachable()
+    #define VD_NO_SWITCH_DEFAULT         __builtin_unreachable()
   #else
-    #define VD_NO_SWITCH_DEFAULT           VD_LIKELY(0)
+    #define VD_NO_SWITCH_DEFAULT         VD_LIKELY(0)
   #endif
   #define VD_ASSUME(hint)                VD_LIKELY(hint)
 #endif
@@ -324,23 +324,59 @@
 
 #if defined(VD_COMPILER_MSVC)
 
-// ============================================================================================== //
+// ---------------------------------------------------------------------------------------------- //
 
-#define VD_AVOID_INLINE                __declspec(noinline)
-#define VD_FORCE_INLINE          	     __forceinline
-#define VD_INLINE					             inline
-#define VD_RESTRICT             	     __restrict
-#define VD_ALIGN_START(...)			       __declspec(align(__VA_ARGS__))
+#include <mbstring.h>
+#include <stdlib.h>
+#include <string.h>
+#include <wchar.h>
+
+#define VD_AVOID_INLINE                  __declspec(noinline)
+#define VD_FORCE_INLINE          	       __forceinline
+#define VD_INLINE					               inline
+#define VD_RESTRICT             	       __restrict
+#define VD_ALIGN_START(...)			         __declspec(align(__VA_ARGS__))
 #define VD_ALIGN_END(...)
-#define VD_ALIGN(...)       	         __declspec(align(__VA_ARGS__))
-#define VD_ALIGNED(...)      		       __declspec(align(__VA_ARGS__))
-#define VD_FUNC_ID		                 __FUNCTION__
-#define VD_FILE_ID		                 __FILE__
-#define VD_LINE_ID		                 __LINE__
+#define VD_ALIGN(...)       	           __declspec(align(__VA_ARGS__))
+#define VD_ALIGNED(...)      		         __declspec(align(__VA_ARGS__))
+#define VD_FUNC_ID		                   __FUNCTION__
+#define VD_FILE_ID		                   __FILE__
+#define VD_LINE_ID		                   __LINE__
 #define VD_OPTIONAL
-#define vdDebugBreak()   	             __debugbreak()
 
+#define vd_strchr                        ::_mbschr
+#define vd_strrchr                       ::_mbsrchr
+#define vd_strlen                        ::_mbslen
+#if __STDC_WANT_SECURE_LIB__
+#define vd_strcpy_s(a,n,b)               ::_mbscpy_s(a,n,b)
 #else
+#define vd_strcpy_s(a,n,b)               ::_mbscpy(a,b)
+#endif
+#define vd_strcmp                        ::_mbscmp
+#define vd_strcasecmp                    ::_mbsicmp
+#define vd_char                          unsigned char
+
+#define vdDebugBreak()   	               __debugbreak()
+
+// ---------------------------------------------------------------------------------------------- //
+
+#else // VD_COMPILER_MSVC
+
+// ---------------------------------------------------------------------------------------------- //
+
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <glob.h>
+# include <limits.h>
+
+# define VD_MAX_PATH                   PATH_MAX
+# define vd_strchr                     ::strchr
+# define vd_strrchr                    ::strrchr
+# define vd_strlen                     ::strlen
+# define vd_strcpy_s(a,n,b)            ::strcpy(a,b)
+# define vd_strcmp                     ::strcmp
+# define vd_strcasecmp                 ::strcasecmp
+# define vd_char                       char
 
 #define VD_AVOID_INLINE                __attribute__((noinline))
 #define VD_FORCE_INLINE		             inline __attribute__((always_inline))
@@ -362,7 +398,7 @@
 
 // ============================================================================================== //
 
-#endif	// VD_COMPILER_MSVC
+#endif // VD_COMPILER_MSVC
 
 // ============================================================================================== //
 

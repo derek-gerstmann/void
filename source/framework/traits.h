@@ -94,37 +94,37 @@ struct TypeTraits
 // Template specializations
 // ============================================================================================== //
 
-template <> inline vd::cstr TypeTraits<void>::GetName()                 { return TypeId::ToString(TypeId::Void);            }
-template <> inline vd::cstr TypeTraits<vd::i8>::GetName()               { return TypeId::ToString(TypeId::Char);            }
-template <> inline vd::cstr TypeTraits<vd::i16>::GetName()              { return TypeId::ToString(TypeId::Short);           }
-template <> inline vd::cstr TypeTraits<vd::i32>::GetName()              { return TypeId::ToString(TypeId::Integer);         }
-template <> inline vd::cstr TypeTraits<vd::i64>::GetName()              { return TypeId::ToString(TypeId::Long);            }
-template <> inline vd::cstr TypeTraits<vd::u8>::GetName()               { return TypeId::ToString(TypeId::UnsignedChar);    }
-template <> inline vd::cstr TypeTraits<vd::u16>::GetName()              { return TypeId::ToString(TypeId::UnsignedShort);   }
-template <> inline vd::cstr TypeTraits<vd::u32>::GetName()              { return TypeId::ToString(TypeId::UnsignedInteger); }
-template <> inline vd::cstr TypeTraits<vd::u64>::GetName()              { return TypeId::ToString(TypeId::UnsignedLong);    }
-template <> inline vd::cstr TypeTraits<vd::f16>::GetName()              { return TypeId::ToString(TypeId::Half);            }
-template <> inline vd::cstr TypeTraits<vd::f32>::GetName()              { return TypeId::ToString(TypeId::Float);           }
-template <> inline vd::cstr TypeTraits<vd::f64>::GetName()              { return TypeId::ToString(TypeId::Double);          }
-template <> inline vd::cstr TypeTraits<vd::ptr>::GetName()              { return TypeId::ToString(TypeId::Pointer);         }
-template <> inline vd::cstr TypeTraits<vd::address>::GetName()          { return TypeId::ToString(TypeId::Address);         }
-template <> inline vd::cstr TypeTraits<vd::bytesize>::GetName()         { return TypeId::ToString(TypeId::ByteSize);        }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<void>::GetName()                 { return TypeId::ToString(TypeId::Void);            }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::i8>::GetName()               { return TypeId::ToString(TypeId::Char);            }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::i16>::GetName()              { return TypeId::ToString(TypeId::Short);           }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::i32>::GetName()              { return TypeId::ToString(TypeId::Integer);         }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::i64>::GetName()              { return TypeId::ToString(TypeId::Long);            }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::u8>::GetName()               { return TypeId::ToString(TypeId::UnsignedChar);    }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::u16>::GetName()              { return TypeId::ToString(TypeId::UnsignedShort);   }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::u32>::GetName()              { return TypeId::ToString(TypeId::UnsignedInteger); }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::u64>::GetName()              { return TypeId::ToString(TypeId::UnsignedLong);    }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::f16>::GetName()              { return TypeId::ToString(TypeId::Half);            }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::f32>::GetName()              { return TypeId::ToString(TypeId::Float);           }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::f64>::GetName()              { return TypeId::ToString(TypeId::Double);          }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::ptr>::GetName()              { return TypeId::ToString(TypeId::Pointer);         }
+// template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::address>::GetName()          { return TypeId::ToString(TypeId::Address);         }
+// template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::bytesize>::GetName()         { return TypeId::ToString(TypeId::ByteSize);        }
 
-template <> inline TypeId::Value TypeTraits<void>::GetTypeId()          { return TypeId::Void;              }
-template <> inline TypeId::Value TypeTraits<vd::i8>::GetTypeId()        { return TypeId::Char;              }
-template <> inline TypeId::Value TypeTraits<vd::i16>::GetTypeId()       { return TypeId::Short;             }
-template <> inline TypeId::Value TypeTraits<vd::i32>::GetTypeId()       { return TypeId::Integer;           }
-template <> inline TypeId::Value TypeTraits<vd::i64>::GetTypeId()       { return TypeId::Long;              }
-template <> inline TypeId::Value TypeTraits<vd::u8>::GetTypeId()        { return TypeId::UnsignedChar;      }
-template <> inline TypeId::Value TypeTraits<vd::u16>::GetTypeId()       { return TypeId::UnsignedShort;     }
-template <> inline TypeId::Value TypeTraits<vd::u32>::GetTypeId()       { return TypeId::UnsignedInteger;   }
-template <> inline TypeId::Value TypeTraits<vd::u64>::GetTypeId()       { return TypeId::UnsignedLong;      }
-template <> inline TypeId::Value TypeTraits<vd::f16>::GetTypeId()       { return TypeId::Half;              }
-template <> inline TypeId::Value TypeTraits<vd::f32>::GetTypeId()       { return TypeId::Float;             }
-template <> inline TypeId::Value TypeTraits<vd::f64>::GetTypeId()       { return TypeId::Double;            }
-template <> inline TypeId::Value TypeTraits<vd::ptr>::GetTypeId()       { return TypeId::Pointer;           }
-template <> inline TypeId::Value TypeTraits<vd::address>::GetTypeId()   { return TypeId::Address;           }
-template <> inline TypeId::Value TypeTraits<vd::bytesize>::GetTypeId()  { return TypeId::ByteSize;          }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<void>::GetTypeId()          { return TypeId::Void;              }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::i8>::GetTypeId()        { return TypeId::Char;              }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::i16>::GetTypeId()       { return TypeId::Short;             }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::i32>::GetTypeId()       { return TypeId::Integer;           }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::i64>::GetTypeId()       { return TypeId::Long;              }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::u8>::GetTypeId()        { return TypeId::UnsignedChar;      }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::u16>::GetTypeId()       { return TypeId::UnsignedShort;     }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::u32>::GetTypeId()       { return TypeId::UnsignedInteger;   }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::u64>::GetTypeId()       { return TypeId::UnsignedLong;      }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::f16>::GetTypeId()       { return TypeId::Half;              }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::f32>::GetTypeId()       { return TypeId::Float;             }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::f64>::GetTypeId()       { return TypeId::Double;            }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::ptr>::GetTypeId()       { return TypeId::Pointer;           }
+// template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::address>::GetTypeId()   { return TypeId::Address;           }
+// template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::bytesize>::GetTypeId()  { return TypeId::ByteSize;          }
 
 // ============================================================================================== //
 
