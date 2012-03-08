@@ -355,6 +355,11 @@
 #define vd_strcmp                        ::_mbscmp
 #define vd_strcasecmp                    ::_mbsicmp
 #define vd_char                          unsigned char
+#define vd_txt(x)                        _T(x)
+
+#if !defined(VD_HAVE_ICU)
+#   define VD_HAVE_ICU                   0
+#endif
 
 #define vdDebugBreak()   	               __debugbreak()
 
@@ -369,15 +374,15 @@
 # include <glob.h>
 # include <limits.h>
 
-# define VD_MAX_PATH                   PATH_MAX
-# define vd_strchr                     ::strchr
-# define vd_strrchr                    ::strrchr
-# define vd_strlen                     ::strlen
-# define vd_strcpy_s(a,n,b)            ::strcpy(a,b)
-# define vd_strcmp                     ::strcmp
-# define vd_strcasecmp                 ::strcasecmp
-# define vd_char                       char
-
+#define VD_MAX_PATH                    PATH_MAX
+#define vd_strchr                      ::strchr
+#define vd_strrchr                     ::strrchr
+#define vd_strlen                      ::strlen
+#define vd_strcpy_s(a,n,b)             ::strcpy(a,b)
+#define vd_strcmp                      ::strcmp
+#define vd_strcasecmp                  ::strcasecmp
+#define vd_char                        char
+#define vd_txt(x)                      x
 #define VD_AVOID_INLINE                __attribute__((noinline))
 #define VD_FORCE_INLINE		             inline __attribute__((always_inline))
 #define VD_INLINE					             inline
@@ -396,9 +401,23 @@
 #define VD_USE_GCC_ATOMICS		         1
 #endif
 
+#if !defined(VD_HAVE_ICU)
+#if defined(USTRING_H)
+#   define VD_HAVE_ICU                 1
+#else
+#   define VD_HAVE_ICU                 0
+#endif
+#endif
+
 // ============================================================================================== //
 
 #endif // VD_COMPILER_MSVC
+
+// ============================================================================================== //
+
+#if !defined(VD_MAX_PATH_LENGTH)
+#    define  VD_MAX_PATH_LENGTH        FILENAME_MAX
+#endif
 
 // ============================================================================================== //
 

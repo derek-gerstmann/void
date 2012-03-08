@@ -82,17 +82,6 @@ struct VD_API StructName                                                        
     VD_FORCE_INLINE operator vd::cstr( ) const { return ToString(Data); }                         \
 }
 
-
-/*
-    VD_FORCE_INLINE StructName operator = (const StructName& rhs) { Data = rhs.Data; return *this; } \
-    VD_FORCE_INLINE bool operator == (const StructName& rhs) const { return Data == rhs.Data; }   \
-    VD_FORCE_INLINE bool operator != (const StructName& rhs) const { return Data != rhs.Data; }   \
-    VD_FORCE_INLINE bool operator < (const StructName& rhs) const { return Data < rhs.Data; }     \
-    VD_FORCE_INLINE bool operator > (const StructName& rhs) const { return Data > rhs.Data; }     \
-    VD_FORCE_INLINE bool operator <= (const StructName& rhs) const { return Data <= rhs.Data; }   \
-    VD_FORCE_INLINE bool operator >= (const StructName& rhs) const { return Data >= rhs.Data; }   \
-*/
-
 // ============================================================================================== //
 
 #define VD_DECLARE_ENUM(StructName, ...)                                                          \

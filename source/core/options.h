@@ -86,6 +86,14 @@ VD_DECLARE_ENUM(Result,
     InvalidData,
     Ambiguous);
 
+VD_DECLARE_ENUM(Action,
+    None,
+    ShowHelp,
+    ParseArg,
+    ParseFlag);
+
+#define VD_END_OF_OPTIONS   { Action::None, NULL, Format::None }
+
 enum Flags
 {
     VD_OPTION_EXACT       = 0x0001,
@@ -101,8 +109,6 @@ enum Flags
     VD_OPTION_ICASE       = 0x0700
 };
 
-#define VD_END_OF_OPTIONS   { -1, NULL, Foramt::None }
-
 template<class CharType>
 class Template
 {
@@ -110,7 +116,7 @@ public:
 
     struct Entry
     {
-        int Id;
+        vd::i32 Id;
         const CharType* Arg;
         Option::Format::Value Format;
     };
@@ -122,10 +128,10 @@ public:
     }
 
     Template(
-        int argc,
+        vd::i32 argc,
         CharType* argv[],
         const Entry* entries,
-        int flags = 0
+        vd::i32 flags = 0
     ) : 
         m_Buffer(NULL)
     {
@@ -140,10 +146,10 @@ public:
     }
 
     bool Setup(
-        int argc,
+        vd::i32 argc,
         CharType* argv[],
         const Entry* options,
-        int flags = 0
+        vd::i32 flags = 0
     );
 
     VD_INLINE void 
@@ -153,10 +159,10 @@ public:
     }
 
     VD_INLINE void 
-    SetFlags(int flags) { m_Flags = flags; }
+    SetFlags(vd::i32 flags) { m_Flags = flags; }
 
     VD_INLINE bool 
-    HasFlag(int flag) const
+    HasFlag(vd::i32 flag) const
     {
         return (m_Flags & flag) == flag;
     }
@@ -167,7 +173,7 @@ public:
     VD_INLINE Result::Value 
     GetLastError() const  { return m_LastError; }
     
-    VD_INLINE int 
+    VD_INLINE vd::i32 
     GetOptionId() const { return m_OptId; }
     
     VD_INLINE const CharType* 
@@ -177,13 +183,13 @@ public:
     GetOptionArg() const { return m_OptArg; }
     
     CharType** 
-    GetMultiArg(int n);
+    GetMultiArg(vd::i32 n);
     
-    VD_INLINE int 
+    VD_INLINE vd::i32 
     GetFileCount() const { return m_ArgCount - m_LastArg; }
 
     VD_INLINE CharType* 
-    GetFile(int n) const 
+    GetFile(vd::i32 n) const 
     {
         vdGlobalAssert(n >= 0 && n < GetFileCount());
         return m_ArgData[m_LastArg + n];
@@ -199,27 +205,33 @@ private:
 
     VD_DISABLE_COPY_CONSTRUCTORS(Template);
 
-    CharType PrepareArg(CharType* a_pszString) const;
+    CharType 
+    PrepareArg(CharType* a_pszString) const;
     
-    bool NextClumped();
+    bool 
+    NextClumped();
     
-    void ShuffleArg(int index, int count);
+    void 
+    ShuffleArg(vd::i32 index, vd::i32 count);
 
-    Result LookupOption(const CharType* option, int* index) const;
+    Result 
+    LookupOption(const CharType* option, int* index) const;
 
-    int CalcMatch(const CharType* source, const CharType* match) const;
+    vd::i32 
+    Match(const CharType* source, const CharType* match) const;
 
-    VD_INLINE 
-    CharType* FindEquals(CharType* s) const
+    VD_INLINE CharType* 
+    FindEquals(CharType* s) const
     {
         while(*s && *s != (CharType)'=') ++s;
         return *s ? s : NULL;
     }
 
-    bool IsEqual(CharType left, CharType right, int arg_type) const;
+    bool 
+    IsEqual(CharType left, CharType right, vd::i32 arg_type) const;
 
     VD_INLINE void 
-    Copy(CharType** dst, CharType** src, int count) const
+    Copy(CharType** dst, CharType** src, vd::i32 count) const
     {
 #if defined(VD_MAX_ARGS)
         while(count-- > 0) *dst++ = *src++;
@@ -230,12 +242,12 @@ private:
 
 private:
     const Entry*    m_Entries;
-    int             m_Flags;
-    int             m_OptIndex;
-    int             m_OptId;
-    int             m_OptNext; 
-    int             m_LastArg;
-    int             m_ArgCount;
+    vd::i32         m_Flags;
+    vd::i32         m_OptIndex;
+    vd::i32         m_OptId;
+    vd::i32         m_OptNext; 
+    vd::i32         m_LastArg;
+    vd::i32         m_ArgCount;
     CharType**      m_ArgData;
     const CharType* m_OptText; 
     CharType*       m_OptArg;
@@ -247,10 +259,10 @@ private:
 
 template<class CharType>
 bool Template<CharType>::Setup(
-    int             argc,
-    CharType*       argv[],
-    const Entry*    entries,
-    int             flags)
+    vd::i32 argc,
+    CharType* argv[],
+    const Entry* entries,
+    vd::i32 flags)
 {
     m_ArgCount = argc;
     m_LastArg = argc;
@@ -300,14 +312,13 @@ bool Template<CharType>::Setup(
 template<class CharType>
 bool Template<CharType>::Next()
 {
-#if defined(VD_MAX_ARGS)
 
+#if defined(VD_MAX_ARGS)
     if(m_ArgCount > VD_MAX_ARGS)
     {
         vdGlobalAssert(!"Too many args! Check the return value of Setup()!");
         return false;
     }
-
 #endif
 
     if(m_Clump && *m_Clump)
@@ -333,8 +344,8 @@ bool Template<CharType>::Next()
     m_LastError = Result::Success;
 
     CharType cFirst;
-    int table_index = -1;
-    int opt_index = m_OptIndex;
+    vd::i32 table_index = -1;
+    vd::i32 opt_index = m_OptIndex;
     Result found = Result::Invalid;
     while(table_index < 0 && opt_index < m_LastArg)
     {
@@ -362,7 +373,7 @@ bool Template<CharType>::Next()
             if(HasFlag(VD_OPTION_SHORTARG))
             {
                 m_Short[1] = arg[1];
-                int index = 0;
+                vd::i32 index = 0;
                 found = LookupOption(m_Short, &index);
 
                 if((index >= 0) && 
@@ -499,16 +510,14 @@ CharType Template<CharType>::PrepareArg(
     CharType* arg) const
 {
 
-#ifdef _WIN32
-    if(!HasFlag(VD_OPTION_NOSLASH)
-            && arg[0] == (CharType)'/'
-            && arg[1]
-            && arg[1] != (CharType)'-')
+#if defined(VD_TARGET_WINDOWS)
+    if(!HasFlag(VD_OPTION_NOSLASH) && 
+        arg[0] == (CharType)'/'    && 
+        arg[1] && arg[1] != (CharType)'-')
     {
         arg[0] = (CharType)'-';
         return (CharType)'/';
     }
-
 #endif
     return arg[0];
 }
@@ -522,8 +531,8 @@ bool Template<CharType>::NextClumped()
     m_OptArg  = NULL;
     m_LastError = Result::Success;
 
-    int save_flags = m_Flags;
-    int table_index = 0;
+    vd::i32 save_flags = m_Flags;
+    vd::i32 table_index = 0;
 
     m_Flags = VD_OPTION_EXACT;
     Result found = LookupOption(m_Short, &table_index);
@@ -557,11 +566,11 @@ bool Template<CharType>::NextClumped()
 
 template<class CharType>
 void Template<CharType>::ShuffleArg(
-    int index, int count)
+    vd::i32 index, vd::i32 count)
 {
     CharType* FixedBuffer[VD_FIXED_BUFFER_SIZE];
     CharType** buffer = m_Buffer ? m_Buffer : FixedBuffer;
-    int end = m_ArgCount - index - count;
+    vd::i32 end = m_ArgCount - index - count;
     Copy(buffer, m_ArgData + index, count);
     Copy(m_ArgData + index, m_ArgData + index + count, end);
     Copy(m_ArgData + index + end, buffer, count);
@@ -572,14 +581,14 @@ template<class CharType>
 Result Template<CharType>::LookupOption(
     const CharType* option, int* match) const
 {
-    int best_match = -1;    // index of best match so far
-    int best_length = 0;  // matching characters of best match
-    int last_length = 0;  // matching characters of last best match
+    vd::i32 best_match = -1;    // index of best match so far
+    vd::i32 best_length = 0;  // matching characters of best match
+    vd::i32 last_length = 0;  // matching characters of last best match
 
-    for(int n = 0; m_Entries[n].Id >= 0; ++n)
+    for(vd::i32 n = 0; m_Entries[n].Id >= 0; ++n)
     {
         vdGlobalAssert(m_Entries[n].Arg[0] != (CharType)'/');
-        int match_length = FindMatch(m_Entries[n].Arg, option);
+        vd::i32 match_length = Match(m_Entries[n].Arg, option);
         if(match_length == -1)
         {
             *match = n;
@@ -604,7 +613,7 @@ Result Template<CharType>::LookupOption(
 }
 
 template<class CharType>
-int Template<CharType>::CalcMatch(
+vd::i32 Template<CharType>::Match(
     const CharType*   source,
     const CharType*   match ) const
 {
@@ -613,7 +622,7 @@ int Template<CharType>::CalcMatch(
         return 0;
     }
 
-    int arg_type = VD_OPTION_ICASE_LONG;
+    vd::i32 arg_type = VD_OPTION_ICASE_LONG;
     if(source[0] != '-')
     {
         arg_type = VD_OPTION_ICASE_WORD;
@@ -634,7 +643,7 @@ int Template<CharType>::CalcMatch(
         return 0;
     }
 
-    int length = 0;
+    vd::i32 length = 0;
     while(*source && IsEqual(*source, *match, arg_type))
     {
         ++source;
@@ -661,7 +670,7 @@ int Template<CharType>::CalcMatch(
 
 template<class CharType>
 bool Template<CharType>::IsEqual(
-    CharType left, CharType right, int type) const
+    CharType left, CharType right, vd::i32 type) const
 {
     if(m_Flags & type)
     {
@@ -673,7 +682,7 @@ bool Template<CharType>::IsEqual(
 
 template<class CharType>
 CharType** Template<CharType>::GetMultiArg(
-    int count)
+    vd::i32 count)
 {
     if(m_OptNext + count > m_LastArg)
     {
@@ -684,7 +693,7 @@ CharType** Template<CharType>::GetMultiArg(
     CharType** args = &m_ArgData[m_OptNext];
     if(!HasFlag(VD_OPTION_NOERR))
     {
-        for(int n = 0; n < count; ++n)
+        for(vd::i32 n = 0; n < count; ++n)
         {
             CharType ch = PrepareArg(args[n]);
             if(args[n][0] == (CharType)'-')

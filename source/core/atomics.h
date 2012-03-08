@@ -291,7 +291,7 @@ public:
         this->Set(other);
     }
 
-    const vd::i32 value() const
+    vd::i32 value() const
     {
         static const vd::i32 zero = 0;
         return AtomicAdd(&m_Value, zero);
@@ -507,13 +507,13 @@ public:
         return m_Value;
     }
 
-    volatile vd::i32 operator++(int)
+    vd::i32 operator++(int)
     {
         this->operator+=(1);
         return m_Value;
     }
 
-    volatile vd::i32 operator--(int)
+    vd::i32 operator--(int)
     {
         this->operator-=(1);
         return m_Value;
@@ -543,7 +543,7 @@ public:
         this->Set(other);
     }
     
-    const vd::i64 value() const
+    vd::i64 value() const
     {
         static const vd::i64 zero = 0;
         return AtomicAdd(&m_Value, zero);
@@ -759,13 +759,13 @@ public:
         return m_Value;
     }
     
-    volatile vd::i64 operator++(int)
+    vd::i64 operator++(int)
     {
         this->operator+=((volatile vd::i64)1);
         return m_Value;
     }
     
-    volatile vd::i64 operator--(int)
+    vd::i64 operator--(int)
     {
         this->operator-=((volatile vd::i64)1);
         return m_Value;

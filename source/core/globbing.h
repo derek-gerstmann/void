@@ -28,6 +28,7 @@
 // ============================================================================================== //
 
 #include "core/core.h"
+#include "core/asserts.h"
 
 // ============================================================================================== //
 
@@ -64,7 +65,12 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-enum VD_Flags
+namespace Glob 
+{
+
+// ============================================================================================== //
+
+enum Flags
 {
     VD_GLOB_ERR         = 1 << 0,
     VD_GLOB_MARK        = 1 << 1,
@@ -77,43 +83,36 @@ enum VD_Flags
     VD_GLOB_FULLSORT    = 1 << 8
 };
 
-/*! @brief Error return codes */
-enum VD_Error
-{
-    VD_SUCCESS          =  0,
-    VD_ERR_NOMATCH      =  1,
-    VD_ERR_MEMORY       = -1,
-    VD_ERR_FAILURE      = -2
-};
+VD_DECLARE_ENUM(Result,
+    Success,
+    NotFound,
+    OutOfMemory,
+    UnknownFailure);
 
-// ---------------------------------------------------------------------------
-// Platform dependent implementations
+VD_DECLARE_ENUM(FileType,
+    Normal,
+    Directory);
 
-// if we aren't on Windows and we have ICU available, then enable ICU
-// by default. Define this to 0 to intentially disable it.
-#ifndef VD_HAVE_ICU
-# if !defined(_WIN32) && defined(USTRING_H)
-#   define VD_HAVE_ICU 1
-# else
-#   define VD_HAVE_ICU 0
-# endif
-#endif
+VD_DECLARE_ENUM(ContentType,
+    Offsets,
+    Pointers);
 
-// don't include this in documentation as it isn't relevant
-#ifndef DOXYGEN
+// ============================================================================================== //
 
-/*! @brief String manipulation functions. */
-class GlobMethods
+class Methods
 {
 public:
+    
     static const char* strchr(const char* s, char c)
     {
         return (char*) vd_strchr((const vd_char*)s, c);
     }
+
     static const wchar_t* strchr(const wchar_t* s, wchar_t c)
     {
         return ::wcschr(s, c);
     }
+
 #if VD_HAVE_ICU
     static const UChar* strchr(const UChar* s, UChar c)
     {
@@ -125,10 +124,12 @@ public:
     {
         return (char*) vd_strrchr((const vd_char*)s, c);
     }
+
     static const wchar_t* strrchr(const wchar_t* s, wchar_t c)
     {
         return ::wcsrchr(s, c);
     }
+
 #if VD_HAVE_ICU
     static const UChar* strrchr(const UChar* s, UChar c)
     {
@@ -136,11 +137,21 @@ public:
     }
 #endif
 
-    // Note: char strlen returns number of bytes, not characters
-    static size_t strlen(const char* s) { return ::strlen(s); }
-    static size_t strlen(const wchar_t* s) { return ::wcslen(s); }
+    static size_t strlen(const char* s) 
+    { 
+        return ::strlen(s); 
+    }
+
+    static size_t strlen(const wchar_t* s) 
+    { 
+        return ::wcslen(s); 
+    }
+
 #if VD_HAVE_ICU
-    static size_t strlen(const UChar* s) { return ::u_strlen(s); }
+    static size_t strlen(const UChar* s) 
+    { 
+        return ::u_strlen(s); 
+    }
 #endif
 
     static void strcpy_s(char* dst, size_t n, const char* src)
@@ -148,15 +159,17 @@ public:
         (void) n;
         vd_strcpy_s((vd_char*)dst, n, (const vd_char*)src);
     }
+
     static void strcpy_s(wchar_t* dst, size_t n, const wchar_t* src)
     {
-# if __STDC_WANT_SECURE_LIB__
+#if __STDC_WANT_SECURE_LIB__
         ::wcscpy_s(dst, n, src);
 #else
         (void) n;
         ::wcscpy(dst, src);
 #endif
     }
+
 #if VD_HAVE_ICU
     static void strcpy_s(UChar* dst, size_t n, const UChar* src)
     {
@@ -164,843 +177,810 @@ public:
     }
 #endif
 
-    static int strcmp(const char* s1, const char* s2)
+    static vd::i32 strcmp(const char* s1, const char* s2)
     {
         return vd_strcmp((const vd_char*)s1, (const vd_char*)s2);
     }
-    static int strcmp(const wchar_t* s1, const wchar_t* s2)
+
+    static vd::i32 strcmp(const wchar_t* s1, const wchar_t* s2)
     {
         return ::wcscmp(s1, s2);
     }
+
 #if VD_HAVE_ICU
-    static int strcmp(const UChar* s1, const UChar* s2)
+    static vd::i32 strcmp(const UChar* s1, const UChar* s2)
     {
         return ::u_strcmp(s1, s2);
     }
 #endif
 
-    static int strcasecmp(const char* s1, const char* s2)
+    static vd::i32 strcasecmp(const char* s1, const char* s2)
     {
         return vd_strcasecmp((const vd_char*)s1, (const vd_char*)s2);
     }
-#if _WIN32
-    static int strcasecmp(const wchar_t* s1, const wchar_t* s2)
+
+#if defined(VD_TARGET_WINDOWS)
+    static vd::i32 strcasecmp(const wchar_t* s1, const wchar_t* s2)
     {
         return ::_wcsicmp(s1, s2);
     }
-#endif // _WIN32
+#endif
+
 #if VD_HAVE_ICU
-    static int strcasecmp(const UChar* s1, const UChar* s2)
+    static vd::i32 strcasecmp(const UChar* s1, const UChar* s2)
     {
         return u_strcasecmp(s1, s2, 0);
     }
 #endif
+
 };
 
-enum VD_FileType
-{
-    VD_FILETYPE_INVALID,
-    VD_FILETYPE_FILE,
-    VD_FILETYPE_DIR
-};
+// ---------------------------------------------------------------------------------------------- //
 
-#ifdef _WIN32
+#if defined(VD_TARGET_WINDOWS)
 
-#ifndef INVALID_FILE_ATTRIBUTES
-# define INVALID_FILE_ATTRIBUTES    ((DWORD)-1)
+// ---------------------------------------------------------------------------------------------- //
+
+#if !defined(VD_INVALID_FILE_ATTRIBUTES)
+    #define  VD_INVALID_FILE_ATTRIBUTES  ((DWORD)-1)
 #endif
 
-#define VD_PATH_CHAR    '\\'
+#if !defined(VD_PATH_CHAR)
+    #define  VD_PATH_CHAR                '\\'
+#endif
 
-/*! @brief Windows glob implementation. */
+// ---------------------------------------------------------------------------------------------- //
+
 template<class CharType>
-struct GlobBase
+struct Base
 {
-    GlobBase() : m_hFind(INVALID_HANDLE_VALUE) { }
+    Base() : m_Handle(INVALID_HANDLE_VALUE) { }
 
-    int FindFirstFileS(const char* a_pszFileSpec, unsigned int)
+    Glob::Result 
+    FindFirstFileS(const char* file_spec, vd::u32)
     {
-        m_hFind = FindFirstFileA(a_pszFileSpec, &m_oFindDataA);
+        m_Handle = FindFirstFileA(file_spec, &m_AsciiBuffer);
 
-        if(m_hFind != INVALID_HANDLE_VALUE)
+        if(m_Handle != INVALID_HANDLE_VALUE)
         {
-            return VD_SUCCESS;
+            return Result::Success;
         }
 
         DWORD dwErr = GetLastError();
 
         if(dwErr == ERROR_FILE_NOT_FOUND)
         {
-            return VD_ERR_NOMATCH;
+            return Result::NotFound;
         }
 
-        return VD_ERR_FAILURE;
+        return Result::UnknownFailure;
     }
-    int FindFirstFileS(const wchar_t* a_pszFileSpec, unsigned int)
-    {
-        m_hFind = FindFirstFileW(a_pszFileSpec, &m_oFindDataW);
 
-        if(m_hFind != INVALID_HANDLE_VALUE)
+    Glob::Result 
+    FindFirstFileS(const wchar_t* file_spec, vd::u32)
+    {
+        m_Handle = FindFirstFileW(file_spec, &m_UnicodeBuffer);
+
+        if(m_Handle != INVALID_HANDLE_VALUE)
         {
-            return VD_SUCCESS;
+            return Result::Success;
         }
 
-        DWORD dwErr = GetLastError();
-
-        if(dwErr == ERROR_FILE_NOT_FOUND)
+        DWORD err = GetLastError();
+        if(err == ERROR_FILE_NOT_FOUND)
         {
-            return VD_ERR_NOMATCH;
+            return Result::NotFound;
         }
 
-        return VD_ERR_FAILURE;
+        return Result::UnknownFailure;
     }
 
-    bool FindNextFileS(char)
+    bool 
+    FindNextFileS(char)
     {
-        return FindNextFileA(m_hFind, &m_oFindDataA) != FALSE;
+        return FindNextFileA(m_Handle, &m_AsciiBuffer) != FALSE;
     }
-    bool FindNextFileS(wchar_t)
+    
+    bool 
+    FindNextFileS(wchar_t)
     {
-        return FindNextFileW(m_hFind, &m_oFindDataW) != FALSE;
-    }
-
-    void FindDone()
-    {
-        FindClose(m_hFind);
+        return FindNextFileW(m_Handle, &m_UnicodeBuffer) != FALSE;
     }
 
-    const char* GetFileNameS(char) const
+    void 
+    FindDone()
     {
-        return m_oFindDataA.cFileName;
-    }
-    const wchar_t* GetFileNameS(wchar_t) const
-    {
-        return m_oFindDataW.cFileName;
+        FindClose(m_Handle);
     }
 
-    bool IsDirS(char) const
+    const char* 
+    GetFileNameS(char) const
     {
-        return GetFileTypeS(m_oFindDataA.dwFileAttributes) == VD_FILETYPE_DIR;
-    }
-    bool IsDirS(wchar_t) const
-    {
-        return GetFileTypeS(m_oFindDataW.dwFileAttributes) == VD_FILETYPE_DIR;
+        return m_AsciiBuffer.cFileName;
     }
 
-    VD_FileType GetFileTypeS(const char* a_pszPath)
+    const wchar_t* 
+    GetFileNameS(wchar_t) const
     {
-        return GetFileTypeS(GetFileAttributesA(a_pszPath));
+        return m_UnicodeBuffer.cFileName;
     }
-    VD_FileType GetFileTypeS(const wchar_t* a_pszPath)
+
+    bool 
+    IsDirS(char) const
     {
-        return GetFileTypeS(GetFileAttributesW(a_pszPath));
+        return GetFileTypeS(m_AsciiBuffer.dwFileAttributes) == FileType::Directory;
     }
-    VD_FileType GetFileTypeS(DWORD a_dwAttribs) const
+
+    bool 
+    IsDirS(wchar_t) const
     {
-        if(a_dwAttribs == INVALID_FILE_ATTRIBUTES)
+        return GetFileTypeS(m_UnicodeBuffer.dwFileAttributes) == FileType::Directory;
+    }
+
+    Glob::FileType 
+    GetFileTypeS(const char* path)
+    {
+        return GetFileTypeS(GetFileAttributesA(path));
+    }
+    
+    Glob::FileType 
+    GetFileTypeS(const wchar_t* path)
+    {
+        return GetFileTypeS(GetFileAttributesW(path));
+    }
+
+    Glob::FileType 
+    GetFileTypeS(DWORD attribs) const
+    {
+        if(attribs == VD_INVALID_FILE_ATTRIBUTES)
         {
-            return VD_FILETYPE_INVALID;
+            return FileType::Invalid;
         }
 
-        if(a_dwAttribs & FILE_ATTRIBUTE_DIRECTORY)
+        if(attribs & FILE_ATTRIBUTE_DIRECTORY)
         {
-            return VD_FILETYPE_DIR;
+            return FileType::Directory;
         }
 
-        return VD_FILETYPE_FILE;
+        return FileType::Normal;
     }
 
 private:
-    HANDLE              m_hFind;
-    WIN32_FIND_DATAA    m_oFindDataA;
-    WIN32_FIND_DATAW    m_oFindDataW;
+    HANDLE              m_Handle;
+    WIN32_FIND_DATAA    m_AsciiBuffer;
+    WIN32_FIND_DATAW    m_UnicodeBuffer;
 };
+
+// ---------------------------------------------------------------------------------------------- //
 
 #else // !_WIN32
 
-#define VD_PATH_CHAR    '/'
+// ---------------------------------------------------------------------------------------------- //
 
-/*! @brief Unix glob implementation. */
+#define VD_PATH_CHAR        '/'
+#define VD_INVALID_CURSOR   ((size_t) - 1)
+
 template<class CharType>
-struct GlobBase
+struct Base
 {
-    GlobBase()
+    Base() : 
+        m_Cursor(VD_INVALID_CURSOR),
+        m_IsDir(false),
+#if VD_HAVE_ICU
+        m_UnicodeBuffer(NULL),
+#endif
+        m_AsciiBuffer(NULL)
     {
-        memset(&m_glob, 0, sizeof(m_glob));
-        m_uiCurr = (size_t) - 1;
+        Memory::MemSet(&m_Glob, 0, sizeof(m_Glob));
     }
 
-    ~GlobBase()
+    ~Base()
     {
-        globfree(&m_glob);
+#if VD_HAVE_ICU
+        VD_DELETE_ARRAY(m_UnicodeBuffer);
+#endif
+        VD_DELETE_ARRAY(m_AsciiBuffer);
+        globfree(&m_Glob);
     }
 
-    void FilePrep()
+    void 
+    SetupFile()
     {
-        m_bIsDir = false;
-        size_t len = strlen(m_glob.gl_pathv[m_uiCurr]);
+        m_AsciiBuffer = VD_NEW_ARRAY(char, VD_MAX_PATH_LENGTH);
+        Memory::MemSet(m_AsciiBuffer, 0, sizeof(char) * VD_MAX_PATH_LENGTH);
 
-        if(m_glob.gl_pathv[m_uiCurr][len-1] == '/')
+#if VD_HAVE_ICU
+        m_UnicodeBuffer = VD_NEW_ARRAY(UChar, VD_MAX_PATH_LENGTH);
+        Memory::MemSet(m_UnicodeBuffer, 0, sizeof(UChar) * VD_MAX_PATH_LENGTH);
+#endif
+
+        m_IsDir = false;
+        size_t length = ::strlen(m_Glob.gl_pathv[m_Cursor]);
+        if(m_Glob.gl_pathv[m_Cursor][length-1] == '/')
         {
-            m_bIsDir = true;
-            m_glob.gl_pathv[m_uiCurr][len-1] = 0;
+            m_IsDir = true;
+            m_Glob.gl_pathv[m_Cursor][length-1] = 0;
         }
     }
 
-    int FindFirstFileS(const char* a_pszFileSpec, unsigned int a_uiFlags)
+    Glob::Result
+    FindFirstFileS(
+        const char* file_spec, vd::u32 flags)
     {
-        int nFlags = GLOB_MARK | GLOB_NOSORT;
+        vd::i32 nFlags = GLOB_MARK | GLOB_NOSORT;
 
-        if(a_uiFlags & VD_GLOB_ERR)    nFlags |= GLOB_ERR;
+        if(flags & VD_GLOB_ERR)    
+            nFlags |= GLOB_ERR;
 
-        if(a_uiFlags & VD_GLOB_TILDE)  nFlags |= GLOB_TILDE;
+        if(flags & VD_GLOB_TILDE)  
+            nFlags |= GLOB_TILDE;
 
-        int rc = glob(a_pszFileSpec, nFlags, NULL, &m_glob);
+        vd::i32 rc = glob(file_spec, nFlags, NULL, &m_Glob);
 
-        if(rc == GLOB_NOSPACE) return VD_ERR_MEMORY;
+        if(rc == GLOB_NOSPACE) 
+            return Result::OutOfMemory;
 
-        if(rc == GLOB_ABORTED) return VD_ERR_FAILURE;
+        if(rc == GLOB_ABORTED) 
+            return Result::UnknownFailure;
 
-        if(rc == GLOB_NOMATCH) return VD_ERR_NOMATCH;
+        if(rc == GLOB_NOMATCH) 
+            return Result::NotFound;
 
-        m_uiCurr = 0;
-        FilePrep();
-        return VD_SUCCESS;
+        m_Cursor = 0;
+        SetupFile();
+        return Result::Success;
     }
 
 #if VD_HAVE_ICU
-    int FindFirstFileS(const UChar* a_pszFileSpec, unsigned int a_uiFlags)
+    Glob::Result
+    FindFirstFileS(
+        const UChar* file_spec, vd::u32 flags)
     {
-        char buf[PATH_MAX] = { 0 };
         UErrorCode status = U_ZERO_ERROR;
-        u_strToUTF8(buf, sizeof(buf), NULL, a_pszFileSpec, -1, &status);
-
-        if(U_FAILURE(status)) return VD_ERR_FAILURE;
-
-        return FindFirstFileS(buf, a_uiFlags);
+        u_strToUTF8(m_AsciiBuffer, sizeof(char) * VD_MAX_PATH_LENGTH, NULL, file_spec, -1, &status);
+        if(U_FAILURE(status)) return Result::UnknownFailure;
+        return FindFirstFileS(m_AsciiBuffer, flags);
     }
 #endif
 
-    bool FindNextFileS(char)
+    bool 
+    FindNextFileS(char)
     {
-        VD_ASSERT(m_uiCurr != (size_t) - 1);
+        vdGlobalAssert(m_Cursor != VD_INVALID_CURSOR);
 
-        if(++m_uiCurr >= m_glob.gl_pathc)
+        if(++m_Cursor >= m_Glob.gl_pathc)
         {
             return false;
         }
 
-        FilePrep();
+        SetupFile();
         return true;
     }
 
 #if VD_HAVE_ICU
-    bool FindNextFileS(UChar)
+    bool 
+    FindNextFileS(UChar)
     {
         return FindNextFileS((char)0);
     }
 #endif
 
-    void FindDone()
+    void 
+    FindDone()
     {
-        globfree(&m_glob);
-        memset(&m_glob, 0, sizeof(m_glob));
-        m_uiCurr = (size_t) - 1;
+        globfree(&m_Glob);
+        memset(&m_Glob, 0, sizeof(m_Glob));
+        m_Cursor = (size_t) - 1;
     }
 
-    const char* GetFileNameS(char) const
+    const char* 
+    GetFileNameS(char) const
     {
-        VD_ASSERT(m_uiCurr != (size_t) - 1);
-        return m_glob.gl_pathv[m_uiCurr];
+        vdGlobalAssert(m_Cursor != VD_INVALID_CURSOR);
+        return m_Glob.gl_pathv[m_Cursor];
     }
 
 #if VD_HAVE_ICU
-    const UChar* GetFileNameS(UChar) const
+    const UChar* 
+    GetFileNameS(UChar) const
     {
-        const char* pszFile = GetFileNameS((char)0);
-
-        if(!pszFile) return NULL;
+        const char* filename = GetFileNameS((char)0);
+        if(!filename) 
+            return NULL;
 
         UErrorCode status = U_ZERO_ERROR;
-        memset(m_szBuf, 0, sizeof(m_szBuf));
-        u_strFromUTF8(m_szBuf, PATH_MAX, NULL, pszFile, -1, &status);
+        u_strToUTF8(m_AsciiBuffer, sizeof(char) * VD_MAX_PATH_LENGTH, NULL, filename, -1, &status);
+        if(U_FAILURE(status)) 
+            return NULL;
 
-        if(U_FAILURE(status)) return NULL;
-
-        return m_szBuf;
+        return m_AsciiBuffer;
     }
 #endif
 
-    bool IsDirS(char) const
+    bool 
+    IsDirS(char) const
     {
-        VD_ASSERT(m_uiCurr != (size_t) - 1);
-        return m_bIsDir;
+        vdGlobalAssert(m_Cursor != VD_INVALID_CURSOR);
+        return m_IsDir;
     }
 
 #if VD_HAVE_ICU
-    bool IsDirS(UChar) const
+    bool 
+    IsDirS(UChar) const
     {
         return IsDirS((char)0);
     }
 #endif
 
-    VD_FileType GetFileTypeS(const char* a_pszPath) const
+    Glob::FileType 
+    GetFileTypeS(const char* path) const
     {
         struct stat sb;
 
-        if(0 != stat(a_pszPath, &sb))
+        if(0 != stat(path, &sb))
         {
-            return VD_FILETYPE_INVALID;
+            return FileType::Invalid;
         }
 
         if(S_ISDIR(sb.st_mode))
         {
-            return VD_FILETYPE_DIR;
+            return FileType::Directory;
         }
 
         if(S_ISREG(sb.st_mode))
         {
-            return VD_FILETYPE_FILE;
+            return FileType::Normal;
         }
 
-        return VD_FILETYPE_INVALID;
+        return FileType::Invalid;
     }
 
 #if VD_HAVE_ICU
-    VD_FileType GetFileTypeS(const UChar* a_pszPath) const
+    Glob::FileType 
+    GetFileTypeS(const UChar* path) const
     {
-        char buf[PATH_MAX] = { 0 };
         UErrorCode status = U_ZERO_ERROR;
-        u_strToUTF8(buf, sizeof(buf), NULL, a_pszPath, -1, &status);
-
-        if(U_FAILURE(status)) return VD_FILETYPE_INVALID;
-
-        return GetFileTypeS(buf);
+        u_strToUTF8(m_AsciiBuffer, sizeof(char) * VD_MAX_PATH_LENGTH, NULL, path, -1, &status);
+        if(U_FAILURE(status)) return FileType::Invalid;
+        return GetFileTypeS(m_AsciiBuffer);
     }
 #endif
 
 private:
-    glob_t  m_glob;
-    size_t  m_uiCurr;
-    bool    m_bIsDir;
+    size_t  m_Cursor;
+    bool    m_IsDir;
 #if VD_HAVE_ICU
-    mutable UChar m_szBuf[PATH_MAX];
+    mutable UChar* m_UnicodeBuffer;
 #endif
+    mutable char* m_AsciiBuffer;
+    glob_t  m_Glob;
 };
 
-#endif // _WIN32
+// ---------------------------------------------------------------------------------------------- //
 
-#endif // DOXYGEN
+#endif // VD_TARGET_WINDOWS
 
-// ---------------------------------------------------------------------------
-//                              MAIN TEMPLATE CLASS
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------- //
 
-/*! @brief Implementation of the SimpleGlob class */
 template<class CharType>
-class GlobTemplate : private GlobBase<CharType>
+class Template : private Base<CharType>
 {
 public:
-    /*! @brief Initialize the class.
+    Template(vd::u32 flags = 0, vd::i32 slots = 0);
+    ~Template();
 
-        @param a_uiFlags            Combination of VD_GLOB flags.
-        @param a_nReservedSlots     Number of slots in the argv array that
-            should be reserved. In the returned array these slots
-            argv[0] ... argv[a_nReservedSlots-1] will be left empty for
-            the caller to fill in.
-     */
-    GlobTemplate(unsigned int a_uiFlags = 0, int a_nReservedSlots = 0);
-
-    /*! @brief Deallocate all memory buffers. */
-    ~GlobTemplate();
-
-    /*! @brief Initialize (or re-initialize) the class in preparation for
-        adding new filespecs.
-
-        All existing files are cleared. Note that allocated memory is only
-        deallocated at object destruction.
-
-        @param a_uiFlags            Combination of VD_GLOB flags.
-        @param a_nReservedSlots     Number of slots in the argv array that
-            should be reserved. In the returned array these slots
-            argv[0] ... argv[a_nReservedSlots-1] will be left empty for
-            the caller to fill in.
-     */
-    int Init(unsigned int a_uiFlags = 0, int a_nReservedSlots = 0);
-
-    /*! @brief Add a new filespec to the glob.
-
-        The filesystem will be immediately scanned for all matching files and
-        directories and they will be added to the glob.
-
-        @param a_pszFileSpec    Filespec to add to the glob.
-
-        @return VD_SUCCESS      Matching files were added to the glob.
-        @return VD_ERR_NOMATCH  Nothing matched the pattern. To ignore this
-                                error compare return value to >= VD_SUCCESS.
-        @return VD_ERR_MEMORY   Out of memory failure.
-        @return VD_ERR_FAILURE  General failure.
-     */
-    int Add(const CharType* a_pszFileSpec);
-
-    /*! @brief Add an array of filespec to the glob.
-
-        The filesystem will be immediately scanned for all matching files and
-        directories in each filespec and they will be added to the glob.
-
-        @param a_nCount         Number of filespec in the array.
-        @param a_rgpszFileSpec  Array of filespec to add to the glob.
-
-        @return VD_SUCCESS      Matching files were added to the glob.
-        @return VD_ERR_NOMATCH  Nothing matched the pattern. To ignore this
-                                error compare return value to >= VD_SUCCESS.
-        @return VD_ERR_MEMORY   Out of memory failure.
-        @return VD_ERR_FAILURE  General failure.
-     */
-    int Add(int a_nCount, const CharType* const* a_rgpszFileSpec);
-
-    /*! @brief Return the number of files in the argv array.
-     */
-    inline int FileCount() const { return m_nArgsLen; }
-
-    /*! @brief Return the full argv array. */
-    inline CharType** Files()
-    {
-        SetArgvArrayType(POINTERS);
-        return m_rgpArgs;
+    Glob::Result 
+    Setup(vd::u32 flags = 0, vd::i32 slots = 0);
+    
+    Glob::Result 
+    Add(const CharType* file_spec);
+    
+    Glob::Result 
+    Add(vd::i32 count, const CharType* const* file_spec);
+    
+    VD_INLINE vd::i32 
+    GetFileCount() const 
+    { 
+        return m_ArgCount; 
     }
 
-    /*! @brief Return the a single file. */
-    inline CharType* File(int n)
+    VD_INLINE CharType** 
+    GetFileList()
     {
-        VD_ASSERT(n >= 0 && n < m_nArgsLen);
-        return Files()[n];
+        SetArgvContentType(ContentType::Pointers);
+        return m_ArgData;
+    }
+
+    VD_INLINE CharType* 
+    GetFile(vd::i32 n)
+    {
+        vdGlobalAssert(n >= 0 && n < m_ArgCount);
+        return GetFileList()[n];
     }
 
 private:
-    GlobTemplate(const GlobTemplate&);  // disabled
-    GlobTemplate& operator=(const GlobTemplate&);   // disabled
+    VD_DISABLE_COPY_CONSTRUCTORS(Template);
 
-    /*! @brief The argv array has it's members stored as either an offset into
-        the string buffer, or as pointers to their string in the buffer. The
-        offsets are used because if the string buffer is dynamically resized,
-        all pointers into that buffer would become invalid.
-     */
-    enum ARG_ARRAY_TYPE { OFFSETS, POINTERS };
+    void 
+    SetArgvContentType(Glob::ContentType::Value type);
 
-    /*! @brief Change the type of data stored in the argv array. */
-    void SetArgvArrayType(ARG_ARRAY_TYPE a_nNewType);
+    Glob::Result 
+    AppendName(const CharType* filename, bool is_dir);
+    
+    bool 
+    GrowArgvArray(vd::i32 capacity);
+    
+    bool 
+    GrowStringBuffer(vd::i32 capacity);
 
-    /*! @brief Add a filename to the array if it passes all requirements. */
-    int AppendName(const CharType* a_pszFileName, bool a_bIsDir);
-
-    /*! @brief Grow the argv array to the required size. */
-    bool GrowArgvArray(int a_nNewLen);
-
-    /*! @brief Grow the string buffer to the required size. */
-    bool GrowStringBuffer(size_t a_uiMinSize);
-
-    /*! @brief Compare two (possible NULL) strings */
-    static int fileSortCompare(const void* a1, const void* a2);
+    static vd::i32 
+    FileSortCompare(const void* a1, const void* a2);
 
 private:
-    unsigned int        m_uiFlags;
-    ARG_ARRAY_TYPE      m_nArgArrayType;    //!< argv is indexes or pointers
-    CharType**            m_rgpArgs;          //!< argv
-    int                 m_nReservedSlots;   //!< # client slots in argv array
-    int                 m_nArgsSize;        //!< allocated size of array
-    int                 m_nArgsLen;         //!< used length
-    CharType*             m_pBuffer;          //!< argv string buffer
-    size_t              m_uiBufferSize;     //!< allocated size of buffer
-    size_t              m_uiBufferLen;      //!< used length of buffer
-    CharType              m_szPathPrefix[MAX_PATH]; //!< wildcard path prefix
+    vd::u32     m_Flags;
+    ContentType m_ContentType;
+    vd::i32     m_SlotCount; 
+    CharType**  m_ArgData; 
+    vd::i32     m_ArgCapacity;
+    vd::i32     m_ArgCount; 
+    CharType*   m_StringData; 
+    vd::i32     m_StringCapacity; 
+    vd::i32     m_StringCount;    
+    CharType*   m_PathPrefix; 
 };
 
-// ---------------------------------------------------------------------------
-//                                  IMPLEMENTATION
-// ---------------------------------------------------------------------------
-
 template<class CharType>
-GlobTemplate<CharType>::GlobTemplate(
-    unsigned int    a_uiFlags,
-    int             a_nReservedSlots
-)
+Template<CharType>::Template(
+    vd::u32 flags, vd::i32 slots
+) : 
+    m_Flags(0),
+    m_ContentType(ContentType::Invalid),
+    m_SlotCount(0),
+    m_ArgData(NULL),
+    m_ArgCapacity(0),
+    m_ArgCount(0),
+    m_StringData(NULL),
+    m_StringCapacity(0),
+    m_StringCount(0),
+    m_PathPrefix(NULL)
 {
-    m_rgpArgs           = NULL;
-    m_nArgsSize         = 0;
-    m_pBuffer           = NULL;
-    m_uiBufferSize      = 0;
-
-    Init(a_uiFlags, a_nReservedSlots);
+    Setup(flags, slots);
 }
 
 template<class CharType>
-GlobTemplate<CharType>::~GlobTemplate()
+Template<CharType>::~Template()
 {
-    if(m_rgpArgs) free(m_rgpArgs);
-
-    if(m_pBuffer) free(m_pBuffer);
+    VD_SAFE_DELETE(m_ArgData);
+    VD_SAFE_DELETE(m_StringData);
+    VD_SAFE_DELETE(m_PathPrefix);
 }
 
 template<class CharType>
-int
-GlobTemplate<CharType>::Init(
-    unsigned int    a_uiFlags,
-    int             a_nReservedSlots
-)
+Glob::Result 
+Template<CharType>::Setup(
+    vd::u32 flags, vd::i32 slots)
 {
-    m_nArgArrayType     = POINTERS;
-    m_uiFlags           = a_uiFlags;
-    m_nArgsLen          = a_nReservedSlots;
-    m_nReservedSlots    = a_nReservedSlots;
-    m_uiBufferLen       = 0;
+    m_PathPrefix = VD_NEW_ARRAY(CharType, VD_MAX_PATH_LENGTH);
+    Memory::MemSet(m_PathPrefix, 0, sizeof(CharType) * VD_MAX_PATH_LENGTH);
 
-    if(m_nReservedSlots > 0)
+    m_ContentType = ContentType::Pointers;
+    m_Flags = flags;
+    m_ArgCount = slots;
+    m_SlotCount = slots;
+    m_StringCount = 0;
+
+    if(m_SlotCount > 0)
     {
-        if(!GrowArgvArray(m_nReservedSlots))
+        if(!GrowArgvArray(m_SlotCount))
         {
-            return VD_ERR_MEMORY;
+            return Result::OutOfMemory;
         }
 
-        for(int n = 0; n < m_nReservedSlots; ++n)
+        for(vd::i32 n = 0; n < m_SlotCount; ++n)
         {
-            m_rgpArgs[n] = NULL;
+            m_ArgData[n] = NULL;
         }
     }
 
-    return VD_SUCCESS;
+    return Result::Success;
 }
 
 template<class CharType>
-int
-GlobTemplate<CharType>::Add(
-    const CharType* a_pszFileSpec
-)
+Glob::Result 
+Template<CharType>::Add(
+    const CharType* file_spec)
 {
-#ifdef _WIN32
-    // Windows FindFirst/FindNext recognizes forward slash as the same as
-    // backward slash and follows the directories. We need to do the same
-    // when calculating the prefix and when we have no wildcards.
-    CharType szFileSpec[MAX_PATH];
-    GlobMethods::strcpy_s(szFileSpec, MAX_PATH, a_pszFileSpec);
-    const CharType* pszPath = GlobMethods::strchr(szFileSpec, '/');
+
+#if defined(VD_TARGET_WINDOWS)
+    CharType szFileSpec[VD_MAX_PATH_LENGTH];
+    Methods::strcpy_s(szFileSpec, VD_MAX_PATH_LENGTH, file_spec);
+    const CharType* pszPath = Methods::strchr(szFileSpec, '/');
 
     while(pszPath)
     {
         szFileSpec[pszPath - szFileSpec] = VD_PATH_CHAR;
-        pszPath = GlobMethods::strchr(pszPath + 1, '/');
+        pszPath = Methods::strchr(pszPath + 1, '/');
     }
 
-    a_pszFileSpec = szFileSpec;
+    file_spec = szFileSpec;
 #endif
 
-    // if this doesn't contain wildcards then we can just add it directly
-    m_szPathPrefix[0] = 0;
-
-    if(!GlobMethods::strchr(a_pszFileSpec, '*') &&
-            !GlobMethods::strchr(a_pszFileSpec, '?'))
+    m_PathPrefix[0] = 0;
+    if(!Methods::strchr(file_spec, '*') && !Methods::strchr(file_spec, '?'))
     {
-        VD_FileType nType = GetFileTypeS(a_pszFileSpec);
-
-        if(nType == VD_FILETYPE_INVALID)
+        FileType nType = GetFileTypeS(file_spec);
+        if(nType == FileType::Invalid)
         {
-            if(m_uiFlags & VD_GLOB_NOCHECK)
+            if(m_Flags & VD_GLOB_NOCHECK)
             {
-                return AppendName(a_pszFileSpec, false);
+                return AppendName(file_spec, false);
             }
 
-            return VD_ERR_NOMATCH;
+            return Result::NotFound;
         }
 
-        return AppendName(a_pszFileSpec, nType == VD_FILETYPE_DIR);
+        return AppendName(file_spec, nType == FileType::Directory);
     }
 
-#ifdef _WIN32
-    // Windows doesn't return the directory with the filename, so we need to
-    // extract the path from the search string ourselves and prefix it to the
-    // filename we get back.
-    const CharType* pszFilename =
-        GlobMethods::strrchr(a_pszFileSpec, VD_PATH_CHAR);
-
-    if(pszFilename)
+#if defined(VD_TARGET_WINDOWS)
+    const CharType* filename = Methods::strrchr(file_spec, VD_PATH_CHAR);
+    if(filename)
     {
-        GlobMethods::strcpy_s(m_szPathPrefix, MAX_PATH, a_pszFileSpec);
-        m_szPathPrefix[pszFilename - a_pszFileSpec + 1] = 0;
+        Methods::strcpy_s(m_PathPrefix, VD_MAX_PATH_LENGTH, file_spec);
+        m_PathPrefix[filename - file_spec + 1] = 0;
     }
-
 #endif
 
-    // search for the first match on the file
-    int rc = FindFirstFileS(a_pszFileSpec, m_uiFlags);
-
-    if(rc != VD_SUCCESS)
+    Glob::Result rc = FindFirstFileS(file_spec, m_Flags);
+    if(rc != Result::Success)
     {
-        if(rc == VD_ERR_NOMATCH && (m_uiFlags & VD_GLOB_NOCHECK))
+        if(rc == Result::NotFound && (m_Flags & VD_GLOB_NOCHECK))
         {
-            int ok = AppendName(a_pszFileSpec, false);
-
-            if(ok != VD_SUCCESS) rc = ok;
+            Glob::Result ok = AppendName(file_spec, false);
+            if(ok != Result::Success) rc = ok;
         }
 
         return rc;
     }
 
-    // add it and find all subsequent matches
-    int nError, nStartLen = m_nArgsLen;
-    bool bSuccess;
-
+    Glob::Result status;
+    bool success = false;;
+    vd::i32 start = m_ArgCount;
     do
     {
-        nError = AppendName(GetFileNameS((CharType)0), IsDirS((CharType)0));
-        bSuccess = FindNextFileS((CharType)0);
+        status = AppendName(GetFileNameS((CharType)0), IsDirS((CharType)0));
+        success = FindNextFileS((CharType)0);
     }
-    while(nError == VD_SUCCESS && bSuccess);
+    while(status == Result::Success && success);
 
-    GlobBase<CharType>::FindDone();
+    Base<CharType>::FindDone();
 
-    // sort these files if required
-    if(m_nArgsLen > nStartLen && !(m_uiFlags & VD_GLOB_NOSORT))
+    if(m_ArgCount > start && !(m_Flags & VD_GLOB_NOSORT))
     {
-        if(m_uiFlags & VD_GLOB_FULLSORT)
+        if(m_Flags & VD_GLOB_FULLSORT)
         {
-            nStartLen = m_nReservedSlots;
+            start = m_SlotCount;
         }
 
-        SetArgvArrayType(POINTERS);
+        SetArgvContentType(ContentType::Pointers);
         qsort(
-            m_rgpArgs + nStartLen,
-            m_nArgsLen - nStartLen,
-            sizeof(m_rgpArgs[0]), fileSortCompare);
+            m_ArgData + start,
+            m_ArgCount - start,
+            sizeof(m_ArgData[0]), FileSortCompare);
     }
 
-    return nError;
+    return status;
 }
 
-template<class CharType>
-int
-GlobTemplate<CharType>::Add(
-    int                     a_nCount,
-    const CharType* const*   a_rgpszFileSpec
-)
+template<class CharType> 
+Glob::Result 
+Template<CharType>::Add(
+    vd::i32                     count,
+    const CharType* const*   file_spec)
 {
-    int nResult;
-
-    for(int n = 0; n < a_nCount; ++n)
+    Glob::Result result;
+    for(vd::i32 n = 0; n < count; ++n)
     {
-        nResult = Add(a_rgpszFileSpec[n]);
-
-        if(nResult != VD_SUCCESS)
+        result = Add(file_spec[n]);
+        if(result != Result::Success)
         {
-            return nResult;
+            return result;
         }
     }
 
-    return VD_SUCCESS;
+    return Result::Success;
 }
 
 template<class CharType>
-int
-GlobTemplate<CharType>::AppendName(
-    const CharType*   a_pszFileName,
-    bool            a_bIsDir
-)
+Glob::Result 
+Template<CharType>::AppendName(
+    const CharType* filename, bool is_dir)
 {
-    // we need the argv array as offsets in case we resize it
-    SetArgvArrayType(OFFSETS);
-
-    // check for special cases which cause us to ignore this entry
-    if((m_uiFlags & VD_GLOB_ONLYDIR) && !a_bIsDir)
+    SetArgvContentType(ContentType::Offsets);
+    if((m_Flags & VD_GLOB_ONLYDIR) && !is_dir)
     {
-        return VD_SUCCESS;
+        return Result::Success;
     }
 
-    if((m_uiFlags & VD_GLOB_ONLYFILE) && a_bIsDir)
+    if((m_Flags & VD_GLOB_ONLYFILE) && is_dir)
     {
-        return VD_SUCCESS;
+        return Result::Success;
     }
 
-    if((m_uiFlags & VD_GLOB_NODOT) && a_bIsDir)
+    if((m_Flags & VD_GLOB_NODOT) && is_dir)
     {
-        if(a_pszFileName[0] == '.')
+        if(filename[0] == '.')
         {
-            if(a_pszFileName[1] == '\0')
+            if(filename[1] == '\0')
             {
-                return VD_SUCCESS;
+                return Result::Success;
             }
 
-            if(a_pszFileName[1] == '.' && a_pszFileName[2] == '\0')
+            if(filename[1] == '.' && filename[2] == '\0')
             {
-                return VD_SUCCESS;
+                return Result::Success;
             }
         }
     }
 
-    // ensure that we have enough room in the argv array
-    if(!GrowArgvArray(m_nArgsLen + 1))
+    if(!GrowArgvArray(m_ArgCount + 1))
     {
-        return VD_ERR_MEMORY;
+        return Result::OutOfMemory;
     }
 
-    // ensure that we have enough room in the string buffer (+1 for null)
-    size_t uiPrefixLen = GlobMethods::strlen(m_szPathPrefix);
-    size_t uiLen = uiPrefixLen + GlobMethods::strlen(a_pszFileName) + 1;
+    size_t prefix_length = Methods::strlen(m_PathPrefix);
+    size_t length = prefix_length + Methods::strlen(filename) + 1;
 
-    if(a_bIsDir && (m_uiFlags & VD_GLOB_MARK) == VD_GLOB_MARK)
+    if(is_dir && (m_Flags & VD_GLOB_MARK) == VD_GLOB_MARK)
     {
-        ++uiLen;    // need space for the backslash
+        ++length;
     }
 
-    if(!GrowStringBuffer(m_uiBufferLen + uiLen))
+    if(!GrowStringBuffer(m_StringCount + length))
     {
-        return VD_ERR_MEMORY;
+        return Result::OutOfMemory;
     }
 
-    // add this entry. m_uiBufferLen is offset from beginning of buffer.
-    m_rgpArgs[m_nArgsLen++] = (CharType*)m_uiBufferLen;
-    GlobMethods::strcpy_s(m_pBuffer + m_uiBufferLen,
-                          m_uiBufferSize - m_uiBufferLen, m_szPathPrefix);
-    GlobMethods::strcpy_s(m_pBuffer + m_uiBufferLen + uiPrefixLen,
-                          m_uiBufferSize - m_uiBufferLen - uiPrefixLen, a_pszFileName);
-    m_uiBufferLen += uiLen;
+    m_ArgData[m_ArgCount++] = (CharType*)m_StringCount;
+    Methods::strcpy_s(m_StringData + m_StringCount, m_StringCapacity - m_StringCount, m_PathPrefix);
+    Methods::strcpy_s(m_StringData + m_StringCount + prefix_length, m_StringCapacity - m_StringCount - prefix_length, filename);
+    m_StringCount += length;
 
-    // add the directory slash if desired
-    if(a_bIsDir && (m_uiFlags & VD_GLOB_MARK) == VD_GLOB_MARK)
+    if(is_dir && (m_Flags & VD_GLOB_MARK) == VD_GLOB_MARK)
     {
-        const static CharType szDirSlash[] = { VD_PATH_CHAR, 0 };
-        GlobMethods::strcpy_s(m_pBuffer + m_uiBufferLen - 2,
-                              m_uiBufferSize - (m_uiBufferLen - 2), szDirSlash);
+        const static CharType separator[] = { VD_PATH_CHAR, 0 };
+        Methods::strcpy_s(m_StringData + m_StringCount - 2, m_StringCapacity - (m_StringCount - 2), separator);
     }
 
-    return VD_SUCCESS;
+    return Result::Success;
 }
 
 template<class CharType>
-void
-GlobTemplate<CharType>::SetArgvArrayType(
-    ARG_ARRAY_TYPE  a_nNewType
-)
+void Template<CharType>::SetArgvContentType(
+    Glob::ContentType::Value type)
 {
-    if(m_nArgArrayType == a_nNewType) return;
+    if(m_ContentType == type) 
+        return;
 
-    if(a_nNewType == POINTERS)
+    switch(type)
     {
-        VD_ASSERT(m_nArgArrayType == OFFSETS);
-
-        for(int n = 0; n < m_nArgsLen; ++n)
+        case ContentType::Pointers:
         {
-            m_rgpArgs[n] = (m_rgpArgs[n] == (CharType*) - 1) ?
-                           NULL : m_pBuffer + (size_t) m_rgpArgs[n];
+            for(vd::i32 n = 0; n < m_ArgCount; ++n)
+            {
+                m_ArgData[n] = (m_ArgData[n] == (CharType*) - 1) ?
+                                NULL                             : (m_StringData + (size_t) m_ArgData[n]);
+            }
+            m_ContentType = type;
+            break;
         }
-    }
-    else
-    {
-        VD_ASSERT(a_nNewType == OFFSETS);
-        VD_ASSERT(m_nArgArrayType == POINTERS);
-
-        for(int n = 0; n < m_nArgsLen; ++n)
+        case ContentType::Offsets:
         {
-            m_rgpArgs[n] = (m_rgpArgs[n] == NULL) ?
-                           (CharType*) - 1 : (CharType*)(m_rgpArgs[n] - m_pBuffer);
+            for(vd::i32 n = 0; n < m_ArgCount; ++n)
+            {
+                m_ArgData[n] = (m_ArgData[n] == NULL) ?
+                               (CharType*) - 1        : (CharType*)(m_ArgData[n] - m_StringData);
+            }
+            m_ContentType = type;
+            break;
         }
-    }
-
-    m_nArgArrayType = a_nNewType;
+        case ContentType::Invalid:
+        default:
+        {
+            vdGlobalAssertMsg(false, "Invalid content type used for Glob arg data!");
+        }
+    };
 }
 
 template<class CharType>
-bool
-GlobTemplate<CharType>::GrowArgvArray(
-    int a_nNewLen
-)
+bool Template<CharType>::GrowArgvArray(
+    vd::i32 capacity)
 {
-    if(a_nNewLen >= m_nArgsSize)
+    if(capacity >= m_ArgCapacity)
     {
-        static const int VD_ARGV_INITIAL_SIZE = 32;
-        int nNewSize = (m_nArgsSize > 0) ?
-                       m_nArgsSize * 2 : VD_ARGV_INITIAL_SIZE;
+        static const vd::i32 initial = 128;
 
-        while(a_nNewLen >= nNewSize)
+        vd::i32 reserve = (m_ArgCapacity > 0) ?
+                          (m_ArgCapacity * 2) : initial;
+
+        while(reserve >= capacity)
         {
-            nNewSize *= 2;
+            reserve *= 2;
         }
 
-        void* pNewBuffer = realloc(m_rgpArgs, nNewSize * sizeof(CharType*));
+        void* data = Memory::RawRealloc(m_ArgData, reserve * sizeof(CharType*));
+        if(!data) return false;
 
-        if(!pNewBuffer) return false;
-
-        m_nArgsSize = nNewSize;
-        m_rgpArgs = (CharType**) pNewBuffer;
+        m_ArgCapacity = reserve;
+        m_ArgData = (CharType**) data;
     }
 
     return true;
 }
 
 template<class CharType>
-bool
-GlobTemplate<CharType>::GrowStringBuffer(
-    size_t a_uiMinSize
-)
+bool Template<CharType>::GrowStringBuffer(
+    vd::i32 capacity)
 {
-    if(a_uiMinSize >= m_uiBufferSize)
+    if(capacity >= m_StringCapacity)
     {
-        static const int VD_BUFFER_INITIAL_SIZE = 1024;
-        size_t uiNewSize = (m_uiBufferSize > 0) ?
-                           m_uiBufferSize * 2 : VD_BUFFER_INITIAL_SIZE;
+        static const vd::i32 initial = 1024;
 
-        while(a_uiMinSize >= uiNewSize)
+        size_t reserve = (m_StringCapacity > 0) ?
+                         (m_StringCapacity * 2) : initial;
+
+        while(capacity >= reserve)
         {
-            uiNewSize *= 2;
+            reserve *= 2;
         }
 
-        void* pNewBuffer = realloc(m_pBuffer, uiNewSize * sizeof(CharType));
+        void* data = Memory::RawRealloc(m_StringData, reserve * sizeof(CharType));
+        if(!data) return false;
 
-        if(!pNewBuffer) return false;
-
-        m_uiBufferSize = uiNewSize;
-        m_pBuffer = (CharType*) pNewBuffer;
+        m_StringCapacity = reserve;
+        m_StringData = (CharType*) data;
     }
 
     return true;
 }
 
 template<class CharType>
-int
-GlobTemplate<CharType>::fileSortCompare(
-    const void* a1,
-    const void* a2
-)
+vd::i32 Template<CharType>::FileSortCompare(
+    const void* a1, const void* a2)
 {
     const CharType* s1 = *(const CharType**)a1;
     const CharType* s2 = *(const CharType**)a2;
 
     if(s1 && s2)
     {
-        return GlobMethods::strcasecmp(s1, s2);
+        return Methods::strcasecmp(s1, s2);
     }
 
-    // NULL sorts first
     return s1 == s2 ? 0 : (s1 ? 1 : -1);
 }
 
-// ---------------------------------------------------------------------------
-//                                  TYPE DEFINITIONS
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------- //
 
-typedef GlobTemplate<char>    GlobA;
-typedef GlobTemplate<wchar_t> GlobW;
+} // END NAMESPACE: Glob
 
+// ---------------------------------------------------------------------------------------------- //
+
+typedef Glob::Template<char>             GlobA;
+typedef Glob::Template<wchar_t>          GlobW;
 #if VD_HAVE_ICU
-typedef GlobTemplate<UChar> GlobU;
+typedef Glob::Template<UChar>            GlobU;
 #endif
 
-#ifdef _UNICODE
-# if VD_HAVE_ICU
-#  define Glob GlobU
-# else
-#  define Glob GlobW
-# endif
+// ---------------------------------------------------------------------------------------------- //
+
+#if defined(_UNICODE)
+#   if VD_HAVE_ICU
+#       define Glob                      GlobU
+#   else
+#       define Glob                      GlobW
+#   endif
 #else
-# define Glob GlobA
+#   define Glob                          GlobA
 #endif
 
 // ============================================================================================== //
@@ -1008,3 +988,5 @@ typedef GlobTemplate<UChar> GlobU;
 VD_CORE_NAMESPACE_END();
 
 // ============================================================================================== //
+
+#endif
