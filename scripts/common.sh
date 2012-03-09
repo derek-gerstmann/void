@@ -80,22 +80,6 @@ function exit_on_failure
     fi
 }
 
-function clone()
-{
-    local url=$1
-    local dir=$2
-
-    local cmd="$(which wget)"
-    if [ -e $cmd ];
-    then
-        cmd="git clone"
-        $cmd $url $dir || bail "Failed to clone '$url' into '$dir'"
-    else
-        bail "Failed to locate 'git' command!  Please install this command line utility!"
-    fi
-    separator
-}
-
 function fetch() 
 {
     local url=$1
@@ -195,7 +179,7 @@ function make_tarball()
     local tarball=$1
     local dir=$2
     
-    tar cjf "${tarball}" "${dir}" || bail "Failed to create tarball!"
+    tar cjf "${tarball}" "${dir}" &>${LOG_FILE} || bail "Failed to create tarball!"
 }
 
 function get_cursor_position()
@@ -219,6 +203,7 @@ function get_cursor_position()
 ####################################################################################################
 
 # setup project paths
+pkgkeep=0
 abscwd="$( cd "$( dirname "$0" )" && pwd )"
 basedir="$( basename "$abscwd" )"
 rootdir="$( dirname "$abscwd" )"
@@ -250,137 +235,3 @@ then
 fi 
 
 ####################################################################################################
-
-# move into external pkg folder for retrieving pkgs
-prefix="$extdir/build/$pkgname/$osname"
-separator
-report "Setting up external package '$pkgbase' for '$osname' ... "
-cd "$extdir"
-mkdir -p pkgs
-cd pkgs
-separator
-
-# remove any existing extracted pkg folder
-if [ -d "$pkgbase" ]
-then
-	report "Removing old package '$pkgbase'"
-	rm -r "$pkgbase"
-    separator
-fi
-
-# if a local copy doesn't exist, grab the pkg from the url
-if [ ! -f "$pkgfile" ]
-then
-	report "Retrieving package '$pkgname'"
-    if [[ $(echo $pkgurl | grep -c 'http://') == 1 ]]
-    then
-    	fetch $pkgurl $pkgfile 
-    fi
-    if [[ $(echo $pkgurl | grep -c 'git://') == 1 ]]
-    then
-        clone $pkgurl $pkgbase 
-        make_tarball $pkgfile $pkgbase
-    fi
-    separator
-fi
-
-# extract pkg file and move into extracted folder
-if [[ $(echo $pkgurl | grep -c '.gz|.tar|.bz|.zip') == 1 ]]
-then
-    report "Extracting package '$pkgfile'"
-    extract_tarball $pkgfile
-fi
-
-cd "$pkgbase"
-separator
-
-# bootstrap package
-if [ ! -f "./configure" ]
-then
-    if [ -f "./bootstrap" ]
-    then
-        report "Bootstraping package '$pkgname'"
-        separator
-        ./bootstrap
-        separator
-    fi
-    if [ -f "./bootstrap.sh" ]
-    then 
-        report "Bootstraping package '$pkgname'"
-        separator
-        ./bootstrap.sh
-        separator
-    fi
-    if [ -f "./autogen.sh" ]
-    then 
-        report "Bootstraping package '$pkgname'"
-        separator
-        ./autogen.sh
-        separator
-    fi
-fi
-
-# configure package
-if [ -f "./configure" ]
-then
-    report "Configuring package '$pkgname'"
-    separator
-    echo ./configure --prefix="$prefix" $pkgcfg
-    separator
-    ./configure --prefix="$prefix" $pkgcfg || bail "Failed to configure: '$prefix'"
-    separator
-    report "Done configuring package '$pkgname'"
-fi
-
-# build and install into local path
-report "Building package '$pkgname'"
-separator
-make  || bail "Failed to build package: '$prefix'"
-separator
-
-report "Installing package '$pkgname'"
-separator
-make install || bail "Failed to install package: '$prefix'"
-separator
-
-# move header into external path
-if [ -d "$prefix/include" ]
-then
-    report "Copying headers for '$pkgname'"
-    separator
-    mkdir -p "$extdir/$pkgname/include"
-    cp -TRv  "$prefix/include" "$extdir/$pkgname/include" || bail "Failed to copy OS binaries into directory: $extdir/$pkgname/$osname"
-    separator
-fi
-
-# move libraries into os path
-if [ -d "$prefix/lib" ]
-then
-	report "Copying OS dependent libraries for '$pkgname'"
-	separator
-    mkdir -p "$extdir/$pkgname/lib/$osname"
-	cp -TRv  "$prefix/lib" "$extdir/$pkgname/lib/$osname" || bail "Failed to copy OS binaries into directory: $extdir/$pkgname/$osname"
-	separator
-fi
-
-# move binaries into os path
-if [ -d "$prefix/bin" ]
-then
-	report "Copying OS dependent binaries for '$pkgname'"
-	separator
-    mkdir -p "$extdir/$pkgname/bin/$osname"
-    cp -TRv  "$prefix/bin" "$extdir/$pkgname/bin/$osname" || bail "Failed to copy OS binaries into directory: $extdir/$pkgname/$osname"
-    separator
-fi
-
-if [ "$pkgkeep" -eq 1 ]
-then
-    report "Keeping package build directory for '$pkgbase'"
-else
-    report "Removing package build directory for '$pkgbase'"
-    rm -r "$prefix"
-    separator
-fi
-
-report "DONE building '$pkgname' from '$pkgfile'! --"
-separator

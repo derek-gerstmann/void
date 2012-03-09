@@ -4,11 +4,10 @@
 source "./common.sh"
 
 # setup pkg definition and resource files
-pkgname="icu"
-pkgbase="icu/source"
-pkgfile="icu4c-49_rc-src.tgz"
-pkgurl="http://download.icu-project.org/files/icu4c/49rc/$pkgfile"
-pkgcfg="--disable-shared --enable-static"
+pkgname="glew"
+pkgbase="glew-nightly"
+pkgfile="$pkgbase.tar.gz"
+pkgurl="git://glew.git.sourceforge.net/gitroot/glew/glew"
 
 # build and install pkg into external folder
 source "./build-pkg.sh"

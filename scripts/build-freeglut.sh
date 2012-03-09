@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# source common configuration settings
+source "./common.sh"
+
+# setup pkg definition and resource files
 pkgname="glut"
 pkgbase="freeglut-2.8.0"
 pkgfile="$pkgbase.tar.gz"

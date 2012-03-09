@@ -4,11 +4,12 @@
 source "./common.sh"
 
 # setup pkg definition and resource files
-pkgname="icu"
-pkgbase="icu/source"
-pkgfile="icu4c-49_rc-src.tgz"
-pkgurl="http://download.icu-project.org/files/icu4c/49rc/$pkgfile"
+pkgname="exr"
+pkgbase="IlmBase"
+pkgfile="IlmBase-savannah-v1.7.x.zip"
+pkgurl="http://local.ivec.uwa.edu.au/~derek/files/dev/$pkgfile"
 pkgcfg="--disable-shared --enable-static"
+pkgkeep=1
 
 # build and install pkg into external folder
 source "./build-pkg.sh"

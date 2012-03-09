@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# source common configuration settings
+source "./common.sh"
+
 # setup pkg definition and resource files
 pkgname="iconv"
 pkgbase="libiconv-1.14"
