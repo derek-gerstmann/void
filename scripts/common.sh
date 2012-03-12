@@ -7,6 +7,41 @@ export ID=$( basename "$ABSPATH" )
 
 ####################################################################################################
 
+# setup project paths
+abs_cwd="$( cd "$( dirname "$0" )" && pwd )"
+base_dir="$( basename "$abs_cwd" )"
+root_dir="$( dirname "$abs_cwd" )"
+ext_dir="$root_dir/external"
+pkg_dir="$root_dir/external/pkgs"
+
+os_name="unknown"
+is_lnx=$( uname -s | grep -c Linux )
+if [ "$is_lnx" -eq 1 ]
+then
+    os_name="lnx"
+fi
+
+is_osx=$( uname -s | grep -c Darwin )
+if [ "$is_osx" -eq 1 ]
+then
+    os_name="osx"
+fi
+
+if [ "$os_name" == "unknown" ]
+then
+    echo "Operating system is unknown and not detected properly.  Please update detection routine!"
+    exit 0
+fi 
+
+# ensure we are run inside of the scripts folder
+if [ "$base_dir" != "scripts" ]
+then
+    echo "Please execute package build script from within the void/scripts subfolder!"
+    exit 0
+fi 
+
+####################################################################################################
+
 function lowercase()
 {
     echo $1 | tr '[:upper:]' '[:lower:]'
@@ -42,6 +77,58 @@ function report()
 function separator()
 {
     report "---------------------------------------------------------------------------------------"
+}
+
+function quote_str
+{
+    local filename=$1
+
+    sed $filename \
+        -e 's#\\#\\\\#' \
+        -e 's#/#\\/#' \
+        -e 's#\.#\\.#' \
+        -e 's#\*#\\*#' \
+        -e 's#\[#\\[#'
+
+    return $?
+}
+
+function split_str
+{
+    local DEFAULT_DELIMITER=" "
+
+    local a_delimiter="${1:-$DEFAULT_DELIMITER}"
+    local a_inputfile="$2"
+
+    awk -F "$a_delimiter" \
+    '{  for(i = 1; i <= NF; i++) {
+            print $i
+        }
+    }' $a_inputfile
+
+    return $?
+}
+
+function join_str
+{
+    local DEFAULT_DELIMITER=" "
+
+    local a_delimiter="${1:-$DEFAULT_DELIMITER}"
+    local a_inputfile="$2"
+
+    awk -v usersep="$a_delimiter" '
+    BEGIN{
+        sep=""; # Start with no separator (before the first item)
+    }
+    {
+        printf("%s%s", sep, $0);
+        (NR == 1) && sep = usersep; # Separator is set after the first item.
+    }
+    END{
+        print "" # Print a new line at the end.
+    }' $a_inputfile
+    
+    return $?
 }
 
 function header()
@@ -80,10 +167,26 @@ function exit_on_failure
     fi
 }
 
+function clone()
+{
+    local url=$1
+    local dir=$2
+
+    local cmd="$(which wget)"
+    if [ -e $cmd ];
+    then
+        cmd="git clone"
+        $cmd $url $dir || bail "Failed to clone '$url' into '$dir'"
+    else
+        bail "Failed to locate 'git' command!  Please install this command line utility!"
+    fi
+    separator
+}
+
 function fetch() 
 {
     local url=$1
-    local tarball=$2
+    local archive=$2
     local dir=$3
 
     local usepipe=0
@@ -102,38 +205,54 @@ function fetch()
         cmd="wget --progress=dot -O"
     fi
 
-    if [ ! -e $tarball ]; then
-        report "Fetching '$tarball'..."
+    if [ ! -e $archive ]; then
+        report "Fetching '$archive'..."
         separator
         if [ "$usepipe" -eq 1 ]
         then
-            echo "$cmd $url > $tarball"
-			$cmd $url > $tarball
-		else
-            echo "$cmd $tarball $url"
-	        $cmd $tarball $url
-	    fi
+            echo "$cmd $url > $archive"
+            $cmd $url > $archive
+        else
+            echo "$cmd $archive $url"
+            $cmd $archive $url
+        fi
         separator
-        report "Downloaded '$url' to '$tarball'..."
+        report "Downloaded '$url' to '$archive'..."
     fi
 
-    if [ ! -e $tarball ]; then
-        bail "Failed to fetch '$tarball'..."
+    if [ ! -e $archive ]; then
+        bail "Failed to fetch '$archive'..."
     fi
 }
 
-function extract_tarball()
+function is_archive()
 {
-	local tarball=$1
-    if test -f ${tarball%.*}*.bz2 ; then
-            tar jxf ${tarball} || bail "Failed to extract tarball '${tarball}'"
-    elif  test -f ${tarball%.*}*.gz ; then
-            tar zxf ${tarball} || bail "Failed to extract tarball '${tarball}'"
-    elif  test -f ${tarball%.*}*.tgz ; then
-            tar zxf ${tarball} || bail "Failed to extract tarball '${tarball}'"
-    elif  test -f ${tarball%.*}*.zip ; then
-            unzip -uo ${tarball} || bail "Failed to extract tarball '${tarball}'"
-    fi	
+    local is=0
+    local archive=$1
+    if test -f ${archive%.*}*.bz2 ; then
+        is=1
+    elif  test -f ${archive%.*}*.gz ; then
+        is=1
+    elif  test -f ${archive%.*}*.tgz ; then
+        is=1
+    elif  test -f ${archive%.*}*.zip ; then
+        is=1
+    fi  
+    echo "$is"
+}
+
+function extract_archive()
+{
+    local archive=$1
+    if test -f ${archive%.*}*.bz2 ; then
+        tar jxf ${archive} || bail "Failed to extract archive '${archive}'"
+    elif  test -f ${archive%.*}*.gz ; then
+        tar zxf ${archive} || bail "Failed to extract archive '${archive}'"
+    elif  test -f ${archive%.*}*.tgz ; then
+        tar zxf ${archive} || bail "Failed to extract archive '${archive}'"
+    elif  test -f ${archive%.*}*.zip ; then
+        unzip -uo ${archive} || bail "Failed to extract archive '${archive}'"
+    fi  
 }
 
 function make_dir()
@@ -174,12 +293,12 @@ function move_file()
     mv ${src} ${dst} >${LOG_FILE} || bail "Failed to move directory!"
 }
 
-function make_tarball()
+function make_archive()
 {
-    local tarball=$1
+    local archive=$1
     local dir=$2
     
-    tar cjf "${tarball}" "${dir}" &>${LOG_FILE} || bail "Failed to create tarball!"
+    tar cjf "${archive}" "${dir}" || bail "Failed to create archive!"
 }
 
 function get_cursor_position()
@@ -199,39 +318,5 @@ function get_cursor_position()
     
     echo "$row $col"
 }
-
-####################################################################################################
-
-# setup project paths
-pkgkeep=0
-abscwd="$( cd "$( dirname "$0" )" && pwd )"
-basedir="$( basename "$abscwd" )"
-rootdir="$( dirname "$abscwd" )"
-extdir="$rootdir/external"
-osname="unknown"
-islnx=$( uname -s | grep -c Linux )
-if [ "$islnx" -eq 1 ]
-then
-	osname="lnx"
-fi
-
-isosx=$( uname -s | grep -c Darwin )
-if [ "$isosx" -eq 1 ]
-then
-	osname="osx"
-fi
-
-if [ "$osname" == "unknown" ]
-then
-	echo "Operating system is unknown and not detected properly.  Please update detection routine!"
-	exit 0
-fi 
-
-# ensure we are run inside of the scripts folder
-if [ "$basedir" != "scripts" ]
-then
-	echo "Please execute package build script from within the void/scripts subfolder!"
-	exit 0
-fi 
 
 ####################################################################################################

@@ -2,385 +2,242 @@
 
 ####################################################################################################
 
-export ABSPATH=$(cd ${0%/*} && echo $PWD)
-export ID=$( basename "$ABSPATH" )
-
-####################################################################################################
-
-function lowercase()
+function setup_pkg()
 {
-    echo $1 | tr '[:upper:]' '[:lower:]'
-}
-
-function uppercase()
-{
-    echo $1 | tr '[:lower:]' '[:upper:]'
-}
-
-function resolve()
-{
-        cd "$1" 2>/dev/null || return $? 
-        local resolved="`pwd -P`"
-        echo "$resolved"
-}
-
-function abswd
-{
-    if [[ $(echo $0 | awk '/^\//') == $0 ]]; then
-        export ABSPATH=$(dirname $0)
-    else
-        export ABSPATH=$PWD/$(dirname $0)
-    fi
-}
-
-function report()
-{
-    local ts=$(date "+%Y-%m-%d-%H:%M:%S")
-    echo "[ ${ts} ] ${1}"
-}
-
-function separator()
-{
-    report "---------------------------------------------------------------------------------------"
-}
-
-function header()
-{
-    local msg=$@
-    separator
-    report "${msg}"
-    separator
-}
-
-function bail
-{
-    local msg=$@
-
-    report ""
+    local pkg_name=$1
+    local pkg_base=$2
+    local pkg_file=$3
+    local pkg_url=$4
 
     separator
-    report "ERROR: ${msg}. Exiting..."
+    report "Setting up external package '$pkg_base' for '$os_name' ... "
+    mkdir -p "$pkg_dir"
+    cd "$pkg_dir"
     separator
 
-    exit 1
-}
-
-function try
-{
-    $@
-    if test $? -ne 0 ; then
-        bail "$@"
-    fi
-}
-
-function exit_on_failure
-{
-    if test $? -ne 0 ; then
-        bail "$1"
-    fi
-}
-
-function clone()
-{
-    local url=$1
-    local dir=$2
-
-    local cmd="$(which wget)"
-    if [ -e $cmd ];
+    # remove any existing extracted pkg folder
+    if [ -d "$pkg_base" ]
     then
-        cmd="git clone"
-        $cmd $url $dir || bail "Failed to clone '$url' into '$dir'"
-    else
-        bail "Failed to locate 'git' command!  Please install this command line utility!"
+        report "Removing old package '$pkg_base'"
+        rm -r "$pkg_base"
+        separator
     fi
-    separator
 }
 
-function fetch() 
+function fetch_pkg()
 {
-    local url=$1
-    local tarball=$2
-    local dir=$3
+    local pkg_name=$1
+    local pkg_base=$2
+    local pkg_file=$3
+    local pkg_url=$4
 
-    local usepipe=0
-    local cmd="$(which wget)"
-    if [ ! -e $cmd ];
+    # if a local copy doesn't exist, grab the pkg from the url
+    if [ ! -f "$pkg_file" ]
     then
-        cmd="$(which curl)"
-        if [ -e $cmd ];
+        report "Retrieving package '$pkg_name' from '$pkg_url'"
+        if [[ $(echo "$pkg_url" | grep -c 'http://') == 1 ]]
         then
-            cmd="curl -f -L -O"
-            usepipe=1
-        else
-            bail "Failed to locate either 'wget' or 'curl' for fetching packages!  Please install one of these utilties!"
+            fetch $pkg_url $pkg_file 
         fi
-    else
-        cmd="wget --progress=dot -O"
-    fi
-
-    if [ ! -e $tarball ]; then
-        report "Fetching '$tarball'..."
-        separator
-        if [ "$usepipe" -eq 1 ]
+        if [[ $(echo "$pkg_url" | grep -c 'git://') == 1 ]]
         then
-            echo "$cmd $url > $tarball"
-			$cmd $url > $tarball
-		else
-            echo "$cmd $tarball $url"
-	        $cmd $tarball $url
-	    fi
+            clone $pkg_url $pkg_base 
+            make_archive $pkg_file $pkg_base
+        fi
         separator
-        report "Downloaded '$url' to '$tarball'..."
     fi
 
-    if [ ! -e $tarball ]; then
-        bail "Failed to fetch '$tarball'..."
+    # extract any pkg archives
+    if [[ $(is_archive "$pkg_file") == 1 ]]
+    then
+        report "Extracting package '$pkg_file'"
+        extract_archive $pkg_file
     fi
 }
 
-function extract_tarball()
+function boot_pkg()
 {
-	local tarball=$1
-    if test -f ${tarball%.*}*.bz2 ; then
-            tar jxf ${tarball} || bail "Failed to extract tarball '${tarball}'"
-    elif  test -f ${tarball%.*}*.gz ; then
-            tar zxf ${tarball} || bail "Failed to extract tarball '${tarball}'"
-    elif  test -f ${tarball%.*}*.tgz ; then
-            tar zxf ${tarball} || bail "Failed to extract tarball '${tarball}'"
-    elif  test -f ${tarball%.*}*.zip ; then
-            unzip -uo ${tarball} || bail "Failed to extract tarball '${tarball}'"
-    fi	
-}
+    local pkg_name=$1
+    local pkg_base=$2
+    local pkg_file=$3
+    local pkg_url=$4
 
-function make_dir()
-{
-    local dir=$1
-    mkdir -p ${dir} >${LOG_FILE} || bail "Failed to create directory '${dir}'"
-}
+    cd "$pkg_base"
+    separator
 
-function remove_dir()
-{
-    local dir=$1
-    local force=$2
-    if [ ${force} ]; then
-        rm -rf ${dir} >${LOG_FILE} || bail "Failed to remove directory '${dir}'"
-    else
-        if [ -d "${dir}" ]; then
-            rm -r ${dir} >${LOG_FILE} || bail "Failed to remove directory '${dir}'"
+    # bootstrap package
+    if [ ! -f "./configure" ]
+    then
+        if [ -f "./bootstrap" ]
+        then
+            report "Bootstraping package '$pkg_name'"
+            separator
+            ./bootstrap
+            separator
+        fi
+        if [ -f "./bootstrap.sh" ]
+        then 
+            report "Bootstraping package '$pkg_name'"
+            separator
+            ./bootstrap.sh
+            separator
+        fi
+        if [ -f "./autogen.sh" ]
+        then 
+            report "Bootstraping package '$pkg_name'"
+            separator
+            ./autogen.sh
+            separator
         fi
     fi
+
 }
 
-function push_dir()
+function cfg_pkg()
 {
-    local dir=$1
-    pushd ${dir} >${LOG_FILE} || bail "Failed to push directory '${dir}'"
+    # configure package
+    local m=7
+    local pkg_name=$1
+    local pkg_base=$2
+    local pkg_file=$3
+    local pkg_url=$4
+    local pkg_cflags=$5
+    local pkg_ldflags=$6
+    local pkg_cfg="${@:$m}"
+
+    prefix="$ext_dir/build/$pkg_name/$os_name"
+    if [ -f "./configure" ]
+    then
+        env_flags=" "
+        if [ -n $pkg_cflags ] && [ $pkg_cflags != 0 ]
+        then
+            pkg_cflags=$(echo $pkg_cflags | split_str ":" | join_str " ")
+            env_flags='CXXFLAGS="'$pkg_cflags'" CFLAGS="'$pkg_cflags'"'
+        fi
+        if [ -n $pkg_ldflags ] && [ $pkg_ldflags != 0 ]
+        then
+            pkg_ldflags=$(echo $pkg_ldflags | split_str ":" | join_str " ")
+            env_flags=$env_flags' LDFLAGS="'$pkg_ldflags'"'
+        fi
+        
+        report "Configuring package '$pkg_name' ..."
+        separator
+        echo ./configure --prefix="$prefix" $pkg_cfg $env_flags 
+        separator
+        eval ./configure --prefix="$prefix" $pkg_cfg $env_flags || bail "Failed to configure: '$prefix'"
+        separator
+        report "Done configuring package '$pkg_name'"
+    fi
 }
 
-function pop_dir()
+function make_pkg()
 {
-    local dir=$1
-    popd >${LOG_FILE} || bail "Failed to pop directory!"
+    local pkg_name=$1
+    local pkg_base=$2
+    local pkg_file=$3
+    local pkg_url=$4
+
+    # build and install into local path
+    prefix="$ext_dir/build/$pkg_name/$os_name"
+    report "Building package '$pkg_name'"
+    separator
+    make  || bail "Failed to build package: '$prefix'"
+    separator
+
 }
 
-function move_file()
+function install_pkg()
 {
-    local src=$1
-    local dst=$2
-    mv ${src} ${dst} >${LOG_FILE} || bail "Failed to move directory!"
+    local pkg_name=$1
+    local pkg_base=$2
+    local pkg_file=$3
+    local pkg_url=$4
+
+    prefix="$ext_dir/build/$pkg_name/$os_name"
+    report "Installing package '$pkg_name'"
+    separator
+    make install || bail "Failed to install package: '$prefix'"
+    separator
 }
 
-function make_tarball()
+function migrate_pkg()
 {
-    local tarball=$1
-    local dir=$2
-    
-    tar cjf "${tarball}" "${dir}" || bail "Failed to create tarball!"
-}
+    local pkg_name=$1
+    local pkg_base=$2
+    local pkg_file=$3
+    local pkg_url=$4
+    local pkg_keep=$5
 
-function get_cursor_position()
-{
-    exec < /dev/tty
-    oldstty=$(stty -g)
-    stty raw -echo min 0
-    echo -en "\033[6n" > /dev/tty
-    # tput u7 > /dev/tty    # when TERM=xterm (and relatives)
-    
-    IFS=';' read -r -d R -a pos
-    stty $oldstty
-    
-    # change from one-based to zero based so they work with: tput cup $row $col
-    local row=$((${pos[0]:2} - 1))    # strip off the esc-[
-    local col=$((${pos[1]} - 1))
-    
-    echo "$row $col"
+    prefix="$ext_dir/build/$pkg_name/$os_name"
+    report "Migrating package '$pkg_name'"
+    separator
+
+    # move header into external path
+    if [ -d "$prefix/include" ]
+    then
+        report "Copying headers for '$pkg_name'"
+        separator
+        mkdir -p "$ext_dir/$pkg_name/include"
+        cp -TRv  "$prefix/include" "$ext_dir/$pkg_name/include" || bail "Failed to copy OS binaries into directory: $ext_dir/$pkg_name/$os_name"
+        separator
+    fi
+
+    # move libraries into os path
+    if [ -d "$prefix/lib" ]
+    then
+        report "Copying OS dependent libraries for '$pkg_name'"
+        separator
+        mkdir -p "$ext_dir/$pkg_name/lib/$os_name"
+        cp -TRv  "$prefix/lib" "$ext_dir/$pkg_name/lib/$os_name" || bail "Failed to copy OS binaries into directory: $ext_dir/$pkg_name/$os_name"
+        separator
+    fi
+
+    # move binaries into os path
+    if [ -d "$prefix/bin" ]
+    then
+        report "Copying OS dependent binaries for '$pkg_name'"
+        separator
+        mkdir -p "$ext_dir/$pkg_name/bin/$os_name"
+        cp -TRv  "$prefix/bin" "$ext_dir/$pkg_name/bin/$os_name" || bail "Failed to copy OS binaries into directory: $ext_dir/$pkg_name/$os_name"
+        separator
+    fi
+
+    if [ "$pkg_keep" -eq 1 ]
+    then
+        report "Keeping package build directory for '$pkg_base'"
+    else
+        report "Removing package build directory for '$pkg_base'"
+        rm -r "$prefix"
+        separator
+    fi
 }
 
 ####################################################################################################
 
-# setup project paths
-abscwd="$( cd "$( dirname "$0" )" && pwd )"
-basedir="$( basename "$abscwd" )"
-rootdir="$( dirname "$abscwd" )"
-extdir="$rootdir/external"
-osname="unknown"
-islnx=$( uname -s | grep -c Linux )
-if [ "$islnx" -eq 1 ]
-then
-	osname="lnx"
-fi
+function build_pkg()
+{
+    local m=8
+    local pkg_name=$1
+    local pkg_base=$2
+    local pkg_file=$3
+    local pkg_url=$4
+    local pkg_keep=$5
+    local pkg_cflags=$6
+    local pkg_ldflags=$7
+    local pkg_cfg="${@:$m}"
 
-isosx=$( uname -s | grep -c Darwin )
-if [ "$isosx" -eq 1 ]
-then
-	osname="osx"
-fi
+#    echo "PkgName: '$pkg_name' PkgBase: '$pkg_base' PkgFile: '$pkg_file' PkgUrl: '$pkg_url' PkgCfg: '$pkg_cfg' PkgKeep: '$pkg_keep'"
 
-if [ "$osname" == "unknown" ]
-then
-	echo "Operating system is unknown and not detected properly.  Please update detection routine!"
-	exit 0
-fi 
+    setup_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
+    fetch_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
+    boot_pkg    $pkg_name $pkg_base $pkg_file $pkg_url
+    cfg_pkg     $pkg_name $pkg_base $pkg_file $pkg_url $pkg_cflags $pkg_ldflags $pkg_cfg
+    make_pkg    $pkg_name $pkg_base $pkg_file $pkg_url
+    install_pkg $pkg_name $pkg_base $pkg_file $pkg_url
+    migrate_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep
 
-# ensure we are run inside of the scripts folder
-if [ "$basedir" != "scripts" ]
-then
-	echo "Please execute package build script from within the void/scripts subfolder!"
-	exit 0
-fi 
+    report "DONE building '$pkg_name' from '$pkg_file'! --"
+    separator
+}
 
 ####################################################################################################
-
-# move into external pkg folder for retrieving pkgs
-prefix="$extdir/build/$pkgname/$osname"
-separator
-report "Setting up external package '$pkgbase' for '$osname' ... "
-cd "$extdir"
-mkdir -p pkgs
-cd pkgs
-separator
-
-# remove any existing extracted pkg folder
-if [ -d "$pkgbase" ]
-then
-	report "Removing old package '$pkgbase'"
-	rm -r "$pkgbase"
-    separator
-fi
-
-# if a local copy doesn't exist, grab the pkg from the url
-if [ ! -f "$pkgfile" ]
-then
-	report "Retrieving package '$pkgname'"
-    if [[ $(echo $pkgurl | grep -c 'http://') == 1 ]]
-    then
-    	fetch $pkgurl $pkgfile 
-    fi
-    if [[ $(echo $pkgurl | grep -c 'git://') == 1 ]]
-    then
-        clone $pkgurl $pkgbase 
-        make_tarball $pkgfile $pkgbase
-    fi
-    separator
-fi
-
-# extract pkg file and move into extracted folder
-if [[ $(echo $pkgurl | grep -c '.gz|.tar|.bz|.zip') == 1 ]]
-then
-    report "Extracting package '$pkgfile'"
-    extract_tarball $pkgfile
-fi
-
-cd "$pkgbase"
-separator
-
-# bootstrap package
-if [ ! -f "./configure" ]
-then
-    if [ -f "./bootstrap" ]
-    then
-        report "Bootstraping package '$pkgname'"
-        separator
-        ./bootstrap
-        separator
-    fi
-    if [ -f "./bootstrap.sh" ]
-    then 
-        report "Bootstraping package '$pkgname'"
-        separator
-        ./bootstrap.sh
-        separator
-    fi
-    if [ -f "./autogen.sh" ]
-    then 
-        report "Bootstraping package '$pkgname'"
-        separator
-        ./autogen.sh
-        separator
-    fi
-fi
-
-# configure package
-if [ -f "./configure" ]
-then
-    report "Configuring package '$pkgname'"
-    separator
-    echo ./configure --prefix="$prefix" $pkgcfg
-    separator
-    ./configure --prefix="$prefix" $pkgcfg || bail "Failed to configure: '$prefix'"
-    separator
-    report "Done configuring package '$pkgname'"
-fi
-
-# build and install into local path
-report "Building package '$pkgname'"
-separator
-make  || bail "Failed to build package: '$prefix'"
-separator
-
-report "Installing package '$pkgname'"
-separator
-make install || bail "Failed to install package: '$prefix'"
-separator
-
-# move header into external path
-if [ -d "$prefix/include" ]
-then
-    report "Copying headers for '$pkgname'"
-    separator
-    mkdir -p "$extdir/$pkgname/include"
-    cp -TRv  "$prefix/include" "$extdir/$pkgname/include" || bail "Failed to copy OS binaries into directory: $extdir/$pkgname/$osname"
-    separator
-fi
-
-# move libraries into os path
-if [ -d "$prefix/lib" ]
-then
-	report "Copying OS dependent libraries for '$pkgname'"
-	separator
-    mkdir -p "$extdir/$pkgname/lib/$osname"
-	cp -TRv  "$prefix/lib" "$extdir/$pkgname/lib/$osname" || bail "Failed to copy OS binaries into directory: $extdir/$pkgname/$osname"
-	separator
-fi
-
-# move binaries into os path
-if [ -d "$prefix/bin" ]
-then
-	report "Copying OS dependent binaries for '$pkgname'"
-	separator
-    mkdir -p "$extdir/$pkgname/bin/$osname"
-    cp -TRv  "$prefix/bin" "$extdir/$pkgname/bin/$osname" || bail "Failed to copy OS binaries into directory: $extdir/$pkgname/$osname"
-    separator
-fi
-
-if [ "$pkgkeep" -eq 1 ]
-then
-    report "Keeping package build directory for '$pkgbase'"
-else
-    report "Removing package build directory for '$pkgbase'"
-    rm -r "$prefix"
-    separator
-fi
-
-report "DONE building '$pkgname' from '$pkgfile'! --"
-separator

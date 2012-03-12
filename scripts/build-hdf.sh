@@ -5,11 +5,11 @@ source "./common.sh"
 source "./build-pkg.sh"
 
 # setup pkg definition and resource files
-pkg_name="icu"
-pkg_base="icu/source"
-pkg_file="icu4c-49_rc-src.tgz"
-pkg_url="http://download.icu-project.org/files/icu4c/49rc/$pkg_file"
-pkg_cfg="--disable-shared --enable-static"
+pkg_name="hdf"
+pkg_base="hdf5-1.8.8"
+pkg_file="$pkg_base.tar.gz"
+pkg_url="http://www.hdfgroup.org/ftp/HDF5/current/src/$pkg_file"
+pkg_cfg="--disable-shared --enable-static --with-pthread=/usr --with-szlib=$ext_dir/build/szip/$os_name --with-zlib=$ext_dir/build/zlib/$os_name --enable-threadsafe"
 pkg_cflags="-I$ext_dir/zlib/include"
 pkg_ldflags="-L$ext_dir/zlib/lib/$os_name"
 pkg_keep=1
