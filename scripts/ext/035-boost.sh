@@ -71,8 +71,9 @@ function build_boost()
 }
 
 ####################################################################################################
-
 # setup pkg definition and resource files
+####################################################################################################
+
 pkg_name="boost"
 pkg_base="boost_1_49_0"
 pkg_file="boost_1_49_0.tar.bz2"
@@ -82,7 +83,10 @@ pkg_cmkpaths=0
 pkg_envflags="link=static;threading=single;threading=multi "
 pkg_keep=1
 
-# build and install pkg into external folder
+####################################################################################################
+# build and install pkg into external folder using custom BOOST build methods
+####################################################################################################
+
 build_boost $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep $pkg_cmkpaths $pkg_envflags $pkg_cfg
 
 

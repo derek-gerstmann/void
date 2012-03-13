@@ -62,8 +62,9 @@ function build_glew()
 }
 
 ####################################################################################################
-
 # setup pkg definition and resource files
+####################################################################################################
+
 pkg_name="glew"
 pkg_base="glew-nightly"
 pkg_file="$pkg_base.tar.bz2"
@@ -72,9 +73,9 @@ pkg_ldflags=0
 pkg_cflags=0
 pkg_keep=1
 
-# build and install pkg into external folder
-build_glew $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep $pkg_cflags $pkg_ldflags $pkg_cfg
-
-
 ####################################################################################################
+# build and install pkg into external folder using custom GLEW build methods
+####################################################################################################
+
+build_glew $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep $pkg_cflags $pkg_ldflags $pkg_cfg
 
