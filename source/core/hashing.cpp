@@ -399,7 +399,7 @@ Tiny::Encode(
         v[0] += ((v[1] << 4) + k[0]) ^ (v[1] + sum) ^ ((v[1] >> 5) + k[1]);
         v[1] += ((v[0] << 4) + k[2]) ^ (v[0] + sum) ^ ((v[0] >> 5) + k[3]);
     }
-    vd::u64 out;
+    vd::u64 out = 0;
     ((vd::u32*)out)[0] = v[0];
     ((vd::u32*)out)[1] = v[1];
     return out;
@@ -419,7 +419,7 @@ Tiny::Decode(
         v[0] -= ((v[1] << 4) + k[0]) ^ (v[1] + sum) ^ ((v[1] >> 5) + k[1]);
         sum -= delta;
     }
-    vd::u64 out;
+    vd::u64 out = 0;
     ((vd::u32*)out)[0] = v[0];
     ((vd::u32*)out)[1] = v[1];
     return out;

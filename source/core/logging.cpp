@@ -27,6 +27,7 @@
 #include "core/threading.h"
 #include "core/locking.h"
 #include "core/asserts.h"
+#include "core/text.h"
 
 #include "constants/constants.h"
 
@@ -218,13 +219,14 @@ LogContext::Log(
 
 #if defined(VD_TARGET_LINUX)
 
-        char exePath[PATH_MAX];
+        char exe_path[VD_MAX_PATH];
         pid_t ppid = getppid();
-        Memory::MemSet(exePath, 0, PATH_MAX);
+        Memory::MemSet(exe_path, 0, sizeof(exe_path));
 
-        if(readlink(formatString("/proc/%i/exe", ppid).c_str(), exePath, PATH_MAX) != -1)
+        vd::string pid_name = Text::Format("/proc/%i/exe", ppid);
+        if(readlink(pid_name.c_str(), exe_path, sizeof(exe_path)) != -1)
         {
-            if(!strcmp(exePath, "/usr/bin/gdb"))
+            if(!strcmp(exe_path, "/usr/bin/gdb"))
             {
                 __asm__("int $3");
             }
@@ -331,8 +333,8 @@ DefaultLogFormat::Format(
     if(m_ShowDate)
     {
     	char buffer[256] = {0};
-        time_t timestamp = std::time(NULL);
-        strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S ", std::localtime(&timestamp));
+        time_t timestamp = ::time(NULL);
+        strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S ", ::localtime(&timestamp));
         oss << buffer;
     }
 

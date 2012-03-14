@@ -144,7 +144,7 @@ class GadgetSnapshot : public Object
 public:
 
 	// Order *must* match block order in snapshot file (eg v2)
-	typedef struct ParticleType
+    struct ParticleType
     {
         enum Value 
         {
@@ -163,13 +163,13 @@ public:
         { 
             switch (value)
             {
-            case Gas:       return "Gas";
-            case Halo:      return "Halo";
-            case Disk:      return "Disk";
-            case Bulge:     return "Bulge";
-            case Star:      return "Star";
-            case Boundary:  return "Boundary";
-            case LastValue: return "LastValue"; 
+            case ParticleType::Gas:       return "Gas";
+            case ParticleType::Halo:      return "Halo";
+            case ParticleType::Disk:      return "Disk";
+            case ParticleType::Bulge:     return "Bulge";
+            case ParticleType::Star:      return "Star";
+            case ParticleType::Boundary:  return "Boundary";
+            case ParticleType::LastValue: return "LastValue"; 
             default:        return "<INVALID>";
             }
             return "<INVALID>";
@@ -180,30 +180,30 @@ public:
         { 
             switch (value)
             {
-            case 0: return Gas;
-            case 1: return Halo;
-            case 2: return Disk;
-            case 3: return Bulge;
-            case 4: return Star;
-            case 5: return Boundary;
-            case 6: return LastValue;
-            default: return LastValue; 
+            case 0: return ParticleType::Gas;
+            case 1: return ParticleType::Halo;
+            case 2: return ParticleType::Disk;
+            case 3: return ParticleType::Bulge;
+            case 4: return ParticleType::Star;
+            case 5: return ParticleType::Boundary;
+            case 6: return ParticleType::LastValue;
+            default: return ParticleType::LastValue; 
             }
             return LastValue;
         }
 
-        static const vd::u32 ToInteger(
+        static vd::u32 ToInteger(
             ParticleType::Value value) 
         { 
             switch (value)
             {
-            case Gas:       return 0;
-            case Halo:      return 1;
-            case Disk:      return 2;
-            case Bulge:     return 3;
-            case Star:      return 4;
-            case Boundary:  return 5;
-            case LastValue: return Count;
+            case ParticleType::Gas:       return 0;
+            case ParticleType::Halo:      return 1;
+            case ParticleType::Disk:      return 2;
+            case ParticleType::Bulge:     return 3;
+            case ParticleType::Star:      return 4;
+            case ParticleType::Boundary:  return 5;
+            case ParticleType::LastValue: return Count;
             default:        return Count; 
             }
             return Count;
@@ -225,7 +225,7 @@ public:
     //  IO_TSTP,
 
     // Order *must* match block order in snapshot file (eg v2)
-    typedef struct Block
+    struct Block
     {
         enum Value 
         {
@@ -294,7 +294,7 @@ public:
             return LastValue;
         }
 
-        static const vd::u32 ToInteger(
+        static vd::u32 ToInteger(
             Block::Value value) 
         { 
             switch (value)
@@ -343,7 +343,7 @@ public:
 	vd::status 
 	Close();
 	
-	vd::bytesize
+	size_t
 	CreateBlockData(Block::Value block);
 	
 	void 
@@ -355,22 +355,22 @@ public:
 	void 
 	SetBlockDataPtr(Block::Value block, void* ptr);
 
-	vd::bytesize 
+	size_t 
 	ReadHeader(FILE* fd, vd::i32 splits);
 	
-	vd::bytesize
-	ReadTypeData(FILE* fd, vd::bytesize offset);
+	size_t
+	ReadTypeData(FILE* fd, size_t offset);
 	
-	vd::bytesize
+	size_t
 	GetBlockSeparatorSize(void) const;
 	
 	vd::i32
 	SkipToNextBlock(FILE* fh);
 	
-	vd::bytesize
+	size_t
 	FindBlockByName(FILE* fd, const char* label);
 	
-	vd::bytesize
+	size_t
 	FindBlock(FILE* fd, Block::Value block);
 
 	const char* 
@@ -379,10 +379,10 @@ public:
 	const char* 
 	GetBlockName(Block::Value block) const;
 	
-	vd::bytesize
+	size_t
 	GetBlockSize(Block::Value block) const;
 	
-	vd::bytesize 
+	size_t 
 	GetBlockEntrySize(Block::Value block) const;
 	
 	vd::i32 
@@ -394,47 +394,47 @@ public:
 	bool 
 	IsBlockEntryIntegerValue(Block::Value block) const;
 
-	vd::bytesize 
-	ReadBlockData(FILE* fd, Block::Value block, vd::bytesize offset, vd::i32* types);
+	size_t 
+	ReadBlockData(FILE* fd, Block::Value block, size_t offset, vd::i32* types);
 	
-	vd::bytesize 
-	ReadPositionData(FILE* fd, vd::bytesize offset, vd::i32* types);
+	size_t 
+	ReadPositionData(FILE* fd, size_t offset, vd::i32* types);
 
-	vd::bytesize
-	ReadVelocityData(FILE* fd, vd::bytesize offset, vd::i32* types);
+	size_t
+	ReadVelocityData(FILE* fd, size_t offset, vd::i32* types);
 
-	vd::bytesize
-	ReadIdentifierData(FILE* fd, vd::bytesize offset, vd::i32* types);
+	size_t
+	ReadIdentifierData(FILE* fd, size_t offset, vd::i32* types);
 
-	vd::bytesize
-	ReadMassData(FILE* fd, vd::bytesize offset, vd::i32* types);
+	size_t
+	ReadMassData(FILE* fd, size_t offset, vd::i32* types);
 
-	vd::bytesize
-	ReadInternalEnergyData(FILE* fd, vd::bytesize offset, vd::i32* types);
+	size_t
+	ReadInternalEnergyData(FILE* fd, size_t offset, vd::i32* types);
 
-	vd::bytesize
-	ReadDensityData(FILE* fd, vd::bytesize offset, vd::i32* types);
+	size_t
+	ReadDensityData(FILE* fd, size_t offset, vd::i32* types);
 
-	vd::bytesize
-	ReadSmoothingLengthData(FILE* fd, vd::bytesize offset, vd::i32* types);
+	size_t
+	ReadSmoothingLengthData(FILE* fd, size_t offset, vd::i32* types);
 
-	vd::bytesize
-	ReadPotentialData(FILE* fd, vd::bytesize offset, vd::i32* types);
+	size_t
+	ReadPotentialData(FILE* fd, size_t offset, vd::i32* types);
 
-	vd::bytesize
-	ReadAcceleration(FILE* fd, vd::bytesize offset, vd::i32* types);
+	size_t
+	ReadAcceleration(FILE* fd, size_t offset, vd::i32* types);
 
-	vd::bytesize
-	ReadRateOfChangeOfEntropyData(FILE* fd, vd::bytesize offset, vd::i32* types);
+	size_t
+	ReadRateOfChangeOfEntropyData(FILE* fd, size_t offset, vd::i32* types);
 
-	vd::bytesize
-	ReadTimeStepData(FILE* fd, vd::bytesize offset, vd::i32* types);
+	size_t
+	ReadTimeStepData(FILE* fd, size_t offset, vd::i32* types);
 
-	vd::bytesize
-	SkipBlock(FILE* fd, Block::Value block, vd::bytesize start);
+	size_t
+	SkipBlock(FILE* fd, Block::Value block, size_t start);
 	
-	vd::bytesize
-	ReadBlock(FILE* fd, Block::Value block, vd::bytesize offset, vd::i32* types);
+	size_t
+	ReadBlock(FILE* fd, Block::Value block, size_t offset, vd::i32* types);
 
 	vd::f32
 	Periodic(vd::f32 x, vd::f32 l2);
@@ -487,7 +487,7 @@ public:
     vd::u32
     GetFileIndex() const { return m_FileIndex; }
 
-    vd::bytesize
+    size_t
     GetResidentMemorySize() const;
     
     bool
@@ -597,7 +597,7 @@ struct GadgetResidentSizeFn
     unsigned long operator()( const GadgetSnapshot* x ) 
     {
     	if(x != NULL)
-    		return x->GetResidentMemorySize(); 
+    		return x->GetResidentMemorySize() / 1024; 
 	    return 1; 
 	}
 };
@@ -689,7 +689,7 @@ private:
 	vd::i32 m_RequestedBlocks[GadgetSnapshot::Block::Count];
     vd::i32 m_RequestedStatistics[GadgetSnapshot::Block::Count];
 
-	vd::i32            m_CacheSize;
+	vd::u64            m_CacheSize;
 	DataCache          m_DataCache;
 	WorkItemCache      m_WorkCache;
 	GadgetWorkQueue    m_WorkQueue;

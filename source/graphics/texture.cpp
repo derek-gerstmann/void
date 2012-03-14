@@ -101,7 +101,7 @@ Texture::Load2D(
     Texture* texture = Texture::Create2D(properties, pixels.Data);
 
 	if(texture == NULL)
-		vdLogGlobalWarning("Failed to load 2D texture '%s' from file '%s'\n", AsString(name), filename.c_str());
+		vdLogGlobalWarning("Failed to load 2D texture '%s' from file '%s'\n", Symbol::ToString(name), filename.c_str());
 
 	vdGlobalAssertMsg(texture != NULL, "Failed to load 2D texture!");
 	return texture;
@@ -568,33 +568,33 @@ Texture::CheckStatus(
         return;
 
     if(acMessage)
-        vdLogGlobalWarning("Texture[%s]: OpenGL Error: %s\n", AsString(name), acMessage);
+        vdLogGlobalWarning("Texture[%s]: OpenGL Error: %s\n", Symbol::ToString(name), acMessage);
         
     switch(eError)
     {
     case(GL_INVALID_ENUM):
-        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Invalid Enumerate!\n", AsString(name));
+        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Invalid Enumerate!\n", Symbol::ToString(name));
         break;
     case(GL_INVALID_VALUE):
-        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Invalid Value!\n", AsString(name));
+        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Invalid Value!\n", Symbol::ToString(name));
         break;
     case(GL_INVALID_OPERATION):
-        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Invalid Operation!\n", AsString(name));
+        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Invalid Operation!\n", Symbol::ToString(name));
         break;
     case(GL_STACK_OVERFLOW):
-        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Stack Overflow!\n", AsString(name));
+        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Stack Overflow!\n", Symbol::ToString(name));
         break;
     case(GL_STACK_UNDERFLOW):
-        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Stack Underflow!\n", AsString(name));
+        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Stack Underflow!\n", Symbol::ToString(name));
         break;
     case(GL_OUT_OF_MEMORY):
-        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Out of Memory!\n", AsString(name));
+        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Out of Memory!\n", Symbol::ToString(name));
         break;
     case(GL_INVALID_FRAMEBUFFER_OPERATION_EXT):
-        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Invalid framebuffer operation!\n", AsString(name));
+        vdLogGlobalWarning("Texture[%s]: OpenGL Error: Invalid framebuffer operation!\n", Symbol::ToString(name));
         break;
     default:
-        vdLogGlobalWarning("Texture[%s]: Unknown OpenGL Error '%d'\n", AsString(name), (int)eError);
+        vdLogGlobalWarning("Texture[%s]: Unknown OpenGL Error '%d'\n", Symbol::ToString(name), (int)eError);
         break;
     }
 }

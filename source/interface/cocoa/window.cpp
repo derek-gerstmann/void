@@ -138,7 +138,7 @@ Window::Setup(
 
 	m_Handle = glutGetWindow();
 */
-	m_Handle = NULL;
+	m_Handle = 0;
 	m_Graphics = VD_NEW(Graphics::OpenGL::Context, GetRuntime());
 	m_IsOpened = true;
 

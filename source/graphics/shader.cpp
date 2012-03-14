@@ -30,6 +30,7 @@
 #include "core/asserts.h"
 #include "core/resources.h"
 #include "core/symbol.h"
+#include "core/logging.h"
 #include "core/filesystem.h"
 #include "core/file.h"
 
@@ -483,7 +484,7 @@ Shader::LocateUniforms()
 #if defined(VD_DEBUG_SHADERS)			
 					vdLogInfo("Shader[%s] : Adding uniform '%s' [%02d] : [%llx] '%s' as [%s] -> [%02d] ", 
 						m_Name.c_str(), uniform_string, location, index, AsString(name), 
-						AsString(Shader::GetTypeName(type)), sampler_count);
+						Symbol::ToString(Shader::GetTypeName(type)), sampler_count);
 #endif
 
 				} 
@@ -534,14 +535,14 @@ Shader::LocateAttributes()
 					continue;
 
 				vd::uid key = Symbol::Register(attrib_string);
-				const Symbol& name = Symbol::Retrieve(key);
 				m_AttributeSlots[key] = location;
 
-// #if defined(VD_DEBUG_SHADERS)			
+#if defined(VD_DEBUG_SHADERS)			
+				const Symbol& name = Symbol::Retrieve(key);
 				vdLogInfo("Shader[%s] : Adding attrib '%s' [%02d] : [%llx] '%s' as [%s] -> [%02d] ", 
-					m_Name.c_str(), attrib_string, location, index, AsString(name), 
-					AsString(Shader::GetTypeName(type)), attrib_index);
-// #endif
+					m_Name.c_str(), attrib_string, location, index, Symbol::ToString(name), 
+					Symbol::ToString(Shader::GetTypeName(type)), attrib_index);
+#endif
 				attrib_index++;
 			} 
 		}

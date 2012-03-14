@@ -37,8 +37,8 @@ bool
 ParamSet::IsA(
 	ParamSet::Type type, const Symbol& name)
 {		
-	if(m_Types.count(AsId(name)) > 0)
-		return m_Types[AsId(name)] == type;
+	if(m_Types.count(Symbol::ToId(name)) > 0)
+		return m_Types[Symbol::ToId(name)] == type;
 	return false;
 }
 
@@ -46,7 +46,7 @@ bool
 ParamSet::IsUsed(
 	const Symbol& name)
 {		
-	return m_Types.count(AsId(name)) > 0;
+	return m_Types.count(Symbol::ToId(name)) > 0;
 }
 
 bool
@@ -56,17 +56,18 @@ ParamSet::IsChanged(
 	if(IsUsed(name) == false)
 		return false;
 		
-	ParamSet::Type vt = m_Types[AsId(name)];
+	ParamSet::Type vt = m_Types[Symbol::ToId(name)];
 	switch(vt)
 	{
-	case ParamSet::Flag:	{ return m_Flags[AsId(name)].Changed; }
-	case ParamSet::I32:		{ return   m_i32[AsId(name)].Changed; }
-	case ParamSet::F32:		{ return   m_f32[AsId(name)].Changed; }
-	case ParamSet::V2F32:	{ return m_v2f32[AsId(name)].Changed; }
-	case ParamSet::V3F32:	{ return m_v3f32[AsId(name)].Changed; }
-	case ParamSet::V4F32:	{ return m_v4f32[AsId(name)].Changed; }
-	case ParamSet::M3F32:	{ return m_m3f32[AsId(name)].Changed; }
-	case ParamSet::M4F32:	{ return m_m4f32[AsId(name)].Changed; }
+	case ParamSet::Str:		{ return m_Strings[Symbol::ToId(name)].Changed; }
+	case ParamSet::Flag:	{ return   m_Flags[Symbol::ToId(name)].Changed; }
+	case ParamSet::I32:		{ return     m_i32[Symbol::ToId(name)].Changed; }
+	case ParamSet::F32:		{ return     m_f32[Symbol::ToId(name)].Changed; }
+	case ParamSet::V2F32:	{ return   m_v2f32[Symbol::ToId(name)].Changed; }
+	case ParamSet::V3F32:	{ return   m_v3f32[Symbol::ToId(name)].Changed; }
+	case ParamSet::V4F32:	{ return   m_v4f32[Symbol::ToId(name)].Changed; }
+	case ParamSet::M3F32:	{ return   m_m3f32[Symbol::ToId(name)].Changed; }
+	case ParamSet::M4F32:	{ return   m_m4f32[Symbol::ToId(name)].Changed; }
 	default:				{ return false; }
 	};
 	return false;
@@ -76,20 +77,21 @@ bool
 ParamSet::ClearChanges(
 	const Symbol& name)
 {
-	if(m_Types.count(AsId(name)) < 1)
+	if(m_Types.count(Symbol::ToId(name)) < 1)
 		return false;
 		
-	ParamSet::Type vt = m_Types[AsId(name)];
+	ParamSet::Type vt = m_Types[Symbol::ToId(name)];
 	switch(vt)
 	{
-	case ParamSet::Flag:	{ m_Flags[AsId(name)].ClearChanges(); break; }
-	case ParamSet::I32:		{   m_i32[AsId(name)].ClearChanges(); break; }
-	case ParamSet::F32:		{   m_f32[AsId(name)].ClearChanges(); break; }
-	case ParamSet::V2F32:	{ m_v2f32[AsId(name)].ClearChanges(); break; }
-	case ParamSet::V3F32:	{ m_v3f32[AsId(name)].ClearChanges(); break; }
-	case ParamSet::V4F32:	{ m_v4f32[AsId(name)].ClearChanges(); break; }
-	case ParamSet::M3F32:	{ m_m3f32[AsId(name)].ClearChanges(); break; }
-	case ParamSet::M4F32:	{ m_m4f32[AsId(name)].ClearChanges(); break; }
+	case ParamSet::Str:		{ m_Strings[Symbol::ToId(name)].ClearChanges(); break; }
+	case ParamSet::Flag:	{   m_Flags[Symbol::ToId(name)].ClearChanges(); break; }
+	case ParamSet::I32:		{     m_i32[Symbol::ToId(name)].ClearChanges(); break; }
+	case ParamSet::F32:		{     m_f32[Symbol::ToId(name)].ClearChanges(); break; }
+	case ParamSet::V2F32:	{   m_v2f32[Symbol::ToId(name)].ClearChanges(); break; }
+	case ParamSet::V3F32:	{   m_v3f32[Symbol::ToId(name)].ClearChanges(); break; }
+	case ParamSet::V4F32:	{   m_v4f32[Symbol::ToId(name)].ClearChanges(); break; }
+	case ParamSet::M3F32:	{   m_m3f32[Symbol::ToId(name)].ClearChanges(); break; }
+	case ParamSet::M4F32:	{   m_m4f32[Symbol::ToId(name)].ClearChanges(); break; }
 	default:
 		return false;
 	};
@@ -98,12 +100,22 @@ ParamSet::ClearChanges(
 }
 
 bool
+ParamSet::AddStr(
+	const Symbol& name, const vd::string& value,
+	AccessType access, ScopeType scope)
+{
+	m_Types[Symbol::ToId(name)] = ParamSet::Flag;
+    m_Strings[Symbol::ToId(name)] = Parameter<vd::string>(name, value, access, scope);
+	return true;
+}
+
+bool
 ParamSet::Add1b(
 	const Symbol& name, vd::flag value,
 	AccessType access, ScopeType scope)
 {
-	m_Types[AsId(name)] = ParamSet::Flag;
-    m_Flags[AsId(name)] = Parameter<vd::flag>(name, value, access, scope);
+	m_Types[Symbol::ToId(name)] = ParamSet::Flag;
+    m_Flags[Symbol::ToId(name)] = Parameter<vd::flag>(name, value, access, scope);
 	return true;
 }
 
@@ -112,8 +124,8 @@ ParamSet::Add1i(
 	const Symbol& name, vd::i32 value,
 	AccessType access, ScopeType scope)
 {
-	m_Types[AsId(name)] = ParamSet::I32;
-    m_i32[AsId(name)] = Parameter<vd::i32>(name, value, access, scope);
+	m_Types[Symbol::ToId(name)] = ParamSet::I32;
+    m_i32[Symbol::ToId(name)] = Parameter<vd::i32>(name, value, access, scope);
 	return true;
 }
 
@@ -122,8 +134,8 @@ ParamSet::Add1f(
 	const Symbol& name, vd::f32 value, 
 	AccessType access, ScopeType scope)
 {
-	m_Types[AsId(name)] = ParamSet::F32;
-    m_f32[AsId(name)] = Parameter<vd::f32>(name, value, access, scope);
+	m_Types[Symbol::ToId(name)] = ParamSet::F32;
+    m_f32[Symbol::ToId(name)] = Parameter<vd::f32>(name, value, access, scope);
 	return true;
 }
 
@@ -132,8 +144,8 @@ ParamSet::Add2f(
 	const Symbol& name, const vd::v2f32& value,
 	AccessType access, ScopeType scope)	
 {
-	m_Types[AsId(name)] = ParamSet::V2F32;
-    m_v2f32[AsId(name)] = Parameter<vd::v2f32>(name, value, access, scope);
+	m_Types[Symbol::ToId(name)] = ParamSet::V2F32;
+    m_v2f32[Symbol::ToId(name)] = Parameter<vd::v2f32>(name, value, access, scope);
 	return true;
 }
 
@@ -142,8 +154,8 @@ ParamSet::Add3f(
 	const Symbol& name, const vd::v3f32& value,
 	AccessType access, ScopeType scope)	
 {
-	m_Types[AsId(name)] = ParamSet::V3F32;
-    m_v3f32[AsId(name)] = Parameter<vd::v3f32>(name, value, access, scope);
+	m_Types[Symbol::ToId(name)] = ParamSet::V3F32;
+    m_v3f32[Symbol::ToId(name)] = Parameter<vd::v3f32>(name, value, access, scope);
 	return true;
 }
 
@@ -152,8 +164,8 @@ ParamSet::Add4f(
 	const Symbol& name, const vd::v4f32& value,
 	AccessType access, ScopeType scope)	
 {
-	m_Types[AsId(name)] = ParamSet::V4F32;
-    m_v4f32[AsId(name)] = Parameter<vd::v4f32>(name, value, access, scope);
+	m_Types[Symbol::ToId(name)] = ParamSet::V4F32;
+    m_v4f32[Symbol::ToId(name)] = Parameter<vd::v4f32>(name, value, access, scope);
 	return true;
 }
 
@@ -162,8 +174,8 @@ ParamSet::Add3mf(
 	const Symbol& name, const vd::m3f32& value,
 	AccessType access, ScopeType scope)	
 {
-	m_Types[AsId(name)] = ParamSet::M3F32;
-    m_m3f32[AsId(name)] = Parameter<vd::m3f32>(name, value, access, scope);
+	m_Types[Symbol::ToId(name)] = ParamSet::M3F32;
+    m_m3f32[Symbol::ToId(name)] = Parameter<vd::m3f32>(name, value, access, scope);
 	return true;
 }
 
@@ -172,12 +184,19 @@ ParamSet::Add4mf(
 	const Symbol& name, const vd::m4f32& value,
 	AccessType access, ScopeType scope)	
 {
-	m_Types[AsId(name)] = ParamSet::M4F32;
-    m_m4f32[AsId(name)] = Parameter<vd::m4f32>(name, value, access, scope);
+	m_Types[Symbol::ToId(name)] = ParamSet::M4F32;
+    m_m4f32[Symbol::ToId(name)] = Parameter<vd::m4f32>(name, value, access, scope);
 	return true;
 }
 
 // ============================================================================================== //
+
+vd::string
+ParamSet::GetStr(
+	const Symbol& name) const
+{
+	return GetStr(name, ParamSet::Empty);
+}
 
 vd::flag
 ParamSet::Get1b(
@@ -237,13 +256,25 @@ ParamSet::Get4mf(
 
 // ============================================================================================== //
 
+vd::string
+ParamSet::GetStr(
+	const Symbol& name,
+	const vd::string& missing) const
+{
+	MapStrings::const_iterator it;
+	it = m_Strings.find(Symbol::ToId(name));
+	if(it != m_Strings.end())
+		return it->second.Value;
+	return missing;		
+}
+
 vd::flag
 ParamSet::Get1b(
 	const Symbol& name,
 	const vd::flag missing) const
 {
 	MapFlags::const_iterator it;
-	it = m_Flags.find(AsId(name));
+	it = m_Flags.find(Symbol::ToId(name));
 	if(it != m_Flags.end())
 		return it->second.Value;
 	return missing;		
@@ -255,7 +286,7 @@ ParamSet::Get1f(
 	const vd::f32 missing) const
 {
 	MapF32::const_iterator it;
-	it = m_f32.find(AsId(name));
+	it = m_f32.find(Symbol::ToId(name));
 	if(it != m_f32.end())
 		return it->second.Value;
 	return missing;		
@@ -267,7 +298,7 @@ ParamSet::Get1i(
 	const vd::i32 missing) const
 {
 	MapI32::const_iterator it;
-	it = m_i32.find(AsId(name));
+	it = m_i32.find(Symbol::ToId(name));
 	if(it != m_i32.end())
 		return it->second.Value;
 	return missing;		
@@ -279,7 +310,7 @@ ParamSet::Get2f(
 	const vd::v2f32& missing) const
 {
 	MapV2F32::const_iterator it;
-	it = m_v2f32.find(AsId(name));
+	it = m_v2f32.find(Symbol::ToId(name));
 	if(it != m_v2f32.end())
 		return it->second.Value;
 	return missing;		
@@ -291,7 +322,7 @@ ParamSet::Get3f(
 	const vd::v3f32& missing) const
 {
 	MapV3F32::const_iterator it;
-	it = m_v3f32.find(AsId(name));
+	it = m_v3f32.find(Symbol::ToId(name));
 	if(it != m_v3f32.end())
 		return it->second.Value;
 	return missing;		
@@ -303,7 +334,7 @@ ParamSet::Get4f(
 	const vd::v4f32& missing) const
 {
 	MapV4F32::const_iterator it;
-	it = m_v4f32.find(AsId(name));
+	it = m_v4f32.find(Symbol::ToId(name));
 	if(it != m_v4f32.end())
 		return it->second.Value;
 	return missing;		
@@ -315,7 +346,7 @@ ParamSet::Get3mf(
 	const vd::m3f32& missing) const
 {
 	MapM3F32::const_iterator it;
-	it = m_m3f32.find(AsId(name));
+	it = m_m3f32.find(Symbol::ToId(name));
 	if(it != m_m3f32.end())
 		return it->second.Value;
 	return missing;		
@@ -327,7 +358,7 @@ ParamSet::Get4mf(
 	const vd::m4f32& missing) const
 {
 	MapM4F32::const_iterator it;
-	it = m_m4f32.find(AsId(name));
+	it = m_m4f32.find(Symbol::ToId(name));
 	if(it != m_m4f32.end())
 		return it->second.Value;
 	return missing;		
@@ -336,14 +367,14 @@ ParamSet::Get4mf(
 // ============================================================================================== //
 
 bool
-ParamSet::Set1f(
+ParamSet::SetStr(
 	const Symbol& name, 
-	vd::f32 value)
+	const vd::string& value)
 {
-	if(!IsA(ParamSet::F32, name))
-		return Add1f(name, value);
+	if(!IsA(ParamSet::Str, name))
+		return AddStr(name, value);
 
-	m_f32[AsId(name)].Set(value);
+	m_Strings[Symbol::ToId(name)].Set(value);
     return true;
 }
 
@@ -355,7 +386,7 @@ ParamSet::Set1b(
 	if(!IsA(ParamSet::Flag, name))
 		return Add1b(name, value);
 	
-	m_Flags[AsId(name)].Set(value);
+	m_Flags[Symbol::ToId(name)].Set(value);
     return true;
 }
 
@@ -367,9 +398,21 @@ ParamSet::Set1i(
 	if(!IsA(ParamSet::I32, name))
 		return Add1i(name, value);
 	
-	if(m_i32[AsId(name)].Value != value)
-		m_i32[AsId(name)].Set(value);
+	if(m_i32[Symbol::ToId(name)].Value != value)
+		m_i32[Symbol::ToId(name)].Set(value);
     
+    return true;
+}
+
+bool
+ParamSet::Set1f(
+	const Symbol& name, 
+	vd::f32 value)
+{
+	if(!IsA(ParamSet::F32, name))
+		return Add1f(name, value);
+
+	m_f32[Symbol::ToId(name)].Set(value);
     return true;
 }
 
@@ -381,9 +424,9 @@ ParamSet::Set2f(
 	if(!IsA(ParamSet::V2F32, name))
 		return Add2f(name, value);
 
-	const vd::v2f32& a = m_v2f32[AsId(name)].Value;
+	const vd::v2f32& a = m_v2f32[Symbol::ToId(name)].Value;
 	if(a != value)
-		m_v2f32[AsId(name)].Set(value);
+		m_v2f32[Symbol::ToId(name)].Set(value);
 
     return true;
 }
@@ -396,9 +439,9 @@ ParamSet::Set3f(
 	if(!IsA(ParamSet::V3F32, name))
 		return Add3f(name, value);
 
-	const vd::v3f32& a = m_v3f32[AsId(name)].Value;
+	const vd::v3f32& a = m_v3f32[Symbol::ToId(name)].Value;
 	if(a != value)
-		m_v3f32[AsId(name)].Set(value);
+		m_v3f32[Symbol::ToId(name)].Set(value);
 
     return true;
 }
@@ -411,10 +454,10 @@ ParamSet::Set4f(
 	if(!IsA(ParamSet::V4F32, name))
 		return Add4f(name, value);
 
-	const vd::v4f32& a = m_v4f32[AsId(name)].Value;
+	const vd::v4f32& a = m_v4f32[Symbol::ToId(name)].Value;
 
 	if(a != value)
-		m_v4f32[AsId(name)].Set(value);
+		m_v4f32[Symbol::ToId(name)].Set(value);
 
     return true;
 }
@@ -427,7 +470,7 @@ ParamSet::Set3mf(
 	if(!IsA(ParamSet::M3F32, name))
 		return Add3mf(name, value);
 	
-	m_m3f32[AsId(name)].Set(value);
+	m_m3f32[Symbol::ToId(name)].Set(value);
     return true;
 }
 
@@ -439,98 +482,129 @@ ParamSet::Set4mf(
 	if(!IsA(ParamSet::M4F32, name))
 		return Add4mf(name, value);
 	
-	m_m4f32[AsId(name)].Set(value);
+	m_m4f32[Symbol::ToId(name)].Set(value);
     return true;
 }
 
 // ============================================================================================== //
 
-Parameter<vd::f32>&
-ParamSet::GetParam1f(const Symbol& name)
+Parameter<vd::string>&
+ParamSet::GetParamStr(const Symbol& name)
 {
-    return m_f32[AsId(name)];
+    return m_Strings[Symbol::ToId(name)];
 }
 
 Parameter<vd::flag>&
 ParamSet::GetParam1b(const Symbol& name)
 {
-    return m_Flags[AsId(name)];
+    return m_Flags[Symbol::ToId(name)];
 }
 
 Parameter<vd::i32>&
 ParamSet::GetParam1i(const Symbol& name)
 {
-    return m_i32[AsId(name)];
+    return m_i32[Symbol::ToId(name)];
+}
+
+Parameter<vd::f32>&
+ParamSet::GetParam1f(const Symbol& name)
+{
+    return m_f32[Symbol::ToId(name)];
 }
 
 Parameter<vd::v2f32>&
 ParamSet::GetParam2f(const Symbol& name)
 {
-    return m_v2f32[AsId(name)];
+    return m_v2f32[Symbol::ToId(name)];
 }
 
 Parameter<vd::v3f32>&
 ParamSet::GetParam3f(const Symbol& name)
 {
-    return m_v3f32[AsId(name)];
+    return m_v3f32[Symbol::ToId(name)];
 }
 
 Parameter<vd::v4f32>&
 ParamSet::GetParam4f(const Symbol& name)
 {
-    return m_v4f32[AsId(name)];
+    return m_v4f32[Symbol::ToId(name)];
 }
 
 Parameter<vd::m3f32>&
 ParamSet::GetParam3mf(const Symbol& name)
 {
-    return m_m3f32[AsId(name)];
+    return m_m3f32[Symbol::ToId(name)];
 }
 
 Parameter<vd::m4f32>&
 ParamSet::GetParam4mf(const Symbol& name)
 {
-    return m_m4f32[AsId(name)];
+    return m_m4f32[Symbol::ToId(name)];
 }
 
 bool
 ParamSet::Remove(const Symbol& name)
 {
-	if(m_Types.count(AsId(name)) < 1)
+	if(m_Types.count(Symbol::ToId(name)) < 1)
 		return false;
 		
-	ParamSet::Type vt = m_Types[AsId(name)];
+	ParamSet::Type vt = m_Types[Symbol::ToId(name)];
 	switch(vt)
 	{
-	case ParamSet::Flag:	{	m_Flags.erase(AsId(name)); m_Types.erase(AsId(name)); return true; }
+	case ParamSet::Str:	
+	{	
+		m_Types.erase(Symbol::ToId(name)); 
+		m_Strings.erase(Symbol::ToId(name)); 
+		return true; 
+	}
+	case ParamSet::Flag:	
+	{	
+		m_Types.erase(Symbol::ToId(name)); 
+		m_Flags.erase(Symbol::ToId(name)); 
+		return true; 
+	}
 	case ParamSet::I32:
-	    m_i32.erase(AsId(name));
-		m_Types.erase(AsId(name));
+	{	
+		m_Types.erase(Symbol::ToId(name));
+	    m_i32.erase(Symbol::ToId(name));
 		return true;
+	}
 	case ParamSet::F32:
-	    m_f32.erase(AsId(name));
-		m_Types.erase(AsId(name));
+	{	
+		m_Types.erase(Symbol::ToId(name));
+	    m_f32.erase(Symbol::ToId(name));
 		return true;
+	}
 	case ParamSet::V2F32:
-	    m_v2f32.erase(AsId(name));
-		m_Types.erase(AsId(name));
+	{	
+		m_Types.erase(Symbol::ToId(name));
+	    m_v2f32.erase(Symbol::ToId(name));
 		return true;
+	}
 	case ParamSet::V3F32:
-	    m_v3f32.erase(AsId(name));
-		m_Types.erase(AsId(name));
+	{	
+		m_Types.erase(Symbol::ToId(name));
+	    m_v3f32.erase(Symbol::ToId(name));
 		return true;
+	}
 	case ParamSet::V4F32:
-	    m_v4f32.erase(AsId(name));
-		m_Types.erase(AsId(name));
+	{	
+		m_Types.erase(Symbol::ToId(name));
+	    m_v4f32.erase(Symbol::ToId(name));
 		return true;
+	}
 	case ParamSet::M3F32:
-	    m_m3f32.erase(AsId(name));
-		m_Types.erase(AsId(name));
+	{	
+		m_Types.erase(Symbol::ToId(name));
+	    m_m3f32.erase(Symbol::ToId(name));
 		return true;
+	}
 	case ParamSet::M4F32:
-	    m_m4f32.erase(AsId(name));
-		m_Types.erase(AsId(name));
+	{	
+		m_Types.erase(Symbol::ToId(name));
+	    m_m4f32.erase(Symbol::ToId(name));
 		return true;
+	}
 	default:
 		return false;
 	};
@@ -541,35 +615,38 @@ ParamSet::Remove(const Symbol& name)
 bool
 ParamSet::Reset(const Symbol& name)
 {
-	if(m_Types.count(AsId(name)) < 1)
+	if(m_Types.count(Symbol::ToId(name)) < 1)
 		return false;
 		
-	ParamSet::Type vt = m_Types[AsId(name)];
+	ParamSet::Type vt = m_Types[Symbol::ToId(name)];
 	switch(vt)
 	{
+	case ParamSet::Str:
+	    m_Strings[Symbol::ToId(name)].Reset();
+		return true;
 	case ParamSet::Flag:
-	    m_Flags[AsId(name)].Reset();
+	    m_Flags[Symbol::ToId(name)].Reset();
 		return true;
 	case ParamSet::I32:
-	    m_i32[AsId(name)].Reset();
+	    m_i32[Symbol::ToId(name)].Reset();
 		return true;
 	case ParamSet::F32:
-	    m_f32[AsId(name)].Reset();
+	    m_f32[Symbol::ToId(name)].Reset();
 		return true;
 	case ParamSet::V2F32:
-	    m_v2f32[AsId(name)].Reset();
+	    m_v2f32[Symbol::ToId(name)].Reset();
 		return true;
 	case ParamSet::V3F32:
-	    m_v3f32[AsId(name)].Reset();
+	    m_v3f32[Symbol::ToId(name)].Reset();
 		return true;
 	case ParamSet::V4F32:
-	    m_v4f32[AsId(name)].Reset();
+	    m_v4f32[Symbol::ToId(name)].Reset();
 		return true;
 	case ParamSet::M3F32:
-	    m_m3f32[AsId(name)].Reset();
+	    m_m3f32[Symbol::ToId(name)].Reset();
 		return true;
 	case ParamSet::M4F32:
-	    m_m4f32[AsId(name)].Reset();
+	    m_m4f32[Symbol::ToId(name)].Reset();
 		return true;
 	default:
 		return false;
@@ -596,6 +673,14 @@ vd::bytesize
 ParamSet::GetChanges(
 	ParamVector& params) const
 {
+	{
+		MapStrings::const_iterator it;
+		for(it = m_Strings.begin(); it != m_Strings.end(); it++)
+		{
+			if(it->second.Changed)
+				params.push_back(it->first);
+		}
+	}
 	{
 		MapFlags::const_iterator it;
 		for(it = m_Flags.begin(); it != m_Flags.end(); it++)
@@ -675,6 +760,13 @@ void
 ParamSet::ClearAllChanges()
 {
 	{
+		MapStrings::iterator it;
+		for(it = m_Strings.begin(); it != m_Strings.end(); it++)
+		{
+			it->second.Changed = false;
+		}
+	}
+	{
 		MapFlags::iterator it;
 		for(it = m_Flags.begin(); it != m_Flags.end(); it++)
 		{
@@ -736,25 +828,25 @@ vd::string
 ParamSet::ToString() const
 {
 	std::stringstream ss;
-    MapF32::const_iterator fpit;
-    for(fpit = m_f32.begin(); fpit != m_f32.end(); fpit++)
-    {
-        const Parameter<vd::f32>& p = fpit->second;
-        ss << AsString(p.Name) << "[ " << p.Value << "] " << std::endl;
-    }
-
     MapFlags::const_iterator blit;
     for(blit = m_Flags.begin(); blit != m_Flags.end(); blit++)
     {
         const Parameter<vd::flag>& p = blit->second;
-        ss << AsString(p.Name) << "[ " << p.Value << "] " << std::endl;
+        ss << Symbol::ToString(p.Name) << "[ " << p.Value << "] " << std::endl;
     }
 
     MapI32::const_iterator iit;
     for(iit = m_i32.begin(); iit != m_i32.end(); iit++)
     {
         const Parameter<vd::i32>& p = iit->second;
-        ss << AsString(p.Name) << "[ " << p.Value << "] " << std::endl;
+        ss << Symbol::ToString(p.Name) << "[ " << p.Value << "] " << std::endl;
+    }
+
+    MapF32::const_iterator fpit;
+    for(fpit = m_f32.begin(); fpit != m_f32.end(); fpit++)
+    {
+        const Parameter<vd::f32>& p = fpit->second;
+        ss << Symbol::ToString(p.Name) << "[ " << p.Value << "] " << std::endl;
     }
 
 	return ss.str();

@@ -76,6 +76,12 @@ public:
 	static void DestroyRegistry();
 	static vd::u64 CreateRegistry();
 	
+	static const char* 
+	ToString(const Symbol& symbol);
+
+	static vd::uid
+	ToId(const Symbol& symbol);
+
 protected:
 
 	void RegisterSelf(void);
@@ -107,14 +113,6 @@ struct SymbolHash
     	return x.GetKey();
     }
 };
-
-// ============================================================================================== //
-
-const char* 
-AsString(const Symbol& symbol);
-
-vd::uid
-AsId(const Symbol& symbol);
 
 // ============================================================================================== //
 

@@ -33,6 +33,8 @@
 
 VD_NAMESPACE_BEGIN();
 
+// ============================================================================================== //
+
 #if defined(VD_USE_HALF)
 #include <half.h>
 #endif
@@ -175,13 +177,20 @@ T AsType(void* v){ return reinterpret_cast<T*>(v); }
 typedef wchar*                		  	       cwstr;
 typedef wchar                 		  	       fwstr[VD_FSTR_LENGTH];
 typedef std::wstring              		       vwstr;
+typedef std::wstring                           unicode;
 
 typedef char*                   		  	   cstr;
 typedef char                    		  	   fstr[VD_FSTR_LENGTH];
 typedef std::string               		       vstr;
+typedef std::string                            ascii;
 
+#if defined(VD_USE_UNICODE)
+typedef std::ostringstream< wchar_t >          stringstream; 
+typedef std::wstring                           string;
+#else
 typedef std::string 		          	       string;
 typedef std::ostringstream        		       stringstream;
+#endif
 
 // ============================================================================================== //
 

@@ -42,7 +42,7 @@ bool
 System::Startup(int*, void**)
 {
 #if defined(VD_USE_OPENGL)
-	glewExperimental=TRUE;
+	glewExperimental=1;
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 		vdLogGlobalError("Error: %s\n", glewGetErrorString(err));

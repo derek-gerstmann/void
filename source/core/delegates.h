@@ -51,16 +51,17 @@ class Delegate<R ()> : public Shared< Delegate<R ()> >
 {
 public:
 	typedef R ResultType;
-	typedef Function<R ()> Function;
+	typedef Delegate<R ()> DelegateType;
+	typedef Function<R ()> FunctionType;
 	typedef AtomicCounter CallCounter;
 
 	Delegate() : Shared< Delegate<R ()> >(), m_Calls(0)  {}
-	Delegate(const Delegate& dg) : Shared< Delegate<R ()> >(dg), m_Fn(dg.m_Fn), m_Result(dg.m_Result), m_Calls(0) { }
-	Delegate(const Function& cb) : Shared< Delegate<R ()> >(), m_Fn(cb), m_Calls(0)  {}
+	Delegate(const DelegateType& dg) : Shared< Delegate<R ()> >(dg), m_Fn(dg.m_Fn), m_Result(dg.m_Result), m_Calls(0) { }
+	Delegate(const FunctionType& cb) : Shared< Delegate<R ()> >(), m_Fn(cb), m_Calls(0)  {}
 	virtual ~Delegate() { m_Calls.Set(0); }
 	
-    Delegate& operator=(const Delegate& rhs)
-        { *this = Delegate(rhs); return *this; }
+    DelegateType& operator=(const DelegateType& rhs)
+        { *this = DelegateType(rhs); return *this; }
 	
 	inline void Invoke()
 	{
@@ -77,9 +78,9 @@ public:
 	
 private:
 
-	Function m_Fn;
-	ResultType m_Result;
-	CallCounter m_Calls;
+	FunctionType m_Fn;
+	ResultType 	 m_Result;
+	CallCounter  m_Calls;
 };
 
 // ============================================================================================== //
@@ -89,16 +90,29 @@ class Delegate<R (P1)> : public Shared< Delegate<R (P1)> >
 {
 public:
 	typedef R ResultType;
-	typedef Function<R (P1)> Function;
+	typedef Function<R (P1)> FunctionType;
+	typedef Delegate<R (P1)> DelegateType;
 	typedef AtomicCounter CallCounter;
 
 	Delegate() : Shared< Delegate<R (P1)> >(), m_Calls(0)  {}
-	Delegate(const Delegate& dg) : Shared< Delegate<R (P1)> >(dg), m_P1(dg.m_P1), m_Fn(dg.m_Fn), m_Result(dg.m_Result), m_Calls(0) { }
-	Delegate(const Function& cb, const P1& p1) : Shared< Delegate<R (P1)> >(), m_P1(p1), m_Fn(cb), m_Calls(0)  {}
+	
+	Delegate(
+		const DelegateType& dg
+	) :
+		Shared< Delegate<R (P1)> >(dg), 
+		m_P1(dg.m_P1), 
+		m_Fn(dg.m_Fn), 
+		m_Result(dg.m_Result), 
+		m_Calls(0) 
+	{ 
+		// EMPTY!
+	}
+	
+	Delegate(const FunctionType& cb, const P1& p1) : Shared< Delegate<R (P1)> >(), m_P1(p1), m_Fn(cb), m_Calls(0)  {}
 	virtual ~Delegate() { m_Calls.Set(0); }
 	
-    Delegate& operator=(const Delegate& rhs)
-        { *this = Delegate(rhs); return *this; }
+    DelegateType& operator=(const DelegateType& rhs)
+        { *this = DelegateType(rhs); return *this; }
 	
 	inline void Invoke()
 	{
@@ -115,10 +129,10 @@ public:
 	
 private:
 
-	P1 m_P1;
-	Function m_Fn;
-	ResultType m_Result;
-	CallCounter m_Calls;
+	P1 				m_P1;
+	FunctionType 	m_Fn;
+	ResultType		m_Result;
+	CallCounter 	m_Calls;
 };
 
 
@@ -129,11 +143,12 @@ class Delegate<R (P1, P2, P3, P4, P5, P6)> : public Shared< Delegate<R (P1, P2, 
 {
 public:
 	typedef R ResultType;
-	typedef Function<R (P1, P2, P3, P4, P5, P6)> Function;
+	typedef Delegate<R (P1, P2, P3, P4, P5, P6)> DelegateType;
+	typedef Function<R (P1, P2, P3, P4, P5, P6)> FunctionType;
 	typedef AtomicCounter CallCounter;
 
 	Delegate(
-		const Function& cb,
+		const FunctionType& cb,
 		const P1& p1, 
 		const P2& p2, 
 		const P3& p3, 
@@ -141,19 +156,40 @@ public:
 		const P5& p5, 
 		const P6& p6
 	) : Shared< Delegate<R (P1, P2, P3, P4, P5, P6)> >(),
-		m_Calls(0),
-		m_Fn(cb),
 		m_P1(p1),
 		m_P2(p2),
 		m_P3(p3),
 		m_P4(p4),
 		m_P5(p5),
-		m_P6(p6)
+		m_P6(p6),
+		m_Fn(cb),
+		m_Result(),
+		m_Calls(0)
 	{ 
 		// EMPTY!
 	}
 
+	Delegate(
+		const DelegateType& dg
+	)  : Shared< Delegate<R (P1, P2, P3, P4, P5, P6)> >(),
+		m_P1(dg.m_P1),
+		m_P2(dg.m_P2),
+		m_P3(dg.m_P3),
+		m_P4(dg.m_P4),
+		m_P5(dg.m_P5),
+		m_P6(dg.m_P6),
+		m_Fn(dg.m_Fn),
+		m_Result(dg.m_Result),
+		m_Calls(0)
+	{ 
+		// EMPTY!
+	}
+
+
 	virtual ~Delegate() { m_Calls.Set(0); }
+
+    DelegateType& operator=(const DelegateType& rhs)
+        { *this = DelegateType(rhs); return *this; }
 	
 	inline void Invoke()
 	{
@@ -170,15 +206,15 @@ public:
 	
 private:
 
-	P1 m_P1;
-	P2 m_P2;
-	P3 m_P3;
-	P4 m_P4;
-	P5 m_P5;
-	P6 m_P6;
-	Function m_Fn;
-	ResultType m_Result;
-	CallCounter m_Calls;
+	P1 			 m_P1;
+	P2 			 m_P2;
+	P3 			 m_P3;
+	P4 			 m_P4;
+	P5 			 m_P5;
+	P6 			 m_P6;
+	FunctionType m_Fn;
+	ResultType 	 m_Result;
+	CallCounter  m_Calls;
 };
 
 // ============================================================================================== //
@@ -217,7 +253,7 @@ public:
 		size_t stack_size = 0, 
 		int affinity = -1)
 	{
-		Thread::Setup(AsString(m_Name), critical, stack_size, affinity);
+		Thread::Setup(Symbol::ToString(m_Name), critical, stack_size, affinity);
 	}
 	
     virtual void Run()
@@ -225,10 +261,10 @@ public:
 		m_Delegate->Invoke();
     }
     
-    const Symbol& GetName() 			{ return m_Name; }
-    const vd::i32 GetCallCount() 				{ return m_Delegate->GetCallCount(); }
-	const DT* GetDelegate() const 				{ return m_Delegate; }
-	DT* GetDelegate() 							{ return m_Delegate; }
+    inline const Symbol& GetName() 			{ return m_Name; }
+    inline vd::i32 GetCallCount() 			{ return m_Delegate->GetCallCount(); }
+	inline const DT* GetDelegate() const 	{ return m_Delegate; }
+	inline DT* GetDelegate() 				{ return m_Delegate; }
 
 protected:
 

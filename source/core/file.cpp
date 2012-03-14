@@ -24,7 +24,6 @@
 
 #include "core/file.h"
 #include "core/core.h"
-#include "core/endian.h"
 #include "core/logging.h"
 #include "core/memory.h"
 #include "core/symbol.h"
@@ -127,7 +126,7 @@ bool FileAccess::Read (
 
     if (m_Mode == Mode::ReadOnlySwapEndian && bytes > 1)
     {
-        Endian::Swap(bytes, data);
+        ByteOrder::Swap(bytes, data);
     }
 
     return true;
@@ -153,7 +152,7 @@ bool FileAccess::Read (
 
     if (m_Mode == Mode::ReadOnlySwapEndian && bytes > 1)
     {
-        Endian::Swap(bytes, count, data);
+        ByteOrder::Swap(bytes, count, data);
     }
     return true;
 }
@@ -174,19 +173,19 @@ bool FileAccess::Write (
         if (bytes == 2)
         {
             short swap = *(const short*)data;
-            Endian::Swap(bytes, &swap);
+            ByteOrder::Swap(bytes, &swap);
             written = (int)fwrite(&swap, bytes, 1, m_Handle);
         }
         else if (bytes == 4)
         {
             int swap = *(const int*)data;
-            Endian::Swap(bytes, &swap);
+            ByteOrder::Swap(bytes, &swap);
             written = (int)fwrite(&swap, bytes, 1, m_Handle);
         }
         else if (bytes == 8)
         {
             double swap = *(const double*)data;
-            Endian::Swap(bytes, &swap);
+            ByteOrder::Swap(bytes, &swap);
             written = (int)fwrite(&swap, bytes, 1, m_Handle);
         }
         else
@@ -230,7 +229,7 @@ bool FileAccess::Write (
             for (int i = 0; i < count; ++i, ++swap)
             {
                 short temp = *swap;
-                Endian::Swap(bytes, &temp);
+                ByteOrder::Swap(bytes, &temp);
                 written += (int)fwrite(&temp, bytes, 1, m_Handle);
             }
         }
@@ -240,7 +239,7 @@ bool FileAccess::Write (
             for (int i = 0; i < count; ++i, ++swap)
             {
                 int temp = *swap;
-                Endian::Swap(bytes, &temp);
+                ByteOrder::Swap(bytes, &temp);
                 written += (int)fwrite(&temp, bytes, 1, m_Handle);
             }
         }
@@ -250,7 +249,7 @@ bool FileAccess::Write (
             for (int i = 0; i < count; ++i, ++swap)
             {
                 double temp = *swap;
-                Endian::Swap(bytes, &temp);
+                ByteOrder::Swap(bytes, &temp);
                 written += (int)fwrite(&temp, bytes, 1, m_Handle);
             }
         }

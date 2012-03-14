@@ -26,6 +26,7 @@
 #include "core/system.h"
 #include "core/process.h"
 #include "core/memory.h"
+#include "core/exceptions.h"
 #include "core/asserts.h"
 #include "containers/containers.h"
 
@@ -42,6 +43,7 @@
 	#include <mach/task.h>
 #elif defined(VD_TARGET_LINUX)
 	#include <semaphore.h>
+    #include <sys/time.h>
 #endif
 
 #if defined(VD_USE_POSIX)
@@ -74,7 +76,7 @@ struct SemaphoreCore
     ::task_t            task;
     ::semaphore_t       semaphore;
 #elif defined(VD_TARGET_LINUX)
-    ::sem_T             semaphore;
+    ::sem_t             semaphore;
 #endif
 };
 
@@ -112,9 +114,9 @@ Semaphore::Semaphore(unsigned int count)
         vdGlobalException("semaphore_create", "Failed to create semaphore!");
     }
 #elif defined(VD_TARGET_LINUX)
-    if (sem_Init(&core->semaphore, 0, count)) 
+    if (sem_init(&core->semaphore, 0, count)) 
     {
-        vdGlobalException("sem_Init", "Failed to initialize semaphore!");
+        vdGlobalException("sem_init", "Failed to initialize semaphore!");
     }
 #endif
 
@@ -143,9 +145,9 @@ Semaphore::~Semaphore()
 
 #elif defined(VD_TARGET_LINUX)
 
-    if(sem_Destroy(&core->semaphore) != 0)
+    if(sem_destroy(&core->semaphore) != 0)
     {
-        vdGlobalException("sem_Destroy", "Failed to destroy semaphore!");
+        vdGlobalException("sem_destroy", "Failed to destroy semaphore!");
     }
 
 #endif
@@ -185,12 +187,12 @@ Semaphore::Wait()
 
     while (true) 
     {
-        if (!sem_Wait(&core->semaphore))
+        if (!sem_wait(&core->semaphore))
             return;
         
         if (errno != EINTR) 
         {
-            vdGlobalException("sem_Wait");
+            vdGlobalException("sem_wait", "Semaphore failed to wait for single object!");
         }
     }
 
@@ -217,9 +219,9 @@ Semaphore::Notify()
     
 #elif (VD_TARGET_LINUX)
 
-    if (sem_Post(&core->semaphore)) 
+    if (sem_post(&core->semaphore)) 
     {
-		vdGlobalException("sem_Post", "Failed to release semaphore!");
+		vdGlobalException("sem_post", "Failed to release semaphore!");
     }
 
 #endif
@@ -439,7 +441,7 @@ bool Mutex::TryToLock(
     }
     else
     {
-        ts.tv_sec = std::time(NULL) + 1;
+        ts.tv_sec = ::time(NULL) + 1;
         ts.tv_nsec = 0;
     }
 
@@ -2373,7 +2375,7 @@ bool ConditionVariable::Wait(
     }
     else
     {
-        ts.tv_sec = std::time(NULL) + 1;
+        ts.tv_sec = ::time(NULL) + 1;
         ts.tv_nsec = 0;
     }
 

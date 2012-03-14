@@ -70,11 +70,11 @@ GadgetSnapshot::~GadgetSnapshot()
 	Destroy();
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::GetResidentMemorySize() const
 {
-	vd::bytesize bytes = 0;
-	for(vd::u32 i = 0; i < Block::Count; i++)
+	size_t bytes = 0;
+	for(vd::i32 i = 0; i < (int)Block::Count; i++)
 	{
 		GadgetSnapshot::Block::Value block = GadgetSnapshot::Block::FromInteger(i);
 		const char* ptr = (char*)GetBlockDataPtr(block);
@@ -100,19 +100,19 @@ GadgetSnapshot::Destroy()
 	return Status::Code::Success;
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::GetBlockSize(
 	Block::Value block) const
 {
 	return GetBlockEntrySize(block) * m_TotalParticleCount;
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::CreateBlockData(
 	Block::Value block)
 {
 	char* ptr = (char*)GetBlockDataPtr(block);
-	vd::bytesize bytes = GetBlockEntrySize(block) * m_TotalParticleCount;
+	size_t bytes = GetBlockEntrySize(block) * m_TotalParticleCount;
 	if(ptr == NULL)
 	{
 		ptr = VD_NEW_ARRAY(char, bytes);
@@ -190,9 +190,9 @@ GadgetSnapshot::SetBlockDataPtr(
 	return;
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadTypeData(
-	FILE* fd, vd::bytesize offset)
+	FILE* fd, size_t offset)
 {
 	Block::Value block = Block::Type;
 	
@@ -212,10 +212,10 @@ GadgetSnapshot::ReadTypeData(
 	return pt;
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::GetBlockSeparatorSize(void) const
 {
-	return vd::bytesize(sizeof(char) * 4); //	32-bit
+	return size_t(sizeof(char) * 4); //	32-bit
 }
 
 vd::i32
@@ -223,11 +223,12 @@ GadgetSnapshot::SkipToNextBlock(
 	FILE* fh)
 {
     vd::i32 dummy;
-    fread(&dummy, sizeof(dummy), 1, fh);
+    size_t bytes = fread(&dummy, sizeof(dummy), 1, fh);
+    vdAssert(bytes == sizeof(dummy));
 	return dummy;
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::FindBlockByName(
 	FILE* fd, const char* label)
 {
@@ -264,7 +265,7 @@ GadgetSnapshot::FindBlockByName(
     return(blocksize-8);
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::FindBlock(
 	FILE* fd, Block::Value block)
 {
@@ -318,7 +319,7 @@ GadgetSnapshot::GetBlockName(
     return " ";
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::GetBlockEntrySize(
 	Block::Value block)  const
 {
@@ -427,11 +428,11 @@ GadgetSnapshot::IsBlockEntryIntegerValue(
 	return false;
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadBlockData(
 	FILE* fd, 
 	Block::Value block,
-	vd::bytesize offset,
+	size_t offset,
 	vd::i32* types)
 {
 	size_t rd = 0;
@@ -464,30 +465,30 @@ GadgetSnapshot::ReadBlockData(
 	return rd;
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadPositionData(
-	FILE* fd, vd::bytesize offset, vd::i32* types)
+	FILE* fd, size_t offset, vd::i32* types)
 {
 	return ReadBlockData(fd, Block::Position, offset, types);
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadVelocityData(
-	FILE* fd, vd::bytesize offset, vd::i32* types)
+	FILE* fd, size_t offset, vd::i32* types)
 {
 	return ReadBlockData(fd, Block::Velocity, offset, types);
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadIdentifierData(
-	FILE* fd, vd::bytesize offset, vd::i32* types)
+	FILE* fd, size_t offset, vd::i32* types)
 {
 	return ReadBlockData(fd, Block::Id, offset, types);
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadMassData(
-	FILE* fd, vd::bytesize offset, vd::i32* types)
+	FILE* fd, size_t offset, vd::i32* types)
 {
 	size_t rd = 0;
 	vd::i64 per_particle_mass = 0;
@@ -546,16 +547,16 @@ GadgetSnapshot::ReadMassData(
 	return pc;
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadInternalEnergyData(
-	FILE* fd, vd::bytesize offset, vd::i32* types)
+	FILE* fd, size_t offset, vd::i32* types)
 {
 	return ReadBlockData(fd, Block::InternalEnergy, offset, types);
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadDensityData(
-	FILE* fd, vd::bytesize offset, vd::i32* types)
+	FILE* fd, size_t offset, vd::i32* types)
 {
 //	if(m_MetaData.ParticleCount[ParticleType::Gas] < 1)
 //		return 0;
@@ -563,9 +564,9 @@ GadgetSnapshot::ReadDensityData(
 	return ReadBlockData(fd, Block::Density, offset, types);
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadSmoothingLengthData(
-	FILE* fd, vd::bytesize offset, vd::i32* types)
+	FILE* fd, size_t offset, vd::i32* types)
 {
 //	if(m_MetaData.ParticleCount[ParticleType::Gas] < 1)
 //		return 0;
@@ -573,30 +574,30 @@ GadgetSnapshot::ReadSmoothingLengthData(
 	return ReadBlockData(fd, Block::SmoothingLength, offset, types);
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadPotentialData(
-	FILE* fd, vd::bytesize offset, vd::i32* types)
+	FILE* fd, size_t offset, vd::i32* types)
 {
 	return ReadBlockData(fd, Block::Potential, offset, types);
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadAcceleration(
-	FILE* fd, vd::bytesize offset, vd::i32* types)
+	FILE* fd, size_t offset, vd::i32* types)
 {
 	return ReadBlockData(fd, Block::Acceleration, offset, types);
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadRateOfChangeOfEntropyData(
-	FILE* fd, vd::bytesize offset, vd::i32* types)
+	FILE* fd, size_t offset, vd::i32* types)
 {
 	return ReadBlockData(fd, Block::DtEntropy, offset, types);
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadTimeStepData(
-	FILE* fd, vd::bytesize offset, vd::i32* types)
+	FILE* fd, size_t offset, vd::i32* types)
 {
 	Block::Value block = Block::TimeStep;
 
@@ -615,14 +616,14 @@ GadgetSnapshot::ReadTimeStepData(
 	}
 	
 	SkipToNextBlock(fd);
-	vd::bytesize rd = fread(m_ParticleData.TimeStep, bytes, 1, fd);
+	size_t rd = fread(m_ParticleData.TimeStep, bytes, 1, fd);
 	SkipToNextBlock(fd);	
 	return rd;
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::SkipBlock(
-	FILE* fd, Block::Value block, vd::bytesize start)
+	FILE* fd, Block::Value block, size_t start)
 {
 	size_t offset = 0;
 //	offset += GetBlockSeparatorSize();
@@ -638,9 +639,9 @@ GadgetSnapshot::SkipBlock(
 	return offset;
 }
 
-vd::bytesize
+size_t
 GadgetSnapshot::ReadBlock(
-	FILE* fd, Block::Value block, vd::bytesize offset, vd::i32* types)
+	FILE* fd, Block::Value block, size_t offset, vd::i32* types)
 {
 	switch (block)
 	{
@@ -754,12 +755,12 @@ GadgetSnapshot::SwapParticleAt(
 	if(m_ParticleData.Id)					SwapIntDataAt(m_ParticleData.Id, isrc, idst);	
 }
 
-vd::bytesize 
+size_t 
 GadgetSnapshot::ReadHeader(
 	FILE* fd, vd::i32 splits)
 {
 	SkipToNextBlock(fd);
-	vd::bytesize rd = fread(&(m_MetaData), sizeof(m_MetaData), 1, fd);
+	size_t rd = fread(&(m_MetaData), sizeof(m_MetaData), 1, fd);
 	SkipToNextBlock(fd);
 
 	if(splits <= 1)
@@ -971,7 +972,7 @@ GadgetDataset::GadgetDataset(
 	m_StartFileIndex(0),
 	m_EndFileIndex(0),
 	m_FileSplits(0),
-    m_CacheSize(2*1024*1024*1024),
+    m_CacheSize(2*1024*1024),
     m_Runtime(runtime)
 {
 	Memory::MemSet(m_RequestedTypes,  0, sizeof(m_RequestedTypes));

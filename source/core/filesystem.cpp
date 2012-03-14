@@ -764,7 +764,7 @@ FileSystem::GetTemporaryDirectory(void)
 
     if(cp == NULL)
     {
-        vdLogWavdLogGlobalWarningrning("Failed to locate suitable temporary directory!");
+        vdLogGlobalWarning("Failed to locate suitable temporary directory!");
         vdLogGlobalWarning("Set one of the following ENV variables to a writeable location: '%s' '%s' '%s'!",
             try_envs[0], try_envs[1], try_envs[2]);
         return filepath;

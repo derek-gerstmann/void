@@ -22,8 +22,8 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_PREPROCESS_INCLUDED
-#define VD_PREPROCESS_INCLUDED
+#ifndef VD_FRAMEWORK_PREPROCESS_INCLUDED
+#define VD_FRAMEWORK_PREPROCESS_INCLUDED
 
 // ============================================================================================== //
 /// Preproccesor Expanded Macros
@@ -470,7 +470,7 @@
 
 // ============================================================================================== //
 
-#endif // VD_PREPROCESS_INCLUDED
+#endif // VD_FRAMEWORK_PREPROCESS_INCLUDED
 
 // ============================================================================================== //
 // END FILE

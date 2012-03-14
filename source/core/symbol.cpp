@@ -101,7 +101,9 @@ public:
 				m_SymbolMap[key] = symbol;
 
 				vdLogInfo("Symbol[%s] : Adding symbol [%02d] : [%s] '%s'", 
-					str.c_str(), index, Convert::ToString(key).c_str(), AsString(symbol));
+					str.c_str(), index, 
+					Convert::ToString(key).c_str(), 
+					Symbol::ToString(symbol));
 			}
 			return key;
 		}
@@ -121,7 +123,7 @@ public:
 		return Symbol::Invalid;
 	}
 
-	const bool 
+	bool 
 	Exists(const vd::uid key) const
 	{
 		SymbolMap::const_iterator it = m_SymbolMap.find(key);
@@ -132,7 +134,7 @@ public:
 		return false;
 	}
 	
-	const bool 
+	bool 
 	Exists(const Symbol& symbol) const
 	{
 		if(symbol.IsValid() == false)
@@ -142,12 +144,14 @@ public:
 		return Exists(key);
 	}
 	
-	bool Remove(const Symbol& symbol)
+	bool 
+	Remove(const Symbol& symbol)
 	{
 		return Remove(symbol.GetKey());
 	}
 	
-	bool Remove(const vd::uid key)
+	bool 
+	Remove(const vd::uid key)
 	{
 		SymbolMap::const_iterator it = m_SymbolMap.find(key);
 		if(it != m_SymbolMap.end())
@@ -356,13 +360,13 @@ Symbol::DestroyRegistry()
 // ============================================================================================== //
 
 const char* 
-AsString(const Symbol& symbol)
+Symbol::ToString(const Symbol& symbol)
 {
 	return symbol.GetStr() == NULL ? "<NULL>" : symbol.GetStr();
 }
 
 vd::uid
-AsId(const Symbol& symbol)
+Symbol::ToId(const Symbol& symbol)
 {
 	return symbol.GetKey();
 }

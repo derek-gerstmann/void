@@ -49,10 +49,8 @@ if(VD_SYSTEM_WIN)
 	)
 endif()
 
-if( ${VD_PLATFORM_SRC} )
-    add_library( VdPlatform ${VD_PLATFORM_SRC} )
-    target_link_libraries( VdPlatform ${VD_PLATFORM_LIBS} )
-endif()
+add_library( VdPlatform ${VD_PLATFORM_SRC} )
+target_link_libraries( VdPlatform ${VD_PLATFORM_LIBS} )
 
 
 

@@ -51,11 +51,18 @@ FastSqrt(vd::f32 r)
 vd::f32 
 FastRsqrt(vd::f32 v)
 {
-    vd::f32 h = 0.5f * v;
-    int i = *(int*)&v;
-    i = 0x5f3759df - (i >> 1);
-    v = *(vd::f32*)&i;
-    v = v*(1.5f - h * v * v);
+    union value {
+        vd::f32 f;
+        vd::i32 i;
+    };
+
+    value n;
+    n.f = v;
+    
+    vd::f32 h = 0.5f * n.f;
+    n.i = 0x5f3759df - (n.i >> 1);
+    v = n.f;
+    v = v * (1.5f - h * v * v);
     return v;
 }
 

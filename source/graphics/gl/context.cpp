@@ -125,25 +125,25 @@ ConvertBufferAttributeToGL(
 }
 
 static GLenum
-ConvertBufferDataTypeToGL(
-	Buffer::DataType::Value value)
+ConvertBufferTypeIdToGL(
+	Buffer::TypeId::Value value)
 {
 	switch(value)
 	{
-		case Buffer::DataType::U8:					{ return GL_UNSIGNED_BYTE; }
-		case Buffer::DataType::U16:					{ return GL_UNSIGNED_SHORT; }
-		case Buffer::DataType::U32:					{ return GL_UNSIGNED_INT; }
-		case Buffer::DataType::I8:					{ return GL_BYTE; }
-		case Buffer::DataType::I16:					{ return GL_SHORT; }
-		case Buffer::DataType::I32:					{ return GL_INT; }
-		case Buffer::DataType::F16:					{ return GL_HALF_FLOAT; }
-		case Buffer::DataType::F32:					{ return GL_FLOAT; }
-		case Buffer::DataType::F64:					{ return GL_DOUBLE; }
-		case Buffer::DataType::Invalid:
+		case Buffer::TypeId::U8:					{ return GL_UNSIGNED_BYTE; }
+		case Buffer::TypeId::U16:					{ return GL_UNSIGNED_SHORT; }
+		case Buffer::TypeId::U32:					{ return GL_UNSIGNED_INT; }
+		case Buffer::TypeId::I8:					{ return GL_BYTE; }
+		case Buffer::TypeId::I16:					{ return GL_SHORT; }
+		case Buffer::TypeId::I32:					{ return GL_INT; }
+		case Buffer::TypeId::F16:					{ return GL_HALF_FLOAT; }
+		case Buffer::TypeId::F32:					{ return GL_FLOAT; }
+		case Buffer::TypeId::F64:					{ return GL_DOUBLE; }
+		case Buffer::TypeId::Invalid:
 		default:
 		{
 			vdLogGlobalError("Invalid buffer datatype '%s' specified for conversion!", 
-				Buffer::DataType::ToString(value));
+				Buffer::TypeId::ToString(value));
 
 			return GL_INVALID_ENUM;	
 		}
@@ -228,7 +228,7 @@ ConvertBufferAccessUsageModeToGL(
 				}
 			};
 		}
-		case Buffer::DataType::Invalid:
+		case Buffer::UsageMode::Invalid:
         default:
         {
             vdLogGlobalError("Invalid buffer usage '%s' and access '%s' modes specified for conversion!", 
@@ -262,10 +262,10 @@ ConvertBufferAccessModeToGL(
 }
 
 static size_t
-GetSizeOfDataTypeFromGL(
-    GLenum eDataType)
+GetSizeOfTypeIdFromGL(
+    GLenum eTypeId)
 {
-    switch(eDataType)
+    switch(eTypeId)
     {
         case (GL_BYTE):                 
             return sizeof(GLbyte);
@@ -464,7 +464,7 @@ Context::CreateBuffer(
 	Buffer::AttributeType::Value attrib,
 	Buffer::AccessMode::Value access,
 	Buffer::UsageMode::Value usage,
-	Buffer::DataType::Value datatype,	
+	Buffer::TypeId::Value datatype,	
 	vd::u8 components, vd::u32 count, 
     const void* ptr)
 {
@@ -480,8 +480,8 @@ Context::CreateBuffer(
 	
     GLenum gl_target = ConvertBufferTargetToGL(target);
     GLenum gl_usage = ConvertBufferAccessUsageModeToGL(access, usage);
-    GLenum gl_datatype = ConvertBufferDataTypeToGL(datatype);
-    size_t gl_bytes = GetSizeOfDataTypeFromGL(gl_datatype) * components * count;
+    GLenum gl_datatype = ConvertBufferTypeIdToGL(datatype);
+    size_t gl_bytes = GetSizeOfTypeIdFromGL(gl_datatype) * components * count;
 
     glBindBuffer(gl_target, gl_id);
     glBufferData(gl_target, gl_bytes, ptr, gl_usage);
@@ -502,7 +502,7 @@ Context::CreateBuffer(
     data.Count = count;
     data.Bytes = gl_bytes;
     data.Index = m_Buffers.size();
-    data.State = Buffer::State::Allocated;
+    data.State = Buffer::StateId::Allocated;
 
     Buffer* buffer = VD_NEW(Buffer, this);
     buffer->Setup(data);
@@ -551,7 +551,7 @@ Context::Map(
 	GLenum gl_access = ConvertBufferAccessModeToGL(access);
     GLenum gl_target = ConvertBufferTargetToGL(data.Target);
 
-    buffer->SetState(Buffer::State::Mapped);
+    buffer->SetState(Buffer::StateId::Mapped);
 
     glBindBuffer(gl_target, gl_id);
     void* ptr = glMapBuffer(gl_target, gl_access);
@@ -567,7 +567,7 @@ Context::Unmap(
     vdLogOpenGLErrors("Start");
 
     vdAssert(buffer != NULL);
-    if(buffer->GetState() != Buffer::State::Mapped)
+    if(buffer->GetState() != Buffer::StateId::Mapped)
         return Status::Code::Reject;
 
     const Buffer::Data& data = buffer->GetData();
@@ -575,7 +575,7 @@ Context::Unmap(
 
     glUnmapBuffer(gl_target);
     glBindBuffer(gl_target, 0);
-    buffer->SetState(Buffer::State::Allocated);
+    buffer->SetState(Buffer::StateId::Allocated);
 
     vdLogOpenGLErrors("End");
 
@@ -595,12 +595,12 @@ Context::Bind(
 
     GLenum gl_target = ConvertBufferTargetToGL(data.Target);
     GLenum gl_attrib = ConvertBufferAttributeToGL(data.Attribute);
-	GLenum gl_datatype = ConvertBufferDataTypeToGL(data.DataType);
+	GLenum gl_datatype = ConvertBufferTypeIdToGL(data.DataType);
 	GLuint gl_components = (GLuint)data.Components;
 	GLuint gl_stride = 0;
 	const GLvoid* gl_addr = 0;
                                	
-    buffer->SetState(Buffer::State::Bound);
+    buffer->SetState(Buffer::StateId::Bound);
     glBindBuffer(gl_target, gl_id);
 	switch(gl_attrib)
 	{
@@ -648,7 +648,7 @@ Context::Submit(
     vdLogOpenGLErrors("Start");
 
     vdAssert(buffer != NULL);
-    if(buffer->GetState() != Buffer::State::Bound)
+    if(buffer->GetState() != Buffer::StateId::Bound)
         return Status::Code::Reject;
 
     GLenum gl_prim = ConvertGeometryPrimitiveTypeToGL(primitives);
@@ -664,7 +664,7 @@ Context::Unbind(
     vdLogOpenGLErrors("Start");
 
     vdAssert(buffer != NULL);
-    if(buffer->GetState() != Buffer::State::Bound)
+    if(buffer->GetState() != Buffer::StateId::Bound)
         return Status::Code::Reject;
 
     const Buffer::Data& data = buffer->GetData();
@@ -702,7 +702,7 @@ Context::Unbind(
 	};
     
     glBindBuffer(gl_target, 0);
-    buffer->SetState(Buffer::State::Allocated);
+    buffer->SetState(Buffer::StateId::Allocated);
 
     vdLogOpenGLErrors("End");
     return Status::Code::Success;
@@ -755,7 +755,7 @@ Context::CreatePointList(
         Buffer::AttributeType::Position,
         Buffer::AccessMode::ReadOnly,
         Buffer::UsageMode::Static,
-        Buffer::DataType::F32,
+        Buffer::TypeId::F32,
         components, data.PrimitiveCount, positions
     );
 
@@ -795,7 +795,7 @@ Context::CreatePoint(
         Buffer::AttributeType::Position,
         Buffer::AccessMode::ReadOnly,
         Buffer::UsageMode::Static,
-        Buffer::DataType::F32,
+        Buffer::TypeId::F32,
         4, data.PrimitiveCount, positions
     );
 
@@ -804,7 +804,7 @@ Context::CreatePoint(
         Buffer::AttributeType::Index,
         Buffer::AccessMode::ReadOnly,
         Buffer::UsageMode::Static,
-        Buffer::DataType::U32,
+        Buffer::TypeId::U32,
         1, data.IndexCount, faces
     );
 
@@ -855,7 +855,7 @@ Context::CreateQuad(
         Buffer::AttributeType::Position,
         Buffer::AccessMode::ReadOnly,
         Buffer::UsageMode::Static,
-        Buffer::DataType::F32,
+        Buffer::TypeId::F32,
         4, data.PrimitiveCount, positions
     );
 
@@ -864,7 +864,7 @@ Context::CreateQuad(
         Buffer::AttributeType::TexCoord,
         Buffer::AccessMode::ReadOnly,
         Buffer::UsageMode::Static,
-        Buffer::DataType::F32,
+        Buffer::TypeId::F32,
         2, data.PrimitiveCount, texcoords
     );
 
@@ -873,7 +873,7 @@ Context::CreateQuad(
         Buffer::AttributeType::Index,
         Buffer::AccessMode::ReadOnly,
         Buffer::UsageMode::Static,
-        Buffer::DataType::U32,
+        Buffer::TypeId::U32,
         1, data.IndexCount, faces
     );
     
@@ -960,7 +960,7 @@ Context::CreateWireGrid(
         Buffer::AttributeType::Position,
         Buffer::AccessMode::ReadOnly,
         Buffer::UsageMode::Static,
-        Buffer::DataType::F32,
+        Buffer::TypeId::F32,
         4, data.PrimitiveCount, positions
     );
     VD_DELETE_ARRAY(positions);
@@ -1035,7 +1035,7 @@ Context::CreateGrid(
         Buffer::AttributeType::Position,
         Buffer::AccessMode::ReadOnly,
         Buffer::UsageMode::Static,
-        Buffer::DataType::F32,
+        Buffer::TypeId::F32,
         4, data.PrimitiveCount, positions
     );
 
@@ -1060,7 +1060,7 @@ Context::CreateGrid(
         Buffer::AttributeType::TexCoord,
         Buffer::AccessMode::ReadOnly,
         Buffer::UsageMode::Static,
-        Buffer::DataType::F32,
+        Buffer::TypeId::F32,
         2, data.PrimitiveCount, texcoords
     );
 
@@ -1093,7 +1093,7 @@ Context::CreateGrid(
         Buffer::AttributeType::Index,
         Buffer::AccessMode::ReadOnly,
         Buffer::UsageMode::Static,
-        Buffer::DataType::U32,
+        Buffer::TypeId::U32,
         1, data.IndexCount, faces
     );
 
@@ -1178,7 +1178,7 @@ Context::Submit(
         Bind(buffer);
 
         vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error post submit index buffer.");
-        GLenum gl_datatype = ConvertBufferDataTypeToGL(buffer->GetData().DataType);
+        GLenum gl_datatype = ConvertBufferTypeIdToGL(buffer->GetData().DataType);
         glDrawElements(data.PrimitiveType, data.IndexCount, gl_datatype, 0);
         vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error during draw elements.");
 
@@ -1260,8 +1260,8 @@ Context::Bind(
 
     const Buffer::Data& data = buffer->GetData();
     GLuint components = data.Components;
-    GLenum datatype = ConvertBufferDataTypeToGL(data.DataType);
-    GLsizei stride = GetSizeOfDataTypeFromGL(datatype) * components;
+    GLenum datatype = ConvertBufferTypeIdToGL(data.DataType);
+    GLsizei stride = GetSizeOfTypeIdFromGL(datatype) * components;
     const GLvoid* ptr = data.Ptr;
 
     vdAssert(components >= 1);

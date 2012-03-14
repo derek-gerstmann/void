@@ -22,8 +22,8 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_CORE_ENUM_INCLUDED
-#define VD_CORE_ENUM_INCLUDED
+#ifndef VD_FRAMEWORK_ENUMERATION_INCLUDED
+#define VD_FRAMEWORK_ENUMERATION_INCLUDED
 
 // ============================================================================================== //
 
@@ -103,5 +103,9 @@ struct VD_API StructName                                                        
 
 // ============================================================================================== //
 
-#endif // VD_CORE_ENUM_INCLUDED
+#endif // VD_FRAMEWORK_ENUMERATION_INCLUDED
+
+// ============================================================================================== //
+// END FILE
+
 

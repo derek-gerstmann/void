@@ -42,6 +42,137 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
+static int Goldilocks = 1;
+bool ByteOrder::m_IsLittle = (*(char*)&Goldilocks != 0);
+
+// ============================================================================================== //
+
+bool ByteOrder::IsBigEndian ()
+{
+    return !m_IsLittle;
+}
+
+bool ByteOrder::IsLittleEndian ()
+{
+    return m_IsLittle;
+}
+
+void ByteOrder::Swap2 (void* data)
+{
+    char* raw = (char*) data;
+    char save = raw[0];
+    raw[0] = raw[1];
+    raw[1] = save;
+}
+
+void ByteOrder::Swap2 (int count, void* data)
+{
+    char* raw = (char*) data;
+    for (int i = 0; i < count; ++i, raw += 2)
+    {
+        char save = raw[0];
+        raw[0] = raw[1];
+        raw[1] = save;
+    }
+}
+
+void ByteOrder::Swap4 (void* datum)
+{
+    char* raw = (char*) datum;
+    char save = raw[0];
+    raw[0] = raw[3];
+    raw[3] = save;
+    save = raw[1];
+    raw[1] = raw[2];
+    raw[2] = save;
+}
+
+void ByteOrder::Swap4 (int count, void* data)
+{
+    char* raw = (char*) data;
+    for (int i = 0; i < count; ++i, raw += 4)
+    {
+        char save = raw[0];
+        raw[0] = raw[3];
+        raw[3] = save;
+        save = raw[1];
+        raw[1] = raw[2];
+        raw[2] = save;
+    }
+}
+
+void ByteOrder::Swap8 (void* data)
+{
+    char* raw = (char*) data;
+    char save = raw[0];
+    raw[0] = raw[7];
+    raw[7] = save;
+    save = raw[1];
+    raw[1] = raw[6];
+    raw[6] = save;
+    save = raw[2];
+    raw[2] = raw[5];
+    raw[5] = save;
+    save = raw[3];
+    raw[3] = raw[4];
+    raw[4] = save;
+}
+
+void ByteOrder::Swap8 (int count, void* data)
+{
+    char* raw = (char*) data;
+    for (int i = 0; i < count; ++i, raw += 8)
+    {
+        char save = raw[0];
+        raw[0] = raw[7];
+        raw[7] = save;
+        save = raw[1];
+        raw[1] = raw[6];
+        raw[6] = save;
+        save = raw[2];
+        raw[2] = raw[5];
+        raw[5] = save;
+        save = raw[3];
+        raw[3] = raw[4];
+        raw[4] = save;
+    }
+}
+
+void ByteOrder::Swap (size_t bytes, void* data)
+{
+    vdGlobalAssertMsg(bytes == 2 || bytes == 4 || bytes == 8,
+        "Size must be 2, 4, or 8\n");
+
+    int size = (int)bytes;
+    char* raw = (char*) data;
+    for (int i0 = 0, i1 = size - 1; i0 < size/2; ++i0, --i1)
+    {
+        char save = raw[i0];
+        raw[i0] = raw[i1];
+        raw[i1] = save;
+    }
+}
+
+void ByteOrder::Swap (size_t bytes, int count, void* data)
+{
+    vdGlobalAssertMsg(bytes == 2 || bytes == 4 || bytes == 8,
+        "Size must be 2, 4, or 8\n");
+
+    int size = (int)bytes;
+    char* raw = (char*) data;
+    for (int i = 0; i < count; ++i, raw += bytes)
+    {
+        for (int i0 = 0, i1 = size - 1; i0 < size/2; ++i0, --i1)
+        {
+            char save = raw[i0];
+            raw[i0] = raw[i1];
+            raw[i1] = save;
+        }
+    }
+}
+
+// ============================================================================================== //
+
 class MemoryIndex : public Object
 {
 public:

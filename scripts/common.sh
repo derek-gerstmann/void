@@ -183,6 +183,23 @@ function clone()
     separator
 }
 
+function checkout()
+{
+    local url=$1
+    local dir=$2
+
+    url="${url/svn/http}"
+    local cmd="$(which svn)"
+    if [ -e $cmd ];
+    then
+        cmd="svn checkout"
+        $cmd $url $dir || bail "Failed to checkout '$url' into '$dir'"
+    else
+        bail "Failed to locate 'svn' command!  Please install this command line utility!"
+    fi
+    separator
+}
+
 function fetch() 
 {
     local url=$1
@@ -379,6 +396,11 @@ function fetch_pkg()
             clone $pkg_url $pkg_base 
             make_archive $pkg_file $pkg_base
         fi
+        if [[ $(echo "$pkg_url" | grep -c 'svn://') == 1 ]]
+        then
+            checkout $pkg_url $pkg_base 
+            make_archive $pkg_file $pkg_base
+        fi
         separator
     fi
 
@@ -428,6 +450,64 @@ function boot_pkg()
 
 }
 
+function cmake_pkg()
+{
+    # configure package
+    local m=7
+    local pkg_name=$1
+    local pkg_base=$2
+    local pkg_file=$3
+    local pkg_url=$4
+    local pkg_mpath=$5
+    local pkg_env=$6
+    local pkg_cfg="${@:$m}"
+
+    cd "$pkg_base"
+    mkdir -p build
+    cd build
+
+    separator
+  
+    prefix="$ext_dir/build/$pkg_name/$os_name"
+
+    env_flags=" "
+    if [ -n $pkg_mpath ] && [ $pkg_mpath != 0 ]
+    then
+        pkg_mpath=$(echo $pkg_mpath | split_str ":" | join_str " ")
+        env_flags='-DCMAKE_MODULE_PATH="'$pkg_mpath'"'
+    fi
+        
+    if [ -n $pkg_env ] && [ $pkg_env != 0 ]
+    then
+        pkg_env=$(echo $pkg_env | split_str ":" | join_str " ")
+        env_flags=$env_flags' '$pkg_env
+    fi
+
+    cmake_src_path=".."
+    if [ -f "../CMakeLists.txt" ] 
+    then
+        cmake_src_path=".."
+    fi
+
+    if [ -f "../src/CMakeLists.txt" ] 
+    then
+        cmake_src_path="../src"
+    fi
+
+    if [ -f "../source/CMakeLists.txt" ] 
+    then
+        cmake_src_path="../source"
+    fi
+
+    report "Configuring package '$pkg_name' ..."
+    separator
+    echo cmake -DCMAKE_INSTALL_PREFIX="$prefix" $env_flags $cmake_src_path
+    separator
+    eval cmake -DCMAKE_INSTALL_PREFIX="$prefix" $env_flags $cmake_src_path || bail "Failed to configure: '$prefix'"
+    separator
+    report "Done configuring package '$pkg_name'"
+}
+
 function cfg_pkg()
 {
     # configure package
@@ -463,6 +543,11 @@ function cfg_pkg()
         separator
         report "Done configuring package '$pkg_name'"
     fi
+
+    if [ -f "./CMakeLists.txt" ] || [ -f "./src/CMakeLists.txt" ] || [ -f "./source/CMakeLists.txt" ]
+    then
+        cmake_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_cflags $pkg_ldflags $pkg_cfg
+    fi
 }
 
 function make_pkg()
@@ -472,13 +557,16 @@ function make_pkg()
     local pkg_file=$3
     local pkg_url=$4
 
-    # build and install into local path
     prefix="$ext_dir/build/$pkg_name/$os_name"
-    report "Building package '$pkg_name'"
-    separator
-    make  || bail "Failed to build package: '$prefix'"
-    separator
 
+    # build using make if a makefile exists
+    if [ -f "./Makefile" ] || [ -f "./makefile" ]
+    then
+        report "Building package '$pkg_name'"
+        separator
+        make  || bail "Failed to build package: '$prefix'"
+        separator
+    fi
 }
 
 function install_pkg()
@@ -489,10 +577,17 @@ function install_pkg()
     local pkg_url=$4
 
     prefix="$ext_dir/build/$pkg_name/$os_name"
-    report "Installing package '$pkg_name'"
-    separator
-    make install || bail "Failed to install package: '$prefix'"
-    separator
+    rules=$(make -pn | sed -rn '/^[^# \t\.%].*:[^=]?/p')
+
+    # install using make if an 'install' rule exists
+    if [[ $(echo "$rules" | grep -c 'install') == 1 ]]
+    then
+        report "Installing package '$pkg_name'"
+        separator
+        make install || bail "Failed to install package: '$prefix'"
+        separator
+    fi
+
 }
 
 function migrate_pkg()

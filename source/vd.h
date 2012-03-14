@@ -50,14 +50,18 @@
 
 #include "framework/version.h"
 #include "framework/namespace.h"
-#include "framework/platform.h"
-#include "framework/visibility.h"
 #include "framework/macros.h"
+#include "framework/architecture.h"
+#include "framework/system.h"
+#include "framework/compiler.h"
+#include "framework/support.h"
+#include "framework/visibility.h"
 #include "framework/preprocess.h"
-#include "framework/enum.h"
+#include "framework/enumeration.h"
 #include "framework/limits.h"
 #include "framework/types.h"
 #include "framework/traits.h"
+#include "framework/builtins.h"
 
 // ============================================================================================== //
 

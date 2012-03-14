@@ -39,7 +39,7 @@
 #if defined(VD_TARGET_OSX)
 	#include <OpenGL/OpenGL.h>
 #else
-	#include <GL/gl3.h>
+	#include <GL/gl.h>
 #endif
 
 // ============================================================================================== //

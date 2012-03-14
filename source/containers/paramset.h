@@ -39,8 +39,7 @@ VD_CONTAINERS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-using VD_CORE_NAMESPACE::Symbol;
-using VD_CORE_NAMESPACE::Object;
+VD_IMPORT(Core, Symbol);
 
 // ============================================================================================== //
 
@@ -162,13 +161,14 @@ public:
 
 // ============================================================================================== //
 
-class ParamSet : public Object
+class ParamSet : public Core::Object
 {
 public:
 
 	enum Type
 	{
 		Invalid,
+        Str,
 		Flag,
 		I32,
 		F32,
@@ -182,17 +182,19 @@ public:
 
 	struct EmptyType
 	{
-		VD_FORCE_INLINE operator flag( ) const 	{ return VD_CONSTANTS_SCOPE::PosInf; }
-		VD_FORCE_INLINE operator i32( ) const 	{ return VD_CONSTANTS_SCOPE::PosInf; }
-		VD_FORCE_INLINE operator f32( ) const 	{ return VD_CONSTANTS_SCOPE::PosInf; }
-		VD_FORCE_INLINE operator v2f32( ) const { return v2f32(VD_CONSTANTS_SCOPE::PosInf); }
-		VD_FORCE_INLINE operator v3f32( ) const { return v3f32(VD_CONSTANTS_SCOPE::PosInf); }
-		VD_FORCE_INLINE operator v4f32( ) const { return v4f32(VD_CONSTANTS_SCOPE::PosInf); }
-		VD_FORCE_INLINE operator m3f32( ) const { return m3f32(VD_CONSTANTS_SCOPE::Zero); }
-		VD_FORCE_INLINE operator m4f32( ) const { return m4f32(VD_CONSTANTS_SCOPE::Zero); }
+        VD_FORCE_INLINE operator vd::string( ) const   { return vd::string(); }
+		VD_FORCE_INLINE operator flag( ) const 	{ return Constants::PosInf; }
+		VD_FORCE_INLINE operator i32( ) const 	{ return Constants::PosInf; }
+		VD_FORCE_INLINE operator f32( ) const 	{ return Constants::PosInf; }
+		VD_FORCE_INLINE operator v2f32( ) const { return v2f32(Constants::PosInf); }
+		VD_FORCE_INLINE operator v3f32( ) const { return v3f32(Constants::PosInf); }
+		VD_FORCE_INLINE operator v4f32( ) const { return v4f32(Constants::PosInf); }
+		VD_FORCE_INLINE operator m3f32( ) const { return m3f32(Constants::Zero); }
+		VD_FORCE_INLINE operator m4f32( ) const { return m4f32(Constants::Zero); }
 	} Empty;
 
     typedef AlignedMap< vd::uid, ParamSet::Type >::type 		MapTypes;
+    typedef AlignedMap< vd::uid, Parameter<vd::string> >::type  MapStrings;
     typedef AlignedMap< vd::uid, Parameter<vd::flag> >::type 	MapFlags;
     typedef AlignedMap< vd::uid, Parameter<vd::i32> >::type 	MapI32;
     typedef AlignedMap< vd::uid, Parameter<vd::f32> >::type 	MapF32;
@@ -205,8 +207,12 @@ public:
 	
 public:
 
-	ParamSet() { }
+	ParamSet() : Core::Object() { }
 	virtual ~ParamSet() { }
+
+    bool AddStr(const Symbol& symbol, const vd::string& value, 
+        AccessType access = PublicAccess, 
+        ScopeType scope = GlobalScope);
     
     bool Add1b(const Symbol& symbol, vd::flag value, 
     	AccessType access = PublicAccess, 
@@ -245,6 +251,7 @@ public:
     bool IsChanged(const Symbol& name);
     bool ClearChanges(const Symbol& name);
 
+    vd::string GetStr(const Symbol& name) const;
     vd::flag Get1b(const Symbol& name) const;
     vd::i32 Get1i(const Symbol& name) const;
     vd::f32 Get1f(const Symbol& name) const;
@@ -254,6 +261,7 @@ public:
     const vd::m3f32& Get3mf(const Symbol& name) const;
     const vd::m4f32& Get4mf(const Symbol& name) const;
 
+    vd::string GetStr(const Symbol& name, const vd::string& missing) const;
     vd::flag Get1b(const Symbol& name, vd::flag missing) const;
     vd::i32 Get1i(const Symbol& name, vd::i32 missing) const;
     vd::f32 Get1f(const Symbol& name, vd::f32 missing) const;
@@ -263,6 +271,7 @@ public:
     const vd::m3f32& Get3mf(const Symbol& name, const vd::m3f32& missing) const;
     const vd::m4f32& Get4mf(const Symbol& name, const vd::m4f32& missing) const;
 
+    bool SetStr(const Symbol& name, const vd::string& value);
     bool Set1i(const Symbol& name, vd::i32 value);
     bool Set1b(const Symbol& name, vd::flag value);
     bool Set1f(const Symbol& name, vd::f32 value);
@@ -272,9 +281,10 @@ public:
     bool Set3mf(const Symbol& name, const vd::m3f32& value);
     bool Set4mf(const Symbol& name, const vd::m4f32& value);
 
-    Parameter<vd::f32>& GetParam1f(const Symbol& name);
+    Parameter<vd::string>& GetParamStr(const Symbol& name);
     Parameter<vd::flag>& GetParam1b(const Symbol& name);
     Parameter<vd::i32>& GetParam1i(const Symbol& name);
+    Parameter<vd::f32>& GetParam1f(const Symbol& name);
     Parameter<vd::v2f32>& GetParam2f(const Symbol& name);
     Parameter<vd::v3f32>& GetParam3f(const Symbol& name);
     Parameter<vd::v4f32>& GetParam4f(const Symbol& name);
@@ -293,9 +303,11 @@ public:
 	size_t Size() const { return m_Types.size(); }
 	
     vd::string ToString() const;
+
 	void Clear() 
 	{
 		m_Types.clear();
+        m_Strings.clear();
 		m_Flags.clear();
 		m_i32.clear();
 		m_f32.clear();
@@ -312,15 +324,17 @@ protected:
 
 	VD_DISABLE_COPY_CONSTRUCTORS(ParamSet);
 
-    MapTypes m_Types;
-    MapFlags m_Flags;
-    MapI32 m_i32;
-    MapF32 m_f32;
-    MapV2F32 m_v2f32;
-    MapV3F32 m_v3f32;
-    MapV4F32 m_v4f32;
-    MapM3F32 m_m3f32;
-    MapM4F32 m_m4f32;
+    MapTypes    m_Types;
+    MapStrings  m_Strings;
+    MapFlags    m_Flags;
+    MapI32      m_i32;
+    MapF32      m_f32;
+    MapV2F32    m_v2f32;
+    MapV3F32    m_v3f32;
+    MapV4F32    m_v4f32;
+    MapM3F32    m_m3f32;
+    MapM4F32    m_m4f32;
+
 };
 
 // ============================================================================================== //

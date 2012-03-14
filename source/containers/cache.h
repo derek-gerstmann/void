@@ -231,7 +231,7 @@ public:
         }
     }
 
-    inline const vd::u64 
+    inline vd::u64 
     GetKeys( KeyListType& list ) 
     {
         ScopedMutex locker(&m_Mutex);

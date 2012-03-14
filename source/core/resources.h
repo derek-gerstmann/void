@@ -37,8 +37,8 @@ extern "C" {
 
 // ============================================================================================== //
 
-extern const void vdStartupResources();
-extern const void vdShutdownResources();
+extern void vdStartupResources();
+extern void vdShutdownResources();
 extern const char* vdGetDesktopFolder();
 extern const char* vdGetResourceFolder();
 extern const char* vdOpenFileDialog();

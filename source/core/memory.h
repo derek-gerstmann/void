@@ -36,6 +36,27 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
+class ByteOrder
+{
+public:
+    static bool IsBigEndian ();
+    static bool IsLittleEndian ();
+
+    static void Swap2 (void* data);
+    static void Swap2 (int count, void* data);
+    static void Swap4 (void* data);
+    static void Swap4 (int count, void* data);
+    static void Swap8 (void* data);
+    static void Swap8 (int count, void* data);
+    static void Swap (size_t bytes, void* data);
+    static void Swap (size_t bytes, int count, void* data);
+
+private:
+    static bool m_IsLittle;
+};
+
+// ============================================================================================== //
+
 class Memory
 {
 public:
@@ -53,23 +74,23 @@ public:
 	static void* MemMove(void* s1, const void* s2, size_t n);
      
 #if defined(VD_DEBUG_MEMORY)
-    static void* Track(void*, size_t bytes, const char*, const char*, int);
-    static void  Ignore(void* ptr);
+    static void* Acquire(void*, size_t bytes, const char*, const char*, int);
+    static void  Release(void* ptr);
     static void  Dump(void);
     static void  Startup(void);
     static void  Shutdown(void);
 #else
-    static inline void* Track(void* ptr, size_t bytes, const char*, const char*, int) {return ptr;}
-    static inline void  Ignore(void* ptr) {}
+    static inline void* Acquire(void* ptr, size_t bytes, const char*, const char*, int) {return ptr;}
+    static inline void  Release(void* ptr) {}
     static inline void  Dump(void) {}
     static inline void  Startup(void) {}
     static inline void  Shutdown(void) {}
 #endif // VD_DEBUG_MEMORY
 
     template <typename T>
-    static inline T* TrackAlloc(T* ptr, size_t bytes, const char* file, const char* function, int line)
+    static inline T* Reserve(T* ptr, size_t bytes, const char* file, const char* function, int line)
     {
-        Track(ptr, bytes, file, function, line);
+        Acquire(ptr, bytes, file, function, line);
         return ptr;
     }
 };

@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project( VdSymEx )
-set( VD_EXT_BOOST_DIR               ${VD_EXT_DIR}/boost )
 
-include_directories(                ${VD_EXT_SIMD_DIR}/include )
-include_directories(                ${VD_EXT_BOOST_DIR}/include )
-
-file( GLOB VD_EXT_BOOST_LIB         ${VD_EXT_BOOST_DIR}/lib/${VD_OS_NAME}/*.${VD_STATIC_LIB_EXT} )
 file( GLOB VD_TOOLS_SYMEX_SRC   	${VD_TOOLS_DIR}/symex/*.c ${VD_TOOLS_DIR}/symex/*.cpp)
 set( VD_CORE_HASHING_SRC		    ${VD_CORE_DIR}/hashing.cpp )
 
@@ -20,6 +15,7 @@ add_executable( VdSymEx
 )
 
 target_link_libraries( VdSymEx 
+	VdExternal
 	${VD_EXT_BOOST_LIB} 
 )
 

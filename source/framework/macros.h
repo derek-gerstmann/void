@@ -22,8 +22,26 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_MACROS_INCLUDED
-#define VD_MACROS_INCLUDED
+#ifndef VD_FRAMEWORK_MACROS_INCLUDED
+#define VD_FRAMEWORK_MACROS_INCLUDED
+
+// ============================================================================================== //
+// Pragmas and messages
+// ============================================================================================== //
+
+#define VD_PRAGMA(x)                     _Pragma (#x)
+#define VD_TODO(x)                       VD_PRAGMA(message ("TODO - " #x))
+#define VD_INFO(x)                       VD_PRAGMA(message ("INFO - " #x))
+
+// ============================================================================================== //
+// Stringification macros
+// ============================================================================================== //
+
+#define VD_STRINGIFY_HELP(x)             #x
+#define VD_STRINGIFY(x)                  VD_STRINGIFY_HELP(x)
+#define VD_STR_JOIN(x, y)                VD_STR_JOIN_WRAP(x, y)
+#define VD_STR_JOIN_WRAP(x, y)           VD_STR_JOIN_HELP(x, y)
+#define VD_STR_JOIN_HELP(x, y)           x##y
 
 // ============================================================================================== //
 /// Type Registry Macros
@@ -53,15 +71,15 @@
 /// Memory Allocation & Tracking Macros
 // ============================================================================================== //
 
-#define VD_TRACK_PTR(PTR,SZ)  	    Core::Memory::Track((PTR), (SZ), VD_FILE_ID, VD_FUNC_ID, VD_LINE_ID)
-#define VD_IGNORE_PTR(PTR) 	  	    Core::Memory::Ignore((PTR))
+#define VD_TRACK_PTR(PTR,SZ)  	    	 Core::Memory::Reserve((PTR), (SZ), VD_FILE_ID, VD_FUNC_ID, VD_LINE_ID)
+#define VD_IGNORE_PTR(PTR) 	  	         Core::Memory::Release((PTR))
 
-#define VD_NEW(T,...)         	    Core::Memory::TrackAlloc(new T(__VA_ARGS__), sizeof(T), VD_FILE_ID, VD_FUNC_ID, VD_LINE_ID)
-#define VD_NEW_ARRAY(T,N,...) 	    Core::Memory::TrackAlloc(new T[(N)](__VA_ARGS__), sizeof(T) * (N), VD_FILE_ID, VD_FUNC_ID, VD_LINE_ID)
-#define VD_DELETE(x)          	    do { Core::Memory::Ignore((x)); delete (x); } while (0)
-#define VD_DELETE_ARRAY(x)    	    do { Core::Memory::Ignore((x)); delete[] (x); } while (0)
-#define VD_SAFE_DELETE(x) 		    do { if ((x) != NULL) VD_DELETE(x); (x) = NULL; } while (0)
-#define VD_SAFE_DELETE_ARRAY(x)     do { if ((x) != NULL) VD_DELETE_ARRAY(x); (x) = NULL; } while (0)
+#define VD_NEW(T,...)         	         Core::Memory::Reserve(new T(__VA_ARGS__), sizeof(T), VD_FILE_ID, VD_FUNC_ID, VD_LINE_ID)
+#define VD_NEW_ARRAY(T,N,...) 	         Core::Memory::Reserve(new T[(N)](__VA_ARGS__), sizeof(T) * (N), VD_FILE_ID, VD_FUNC_ID, VD_LINE_ID)
+#define VD_DELETE(x)          	         do { Core::Memory::Release((x)); delete (x); } while (0)
+#define VD_DELETE_ARRAY(x)    	         do { Core::Memory::Release((x)); delete[] (x); } while (0)
+#define VD_SAFE_DELETE(x) 		         do { if ((x) != NULL) VD_DELETE(x); (x) = NULL; } while (0)
+#define VD_SAFE_DELETE_ARRAY(x)          do { if ((x) != NULL) VD_DELETE_ARRAY(x); (x) = NULL; } while (0)
 
 // ============================================================================================== //
 
@@ -110,6 +128,9 @@ private:											\
 
 // ============================================================================================== //
 
-#endif	// VD_CORE_MACROS_INCLUDED
+#endif	// VD_FRAMEWORK_MACROS_INCLUDED
+
+// ============================================================================================== //
+// END FILE
 
 

@@ -27,9 +27,8 @@
 
 // ============================================================================================== //
 
-#include "compute/compute.h"
-
 #if 0
+#include "compute/compute.h"
 #include "compute/buffer.h"
 #include "compute/image.h"
 #include "compute/platform.h"
@@ -37,7 +36,6 @@
 #include "compute/program.h"
 #include "compute/commands.h"
 #include "compute/kernel.h"
-#endif
 
 #include "runtime/runtime.h"
 #include "runtime/context.h"
@@ -80,4 +78,5 @@ VD_COMPUTE_NAMESPACE_END();
 
 // ============================================================================================== //
 
+#endif
 #endif 

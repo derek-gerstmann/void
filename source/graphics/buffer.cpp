@@ -75,12 +75,12 @@ Buffer::GetData() const
 
 void
 Buffer::SetState(
-	Buffer::State::Value v)
+	Buffer::StateId::Value v)
 {
 	m_Data.State = v;
 }
 
-Buffer::State::Value 
+Buffer::StateId::Value 
 Buffer::GetState() const
 {
 	return m_Data.State;

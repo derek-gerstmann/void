@@ -57,7 +57,7 @@ public:
 		TexCoord,
 		UserAttrib);
 
-	VD_DECLARE_ENUM(DataType,
+	VD_DECLARE_ENUM(TypeId,
 		U8,
 		U16,
 		U32,
@@ -78,7 +78,7 @@ public:
 		WriteOnly,
 		ReadWrite);
 
-    VD_DECLARE_ENUM(State,
+    VD_DECLARE_ENUM(StateId,
         Allocated,
         Orphaned,
         Bound,
@@ -99,10 +99,10 @@ public:
         vd::bytesize            Offset;
         TargetType::Value       Target;
         AttributeType::Value    Attribute;
-        DataType::Value         DataType;
+        TypeId::Value         	DataType;
         UsageMode::Value        Usage;
         AccessMode::Value       Access;
-        State::Value            State;
+        StateId::Value          State;
         const void*             Ptr;
     };
 
@@ -116,8 +116,8 @@ public:
     void Setup(const Data& data);
     const Data& GetData() const;
 
-    void SetState(State::Value v);
-    State::Value GetState(void) const;
+    void SetState(StateId::Value v);
+    StateId::Value GetState(void) const;
 
 	VD_DECLARE_OBJECT(Buffer);
 

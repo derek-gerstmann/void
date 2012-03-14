@@ -28,6 +28,8 @@
 #include "core/logging.h"
 #include "core/asserts.h"
 #include "core/handles.h"
+#include "core/process.h"
+#include "core/hashing.h"
 #include "core/symbol.h"
 
 #include "constants/constants.h"
@@ -45,6 +47,7 @@
 	#include <mach/task.h>
 #elif defined(VD_TARGET_LINUX)
 	#include <semaphore.h>
+    #include <sys/prctl.h>
 #endif
 
 #if defined(VD_USE_POSIX)
@@ -127,10 +130,13 @@ namespace
 struct ThreadCore
 {
 #if defined(VD_TARGET_WINDOWS)
-    ::HANDLE 						Native;                      
+    typedef ::HANDLE 				NativeType;                      
 #elif defined(VD_USE_POSIX)
-    ::pthread_t 					Native;                  
+    typedef ::pthread_t 			NativeType;                  
 #endif
+    static const NativeType         Invalid;
+
+    NativeType                      Native;
     bool 							IsAlive;                    
     bool 							IsRunning;                    
     bool 							IsCritical;                    
@@ -140,6 +146,8 @@ struct ThreadCore
     Core::Mutex				        Mutex;
     char*						    Name;
 };
+
+const ThreadCore::NativeType ThreadCore::Invalid = (ThreadCore::NativeType)NULL;
 
 // ============================================================================================== //
 
@@ -218,7 +226,7 @@ Thread::Setup(
 {
 //    vdAssert(m_Handle == NULL);	
     ThreadCore* core = VD_NEW(ThreadCore);
-    core->Native = NULL;
+    core->Native = ThreadCore::Invalid;
 	core->Name = (name != NULL) ? strdup(name) : NULL;
     core->Affinity = affinity;
     core->StackSize = stack_size;
@@ -252,14 +260,14 @@ Thread::Start()
 	vdAssert(m_Handle != NULL);
     ThreadCore* core = reinterpret_cast<ThreadCore*>(m_Handle);
 	
-    if(core->IsAlive || core->Native != NULL) 
+    if(core->IsAlive || core->Native != ThreadCore::Invalid) 
     	vdGlobalException("alive", "Failed to start thread -- already alive!");
 	
 #if defined(VD_TARGET_WINDOWS)
 
     ::DWORD id;
     core->Native = ::_beginthreadex(NULL, core->StackSize, (LPTHREAD_START_ROUTINE)&Thread::Launch, this, 0, &id);
-    if(core->Native == NULL) 
+    if(core->Native == ThreadCore::Invalid) 
     	vdGlobalException("beginthreadex", "Failed to create thread!");
 
 	if(core->Name != NULL)
@@ -317,7 +325,7 @@ Thread::Join()
 	
 #if defined(VD_TARGET_WINDOWS)
 
-    if(core->Native == NULL) 
+    if(core->Native == ThreadCore::Invalid ) 
     	vdGlobalException("not alive", "Failed to join threads -- not alive!");
 
     if(::WaitForSingleObject(core->Native, INFINITE) == WAIT_FAILED)
@@ -345,7 +353,7 @@ Thread::Join()
   
 #endif
 
-    core->Native = NULL;
+    core->Native = ThreadCore::Invalid;
     core->IsAlive = false;
     core->IsRunning = false;
     return Status::Code::Success;
@@ -620,7 +628,7 @@ Thread::GetName() const
 vd::uid Thread::GetId()
 {
     
-	vd::uid value = 0;
+	vd::i64 value = 0;
 	
 #if defined(VD_TARGET_WINDOWS)
 
@@ -647,7 +655,8 @@ vd::uid Thread::GetId()
     }
     else
     {
-        value = Core::Hashing::Murmur(&tid, sizeof(tid));
+        char* bytes = reinterpret_cast<char*>(&tid);
+        value = Core::Hashing::Murmur(bytes, sizeof(tid));
     }
 
     return value & VD_I64_MAX;
@@ -655,7 +664,7 @@ vd::uid Thread::GetId()
 	#error "Thread::Hash() needs to be implemented on this platform!"
 #endif
 	
-	return value;
+	return vd::uid(value);
 	
 }
 

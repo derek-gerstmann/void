@@ -22,6 +22,7 @@
 //
 // ============================================================================================== //
 
+#include "vd.h"
 #include "core/core.h"
 #include "core/process.h"
 #include "core/symbol.h"
@@ -41,8 +42,10 @@
     #include <mach/mach_time.h>
 
 #elif defined(VD_TARGET_LINUX)
-
+    
     #include <time.h>
+    #include <unistd.h>
+    #include <sys/sysctl.h>
     #include <sys/time.h>
 
 #elif defined(VD_TARGET_WINDOWS)
@@ -146,7 +149,7 @@ Process::GetPhysicalMemorySize(void)
     GlobalMemoryStatusEx(&status);
     bytes = status.ullTotalPhys;
 
-#elif (defined(VD_TARGET_OSX) || defined(VD_TARGET_LINUX))
+#elif defined(VD_TARGET_OSX)
 
     vd::bytesize rv = sizeof(bytes);
     if (sysctlbyname("hw.physmem",&bytes,&rv,NULL,0)) 
@@ -154,6 +157,12 @@ Process::GetPhysicalMemorySize(void)
         vdGlobalException("hw.physmem", "Process: Failed to get physical memory size!\n");
         return 0;
     }
+
+#elif defined(VD_TARGET_LINUX)
+
+    long pages = sysconf(_SC_PHYS_PAGES);
+    long page_size = sysconf(_SC_PAGE_SIZE);
+    return pages * page_size;
     
 #else
 

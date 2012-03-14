@@ -98,7 +98,7 @@ public:
         Buffer::AttributeType::Value attrib,
         Buffer::AccessMode::Value access,
         Buffer::UsageMode::Value usage,
-        Buffer::DataType::Value datatype,
+        Buffer::TypeId::Value datatype,
         vd::u8 components, 
         vd::u32 count, 
         const void* ptr=NULL);
