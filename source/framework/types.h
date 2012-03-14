@@ -246,7 +246,13 @@ class uid
 {
 public:
 
-    uid(const u64 low = 0) 
+    explicit uid() 
+    {
+        m_Data[1] = 0;
+        m_Data[0] = 0;
+    }
+
+    explicit uid(const u64 low) 
     {
         m_Data[1] = 0;
         m_Data[0] = low;
@@ -270,10 +276,10 @@ public:
         return *this;
     }
 
-    uid& operator = (const u64 rhs)
+    uid& operator = (uid& rhs)
     {
-        m_Data[1] = 0;
-        m_Data[0] = rhs;
+        m_Data[1] = rhs.m_Data[1];
+        m_Data[0] = rhs.m_Data[0];
         return *this;
     }
 
@@ -430,6 +436,52 @@ struct UidHash : std::unary_function<vd::uid, std::size_t>
         return x.GetLower();
     }
 };
+
+struct symbol
+{
+
+public:
+
+    VD_FORCE_INLINE 
+    symbol()  
+        : key(0,0), str(NULL) {}
+
+    VD_FORCE_INLINE 
+    symbol(const vd::uid& k, const char*& s) 
+        : key(k), str(s) { }
+    
+    bool operator==(const symbol& other) const
+    {
+        return (key == other.key);
+    }
+
+    bool operator!=(const symbol& other) const
+    {
+        return (key != other.key);
+    }
+
+    bool operator<(const symbol& other) const
+    {
+        return (key < other.key);
+    }
+
+    operator const char* () const 
+    { 
+        return str; 
+    }
+    
+    operator const uid& () const 
+    { 
+        return key; 
+    }
+
+
+private:
+
+    const uid   key;
+    const char* str;
+};
+
 
 // ============================================================================================== //
 

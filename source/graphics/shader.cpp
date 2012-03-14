@@ -51,7 +51,7 @@ VD_GRAPHICS_NAMESPACE_BEGIN();
 // ============================================================================================== //
 
 const vd::i32 Shader::InvalidSlot = -1;
-typedef Containers::Vector< Symbol >::type SymbolList;
+typedef Containers::Vector< vd::symbol >::type SymbolList;
 
 // ============================================================================================== //
 

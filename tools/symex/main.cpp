@@ -22,8 +22,18 @@
 //
 // ============================================================================================== //
 
+#include <boost/program_options.hpp>
+#include <boost/functional/hash.hpp>
+#include <boost/filesystem.hpp>
+
+// ============================================================================================== //
+
 #include "core/core.h"
+#include "core/options.h"
+#include "core/globbing.h"
 #include "core/hashing.h"
+
+// ============================================================================================== //
 
 #include <cstdio>
 #include <string>
@@ -34,15 +44,8 @@
 #include <iomanip>
 #include <ostream>
 #include <sstream>
-#include <algorithm>
 #include <string> 
 #include <iterator>
-
-// ============================================================================================== //
-
-#include <boost/program_options.hpp>
-#include <boost/functional/hash.hpp>
-#include <boost/filesystem.hpp>
 
 // ============================================================================================== //
 
@@ -400,7 +403,8 @@ GenerateHeader(
 	OutputSeparator(output, "=", "// ", " //");
 	output << std::endl;
 
-	output << "static const size_t Count = " << boost::lexical_cast<std::string>(symbols.size()) << "UL;" << std::endl;
+	size_t symcount = symbols.size();
+	output << "static const size_t Count = " << boost::lexical_cast<std::string>(symcount) << "UL;" << std::endl;
 
 	output << std::endl;
 	OutputSeparator(output, "=", "// ", " //");
@@ -440,10 +444,11 @@ GenerateHeader(
 		for(it = symbols.begin(); it != symbols.end(); ++it)
 		{
 			value = digests[i++];
-			output << "\t" << settings.IdTypeName << "(" << value << ")," << std::endl;
+			output << "\t" << settings.IdTypeName << "(" << value << ")";
+			if(i < symcount) output << ",";
+			output << std::endl;
 			count++;
 		}
-		output << "\t" << settings.IdTypeName << "(0,0)" << std::endl;
 	}
 	output << "};" << std::endl;
 
@@ -455,11 +460,14 @@ GenerateHeader(
 	output << settings.StringTableName << std::string("[] = ") << std::endl;
 	output << "{" << std::endl;
 	{
+		std::size_t i = 0;
 		for(it = symbols.begin(); it != symbols.end(); ++it)
-		{
-			output << "\t\"" << *it << "\"," << std::endl;
+		{			
+			i++;
+			output << "\t\"" << *it << "\"";
+			if(i < symcount) output << ",";
+			output << std::endl;
 		}
-		output << "\t0,0" << std::endl;
 	}
 	output << "};" << std::endl;
 	output << std::endl;
@@ -472,19 +480,20 @@ GenerateHeader(
 	output << settings.SymbolTableName << std::string("[] = ") << std::endl;
 	output << "{" << std::endl;
 	{
+		std::size_t i = 0;
 		for(it = symbols.begin(); it != symbols.end(); ++it)
-		{
-			
+		{			
+			i++;
 			std::string sym;
-			
 			ConvertStringToEnumFormat(*it, sym);
 			key = settings.IndexPrefix + sym;
 
 			output << "\t" << settings.SymbolTypeName << "( ";
 			output << settings.IdTableName << "[ " << key << " ], ";
-			output << settings.StringTableName << "[ " << key << " ] )," << std::endl;
+			output << settings.StringTableName << "[ " << key << " ] )";
+			if(i < symcount) output << ",";
+			output << std::endl;
 		}
-		output << "\t"  << settings.SymbolTypeName << "( 0, 0 )" << std::endl;
 	}
 	output << "};" << std::endl;
 
@@ -532,7 +541,6 @@ GenerateHeader(
 	}
 }
 
-
 int ParseArgs(
 	int ac, char* av[],
 	Settings& settings)
@@ -557,13 +565,13 @@ int ParseArgs(
                  "string prefix to prepend to string value names")
             ("id-table", opt::value< std::string >(&(settings.IdTableName))->default_value("Keys"), 
                  "variable name to use for static id table for storing the unique ids (stored as id-type)")
-            ("id-type", opt::value< std::string >(&(settings.IdTypeName))->default_value("uid"), 
+            ("id-type", opt::value< std::string >(&(settings.IdTypeName))->default_value("vd::uid"), 
                  "type name used for declaring id values")
             ("id-prefix", opt::value< std::string >(&(settings.IdPrefix))->default_value("Key"), 
                  "string prefix to prepend to id value names")
             ("sym-table", opt::value< std::string >(&(settings.SymbolTableName))->default_value("Table"), 
                  "variable name to use for static symbol table for storing the unique symbols (stored as Symbol)")
-            ("sym-type", opt::value< std::string >(&(settings.SymbolTypeName))->default_value("VD_CORE_NAMESPACE::Symbol"), 
+            ("sym-type", opt::value< std::string >(&(settings.SymbolTypeName))->default_value("vd::symbol"), 
                  "type name used for declaring symbol values")
             ("begin", opt::value< std::string >(&(settings.MacroBegin))->default_value("VD_CONSTANTS_NAMESPACE_BEGIN"), 
                  "name of begin function macro to use to wrap all declarations -- all other namespaces and variables are declared inside the wrapper.")
@@ -632,6 +640,219 @@ int ParseArgs(
     }    
     return 0;
 }
+
+// ----------------------------------------------------------------------------------------------- //
+
+/*
+static void 
+ShowUsage()
+{
+    vdLogGlobalInfo(
+        vd_txt("Usage: %s [OPTIONS] [FILES]\n")
+        vd_txt("\n")
+        vd_txt("--exact         Disallow partial matching of option names\n")
+        vd_txt("--noslash       Disallow use of slash as an option marker on Windows\n")
+        vd_txt("--shortarg      Permit arguments on single letter options with no equals sign\n")
+        vd_txt("--clump         Permit single char options to be clumped as long string\n")
+        vd_txt("--noerr         Do not generate any errors for invalid options\n")
+        vd_txt("--pedantic      Generate an error for petty things\n")
+        vd_txt("--icase         Case-insensitive for all types\n")
+        vd_txt("--icase-short   Case-insensitive for short args\n")
+        vd_txt("--icase-long    Case-insensitive for long argsn")
+        vd_txt("--icase-word    Case-insensitive for word args\n")
+        vd_txt("\n")
+        vd_txt("-d  -e  -E  -f  -F  -g  -flag  --flag       Flag (no arg)\n")
+        vd_txt("-s ARG   -sep ARG  --sep ARG                Separate required arg\n")
+        vd_txt("-S ARG   -SEP ARG  --SEP ARG                Separate required arg (uppercase)\n")
+        vd_txt("-cARG    -c=ARG    -com=ARG    --com=ARG    Combined required arg\n")
+        vd_txt("-o[ARG]  -o[=ARG]  -opt[=ARG]  --opt[=ARG]  Combined optional arg\n")
+        vd_txt("-man     -mandy    -mandate                 Shortcut matching tests\n")
+        vd_txt("--man    --mandy   --mandate                Shortcut matching tests\n")
+        vd_txt("--multi0 --multi1 ARG --multi2 ARG1 ARG2    Multiple argument tests\n")
+        vd_txt("--multi N ARG-1 ARG-2 ... ARG-N             Multiple argument tests\n")
+        vd_txt("--                                          Stop argument processing\n")
+        vd_txt("open read write close zip unzip UPCASE      Special words\n")
+        vd_txt("\n")
+        vd_txt("-?  -h  -help  --help                       Output this help.\n")
+        vd_txt("\n")
+        vd_txt("If a FILE is `-', read standard input.\n")
+        );
+}
+
+Option::Entry 
+SymExFlags[] =
+{
+    { VD_OPTION_EXACT,       vd_txt("--exact"),          VD_NONE },
+    { VD_OPTION_NOSLASH,     vd_txt("--noslash"),        VD_NONE },
+    { VD_OPTION_SHORTARG,    vd_txt("--shortarg"),       VD_NONE },
+    { VD_OPTION_CLUMP,       vd_txt("--clump"),          VD_NONE },
+    { VD_OPTION_NOERR,       vd_txt("--noerr"),          VD_NONE },
+    { VD_OPTION_PEDANTIC,    vd_txt("--pedantic"),       VD_NONE },
+    { VD_OPTION_ICASE,       vd_txt("--icase"),          VD_NONE },
+    { VD_OPTION_ICASE_SHORT, vd_txt("--icase-short"),    VD_NONE },
+    { VD_OPTION_ICASE_LONG,  vd_txt("--icase-long"),     VD_NONE },
+    { VD_OPTION_ICASE_WORD,  vd_txt("--icase-word"),     VD_NONE },
+    VD_END_OF_OPTIONS
+};
+
+enum { 
+	VD_ACTION_HELP = 0, 
+	VD_ACTION_MULTI = 100, 
+	VD_ACTION_MULTI0, VD_ACTION_MULTI1, VD_ACTION_MULTI2, VD_ACTION_STOP  };
+
+Option::Entry 
+SymExOptions[] =
+{
+    { VD_ACTION_HELP,   vd_txt("-?"),           VD_NONE    },
+    { VD_ACTION_HELP,   vd_txt("-h"),           VD_NONE    },
+    { VD_ACTION_HELP,   vd_txt("-help"),        VD_NONE    },
+    { VD_ACTION_HELP,   vd_txt("--help"),       VD_NONE    },
+    {  1,         vd_txt("-"),            		VD_NONE    },
+    {  2,         vd_txt("-d"),           		VD_NONE    },
+    {  3,         vd_txt("-e"),           		VD_NONE    },
+    {  4,         vd_txt("-f"),           		VD_NONE    },
+    {  5,         vd_txt("-g"),          		VD_NONE    },
+    {  6,         vd_txt("-flag"),        		VD_NONE    },
+    {  7,         vd_txt("--flag"),       		VD_NONE    },
+    {  8,         vd_txt("-s"),           		VD_FORMAT_SEPARATE },
+    {  9,         vd_txt("-sep"),         		VD_FORMAT_SEPARATE },
+    { 10,         vd_txt("--sep"),        		VD_FORMAT_SEPARATE },
+    { 11,         vd_txt("-c"),           		VD_FORMAT_COMBINED },
+    { 12,         vd_txt("-com"),         		VD_FORMAT_COMBINED },
+    { 13,         vd_txt("--com"),        		VD_FORMAT_COMBINED },
+    { 14,         vd_txt("-o"),           		VD_FORMAT_OPTIONAL },
+    { 15,         vd_txt("-opt"),         		VD_FORMAT_OPTIONAL },
+    { 16,         vd_txt("--opt"),        		VD_FORMAT_OPTIONAL },
+    { 17,         vd_txt("-man"),         		VD_NONE    },
+    { VD_ACTION_MULTI,  vd_txt("--multi"),      VD_FORMAT_MULTIPLE   },
+    { VD_ACTION_STOP,   vd_txt("--"),           VD_NONE    },
+    SO_END_OF_OPTIONS
+};
+
+void ShowFiles(int argc, vd_char ** argv) 
+{
+    Glob glob(SG_GLOB_NODOT|SG_GLOB_NOCHECK);
+    if (VD_SUCCESS != glob.Add(argc, argv))
+    {
+        vdLogGlobalInfo(vd_txt("Error while globbing files\n"));
+        return;
+    }
+
+    for (int n = 0; n < glob.FileCount(); ++n) 
+    {
+        vdLogGlobalInfo(vd_txt("file %2d: '%s'\n"), n, glob.File(n));
+    }
+}
+
+static const vd_char * 
+GetLastErrorText(
+    int status) 
+{
+    switch (status) {
+    case VD_RESULT_SUCCESS:        return vd_txt("Success");
+    case VD_RESULT_INVALID:        return vd_txt("Unrecognized option");
+    case VD_RESULT_MULTIPLE:       return vd_txt("Option matched multiple strings");
+    case VD_RESULT_INVALID:        return vd_txt("Option does not accept argument");
+    case VD_RESULT_INVALID_TYPE:   return vd_txt("Invalid argument format");
+    case VD_RESULT_MISSING:        return vd_txt("Required argument is missing");
+    case VD_RESULT_INVALID_DATA:   return vd_txt("Invalid argument data");
+    default:                       return vd_txt("Unknown error");
+    }
+}
+
+static void 
+DoMultiArgs(
+    Option&    args, 
+    int       nMultiArgs)
+{
+    vd_char ** rgpszArg = NULL;
+
+    // get the number of arguments if necessary
+    if (nMultiArgs == -1) {
+        // first arg is a count of how many we have
+        rgpszArg = args.MultiArg(1);
+        if (!rgpszArg) {
+            vdLogGlobalInfo(
+                vd_txt("%s: '%s' (use --help to get command line help)\n"),
+                GetLastErrorText(args.LastError()), args.OptionText());
+            return;
+        }
+
+        nMultiArgs = _ttoi(rgpszArg[0]);
+    }
+    vdLogGlobalInfo(vd_txt("%s: expecting %d args\n"), args.OptionText(), nMultiArgs);
+
+    // get the arguments to follow
+    rgpszArg = args.MultiArg(nMultiArgs);
+    if (!rgpszArg) {
+        vdLogGlobalInfo(
+            vd_txt("%s: '%s' (use --help to get command line help)\n"),
+            GetLastErrorText(args.LastError()), args.OptionText());
+        return;
+    }
+
+    for (int n = 0; n < nMultiArgs; ++n) {
+        vdLogGlobalInfo(vd_txt("MultiArg %d: %s\n"), n, rgpszArg[n]);
+    }
+}
+
+
+int _tmain(int argc, vd_char * argv[]) {
+    // process the command line to extract that flags for SimpleOpt 
+    int nFlags = VD_OPTION_USEALL;
+    Option args(argc, argv, SymExFlags, VD_OPTION_NOERR|VD_OPTION_EXACT);
+    while (args.Next()) {
+        nFlags |= args.OptionId();
+    }
+
+    // now process the remainder of the command line with these flags
+    args.Init(args.FileCount(), args.Files(), SymExOptions, nFlags);
+    while (args.Next()) {
+        if (args.LastError() != SO_SUCCESS) {
+            vdLogGlobalInfo(
+                vd_txt("%s: '%s' (use --help to get command line help)\n"),
+                GetLastErrorText(args.LastError()), args.OptionText());
+            continue;
+        }
+
+        switch (args.OptionId()) {
+        case VD_ACTION_HELP:
+            ShowUsage();
+            return 0;
+        case VD_ACTION_MULTI:  
+            DoMultiArgs(args, -1);
+            break;
+        case VD_ACTION_MULTI0: 
+            DoMultiArgs(args, 0);
+            break;
+        case VD_ACTION_MULTI1: 
+            DoMultiArgs(args, 1);
+            break;
+        case VD_ACTION_MULTI2: 
+            DoMultiArgs(args, 2);
+            break;
+        case VD_ACTION_STOP:
+            args.Stop();
+            break;
+        default:
+            if (args.OptionArg()) {
+                vdLogGlobalInfo(vd_txt("option: %2d, text: '%s', arg: '%s'\n"),
+                    args.OptionId(), args.OptionText(), args.OptionArg());
+            }
+            else {
+                vdLogGlobalInfo(vd_txt("option: %2d, text: '%s'\n"),
+                    args.OptionId(), args.OptionText());
+            }
+        }
+    }
+
+    ShowFiles(args.FileCount(), args.Files());
+
+	return 0;
+}
+*/
+
+// ----------------------------------------------------------------------------------------------- //
 
 int main(int ac, char* av[])
 {	
