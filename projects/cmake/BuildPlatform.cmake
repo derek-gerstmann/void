@@ -12,6 +12,10 @@ file( GLOB VD_PLATFORM_SRC
     ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.cpp
 )
 
+if(EXISTS ${VD_SYMBOLS_H})
+    list(APPEND VD_PLATFORM_SRC ${VD_SYMBOLS_H} )
+endif()
+
 if(VD_SYSTEM_OSX)
 
     find_library( COCOA_LIBRARY Cocoa )
@@ -20,10 +24,8 @@ if(VD_SYSTEM_OSX)
 	find_path(OPENGL_INCLUDE_DIR OpenGL/gl3.h)
 
 	set( VD_OSX_ICON_FILES ${VD_ROOT_DIR}/resources/platform/osx/Void.icns ) 
-	set_source_files_properties( ${VD_OSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+	set_source_files_properties( ${VD_OSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
 
-    append( VD_PLATFORM_SRC ${VD_OSX_ICON_FILES} )
-    
     set( VD_PLATFORM_LIBS ${COCOA_LIBRARY}
         /System/Library/Frameworks/AppKit.framework
         /System/Library/Frameworks/Foundation.framework

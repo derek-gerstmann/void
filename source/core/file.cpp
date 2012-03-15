@@ -22,6 +22,7 @@
 //
 // ============================================================================================== //
 
+#include "vd.h"
 #include "core/file.h"
 #include "core/core.h"
 #include "core/logging.h"

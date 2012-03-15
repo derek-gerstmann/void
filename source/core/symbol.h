@@ -127,6 +127,8 @@ struct SymbolHash
 
 #else
 
+#warning "Using inline symbols (run SymEx to extract symbols into static data)"
+
 #define vd_sym( X )  (const char *)( #X )
 #define vd_str( I )  (const char *)( I )
 #define vd_uid( X )  (vd::uid)( AsId( Symbol::Create( #X ) ))

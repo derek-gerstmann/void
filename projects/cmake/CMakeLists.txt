@@ -48,19 +48,17 @@ set( VD_RESOURCE_DIR				${VD_ROOT_DIR}/resources )
 set( VD_PLUGINS_DIR					${VD_ROOT_DIR}/plugins )
 set( VD_EXT_DIR						${VD_ROOT_DIR}/external )
 
-include(UseExternal)
-message(STATUS "Using external libs '${VD_EXT_LIB}'")
-
 message(STATUS "Building external tools ...")
+include(UseExternal)
 include(BuildExternalTools)
 
 message(STATUS "Building external libs ...")
 include(BuildExternal)
-include(UseFramework)
 
 message(STATUS "Building platform ...")
-include(BuildPlatform)
+include(UseFramework)
 include(UseSymbols)
+include(BuildPlatform)
 
 if(VOID_BUILD_TOOLS)
 message(STATUS "Building tools ...")

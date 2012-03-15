@@ -23,6 +23,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set( VD_SYSTEM_NAME          "Mac OS X" )
     set( VD_STATIC_LIB_EXT       a )
     set( VD_SHARED_LIB_EXT       dylib )
+    set( CMAKE_OSX_ARCHITECTURES x86_64 CACHE PATH "" FORCE)
     set( CMAKE_OSX_SYSROOT /Developer/SDKs/MacOSX10.6.sdk CACHE PATH "" FORCE)
 endif()
 
