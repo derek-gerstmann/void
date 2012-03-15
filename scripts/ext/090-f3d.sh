@@ -30,7 +30,7 @@ ilm_base="$ext_dir/build/exr/$os_name"
 hdf_base="$ext_dir/build/hdf/$os_name"
 zlib_base="$ext_dir/build/zlib/$os_name"
 szip_base="$ext_dir/build/szip/$os_name"
-boost_base="$ext_dir/boost"
+boost_base="$ext_dir/build/boost/$os_name"
 
 pkg_env="-DMAKESTATIC=1:-DLINKSTATIC=1"
 
@@ -41,10 +41,11 @@ pkg_env="$pkg_env:-DILMBASE_IEX_LIBRARIES=$ilm_base/lib/libIex.a"
 pkg_env="$pkg_env:-DILMBASE_IMATH_LIBRARIES=$ilm_base/lib/libImath.a"
 pkg_env="$pkg_env:-DILMBASE_ILMTHREAD_LIBRARIES=$ilm_base/lib/libIlmThread.a"
 
+pkg_env="$pkg_env:-DBoost_DIR=$boost_base"
 pkg_env="$pkg_env:-DBoost_INCLUDE_DIR=$boost_base/include"
-pkg_env="$pkg_env:-DBoost_LIBRARY_DIRS=$boost_base/lib/$os_name"
-pkg_env="$pkg_env:-DBoost_PROGRAM_OPTIONS_LIBRARY=$boost_base/lib/$os_name/libboost_program_options.a"
-pkg_env="$pkg_env:-DBoost_THREAD_LIBRARY=$boost_base/lib/$os_name/libboost_thread.a"
+pkg_env="$pkg_env:-DBoost_LIBRARY_DIRS=$boost_base/lib"
+pkg_env="$pkg_env:-DBoost_PROGRAM_OPTIONS_LIBRARY=$boost_base/lib/libboost_program_options.a"
+pkg_env="$pkg_env:-DBoost_THREAD_LIBRARY=$boost_base/lib/libboost_thread.a"
 
 pkg_env="$pkg_env:-DHDF5_HOME=$hdf_base"
 pkg_env="$pkg_env:-DHDF5_CXX_COMPILER_EXECUTABLE=$hdf_base/bin/h5c++"
