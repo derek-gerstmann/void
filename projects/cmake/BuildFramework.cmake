@@ -24,3 +24,5 @@ endif()
 add_library( VdFramework ${VD_LIBRARY_TYPE} ${VD_ALL_SRC} ${VD_ALL_INC} ${VD_SYMBOLS_H} )
 add_dependencies( VdFramework ${VD_ALL_SRC} ${VD_SYMBOLS_H} )
 message(STATUS "Configured: Void Framework ${VOID_VERSION_STRING} ${CMAKE_BUILD_TYPE}")
+
+install(DIRECTORY ${VD_SRC_DIR}/ DESTINATION include FILES_MATCHING PATTERN "*.h")

@@ -68,8 +68,8 @@ void MetaClass::RegisterSelf(void)
 }
 
 MetaClass::MetaClass(
-    const Symbol& name,
-    const Symbol& parent_name,
+    const vd::symbol& name,
+    const vd::symbol& parent_name,
     bool is_abstract,
     void* createfn,
     void* loadfn
@@ -87,7 +87,7 @@ MetaClass::MetaClass(
 
 const MetaClass* 
 MetaClass::Retrieve(
-	const Symbol& symbol)
+	const vd::symbol& symbol)
 {
     if(!symbol.IsValid())
     	return NULL;
@@ -125,7 +125,7 @@ MetaClass::Register(
 	MetaClass* metaclass)
 {
     MetaClass* mc = ClassRegistryHead;
-    if(metaclass->GetName().IsValid() && metaclass->m_ParentName.IsValid())
+    if(metaclass->GetIdentifier().IsValid() && metaclass->m_ParentName.IsValid())
     {
 		while(mc != NULL)
 		{
@@ -140,8 +140,8 @@ MetaClass::Register(
 		if(	metaclass->m_ParentClass == NULL )
 		{
             std::cerr << "Critical error during the static RTTI initialization: " << std::endl
-                      << "Could not locate the base class '" << metaclass->m_ParentName.GetStr() << "' while initializing '"
-                      << metaclass->GetName().GetStr() << "'!" << std::endl;
+                      << "Could not locate the base class '" << metaclass->m_ParentName.ToString() << "' while initializing '"
+                      << metaclass->GetIdentifier().ToString() << "'!" << std::endl;
             exit(-1);
         }
     }
@@ -164,7 +164,7 @@ Object* MetaClass::Create() const
     {
         vdLogGlobalError("RTTI error: An attempt to instantiate a "
                          "class lacking the instantiation feature occurred (%s)!",
-                         GetName().c_str());
+                         GetIdentifier().ToString());
     }
 
     return ((CreateFn) m_CreateFn)();
@@ -176,7 +176,7 @@ Object* MetaClass::Load(Stream* stream, InstanceRegistry* instances) const
     {
         vdLogGlobalError("RTTI error: An attempt to instantiate a "
                          "class lacking the unserialization feature occurred (%s)!",
-                         GetName().c_str());
+                         GetIdentifier().ToString());
     }
 
     return ((LoadFn) m_LoadFn)(stream, instances);

@@ -49,6 +49,7 @@ private:
 public:
 
 	explicit Symbol();
+	explicit Symbol(const vd::symbol& sym);
 	explicit Symbol(const vd::uid key, const char* str, bool track=true);
 	explicit Symbol(const char* str);
 	Symbol(const Symbol& other);
@@ -66,6 +67,8 @@ public:
 	vd::uid GetKey() const { return m_Key; }
 	vd::u64 GetId() const { return m_Id; }
 	bool IsValid() const;
+
+	operator vd::symbol () const { return vd::symbol(m_Key, c_str()); }
 
 	static bool IsValid(const Symbol& symbol);
 	static const Symbol Invalid;

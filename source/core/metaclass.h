@@ -55,13 +55,13 @@ class MetaClass
 {
 public:
     MetaClass(
-		const Symbol& name, 
-		const Symbol& parent,
+		const vd::symbol& name, 
+		const vd::symbol& parent,
 		bool is_abstract = true, 
 		void* createfn = NULL, 
 		void* loadfn = NULL);
 
-    inline const Symbol& GetName() const { return m_Name; }
+    inline const vd::symbol& GetIdentifier() const { return m_Name; }
     inline bool IsAbstract() const { return m_IsAbstract; }
     inline bool IsInstantiable() const { return m_CreateFn != NULL; }
     inline bool IsSerializable() const { return m_LoadFn != NULL; }
@@ -73,7 +73,7 @@ public:
 
     static void CreateRegistry();
     static void DestroyRegistry();
-    static const MetaClass* Retrieve(const Symbol& name);
+    static const MetaClass* Retrieve(const vd::symbol& name);
     static void Register(MetaClass* metaclass);
     static inline bool HasRegistry() { return m_IsInitialized; }
 
@@ -81,8 +81,8 @@ private:
 	void RegisterSelf(void);
 	MetaClass* m_Next;
 	
-   	Symbol m_Name;
-    Symbol m_ParentName;
+   	vd::symbol m_Name;
+    vd::symbol m_ParentName;
     MetaClass* m_ParentClass;
     bool m_IsAbstract;
     void* m_CreateFn;

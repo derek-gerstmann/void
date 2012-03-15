@@ -64,34 +64,34 @@ public:
     bool Compile(const char* vp, const char* gp, const char* fp);
     bool Load(const vd::string& vp, const vd::string& gp, const vd::string& fp);
 
-	bool SetUniform(const Symbol& name, vd::i32 value);
-	bool SetUniform(const Symbol& name, vd::f32 value);
-	bool SetUniform(const Symbol& name, vd::f32 x, vd::f32 y);
-	bool SetUniform(const Symbol& name, vd::f32 x, vd::f32 y, vd::f32 z);
-	bool SetUniform(const Symbol& name, vd::f32 x, vd::f32 y, vd::f32 z, vd::f32 w);
-	bool SetUniform(const Symbol& name, const vd::v2f32& value);
-	bool SetUniform(const Symbol& name, const vd::v3f32& value);
-	bool SetUniform(const Symbol& name, const vd::v4f32& value);
-	bool SetUniform(const Symbol& name, const vd::m3f32& value);
-	bool SetUniform(const Symbol& name, const vd::m4f32& value);
+	bool SetUniform(const vd::symbol& name, vd::i32 value);
+	bool SetUniform(const vd::symbol& name, vd::f32 value);
+	bool SetUniform(const vd::symbol& name, vd::f32 x, vd::f32 y);
+	bool SetUniform(const vd::symbol& name, vd::f32 x, vd::f32 y, vd::f32 z);
+	bool SetUniform(const vd::symbol& name, vd::f32 x, vd::f32 y, vd::f32 z, vd::f32 w);
+	bool SetUniform(const vd::symbol& name, const vd::v2f32& value);
+	bool SetUniform(const vd::symbol& name, const vd::v3f32& value);
+	bool SetUniform(const vd::symbol& name, const vd::v4f32& value);
+	bool SetUniform(const vd::symbol& name, const vd::m3f32& value);
+	bool SetUniform(const vd::symbol& name, const vd::m4f32& value);
 	
 	vd::i32 GetShaderId(){ return m_Handle; }
 	
-	vd::i32 GetUniformSlot(const Symbol& name);
-	vd::i32 GetSamplerSlot(const Symbol& name);
-    vd::i32 GetAttributeSlot(const Symbol& name);
+	vd::i32 GetUniformSlot(const vd::symbol& name);
+	vd::i32 GetSamplerSlot(const vd::symbol& name);
+    vd::i32 GetAttributeSlot(const vd::symbol& name);
     
-    bool IsValidUniform(const Symbol& name);
+    bool IsValidUniform(const vd::symbol& name);
     bool IsActive();
 
-	static const Symbol& GetTypeName(vd::i32 type);
+	static const vd::symbol& GetTypeIdentifier(vd::i32 type);
 	static vd::i32 GetSamplerTextureTarget(vd::i32 type);
 
-	bool BindTexture(const Symbol& name, vd::i32 texture);
-	bool UnbindTexture(const Symbol& name, vd::i32 texture);
+	bool BindTexture(const vd::symbol& name, vd::i32 texture);
+	bool UnbindTexture(const vd::symbol& name, vd::i32 texture);
 
-    bool BindAttribute(const Symbol& name, vd::i32 slot);
-    bool UnbindAttribute(const Symbol& name, vd::i32 slot);
+    bool BindAttribute(const vd::symbol& name, vd::i32 slot);
+    bool UnbindAttribute(const vd::symbol& name, vd::i32 slot);
 
     void SetName(const vd::string& name) {m_Name = name;}
 
@@ -103,7 +103,7 @@ public:
 	
 protected:
 
-	bool AddUniform(const Symbol& name, vd::i32 type);
+	bool AddUniform(const vd::symbol& name, vd::i32 type);
 	void LocateUniforms();
 	void SubmitUniforms(bool force);
 

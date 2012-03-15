@@ -447,9 +447,13 @@ public:
         : key(0,0), str(NULL) {}
 
     VD_FORCE_INLINE 
-    symbol(const vd::uid& k, const char*& s) 
+    symbol(const vd::uid& k, const char* s) 
         : key(k), str(s) { }
     
+    VD_FORCE_INLINE 
+    symbol(const vd::symbol& s) 
+        : key(s.ToKey()), str(s.ToString()) { }
+
     bool operator==(const symbol& other) const
     {
         return (key == other.key);
@@ -475,10 +479,31 @@ public:
         return key; 
     }
 
+    const char* ToString() const 
+    {
+        return (str == NULL) ? "<null>" : str;
+    }
 
-private:
+    const uid& ToId() const 
+    {
+        return key;
+    }
+    const uid& ToKey() const 
+    {
+        return key;
+    }
 
-    const uid   key;
+    operator bool() const
+    {
+        return key && (str != NULL);        
+    }
+
+    bool IsValid() const 
+    {
+        return key && (str != NULL); 
+    }
+
+    uid         key;
     const char* str;
 };
 

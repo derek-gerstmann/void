@@ -7,7 +7,8 @@ set( VD_PLATFORM_LIBS
 )
 
 file( GLOB VD_PLATFORM_SRC 
-    ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.c 
+    ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.c
+    ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.m
     ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.cpp
 )
 
@@ -20,13 +21,8 @@ if(VD_SYSTEM_OSX)
 
 	set( VD_OSX_ICON_FILES ${VD_ROOT_DIR}/resources/platform/osx/Void.icns ) 
 	set_source_files_properties( ${VD_OSX_ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
-	
-    file( GLOB VD_PLATFORM_SRC 
-        ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.m 
-        ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.c 
-        ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.cpp
-    	${VD_OSX_ICON_FILES}
-    )
+
+    append( VD_PLATFORM_SRC ${VD_OSX_ICON_FILES} )
     
     set( VD_PLATFORM_LIBS ${COCOA_LIBRARY}
         /System/Library/Frameworks/AppKit.framework
@@ -42,11 +38,7 @@ if(VD_SYSTEM_WIN)
     source_group( "Shaders" FILES ${VD_SHADERS} )
     source_group( "Build" FILES CMakeLists.txt )
     add_definitions( /wd4996 )
-
-    file( GLOB VD_PLATFORM_SRC ${VD_SRC_DIR}/*/win/*.c ${VD_SRC_DIR}/*/win/*.cpp)
-    set( VD_PLATFORM_LIBS opengl32 WIN32        
-    	${VD_PLATFORM_LIBS} 
-	)
+    set( VD_PLATFORM_LIBS opengl32 WIN32 ${VD_PLATFORM_LIBS} )
 endif()
 
 add_library( VdPlatform ${VD_PLATFORM_SRC} )

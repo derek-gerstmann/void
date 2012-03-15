@@ -363,7 +363,7 @@ DefaultLogFormat::Format(
     if(m_ShowClass)
     {
         if(metaclass)
-            oss << " [" << metaclass->GetName().GetStr() << "] ";
+            oss << " [" << metaclass->GetIdentifier().ToString() << "] ";
         else if(line != -1 && file)
             oss << " [" << file << ":" << line << "] ";
 //            oss << "[" << fs::path(file).filename().string() << ":" << line << "] ";

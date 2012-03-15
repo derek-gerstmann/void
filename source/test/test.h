@@ -22,75 +22,16 @@
 //
 // ============================================================================================== //
 
-#include "core/object.h"
-#include "core/metaclass.h"
-#include "core/threading.h"
-#include "core/logging.h"
-#include "core/asserts.h"
-
-#include "constants/constants.h"
-
-#include <sstream>
-#include <string>
-
-#define VD_DEBUG_REFCOUNTS (1)
+#ifndef VD_TEST_INCLUDED
+#define VD_TEST_INCLUDED
 
 // ============================================================================================== //
 
-VD_CORE_NAMESPACE_BEGIN();
+#include "vd.h"
+#include "test/namespace.h"
+#include "test/types.h"
 
 // ============================================================================================== //
 
-Object::Object(const Object*) : 
-	Shared<Object>()
-{
-	// EMPTY!
-}
-
-Object::~Object()
-{
-	vd::i32 count = GetRefCount();
-    if(count > 0)
-    {
-        vdLogWarning("Deleting %s with reference count %i!",
-            ToString().c_str(), count);
-    }
-}
-
-vd::status
-Object::Destroy()
-{
-    return Status::Code::Success;
-}
-
-void
-Object::SetId(vd::uid id)
-{
-	m_Id = id;
-}
-
-vd::uid
-Object::GetId() const
-{
-	return m_Id;
-}
-
-vd::string 
-Object::ToString() const
-{
-    std::ostringstream oss;
-    oss << GetMetaClass()->GetIdentifier().ToString();
-    oss << "[unknown]";
-    return oss.str();
-}
-
-// ============================================================================================== //
-
-VD_IMPLEMENT_ABSTRACT_OBJECT(Object, vd_sym(Object), Symbol::Invalid);
-
-// ============================================================================================== //
-
-VD_CORE_NAMESPACE_END();
-
-// ============================================================================================== //
+#endif // VD_TEST_INCLUDED
 

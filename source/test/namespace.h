@@ -22,75 +22,25 @@
 //
 // ============================================================================================== //
 
-#include "core/object.h"
-#include "core/metaclass.h"
-#include "core/threading.h"
-#include "core/logging.h"
-#include "core/asserts.h"
-
-#include "constants/constants.h"
-
-#include <sstream>
-#include <string>
-
-#define VD_DEBUG_REFCOUNTS (1)
+#ifndef VD_TEST_NAMESPACE
 
 // ============================================================================================== //
 
-VD_CORE_NAMESPACE_BEGIN();
+#define VD_TEST_NAMESPACE             Test
+#define VD_TEST_SCOPE                 VD_NAMESPACE_SCOPE::VD_TEST_NAMESPACE
+
+#define VD_TEST_NAMESPACE_ENTER       VD_NAMESPACE_ENTER { namespace VD_TEST_NAMESPACE 
+#define VD_TEST_NAMESPACE_EXIT        } VD_NAMESPACE_EXIT 
+
+#define VD_TEST_NAMESPACE_BEGIN(x)    VD_TEST_NAMESPACE_ENTER { enum { }
+#define VD_TEST_NAMESPACE_END(x)      VD_TEST_NAMESPACE_EXIT } enum { }
+
+#define VD_USING_TESTING_NAMESPACE    using namespace VD_TEST_SCOPE;
+#define VD_USING_TESTING              using VD_TEST_SCOPE
 
 // ============================================================================================== //
 
-Object::Object(const Object*) : 
-	Shared<Object>()
-{
-	// EMPTY!
-}
-
-Object::~Object()
-{
-	vd::i32 count = GetRefCount();
-    if(count > 0)
-    {
-        vdLogWarning("Deleting %s with reference count %i!",
-            ToString().c_str(), count);
-    }
-}
-
-vd::status
-Object::Destroy()
-{
-    return Status::Code::Success;
-}
-
-void
-Object::SetId(vd::uid id)
-{
-	m_Id = id;
-}
-
-vd::uid
-Object::GetId() const
-{
-	return m_Id;
-}
-
-vd::string 
-Object::ToString() const
-{
-    std::ostringstream oss;
-    oss << GetMetaClass()->GetIdentifier().ToString();
-    oss << "[unknown]";
-    return oss.str();
-}
-
-// ============================================================================================== //
-
-VD_IMPLEMENT_ABSTRACT_OBJECT(Object, vd_sym(Object), Symbol::Invalid);
-
-// ============================================================================================== //
-
-VD_CORE_NAMESPACE_END();
+#endif // VD_TEST_NAMESPACE
 
 // ============================================================================================== //
 

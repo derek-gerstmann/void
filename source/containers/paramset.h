@@ -39,10 +39,6 @@ VD_CONTAINERS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Symbol);
-
-// ============================================================================================== //
-
 enum ScopeType
 {
 	InvalidScope,
@@ -81,7 +77,7 @@ public:
     }
 
     Parameter(
-    	const Symbol& n, 
+    	const vd::symbol& n, 
     	const Type& v, 
     	const Type& i
     ) :
@@ -96,7 +92,7 @@ public:
     }
 
     Parameter(
-    	const Symbol& n, 
+    	const vd::symbol& n, 
     	const Type& v,
     	AccessType access = PublicAccess,
     	ScopeType scope = GlobalScope
@@ -109,17 +105,6 @@ public:
         Initial(v)
     {
 
-    }
-
-	Parameter<Type>& operator=( const Parameter<Type>& other )
-    {
-		Name = other.Name;
-    	Value = other.Value;
-		Initial = other.Initial;
-		Scope = other.Scope;
-		Access = other.Access;
-		Changed = true;
-		return *this;
     }
 
     void Set(const Type& v)
@@ -144,7 +129,7 @@ public:
         Changed = true;
     }
     
-    const Symbol& GetName() const 
+    const vd::symbol& GetName() const 
     { 
     	return Name; 
     }
@@ -154,7 +139,7 @@ public:
     bool Changed;
 	ScopeType Scope;
 	AccessType Access;
-    Symbol Name;
+    vd::symbol Name;
     Type Value;
     Type Initial;
 };
@@ -210,94 +195,94 @@ public:
 	ParamSet() : Core::Object() { }
 	virtual ~ParamSet() { }
 
-    bool AddStr(const Symbol& symbol, const vd::string& value, 
+    bool AddStr(const vd::symbol& symbol, const vd::string& value, 
         AccessType access = PublicAccess, 
         ScopeType scope = GlobalScope);
     
-    bool Add1b(const Symbol& symbol, vd::flag value, 
+    bool Add1b(const vd::symbol& symbol, vd::flag value, 
     	AccessType access = PublicAccess, 
     	ScopeType scope = GlobalScope);
 
-    bool Add1i(const Symbol& symbol, vd::i32 value, 
+    bool Add1i(const vd::symbol& symbol, vd::i32 value, 
     	AccessType access = PublicAccess, 
     	ScopeType scope = GlobalScope);
         
-    bool Add1f(const Symbol& symbol, vd::f32 value, 
+    bool Add1f(const vd::symbol& symbol, vd::f32 value, 
     	AccessType access = PublicAccess, 
     	ScopeType scope = GlobalScope);
 
-    bool Add2f(const Symbol& symbol, const vd::v2f32& value, 
+    bool Add2f(const vd::symbol& symbol, const vd::v2f32& value, 
     	AccessType access = PublicAccess, 
     	ScopeType scope = GlobalScope);
     
-    bool Add3f(const Symbol& symbol, const vd::v3f32& value, 
+    bool Add3f(const vd::symbol& symbol, const vd::v3f32& value, 
     	AccessType access = PublicAccess, 
     	ScopeType scope = GlobalScope);
 
-    bool Add4f(const Symbol& symbol, const vd::v4f32& value, 
+    bool Add4f(const vd::symbol& symbol, const vd::v4f32& value, 
     	AccessType access = PublicAccess, 
     	ScopeType scope = GlobalScope);
 
-    bool Add3mf(const Symbol& symbol, const vd::m3f32& value, 
+    bool Add3mf(const vd::symbol& symbol, const vd::m3f32& value, 
     	AccessType access = PublicAccess, 
     	ScopeType scope = GlobalScope);    
 
-    bool Add4mf(const Symbol& symbol, const vd::m4f32& value, 
+    bool Add4mf(const vd::symbol& symbol, const vd::m4f32& value, 
     	AccessType access = PublicAccess, 
     	ScopeType scope = GlobalScope);
 
-	bool IsA(Type t, const Symbol& name);
-    bool IsUsed(const Symbol& name);
-    bool IsChanged(const Symbol& name);
-    bool ClearChanges(const Symbol& name);
+	bool IsA(Type t, const vd::symbol& name);
+    bool IsUsed(const vd::symbol& name);
+    bool IsChanged(const vd::symbol& name);
+    bool ClearChanges(const vd::symbol& name);
 
-    vd::string GetStr(const Symbol& name) const;
-    vd::flag Get1b(const Symbol& name) const;
-    vd::i32 Get1i(const Symbol& name) const;
-    vd::f32 Get1f(const Symbol& name) const;
-    const vd::v2f32& Get2f(const Symbol& name) const;
-    const vd::v3f32& Get3f(const Symbol& name) const;
-    const vd::v4f32& Get4f(const Symbol& name) const;
-    const vd::m3f32& Get3mf(const Symbol& name) const;
-    const vd::m4f32& Get4mf(const Symbol& name) const;
+    vd::string GetStr(const vd::symbol& name) const;
+    vd::flag Get1b(const vd::symbol& name) const;
+    vd::i32 Get1i(const vd::symbol& name) const;
+    vd::f32 Get1f(const vd::symbol& name) const;
+    const vd::v2f32& Get2f(const vd::symbol& name) const;
+    const vd::v3f32& Get3f(const vd::symbol& name) const;
+    const vd::v4f32& Get4f(const vd::symbol& name) const;
+    const vd::m3f32& Get3mf(const vd::symbol& name) const;
+    const vd::m4f32& Get4mf(const vd::symbol& name) const;
 
-    vd::string GetStr(const Symbol& name, const vd::string& missing) const;
-    vd::flag Get1b(const Symbol& name, vd::flag missing) const;
-    vd::i32 Get1i(const Symbol& name, vd::i32 missing) const;
-    vd::f32 Get1f(const Symbol& name, vd::f32 missing) const;
-    const vd::v2f32& Get2f(const Symbol& name, const vd::v2f32& missing) const;
-    const vd::v3f32& Get3f(const Symbol& name, const vd::v3f32& missing) const;
-    const vd::v4f32& Get4f(const Symbol& name, const vd::v4f32& missing) const;
-    const vd::m3f32& Get3mf(const Symbol& name, const vd::m3f32& missing) const;
-    const vd::m4f32& Get4mf(const Symbol& name, const vd::m4f32& missing) const;
+    vd::string GetStr(const vd::symbol& name, const vd::string& missing) const;
+    vd::flag Get1b(const vd::symbol& name, vd::flag missing) const;
+    vd::i32 Get1i(const vd::symbol& name, vd::i32 missing) const;
+    vd::f32 Get1f(const vd::symbol& name, vd::f32 missing) const;
+    const vd::v2f32& Get2f(const vd::symbol& name, const vd::v2f32& missing) const;
+    const vd::v3f32& Get3f(const vd::symbol& name, const vd::v3f32& missing) const;
+    const vd::v4f32& Get4f(const vd::symbol& name, const vd::v4f32& missing) const;
+    const vd::m3f32& Get3mf(const vd::symbol& name, const vd::m3f32& missing) const;
+    const vd::m4f32& Get4mf(const vd::symbol& name, const vd::m4f32& missing) const;
 
-    bool SetStr(const Symbol& name, const vd::string& value);
-    bool Set1i(const Symbol& name, vd::i32 value);
-    bool Set1b(const Symbol& name, vd::flag value);
-    bool Set1f(const Symbol& name, vd::f32 value);
-    bool Set2f(const Symbol& name, const vd::v2f32& value);
-    bool Set3f(const Symbol& name, const vd::v3f32& value);
-    bool Set4f(const Symbol& name, const vd::v4f32& value);
-    bool Set3mf(const Symbol& name, const vd::m3f32& value);
-    bool Set4mf(const Symbol& name, const vd::m4f32& value);
+    bool SetStr(const vd::symbol& name, const vd::string& value);
+    bool Set1i(const vd::symbol& name, vd::i32 value);
+    bool Set1b(const vd::symbol& name, vd::flag value);
+    bool Set1f(const vd::symbol& name, vd::f32 value);
+    bool Set2f(const vd::symbol& name, const vd::v2f32& value);
+    bool Set3f(const vd::symbol& name, const vd::v3f32& value);
+    bool Set4f(const vd::symbol& name, const vd::v4f32& value);
+    bool Set3mf(const vd::symbol& name, const vd::m3f32& value);
+    bool Set4mf(const vd::symbol& name, const vd::m4f32& value);
 
-    Parameter<vd::string>& GetParamStr(const Symbol& name);
-    Parameter<vd::flag>& GetParam1b(const Symbol& name);
-    Parameter<vd::i32>& GetParam1i(const Symbol& name);
-    Parameter<vd::f32>& GetParam1f(const Symbol& name);
-    Parameter<vd::v2f32>& GetParam2f(const Symbol& name);
-    Parameter<vd::v3f32>& GetParam3f(const Symbol& name);
-    Parameter<vd::v4f32>& GetParam4f(const Symbol& name);
-    Parameter<vd::m3f32>& GetParam3mf(const Symbol& name);
-    Parameter<vd::m4f32>& GetParam4mf(const Symbol& name);
+    Parameter<vd::string>& GetParamStr(const vd::symbol& name);
+    Parameter<vd::flag>& GetParam1b(const vd::symbol& name);
+    Parameter<vd::i32>& GetParam1i(const vd::symbol& name);
+    Parameter<vd::f32>& GetParam1f(const vd::symbol& name);
+    Parameter<vd::v2f32>& GetParam2f(const vd::symbol& name);
+    Parameter<vd::v3f32>& GetParam3f(const vd::symbol& name);
+    Parameter<vd::v4f32>& GetParam4f(const vd::symbol& name);
+    Parameter<vd::m3f32>& GetParam3mf(const vd::symbol& name);
+    Parameter<vd::m4f32>& GetParam4mf(const vd::symbol& name);
 
-    bool Remove(const Symbol& name);
-    bool Reset(const Symbol& name);
+    bool Remove(const vd::symbol& name);
+    bool Reset(const vd::symbol& name);
     bool IsStale() const;
     void ClearAllChanges();
     vd::bytesize GetChanges(ParamVector& params) const;
     vd::bytesize GetAllSymbols(ParamVector& params) const;
-    const Symbol& GetSymbol(vd::uid uuid) const;
+    const vd::symbol& GetSymbol(vd::uid uuid) const;
     bool Save(const vd::string& filename) const;
 
 	size_t Size() const { return m_Types.size(); }

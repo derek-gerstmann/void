@@ -34,6 +34,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set( VD_SHARED_LIB_EXT       dll )
 endif()
 
+set(VD_SYSTEM_DIR ${VD_SYSTEM_ACRONYMN})
+
 message(STATUS "Building on '${VD_SYSTEM_NAME} (${VD_SYSTEM_ACRONYMN})' as '${CMAKE_BUILD_TYPE}'")
 
 include(FindRevision)

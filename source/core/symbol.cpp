@@ -44,7 +44,7 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-const Symbol Symbol::Invalid = Symbol(0, "<NULL>");
+const Symbol Symbol::Invalid = Symbol(vd::uid(0,0), "<NULL>");
 
 // ============================================================================================== //
 
@@ -216,6 +216,18 @@ Symbol::Symbol(
 }
 
 Symbol::Symbol(
+	const vd::symbol& sym
+) :
+	m_Next(NULL),
+	m_Id(0),
+	m_Key(sym.ToId()),
+	m_Str(sym.ToString())
+{ 
+	if(m_Key && m_Str)
+		RegisterSelf();
+}
+
+Symbol::Symbol(
 	const vd::uid key, 
 	const char* str,
 	bool track
@@ -309,7 +321,7 @@ Symbol::Register(const Symbol& name)
 {
 	Symbol rv = name;
 	return GlobalSymbolRegistry.Add(rv);
-	return rv.GetId();	
+	return rv.GetKey();	
 }
 
 const Symbol&
@@ -330,7 +342,7 @@ Symbol::IsValid(
 vd::u64
 Symbol::CreateRegistry(void)
 {
-	typedef Containers::Map<vd::uid, vd::uid, UidHash, UidEqualTo>::type 	SymbolMap;
+	typedef Containers::Map<vd::uid, bool, UidHash, UidEqualTo>::type 	SymbolMap;
 
 	vd::u64 count = 0;
 	SymbolMap existing;
@@ -342,7 +354,7 @@ Symbol::CreateRegistry(void)
 		{
 			vd::uid key = Symbol::Register(*sym);
 			// const Symbol& s = Symbol::Retrieve(key);
-			existing[key] = 1;
+			existing[key] = true;
 		}
 		sym = sym->m_Next;
 		count++;

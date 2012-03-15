@@ -1,9 +1,9 @@
 // ============================================================================================== //
 //
-// License:		The Lesser GNU Public License (LGPL) v3.0.
+// License:     The Lesser GNU Public License (LGPL) v3.0.
 // 
-// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA). 
-//				As well as the shoulders of many giants...
+// Author(s):   Derek Gerstmann. The University of Western Australia (UWA). 
+//              As well as the shoulders of many giants...
 //
 // This file is part of the Void framework.
 //
@@ -22,75 +22,46 @@
 //
 // ============================================================================================== //
 
-#include "core/object.h"
-#include "core/metaclass.h"
-#include "core/threading.h"
+#ifndef VD_TEST_TYPES_INCLUDED
+#define VD_TEST_TYPES_INCLUDED
+
+// ============================================================================================== //
+
+#include "testing/namespace.h"
+
+#include "core/core.h"
 #include "core/logging.h"
-#include "core/asserts.h"
-
-#include "constants/constants.h"
-
-#include <sstream>
-#include <string>
-
-#define VD_DEBUG_REFCOUNTS (1)
+#include "core/system.h"
+#include "core/process.h"
+#include "core/memory.h"
 
 // ============================================================================================== //
 
-VD_CORE_NAMESPACE_BEGIN();
+#include "gtest/gtest.h" // Using Googles Testing framework
 
 // ============================================================================================== //
 
-Object::Object(const Object*) : 
-	Shared<Object>()
-{
-	// EMPTY!
-}
-
-Object::~Object()
-{
-	vd::i32 count = GetRefCount();
-    if(count > 0)
-    {
-        vdLogWarning("Deleting %s with reference count %i!",
-            ToString().c_str(), count);
-    }
-}
-
-vd::status
-Object::Destroy()
-{
-    return Status::Code::Success;
-}
-
-void
-Object::SetId(vd::uid id)
-{
-	m_Id = id;
-}
-
-vd::uid
-Object::GetId() const
-{
-	return m_Id;
-}
-
-vd::string 
-Object::ToString() const
-{
-    std::ostringstream oss;
-    oss << GetMetaClass()->GetIdentifier().ToString();
-    oss << "[unknown]";
-    return oss.str();
-}
+VD_TEST_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPLEMENT_ABSTRACT_OBJECT(Object, vd_sym(Object), Symbol::Invalid);
+typedef ::testing::Test               Base;
+typedef ::testing::UnitTest           Unit;
+typedef ::testing::TestCase           Case;
+typedef ::testing::TestProperty       Property;
+typedef ::testing::TestResult         Result;
+typedef ::testing::TestInfo           Info;
+typedef ::testing::Environment        Environment;
+typedef ::testing::AssertionResult    Assertion;
+typedef ::testing::TestEventListener  Listener;
+typedef ::testing::TestEventListeners ListenerGroup;
+typedef ::testing::WithParamInterface WithParam;
 
 // ============================================================================================== //
 
-VD_CORE_NAMESPACE_END();
+VD_TEST_NAMESPACE_END();
 
 // ============================================================================================== //
+
+#endif // VD_TEST_TYPES_INCLUDED
 

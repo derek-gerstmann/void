@@ -633,12 +633,12 @@ vd::uid Thread::GetId()
 #if defined(VD_TARGET_WINDOWS)
 
     value = ::GetCurrentThreadId();
-	return value;
+	return vd::uid(value);
 	
 #elif defined(VD_TARGET_OSX)
 
     value = ::mach_thread_self();
-	return value;
+    return vd::uid(value);
 	
 #elif defined(VD_USE_POSIX)
 
@@ -658,8 +658,7 @@ vd::uid Thread::GetId()
         char* bytes = reinterpret_cast<char*>(&tid);
         value = Core::Hashing::Murmur(bytes, sizeof(tid));
     }
-
-    return value & VD_I64_MAX;
+    return vd::uid(value & VD_I64_MAX);
 #else
 	#error "Thread::Hash() needs to be implemented on this platform!"
 #endif

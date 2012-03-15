@@ -56,11 +56,10 @@ include(BuildExternalTools)
 
 message(STATUS "Building external libs ...")
 include(BuildExternal)
+include(UseFramework)
 
 message(STATUS "Building platform ...")
 include(BuildPlatform)
-
-include(UseFramework)
 include(UseSymbols)
 
 if(VOID_BUILD_TOOLS)
