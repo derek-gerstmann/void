@@ -513,10 +513,15 @@ function cmake_pkg()
     report "Configuring package '$pkg_name' from source folder '$cmake_src_path' ..."
     separator
 
-    echo cmake -DCMAKE_INSTALL_PREFIX="$prefix" $env_flags $cmake_src_path
+    local cmake_pre="-DCMAKE_INSTALL_PREFIX=$prefix"
+    if [ "$is_osx" -eq 1 ]
+    then
+        cmake_pre="$cmake_pre -DCMAKE_OSX_ARCHITECTURES=x86_64"
+    fi
+    echo cmake $cmake_pre $env_flags $cmake_src_path
     separator
 
-    eval cmake -DCMAKE_INSTALL_PREFIX="$prefix" $env_flags $cmake_src_path || bail "Failed to configure: '$prefix'"
+    eval cmake $cmake_pre $env_flags $cmake_src_path || bail "Failed to configure: '$prefix'"
     separator
 
     report "Done configuring package '$pkg_name'"
