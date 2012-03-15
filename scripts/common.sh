@@ -336,6 +336,22 @@ function get_cursor_position()
     echo "$row $col"
 }
 
+function cp_dir()
+{
+    local src=$1
+    local dst=$2
+
+    if [ "$is_lnx" -eq 1 ]
+    then
+        # echo cp -TRv $src $dst
+        cp -TRv $src $dst || bail "Failed to copy from '$src' to '$dst'"
+    elif [ "$is_osx" -eq 1 ]
+    then
+        # echo ditto -v $src $dst
+        ditto -v $src $dst || bail "Failed to copy from '$src' to '$dst'"
+    fi
+}
+
 ####################################################################################################
 
 function run_all()
@@ -371,6 +387,7 @@ function setup_pkg()
     if [ -d "$pkg_base" ]
     then
         report "Removing old package '$pkg_base'"
+        chmod -R +rw "$pkg_base"
         rm -r "$pkg_base"
         separator
     fi
@@ -468,9 +485,9 @@ function cmake_pkg()
 
     separator
   
-    prefix="$ext_dir/build/$pkg_name/$os_name"
+    local prefix="$ext_dir/build/$pkg_name/$os_name"
 
-    env_flags=" "
+    local env_flags=" "
     if [ -n $pkg_mpath ] && [ $pkg_mpath != 0 ]
     then
         pkg_mpath=$(echo $pkg_mpath | split_str ":" | join_str " ")
@@ -483,28 +500,25 @@ function cmake_pkg()
         env_flags=$env_flags' '$pkg_env
     fi
 
-    cmake_src_path=".."
-    if [ -f "../CMakeLists.txt" ] 
-    then
-        cmake_src_path=".."
-    fi
+    local cmake_src_path=".."
+    local src_paths=".. ../src ../source"
+    for path in ${src_paths}
+    do
+        if [ -f "$path/CMakeLists.txt" ] 
+        then
+            cmake_src_path="$path"
+        fi
+    done
 
-    if [ -f "../src/CMakeLists.txt" ] 
-    then
-        cmake_src_path="../src"
-    fi
-
-    if [ -f "../source/CMakeLists.txt" ] 
-    then
-        cmake_src_path="../source"
-    fi
-
-    report "Configuring package '$pkg_name' ..."
+    report "Configuring package '$pkg_name' from source folder '$cmake_src_path' ..."
     separator
+
     echo cmake -DCMAKE_INSTALL_PREFIX="$prefix" $env_flags $cmake_src_path
     separator
+
     eval cmake -DCMAKE_INSTALL_PREFIX="$prefix" $env_flags $cmake_src_path || bail "Failed to configure: '$prefix'"
     separator
+
     report "Done configuring package '$pkg_name'"
 }
 
@@ -520,15 +534,19 @@ function cfg_pkg()
     local pkg_ldflags=$6
     local pkg_cfg="${@:$m}"
 
-    prefix="$ext_dir/build/$pkg_name/$os_name"
+    local prefix="$ext_dir/build/$pkg_name/$os_name"
+
     if [ -f "./configure" ]
     then
-        env_flags=" "
+
+        local env_flags=" "
+
         if [ -n $pkg_cflags ] && [ $pkg_cflags != 0 ]
         then
             pkg_cflags=$(echo $pkg_cflags | split_str ":" | join_str " ")
-            env_flags='CXXFLAGS="'$pkg_cflags'" CFLAGS="'$pkg_cflags'"'
+            env_flags='CXXFLAGS="'$pkg_cflags'" CPPFLAGS="'$pkg_cflags'" CFLAGS="'$pkg_cflags'"'
         fi
+
         if [ -n $pkg_ldflags ] && [ $pkg_ldflags != 0 ]
         then
             pkg_ldflags=$(echo $pkg_ldflags | split_str ":" | join_str " ")
@@ -537,16 +555,20 @@ function cfg_pkg()
         
         report "Configuring package '$pkg_name' ..."
         separator
+
         echo ./configure --prefix="$prefix" $pkg_cfg $env_flags 
         separator
+
         eval ./configure --prefix="$prefix" $pkg_cfg $env_flags || bail "Failed to configure: '$prefix'"
         separator
-        report "Done configuring package '$pkg_name'"
-    fi
 
-    if [ -f "./CMakeLists.txt" ] || [ -f "./src/CMakeLists.txt" ] || [ -f "./source/CMakeLists.txt" ]
-    then
-        cmake_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_cflags $pkg_ldflags $pkg_cfg
+        report "Done configuring package '$pkg_name'"
+
+    else
+        if [ -f "./CMakeLists.txt" ] || [ -f "./src/CMakeLists.txt" ] || [ -f "./source/CMakeLists.txt" ]
+        then
+            cmake_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_cflags $pkg_ldflags $pkg_cfg
+        fi
     fi
 }
 
@@ -557,7 +579,7 @@ function make_pkg()
     local pkg_file=$3
     local pkg_url=$4
 
-    prefix="$ext_dir/build/$pkg_name/$os_name"
+    local prefix="$ext_dir/build/$pkg_name/$os_name"
 
     # build using make if a makefile exists
     if [ -f "./Makefile" ] || [ -f "./makefile" ]
@@ -576,11 +598,13 @@ function install_pkg()
     local pkg_file=$3
     local pkg_url=$4
 
-    prefix="$ext_dir/build/$pkg_name/$os_name"
-    rules=$(make -pn | sed -rn '/^[^# \t\.%].*:[^=]?/p')
+    local prefix="$ext_dir/build/$pkg_name/$os_name"
+
+    # extract the makefile rule names and filter out empty lines and comments
+    local rules=$(make -pn | grep -v ^$ | grep -v ^# | grep -c '^install:')
 
     # install using make if an 'install' rule exists
-    if [[ $(echo "$rules" | grep -c 'install') == 1 ]]
+    if [[ $(echo "$rules") > 0 ]]
     then
         report "Installing package '$pkg_name'"
         separator
@@ -597,46 +621,45 @@ function migrate_pkg()
     local pkg_file=$3
     local pkg_url=$4
     local pkg_keep=$5
+    local prefix="$ext_dir/build/$pkg_name/$os_name"
 
-    prefix="$ext_dir/build/$pkg_name/$os_name"
     report "Migrating package '$pkg_name'"
     separator
 
-    # move header into external path
-    if [ -d "$prefix/include" ]
-    then
-        report "Copying headers for '$pkg_name'"
-        separator
-        mkdir -p "$ext_dir/$pkg_name/include"
-        cp -TRv  "$prefix/include" "$ext_dir/$pkg_name/include" || bail "Failed to copy OS binaries into directory: $ext_dir/$pkg_name/$os_name"
-        separator
-    fi
+    local src_paths="include inc man share"
+    for path in ${src_paths}
+    do
+        # move product into external path
+        if [ -d "$prefix/$path" ]
+        then
+            report "Copying build products from '$prefix/$path' for '$pkg_name'"
+            separator
+            mkdir -p "$ext_dir/$pkg_name/$path"
+            cp_dir "$prefix/$path" "$ext_dir/$pkg_name/$path" || bail "Failed to copy shared files into directory: $ext_dir/$pkg_name/$os_name"
+            separator
+        fi
+    done
 
-    # move libraries into os path
-    if [ -d "$prefix/lib" ]
-    then
-        report "Copying OS dependent libraries for '$pkg_name'"
-        separator
-        mkdir -p "$ext_dir/$pkg_name/lib/$os_name"
-        cp -TRv  "$prefix/lib" "$ext_dir/$pkg_name/lib/$os_name" || bail "Failed to copy OS binaries into directory: $ext_dir/$pkg_name/$os_name"
-        separator
-    fi
-
-    # move binaries into os path
-    if [ -d "$prefix/bin" ]
-    then
-        report "Copying OS dependent binaries for '$pkg_name'"
-        separator
-        mkdir -p "$ext_dir/$pkg_name/bin/$os_name"
-        cp -TRv  "$prefix/bin" "$ext_dir/$pkg_name/bin/$os_name" || bail "Failed to copy OS binaries into directory: $ext_dir/$pkg_name/$os_name"
-        separator
-    fi
+    local bin_paths="lib bin lib32 lib64"
+    for path in ${bin_paths}
+    do
+        # move product into external os specific path
+        if [ -d "$prefix/$path" ]
+        then
+            report "Copying build products from '$prefix/$path' for '$pkg_name'"
+            separator
+            mkdir -p "$ext_dir/$pkg_name/$path/$os_name"
+            cp_dir "$prefix/$path" "$ext_dir/$pkg_name/$path/$os_name" || bail "Failed to copy OS binaries into directory: $ext_dir/$pkg_name/$os_name"
+            separator
+        fi
+    done
 
     if [ "$pkg_keep" -eq 1 ]
     then
         report "Keeping package build directory for '$pkg_base'"
     else
         report "Removing package build directory for '$pkg_base'"
+        chmod -R +rw "$prefix"
         rm -r "$prefix"
         separator
     fi

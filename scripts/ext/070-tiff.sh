@@ -4,6 +4,43 @@
 source "./common.sh"
 
 ####################################################################################################
+
+function build_tiff()
+{
+    local m=8
+    local pkg_name=$1
+    local pkg_base=$2
+    local pkg_file=$3
+    local pkg_url=$4
+    local pkg_keep=$5
+    local pkg_cflags=$6
+    local pkg_ldflags=$7
+    local pkg_cfg="${@:$m}"
+
+    setup_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
+    fetch_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
+    boot_pkg    $pkg_name $pkg_base $pkg_file $pkg_url
+    cfg_pkg     $pkg_name $pkg_base $pkg_file $pkg_url $pkg_cflags $pkg_ldflags $pkg_cfg
+
+# On OSX disable the tools from getting built since tiffgt.c fails to compile
+if [ "$is_osx" -eq 1 ]
+then
+    rm tools/Makefile
+    echo "all:"      >  tools/Makefile
+    echo " "         >> tools/Makefile
+    echo "install: " >> tools/Makefile
+    echo " "         >> tools/Makefile
+fi
+
+    make_pkg    $pkg_name $pkg_base $pkg_file $pkg_url
+    install_pkg $pkg_name $pkg_base $pkg_file $pkg_url
+    migrate_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep
+
+    report "DONE building '$pkg_name' from '$pkg_file'! --"
+    separator
+}
+
+####################################################################################################
 # setup pkg definition and resource files
 ####################################################################################################
 
@@ -16,13 +53,13 @@ pkg_cfg="$pkg_cfg --with-jpeg-lib-dir=$ext_dir/build/jpeg/$os_name/lib"
 pkg_cfg="$pkg_cfg --with-jpeg-include-dir=$ext_dir/build/jpeg/$os_name/include"
 pkg_cfg="$pkg_cfg --with-zlib-lib-dir=$ext_dir/build/zlib/$os_name/lib"
 pkg_cfg="$pkg_cfg --with-zlib-include-dir=$ext_dir/build/zlib/$os_name/include"
-pkg_ldflags="-L$ext_dir/build/png/$os_name/lib:-L$ext_dir/build/zlib/$os_name/lib:-L$ext_dir/build/tiff/$os_name/lib"
-pkg_cflags="-I$ext_dir/build/png/$os_name/include:-I$ext_dir/build/zlib/$os_name/include:-I$ext_dir/build/tiff/$os_name/include:-I$ext_dir/build/tiff/$os_name/include/tiff"
+pkg_ldflags="-L$ext_dir/build/png/$os_name/lib:-L$ext_dir/build/zlib/$os_name/lib"
+pkg_cflags="-I$ext_dir/build/png/$os_name/include:-I$ext_dir/build/zlib/$os_name/include"
 pkg_keep=1
 
 ####################################################################################################
 # build and install pkg into external folder
 ####################################################################################################
 
-build_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep $pkg_cflags $pkg_ldflags $pkg_cfg
+build_tiff $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep $pkg_cflags $pkg_ldflags $pkg_cfg
 

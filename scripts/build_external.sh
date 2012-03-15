@@ -12,7 +12,7 @@ function build_ext()
         do
             if [[ -f $builder && $(basename $builder) != 'common' ]]
             then
-                eval $builder
+                eval $builder || exit -1
             fi
         done
     fi
