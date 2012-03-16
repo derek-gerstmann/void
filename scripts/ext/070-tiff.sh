@@ -12,7 +12,7 @@ function build_tiff()
     local pkg_base=$2
     local pkg_file=$3
     local pkg_url=$4
-    local pkg_keep=$5
+    local pkg_opt=$5
     local pkg_cflags=$6
     local pkg_ldflags=$7
     local pkg_cfg="${@:$m}"
@@ -20,7 +20,7 @@ function build_tiff()
     setup_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
     fetch_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
     boot_pkg    $pkg_name $pkg_base $pkg_file $pkg_url
-    cfg_pkg     $pkg_name $pkg_base $pkg_file $pkg_url $pkg_cflags $pkg_ldflags $pkg_cfg
+    cfg_pkg     $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg
 
 # On OSX disable the tools from getting built since tiffgt.c fails to compile
 if [ "$is_osx" -eq 1 ]
@@ -34,7 +34,7 @@ fi
 
     make_pkg    $pkg_name $pkg_base $pkg_file $pkg_url
     install_pkg $pkg_name $pkg_base $pkg_file $pkg_url
-    migrate_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep
+    migrate_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt
 
     report "DONE building '$pkg_name' from '$pkg_file'! --"
     separator

@@ -12,11 +12,11 @@ function boot_glew()
     local pkg_file=$3
     local pkg_url=$4
 
-    cd "$pkg_base/auto"
+    push_dir "$ext_dir/pkgs/$pkg_base/auto"
     separator
     make || bail "Failed to boostrap Glew library!"
     separator
-    cd ..
+    pop_dir
 }
 
 function make_glew()
@@ -28,11 +28,15 @@ function make_glew()
 
     # build and install into local path
     prefix="$ext_dir/build/$pkg_name/$os_name"
+    push_dir "$ext_dir/pkgs/$pkg_base"
+
     report "Building package '$pkg_name'"
     separator
     make GLEW_DEST="prefix" || bail "Failed to build package: '$prefix'"
     make GLEW_DEST="prefix" install || bail "Failed to build package: '$prefix'"
     separator
+
+    pop_dir
 
 }
 
