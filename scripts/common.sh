@@ -801,6 +801,22 @@ function build_pkg()
     local pkg_ldflags=$7
     local pkg_cfg="${@:$m}"
 
+    local existing=0
+    if [ -d $ext_dir/$pkg_base/lib/$os_name ]
+    then
+        if [[ $(echo $pkg_opt | grep -c 'recompile' ) > 0 ]] 
+        then
+            existing=0
+        else
+            existing=1
+        fi
+    fi
+
+    if [ $existing != 0 ]
+    then
+        return
+    fi
+
 #    echo "PkgName: '$pkg_name' PkgBase: '$pkg_base' PkgFile: '$pkg_file' PkgUrl: '$pkg_url' PkgCfg: '$pkg_cfg' PkgKeep: '$pkg_opt'"
 
     setup_pkg   $pkg_name $pkg_base $pkg_file $pkg_url

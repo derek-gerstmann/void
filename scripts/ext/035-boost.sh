@@ -17,10 +17,10 @@ function make_boost()
     local pkg_envflags=$6
     local pkg_cfg="${@:$m}"
 
-    cd "$pkg_base"
     separator
-  
     prefix="$ext_dir/build/$pkg_name/$os_name"
+    push_dir "$ext_dir/pkgs/$pkg_base"
+
     env_flags=" "
     if [ -n $pkg_cmkpaths ] && [ $pkg_cmkpaths != 0 ]
     then
@@ -45,6 +45,8 @@ function make_boost()
     eval ./b2 install || bail "Failed to install: '$prefix'"
     separator
     report "Done building and installing package '$pkg_name'"
+
+    pop_dir
 }
 
 function build_boost()
