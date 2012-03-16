@@ -23,13 +23,15 @@ function build_tiff()
     cfg_pkg     $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg
 
 # On OSX disable the tools from getting built since tiffgt.c fails to compile
-if [ "$is_osx" -eq 1 ]
+if [ "$is_osx" != 0 ]
 then
+    push_dir "$ext_dir/pkgs/$pkg_base"
     rm tools/Makefile
     echo "all:"      >  tools/Makefile
     echo " "         >> tools/Makefile
     echo "install: " >> tools/Makefile
     echo " "         >> tools/Makefile
+    pop_dir
 fi
 
     make_pkg    $pkg_name $pkg_base $pkg_file $pkg_url
