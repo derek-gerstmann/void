@@ -69,13 +69,15 @@ pkg_name="glew"
 pkg_base="glew-nightly"
 pkg_file="$pkg_base.tar.bz2"
 pkg_url="git://glew.git.sourceforge.net/gitroot/glew/glew"
+
+pkg_opt="keep"
 pkg_ldflags=0
 pkg_cflags=0
-pkg_keep=1
+pkg_cfg=0
 
 ####################################################################################################
 # build and install pkg into external folder using custom GLEW build methods
 ####################################################################################################
 
-build_glew $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep $pkg_cflags $pkg_ldflags $pkg_cfg
+build_glew $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg
 

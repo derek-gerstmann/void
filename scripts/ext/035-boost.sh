@@ -78,15 +78,16 @@ pkg_name="boost"
 pkg_base="boost_1_49_0"
 pkg_file="boost_1_49_0.tar.bz2"
 pkg_url="http://sourceforge.net/projects/boost/files/boost/1.49.0/boost_1_49_0.tar.bz2/download"
-pkg_cfg="--disable-shared --enable-static"
+
+pkg_opt="keep"
 pkg_cmkpaths=0
 pkg_envflags="link=static;threading=single;threading=multi "
-pkg_keep=1
+pkg_cfg="--disable-shared --enable-static"
 
 ####################################################################################################
 # build and install pkg into external folder using custom BOOST build methods
 ####################################################################################################
 
-build_boost $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep $pkg_cmkpaths $pkg_envflags $pkg_cfg
+build_boost $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_cmkpaths $pkg_envflags $pkg_cfg
 
 

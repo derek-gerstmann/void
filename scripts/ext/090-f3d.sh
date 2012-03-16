@@ -57,11 +57,12 @@ pkg_env="$pkg_env:-DHDF5_hdf5_hl_LIBRARY=$hdf_base/lib/libhdf5_hl.a"
 pkg_env="$pkg_env:-DHDF5_z_LIBRARY=$zlib_base/lib/libz.a"
 pkg_env="$pkg_env:-DHDF5_sz_LIBRARY=$szip_base/lib/libsz.a"
 
-pkg_keep=1
+pkg_opt="keep"
 
 ####################################################################################################
 # build and install pkg into external folder
 ####################################################################################################
-build_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep $pkg_mpaths $pkg_env $pkg_cfg
+
+build_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_mpaths $pkg_env $pkg_cfg
 
 
