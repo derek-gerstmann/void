@@ -2,6 +2,7 @@ set( VD_EXT_DIR						${VD_ROOT_DIR}/external )
 set( VD_EXT_SYS_DIR                 ${VD_SYSTEM_ACRONYMN} )
 set( VD_EXT_SIMD_DIR				${VD_EXT_DIR}/simd )
 set( VD_EXT_ICONV_DIR				${VD_EXT_DIR}/iconv )
+set( VD_EXT_ICU_DIR					${VD_EXT_DIR}/ucu )
 set( VD_EXT_ZLIB_DIR				${VD_EXT_DIR}/zlib )
 set( VD_EXT_BOOST_DIR				${VD_EXT_DIR}/boost )
 
@@ -13,10 +14,10 @@ endif()
 
 include_directories(				${VD_EXT_SIMD_DIR}/include )
 include_directories(				${VD_EXT_ICONV_DIR}/include )
+include_directories(				${VD_EXT_ICU_DIR}/include )
 include_directories(				${VD_EXT_BOOST_DIR}/include )
 include_directories(				${VD_EXT_ZLIB_DIR}/include )
 
-file( GLOB VD_EXT_ICONV_LIB			${VD_EXT_ICONV_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
 file( GLOB VD_EXT_BOOST_LIB			${VD_EXT_BOOST_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
 file( GLOB VD_EXT_ZLIB_LIB			${VD_EXT_ZLIB_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
 
@@ -36,19 +37,25 @@ if(VOID_USE_OPENGL)
 	
 	find_package(OpenGL 			REQUIRED)
 	
+	set( VD_EXT_FC_DIR				${VD_EXT_DIR}/fc )
 	set( VD_EXT_FT_DIR				${VD_EXT_DIR}/ft )
 	set( VD_EXT_FTGL_DIR			${VD_EXT_DIR}/ftgl )
 	set( VD_EXT_GLEW_DIR			${VD_EXT_DIR}/glew )
 	set( VD_EXT_GLSW_DIR			${VD_EXT_DIR}/glsw )
 
-	file( GLOB VD_EXT_GLSW_SRC 	 	${VD_EXT_GLSW_DIR}/src/*.c )
-	file( GLOB VD_EXT_FTGL_SRC 	 	${VD_EXT_FTGL_DIR}/src/*.c )
-	file( GLOB VD_EXT_GLEW_LIB		${VD_EXT_GLEW_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_ICONV_LIB		${VD_EXT_ICONV_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_ICU_LIB		${VD_EXT_ICU_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_FC_LIB 	 	${VD_EXT_FC_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
 	file( GLOB VD_EXT_FT_LIB 	 	${VD_EXT_FT_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_GLEW_LIB		${VD_EXT_GLEW_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_FTGL_SRC 	 	${VD_EXT_FTGL_DIR}/src/*.c )
+	file( GLOB VD_EXT_GLSW_SRC 	 	${VD_EXT_GLSW_DIR}/src/*.c )
 
 	include_directories(
 		${OPENGL_INCLUDE_DIRS}
+		${VD_EXT_FC_DIR}/include
 		${VD_EXT_FT_DIR}/include
+		${VD_EXT_FT_DIR}/include/freetype2
 		${VD_EXT_FTGL_DIR}/include
 		${VD_EXT_GLEW_DIR}/src
 		${VD_EXT_GLEW_DIR}/include
@@ -191,8 +198,10 @@ set( VD_EXT_SRC
 set( VD_EXT_LIB 				    
 	${VD_EXT_BOOST_LIB} 
 	${VD_EXT_ICONV_LIB} 
+	${VD_EXT_ICU_LIB} 
 	${VD_EXT_ZLIB_LIB}
 	${VD_EXT_ALIB_LIB}
+	${VD_EXT_FC_LIB} 
 	${VD_EXT_FT_LIB} 
 	${VD_EXT_GLEW_LIB} 
 	${VD_EXT_SKIA_LIB}

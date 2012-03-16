@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+project( VdFramework )
 
 if(VOID_USE_EXTRACTED_SYMBOLS)
 

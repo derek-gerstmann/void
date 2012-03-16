@@ -1,3 +1,4 @@
+remove_definitions( -DVD_BUILDING_FRAMEWORK )
 
 file( GLOB VD_TOOLS_SYMEX_SRC   ${VD_TOOLS_DIR}/symex/*.c ${VD_TOOLS_DIR}/symex/*.cpp)
 set( VD_CORE_HASHING_SRC        ${VD_CORE_DIR}/hashing.cpp )

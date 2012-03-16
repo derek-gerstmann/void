@@ -1,3 +1,5 @@
+remove_definitions( -DVD_BUILDING_FRAMEWORK )
+
 file( GLOB VD_TEST_SRC  	
 	${VD_TEST_DIR}/*.c 
 	${VD_TEST_DIR}/*.cpp)

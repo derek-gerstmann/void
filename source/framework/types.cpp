@@ -1,9 +1,9 @@
 // ============================================================================================== //
 //
-// License:		The Lesser GNU Public License (LGPL) v3.0.
-// 
-// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA). 
-//				As well as the shoulders of many giants...
+// License:     The Lesser GNU Public License (LGPL) v3.0.
+//
+// Author(s):   Derek Gerstmann. The University of Western Australia (UWA).
+//              As well as the shoulders of many giants...
 //
 // This file is part of the Void framework.
 //
@@ -22,77 +22,47 @@
 //
 // ============================================================================================== //
 
-#include "core/object.h"
-#include "core/metaclass.h"
-#include "core/threading.h"
-#include "core/logging.h"
-#include "core/asserts.h"
-
-#include "constants/constants.h"
-
-#include <sstream>
-#include <string>
+#include "vd.h"
 
 // ============================================================================================== //
 
-VD_CORE_NAMESPACE_BEGIN();
+VD_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-Object::Object(const Object*) : 
-	Shared<Object>()
-{
-	// EMPTY!
-}
+// const uid uid::Zero;
 
-Object::~Object()
+// ============================================================================================== //
+
+uid& uid::operator = ( const vd::string& from )
 {
-	vd::i32 count = GetRefCount();
-#if defined(VD_DEBUG_REFCOUNTS)    
-    if(count > 0)
-    {
-        vdLogWarning("Deleting %s with reference count %i!",
-            ToString().c_str(), count);
-    }
+    char* next = 0;
+#ifdef _MSC_VER
+    m_Data[1] = ::_strtoui64( from.c_str(), &next, 16 );
 #else
-    vdAssert(count == 0);
+    m_Data[1] = ::strtoull( from.c_str(), &next, 16 );
 #endif
-}
-
-vd::status
-Object::Destroy()
-{
-    return Status::Code::Success;
-}
-
-void
-Object::SetId(vd::uid id)
-{
-	m_Id = id;
-}
-
-vd::uid
-Object::GetId() const
-{
-	return m_Id;
-}
-
-vd::string 
-Object::ToString() const
-{
-    std::ostringstream oss;
-    oss << GetMetaClass()->GetIdentifier().ToString();
-    oss << "[unknown]";
-    return oss.str();
+    assert( next != from.c_str( ));
+    if( *next == '\0' ) // short representation, high was 0
+    {
+        m_Data[0] = m_Data[1];
+        m_Data[1] = 0;
+    }
+    else
+    {
+        assert( *next == ':' );
+        ++next;
+#ifdef _MSC_VER
+        m_Data[0] = ::_strtoui64( next, 0, 16 );
+#else
+        m_Data[0] = ::strtoull( next, 0, 16 );
+#endif
+    }
+    return *this;
 }
 
 // ============================================================================================== //
 
-VD_IMPLEMENT_ABSTRACT_OBJECT(Object, vd_sym(Object), Symbol::Invalid);
+VD_NAMESPACE_END();
 
 // ============================================================================================== //
-
-VD_CORE_NAMESPACE_END();
-
-// ============================================================================================== //
-

@@ -1,4 +1,6 @@
 # setup version numbers
+remove_definitions( -DVD_BUILDING_FRAMEWORK )
+
 set( VOID_PROJECT_NAME          "Void")
 set( VOID_VERSION_MAJOR         1)
 set( VOID_VERSION_MINOR         0)

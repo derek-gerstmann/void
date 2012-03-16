@@ -16,7 +16,7 @@ function(extract_symbols output included scope namespace)
     )
 
     if(EXISTS ${output})
-        add_definitions( -DVD_EXTRACTED_SYMBOLS_EXIST=1 )
+        add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
     endif()
 
 endfunction(extract_symbols) 

@@ -1,4 +1,8 @@
-add_library( VdExternal ${VD_LIBRARY_TYPE} ${VD_EXT_SRC} )
-add_dependencies( VdExternal ${VD_EXT_SRC} )
-target_link_libraries( VdExternal ${VD_EXT_LIB} )
-message(STATUS "Configured: Void External Libraries '${VD_EXT_LIB}'")
+file( GLOB VD_EXT_TOOLS_SUBDIRS ./external/* )
+foreach( entry ${VD_EXT_TOOLS_SUBDIRS} )
+    if( IS_DIRECTORY ${entry} )
+        message(STATUS "Adding application '${entry}' ...")
+        add_subdirectory( ${entry} )
+    endif()
+endforeach()
+

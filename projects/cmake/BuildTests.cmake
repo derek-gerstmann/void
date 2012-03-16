@@ -1,3 +1,5 @@
+remove_definitions( -DVD_BUILDING_FRAMEWORK )
+
 file( GLOB VD_TESTS_SUBDIRS ./tests/* )
 foreach( entry ${VD_TESTS_SUBDIRS} )
 	if( IS_DIRECTORY ${entry} )

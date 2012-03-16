@@ -24,9 +24,8 @@
 
 #include "vd.h"
 #include "demo.h"
-#include "core/symbol.h"
 #include "constants/constants.h"
-#include "gui/symbols.h"
+#include "core/symbol.h"
 #include <iostream>
 
 // ============================================================================================== //
@@ -516,7 +515,7 @@ Demo::Shutdown()
 
 // ============================================================================================== //
 
-VD_IMPLEMENT_OBJECT(Demo, Symbol(0, "Demo"), Symbol(0, "Application"));
+VD_IMPLEMENT_OBJECT(Demo, vd_sym(Demo), vd_sym(Application));
 
 // ============================================================================================== //
 

@@ -53,7 +53,6 @@ endif()
 
 if(EXISTS ${VD_APPS_GUI_DEMO_SYMBOLS_H})
     add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
-    add_definitions( -DVD_EXTRACTED_SYMBOLS_EXIST=1 )
 endif()
     
 add_executable( GuiDemo WIN32 MACOSX_BUNDLE
@@ -63,10 +62,15 @@ target_link_libraries( GuiDemo
     VdExternal 
     VdFramework 
     VdPlatform 
+    ${VD_EXT_ICONV_LIB}
+    ${VD_EXT_LIB}
     ${GUI_LIBRARY}
 )
 
 add_dependencies( GuiDemo 
+    VdExternal 
+    VdFramework 
+    VdPlatform 
     ${VD_APPS_GUI_DEMO_ALL_SRC} 
     ${VD_FONTS} 
     ${VD_SHADERS} 
