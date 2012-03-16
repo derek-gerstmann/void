@@ -41,7 +41,7 @@
 #include "imageio.h"
 #include "imagebuf.h"
 #include "fmath.h"
-#include "colortransfer.h"
+#include "color.h"
 
 OIIO_NAMESPACE_ENTER
 {
@@ -76,6 +76,17 @@ bool DLLPUBLIC fill (ImageBuf &dst,
                      int xbegin, int xend,
                      int ybegin, int yend,
                      int zbegin, int zend);
+
+/// Fill a subregion of the volume with a checkerboard.  The subregion
+/// is bounded by [xbegin,xend) X [ybegin,yend) X [zbegin,zend).  return
+/// true on success.
+bool DLLPUBLIC checker (ImageBuf &dst,
+                        int width,
+                        const float *color1,
+                        const float *color2,
+                        int xbegin, int xend,
+                        int ybegin, int yend,
+                        int zbegin=0, int zend=1);
 
 /// Enum describing options to be passed to transform
 
@@ -141,11 +152,28 @@ enum DLLPUBLIC AddOptions
 };
 
 
-
-/// Apply a transfer function to the pixel values.
+/// Apply a color transform to the pixel values
 ///
-bool DLLPUBLIC colortransfer (ImageBuf &dst, const ImageBuf &src,
-                              ColorTransfer *tfunc);
+/// In-place operations (dst == src) are supported
+/// If unpremult is specified, unpremultiply before color conversion,
+/// then premultiply after the color conversion.  You'll may want to use this
+/// flag if your image contains an alpha channel
+///
+/// Note: the dst image does not need to equal the src image, either in buffers
+///       or bit depths. (For example, it is common for the src buffer to be a
+///       lower bit depth image and the output image to be float).
+/// If the output buffer is less than floating-point, results may be quantized /
+/// clamped
+/// return true on success, false on failure
+
+
+bool DLLPUBLIC colorconvert (ImageBuf &dst, const ImageBuf &src,
+    const ColorProcessor * processor,
+    bool unpremult);
+
+bool DLLPUBLIC colorconvert (float * color, int nchannels,
+    const ColorProcessor * processor,
+    bool unpremult);
 
 
 struct DLLPUBLIC PixelStats {
@@ -229,6 +257,19 @@ std::string DLLPUBLIC computePixelHashSHA1(const ImageBuf &src,
 bool DLLPUBLIC resize (ImageBuf &dst, const ImageBuf &src,
                        int xbegin, int xend, int ybegin, int yend,
                        Filter2D *filter=NULL);
+
+
+enum DLLPUBLIC NonFiniteFixMode
+{
+    NONFINITE_NONE = 0,     ///< Do nothing
+    NONFINITE_BLACK = 1,    ///< Replace nonfinite pixels with black
+    NONFINITE_BOX3 = 2,     ///< Replace nonfinite pixels with 3x3 finite average
+};
+
+/// Fix all non-finite pixels (nan/inf) using the specified approach
+bool DLLPUBLIC fixNonFinite(ImageBuf &dst, const ImageBuf &src,
+                            NonFiniteFixMode mode=NONFINITE_BOX3,
+                            int * pixelsFixed=NULL);
 
 
 };  // end namespace ImageBufAlgo

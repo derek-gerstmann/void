@@ -57,7 +57,6 @@
 #include "export.h"
 #include "typedesc.h"   /* Needed for TypeDesc definition */
 #include "paramlist.h"
-#include "colortransfer.h"
 #include "version.h"
 
 OIIO_NAMESPACE_ENTER
@@ -776,6 +775,10 @@ public:
     ///                       data formats?
     ///    "displaywindow"  Does the format support display ("full") windows
     ///                        distinct from the pixel data window?
+    ///    "origin"         Does the format support a nonzero x,y,z
+    ///                        origin of the pixel data window?
+    ///    "negativeorigin" Does the format support negative x,y,z
+    ///                        and full_{x,y,z} origin values?
     ///
     /// Note that main advantage of this approach, versus having
     /// separate individual supports_foo() methods, is that this allows
@@ -1000,6 +1003,56 @@ DLLPUBLIC int openimageio_version ();
 /// which call obj->geterror().
 DLLPUBLIC std::string geterror ();
 
+/// Set a global attribute controlling OpenImageIO.  Return true
+/// if the name and type were recognized and the attribute was set.
+///
+/// Documented attributes:
+///     int threads : how many threads to use for operations that can
+///                   be sped up by spawning threads (default=1;
+///                   note that 0 means "as many threads as cores").
+DLLPUBLIC bool attribute (const std::string &name, TypeDesc type,
+                          const void *val);
+// Shortcuts for common types
+inline bool attribute (const std::string &name, int val) {
+    return attribute (name, TypeDesc::TypeInt, &val);
+}
+inline bool attribute (const std::string &name, float val) {
+    return attribute (name, TypeDesc::TypeFloat, &val);
+}
+inline bool attribute (const std::string &name, const char *val) {
+    return attribute (name, TypeDesc::TypeString, &val);
+}
+inline bool attribute (const std::string &name, const std::string &val) {
+    const char *s = val.c_str();
+    return attribute (name, TypeDesc::TypeString, &s);
+}
+
+/// Get the named global attribute of OpenImageIO, store it in *val.
+/// Return true if found and it was compatible with the type specified,
+/// otherwise return false and do not modify the contents of *val.  It
+/// is up to the caller to ensure that val points to the right kind and
+/// size of storage for the given type.
+DLLPUBLIC bool getattribute (const std::string &name, TypeDesc type,
+                             void *val);
+// Shortcuts for common types
+inline bool getattribute (const std::string &name, int &val) {
+    return getattribute (name, TypeDesc::TypeInt, &val);
+}
+inline bool getattribute (const std::string &name, float &val) {
+    return getattribute (name, TypeDesc::TypeFloat, &val);
+}
+inline bool getattribute (const std::string &name, char **val) {
+    return getattribute (name, TypeDesc::TypeString, val);
+}
+inline bool getattribute (const std::string &name, std::string &val) {
+    const char *s = NULL;
+    bool ok = getattribute (name, TypeDesc::TypeString, &s);
+    if (ok)
+        val = s;
+    return ok;
+}
+
+
 /// Deprecated
 ///
 inline std::string error_message () { return geterror (); }
@@ -1009,32 +1062,13 @@ inline std::string error_message () { return geterror (); }
 DLLPUBLIC int quantize (float value, int quant_black, int quant_white,
                         int quant_min, int quant_max);
 
-/// Helper routine: compute (gain*value)^invgamma
-///
-inline float exposure (float value, float gain, float invgamma)
-{
-    if (invgamma != 1 && value >= 0)
-        return powf (gain * value, invgamma);
-    // Simple case - skip the expensive pow; also fall back to this
-    // case for negative values, for which gamma makes no sense.
-    return gain * value;
-}
-
 /// Helper function: convert contiguous arbitrary data between two
-/// arbitrary types (specified by TypeDesc's).  Return true if ok, false
-/// if it didn't know how to do the conversion.  If dst_type is UNKNWON,
-/// it will be assumed to be the same as src_type.
-DLLPUBLIC bool convert_types (TypeDesc src_type, const void *src,
-                              TypeDesc dst_type, void *to, int n);
-
-/// Helper function: convert contiguous arbitrary data between two
-/// arbitrary types (specified by TypeDesc's), with optional transfer
-/// function. Return true if ok, false if it didn't know how to do the
+/// arbitrary types (specified by TypeDesc's)
+/// Return true if ok, false if it didn't know how to do the
 /// conversion.  If dst_type is UNKNWON, it will be assumed to be the
 /// same as src_type.
 DLLPUBLIC bool convert_types (TypeDesc src_type, const void *src,
                               TypeDesc dst_type, void *to, int n,
-                              ColorTransfer *tfunc,
                               int alpha_channel = -1, int z_channel = -1);
 
 /// Helper routine for data conversion: Convert an image of nchannels x
@@ -1053,8 +1087,8 @@ DLLPUBLIC bool convert_image (int nchannels, int width, int height, int depth,
                               void *dst, TypeDesc dst_type,
                               stride_t dst_xstride, stride_t dst_ystride,
                               stride_t dst_zstride,
-                              ColorTransfer *tfunc = NULL,
                               int alpha_channel = -1, int z_channel = -1);
+
 
 /// Helper routine for data conversion: Copy an image of nchannels x
 /// width x height x depth from src to dst.  The src and dst may have
@@ -1075,11 +1109,11 @@ DLLPUBLIC bool copy_image (int nchannels, int width, int height, int depth,
 /// ImageSpec.  Return true if all is ok, false if the exif block was
 /// somehow malformed.  The binary data pointed to by 'exif' should
 /// start with a TIFF directory header.
-bool decode_exif (const void *exif, int length, ImageSpec &spec);
+DLLPUBLIC bool decode_exif (const void *exif, int length, ImageSpec &spec);
 
 /// Construct an Exif data block from the ImageSpec, appending the Exif 
 /// data as a big blob to the char vector.
-void encode_exif (const ImageSpec &spec, std::vector<char> &blob);
+DLLPUBLIC void encode_exif (const ImageSpec &spec, std::vector<char> &blob);
 
 /// Add metadata to spec based on raw IPTC (International Press
 /// Telecommunications Council) metadata in the form of an IIM

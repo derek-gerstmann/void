@@ -183,7 +183,7 @@ private:
     // Options set INTERNALLY by libtexture after the options are passed
     // by the user.  Users should not attempt to alter these!
     int actualchannels;    // True number of channels read
-    typedef bool (*wrap_impl) (int &coord, int width);
+    typedef bool (*wrap_impl) (int &coord, int origin, int width);
     wrap_impl swrap_func, twrap_func, rwrap_func;
     int envlayout;    // Layout for environment wrap
     friend class pvt::TextureSystemImpl;
@@ -281,15 +281,15 @@ public:
                                  TextureOptions::Wrap &swrapcode,
                                  TextureOptions::Wrap &twrapcode) {
         TextureOpt::parse_wrapmodes (wrapmodes,
-                                     *(TextureOpt::Wrap *)*&swrapcode,
-                                     *(TextureOpt::Wrap *)*&twrapcode);
+                                     *(TextureOpt::Wrap *)&swrapcode,
+                                     *(TextureOpt::Wrap *)&twrapcode);
     }
 
 private:
     // Options set INTERNALLY by libtexture after the options are passed
     // by the user.  Users should not attempt to alter these!
     int actualchannels;    // True number of channels read
-    typedef bool (*wrap_impl) (int &coord, int width);
+    typedef bool (*wrap_impl) (int &coord, int origin, int width);
     wrap_impl swrap_func, twrap_func, rwrap_func;
     friend class pvt::TextureSystemImpl;
     friend class TextureOpt;
@@ -329,9 +329,11 @@ public:
     ///     int max_open_files : maximum number of file handles held open
     ///     float max_memory_MB : maximum tile cache size, in MB
     ///     string searchpath : colon-separated search path for texture files
+    ///     string plugin_searchpath : colon-separated search path for plugins
     ///     matrix44 worldtocommon : the world-to-common transformation
     ///     matrix44 commontoworld : the common-to-world transformation
     ///     int autotile : if >0, tile size to emulate for non-tiled images
+    ///     int autoscanline : autotile using full width tiles
     ///     int automip : if nonzero, emulate mipmap on the fly
     ///     int accept_untiled : if nonzero, accept untiled images
     ///     int accept_unmipped : if nonzero, accept unmipped images

@@ -28,10 +28,8 @@
 // ============================================================================================== //
 
 #if defined(VD_USE_EXTRACTED_SYMBOLS)
-#if defined(VD_EXTRACTED_SYMBOLS_EXIST)
-#if !defined(VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE)
+#if defined(VD_BUILDING_FRAMEWORK)
 #include "constants/extracted/symbols.h"
-#endif
 #endif
 #endif
 

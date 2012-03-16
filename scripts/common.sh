@@ -79,6 +79,30 @@ function separator()
     report "---------------------------------------------------------------------------------------"
 }
 
+function match_str
+{
+    local $str
+    local $fnd
+    local cnt=$(echo $str | grep -c '^'$fnd':')
+    echo "$cnt"
+
+}
+
+function find_make_path
+{
+    local make_path="."
+    local mk_paths=". .. ./build ../build ../src ../source"
+    for path in ${mk_paths}
+    do
+        if [ -f "$path/Makefile" ]
+        then
+            make_path="$path"
+            break
+        fi
+    done
+    echo "$make_path"
+}
+
 function quote_str
 {
     local filename=$1
@@ -261,6 +285,8 @@ function is_archive()
 function extract_archive()
 {
     local archive=$1
+    echo "-- Extracting '$archive'"
+
     if test -f ${archive%.*}*.bz2 ; then
         tar jxf ${archive} || bail "Failed to extract archive '${archive}'"
     elif  test -f ${archive%.*}*.gz ; then
@@ -269,24 +295,29 @@ function extract_archive()
         tar zxf ${archive} || bail "Failed to extract archive '${archive}'"
     elif  test -f ${archive%.*}*.zip ; then
         unzip -uo ${archive} || bail "Failed to extract archive '${archive}'"
+    else
+        bail "Invalid archive!  Failed to extract archive '${archive}'"
     fi  
 }
 
 function make_dir()
 {
     local dir=$1
-    mkdir -p ${dir} >${LOG_FILE} || bail "Failed to create directory '${dir}'"
+    echo "-- Making '$dir'"
+    mkdir -p ${dir} || bail "Failed to create directory '${dir}'"
 }
 
 function remove_dir()
 {
     local dir=$1
     local force=$2
+    echo "-- Removing '$dir'"
     if [ ${force} ]; then
-        rm -rf ${dir} >${LOG_FILE} || bail "Failed to remove directory '${dir}'"
+        rm -rf ${dir}  || bail "Failed to remove directory '${dir}'"
     else
         if [ -d "${dir}" ]; then
-            rm -r ${dir} >${LOG_FILE} || bail "Failed to remove directory '${dir}'"
+            chmod -R +rw ${dir} || bail "Failed to remove directory '${dir}'"
+            rm -r ${dir}  || bail "Failed to remove directory '${dir}'"
         fi
     fi
 }
@@ -294,20 +325,20 @@ function remove_dir()
 function push_dir()
 {
     local dir=$1
-    pushd ${dir} >${LOG_FILE} || bail "Failed to push directory '${dir}'"
+    pushd ${dir} > /dev/null || bail "Failed to push directory '${dir}'"
 }
 
 function pop_dir()
 {
     local dir=$1
-    popd >${LOG_FILE} || bail "Failed to pop directory!"
+    popd  > /dev/null  || bail "Failed to pop directory!"
 }
 
 function move_file()
 {
     local src=$1
     local dst=$2
-    mv ${src} ${dst} >${LOG_FILE} || bail "Failed to move directory!"
+    mv ${src} ${dst}  || bail "Failed to move directory!"
 }
 
 function make_archive()
@@ -341,14 +372,15 @@ function cp_dir()
     local src=$1
     local dst=$2
 
+    echo "-- Copying '$src' to '$dst' ..."
     if [ "$is_lnx" -eq 1 ]
     then
         # echo cp -TRv $src $dst
-        cp -TRv $src $dst || bail "Failed to copy from '$src' to '$dst'"
+        cp -TR $src $dst || bail "Failed to copy from '$src' to '$dst'"
     elif [ "$is_osx" -eq 1 ]
     then
         # echo ditto -v $src $dst
-        ditto -v $src $dst || bail "Failed to copy from '$src' to '$dst'"
+        ditto $src $dst || bail "Failed to copy from '$src' to '$dst'"
     fi
 }
 
@@ -379,18 +411,19 @@ function setup_pkg()
 
     separator
     report "Setting up external package '$pkg_base' for '$os_name' ... "
-    mkdir -p "$pkg_dir"
-    cd "$pkg_dir"
+    make_dir "$ext_dir/pkgs"
+    push_dir "$ext_dir/pkgs"
     separator
 
     # remove any existing extracted pkg folder
     if [ -d "$pkg_base" ]
     then
         report "Removing old package '$pkg_base'"
-        chmod -R +rw "$pkg_base"
-        rm -r "$pkg_base"
+        remove_dir "$pkg_base"
         separator
     fi
+
+    pop_dir
 }
 
 function fetch_pkg()
@@ -401,6 +434,7 @@ function fetch_pkg()
     local pkg_url=$4
 
     # if a local copy doesn't exist, grab the pkg from the url
+    push_dir "$ext_dir/pkgs"
     if [ ! -f "$pkg_file" ]
     then
         report "Retrieving package '$pkg_name' from '$pkg_url'"
@@ -427,6 +461,7 @@ function fetch_pkg()
         report "Extracting package '$pkg_file'"
         extract_archive $pkg_file
     fi
+    pop_dir
 }
 
 function boot_pkg()
@@ -436,7 +471,7 @@ function boot_pkg()
     local pkg_file=$3
     local pkg_url=$4
 
-    cd "$pkg_base"
+    push_dir "$ext_dir/pkgs/$pkg_base"
     separator
 
     # bootstrap package
@@ -464,24 +499,24 @@ function boot_pkg()
             separator
         fi
     fi
-
+    pop_dir
 }
 
 function cmake_pkg()
 {
     # configure package
-    local m=7
+    local m=8
     local pkg_name=$1
     local pkg_base=$2
     local pkg_file=$3
     local pkg_url=$4
-    local pkg_mpath=$5
-    local pkg_env=$6
+    local pkg_opt=$5
+    local pkg_mpath=$6
+    local pkg_env=$7
     local pkg_cfg="${@:$m}"
 
-    cd "$pkg_base"
-    mkdir -p build
-    cd build
+    make_dir "$ext_dir/pkgs/$pkg_base/build"
+    push_dir "$ext_dir/pkgs/$pkg_base/build"
 
     separator
   
@@ -507,6 +542,7 @@ function cmake_pkg()
         if [ -f "$path/CMakeLists.txt" ] 
         then
             cmake_src_path="$path"
+            break
         fi
     done
 
@@ -518,6 +554,7 @@ function cmake_pkg()
     then
         cmake_pre="$cmake_pre -DCMAKE_OSX_ARCHITECTURES=x86_64"
     fi
+
     echo cmake $cmake_pre $env_flags $cmake_src_path
     separator
 
@@ -525,25 +562,67 @@ function cmake_pkg()
     separator
 
     report "Done configuring package '$pkg_name'"
+
+    pop_dir
 }
 
 function cfg_pkg()
 {
     # configure package
-    local m=7
+    local m=8
     local pkg_name=$1
     local pkg_base=$2
     local pkg_file=$3
     local pkg_url=$4
-    local pkg_cflags=$5
-    local pkg_ldflags=$6
+    local pkg_opt=$5
+    local pkg_cflags=$6
+    local pkg_ldflags=$7
     local pkg_cfg="${@:$m}"
 
     local prefix="$ext_dir/build/$pkg_name/$os_name"
+    push_dir "$ext_dir/pkgs/$pkg_base"
 
-    if [ -f "./configure" ]
+    local use_cmake=1
+    local has_cmake=0
+
+    local use_amake=0
+    local has_amake=0
+
+    if [ -f "./CMakeLists.txt" ] || [ -f "./src/CMakeLists.txt" ] || [ -f "./source/CMakeLists.txt" ]
     then
+        has_cmake=1
+    fi    
 
+    if [ -f "./configure" ] || [ -f "./Configure" ]
+    then
+        has_amake=1
+    fi
+
+    if [[ $(echo $pkg_opt | grep -c 'cmake' ) > 0 ]]
+    then
+        use_cmake=1
+        use_amake=0
+        has_amake=0
+    fi
+
+    if [[ $(echo $pkg_opt | grep -c 'configure' ) > 0 ]]
+    then
+        use_cmake=0
+        has_cmake=0
+        use_amake=1
+    fi
+
+    echo "Cmake[$use_cmake $has_cmake] Configure[$use_amake $has_amake]"
+    if [ $use_cmake != 0 ] && [ $has_cmake != 0 ]
+    then
+        pop_dir
+        cmake_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_cflags $pkg_ldflags $pkg_cfg
+    else
+        use_amake=1
+    fi
+
+    if [ $use_amake != 0 ] && [ $has_amake != 0 ]
+    then
         local env_flags=" "
 
         if [ -n $pkg_cflags ] && [ $pkg_cflags != 0 ]
@@ -568,12 +647,7 @@ function cfg_pkg()
         separator
 
         report "Done configuring package '$pkg_name'"
-
-    else
-        if [ -f "./CMakeLists.txt" ] || [ -f "./src/CMakeLists.txt" ] || [ -f "./source/CMakeLists.txt" ]
-        then
-            cmake_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_cflags $pkg_ldflags $pkg_cfg
-        fi
+        pop_dir
     fi
 }
 
@@ -586,14 +660,20 @@ function make_pkg()
 
     local prefix="$ext_dir/build/$pkg_name/$os_name"
 
+    push_dir "$ext_dir/pkgs/$pkg_base"
+    local make_path=$(find_make_path)
+    pop_dir
+
     # build using make if a makefile exists
-    if [ -f "./Makefile" ] || [ -f "./makefile" ]
+    push_dir "$ext_dir/pkgs/$pkg_base/$make_path"
+    if [ -f "$make_path/Makefile" ] || [ -f "$make_path/makefile" ]
     then
         report "Building package '$pkg_name'"
         separator
         make  || bail "Failed to build package: '$prefix'"
         separator
     fi
+    pop_dir
 }
 
 function install_pkg()
@@ -604,6 +684,12 @@ function install_pkg()
     local pkg_url=$4
 
     local prefix="$ext_dir/build/$pkg_name/$os_name"
+
+    push_dir "$ext_dir/pkgs/$pkg_base"
+    local make_path=$(find_make_path)
+    pop_dir
+
+    push_dir "$ext_dir/pkgs/$pkg_base/$make_path"
 
     # extract the makefile rule names and filter out empty lines and comments
     local rules=$(make -pn | grep -v ^$ | grep -v ^# | grep -c '^install:')
@@ -617,6 +703,7 @@ function install_pkg()
         separator
     fi
 
+    pop_dir
 }
 
 function migrate_pkg()
@@ -625,8 +712,16 @@ function migrate_pkg()
     local pkg_base=$2
     local pkg_file=$3
     local pkg_url=$4
-    local pkg_keep=$5
+    local pkg_opt=$5
     local prefix="$ext_dir/build/$pkg_name/$os_name"
+
+
+    push_dir "$ext_dir/pkgs/$pkg_base"
+    local make_path=$(find_make_path)
+    pop_dir
+
+    # build using make if a makefile exists
+    push_dir "$ext_dir/pkgs/$pkg_base/$make_path"
 
     report "Migrating package '$pkg_name'"
     separator
@@ -637,9 +732,9 @@ function migrate_pkg()
         # move product into external path
         if [ -d "$prefix/$path" ]
         then
-            report "Copying build products from '$prefix/$path' for '$pkg_name'"
+            report "Migrating build products from '$prefix/$path' for '$pkg_name'"
             separator
-            mkdir -p "$ext_dir/$pkg_name/$path"
+            make_dir "$ext_dir/$pkg_name/$path"
             cp_dir "$prefix/$path" "$ext_dir/$pkg_name/$path" || bail "Failed to copy shared files into directory: $ext_dir/$pkg_name/$os_name"
             separator
         fi
@@ -651,23 +746,43 @@ function migrate_pkg()
         # move product into external os specific path
         if [ -d "$prefix/$path" ]
         then
-            report "Copying build products from '$prefix/$path' for '$pkg_name'"
+            report "Migrating build products from '$prefix/$path' for '$pkg_name'"
             separator
-            mkdir -p "$ext_dir/$pkg_name/$path/$os_name"
+            make_dir "$ext_dir/$pkg_name/$path/$os_name"
             cp_dir "$prefix/$path" "$ext_dir/$pkg_name/$path/$os_name" || bail "Failed to copy OS binaries into directory: $ext_dir/$pkg_name/$os_name"
             separator
         fi
     done
+    pop_dir
 
-    if [ "$pkg_keep" -eq 1 ]
+    if [[ $(echo $pkg_opt | grep -c 'migrate-raw-headers' ) > 0 ]]
+    then
+        push_dir "$ext_dir/pkgs/$pkg_base"
+        local inc_paths="include inc man share"
+        for path in ${inc_paths}
+        do
+            # move product into external path
+            if [ -d "$path" ]
+            then
+                report "Migrating raw files from '$path' for '$pkg_name'"
+                separator
+                make_dir "$ext_dir/$pkg_name/$path"
+                cp_dir "$path" "$ext_dir/$pkg_name/$path" || bail "Failed to copy shared files into directory: $ext_dir/$pkg_name/$os_name"
+                separator
+            fi
+        done
+        pop_dir
+    fi    
+
+    if [[ $(echo $pkg_opt | grep -c 'keep' ) > 0 ]]
     then
         report "Keeping package build directory for '$pkg_base'"
     else
         report "Removing package build directory for '$pkg_base'"
-        chmod -R +rw "$prefix"
-        rm -r "$prefix"
+        remove_dir "$prefix"
         separator
     fi
+
 }
 
 ####################################################################################################
@@ -679,20 +794,20 @@ function build_pkg()
     local pkg_base=$2
     local pkg_file=$3
     local pkg_url=$4
-    local pkg_keep=$5
+    local pkg_opt=$5
     local pkg_cflags=$6
     local pkg_ldflags=$7
     local pkg_cfg="${@:$m}"
 
-#    echo "PkgName: '$pkg_name' PkgBase: '$pkg_base' PkgFile: '$pkg_file' PkgUrl: '$pkg_url' PkgCfg: '$pkg_cfg' PkgKeep: '$pkg_keep'"
+#    echo "PkgName: '$pkg_name' PkgBase: '$pkg_base' PkgFile: '$pkg_file' PkgUrl: '$pkg_url' PkgCfg: '$pkg_cfg' PkgKeep: '$pkg_opt'"
 
     setup_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
     fetch_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
     boot_pkg    $pkg_name $pkg_base $pkg_file $pkg_url
-    cfg_pkg     $pkg_name $pkg_base $pkg_file $pkg_url $pkg_cflags $pkg_ldflags $pkg_cfg
-    make_pkg    $pkg_name $pkg_base $pkg_file $pkg_url
+    cfg_pkg     $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg 
+    make_pkg    $pkg_name $pkg_base $pkg_file $pkg_url 
     install_pkg $pkg_name $pkg_base $pkg_file $pkg_url
-    migrate_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep
+    migrate_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt
 
     report "DONE building '$pkg_name' from '$pkg_file'! --"
     separator

@@ -46,7 +46,6 @@
 #include "imageio.h"
 #include "fmath.h"
 #include "imagecache.h"
-#include "colortransfer.h"
 #include "dassert.h"
 
 
@@ -71,9 +70,17 @@ public:
     /// the pixels of the image (whose values will be undefined).
     ImageBuf (const std::string &name, const ImageSpec &spec);
 
+    /// Construct a copy of an ImageBuf.
+    ///
+    ImageBuf (const ImageBuf &src);
+
     /// Destructor for an ImageBuf.
     ///
     virtual ~ImageBuf ();
+
+    /// Copy an ImageBuf.
+    ///
+    const ImageBuf& operator= (const ImageBuf &src);
 
     /// Restore the ImageBuf to an uninitialized state.
     ///
@@ -278,9 +285,6 @@ public:
         return _copy_pixels (xbegin_, xend_, ybegin_, yend_, &result[0]);
     }
 
-    /// Apply a color transfer function to the pixels (in place).
-    ///
-    void transfer_pixels (ColorTransfer *tfunc);
 
     int orientation () const { return m_orientation; }
 
@@ -345,7 +349,7 @@ public:
     /// [ybegin,yend) x [zbegin,zend).  If bordercolor is not NULL, also
     /// set the spec's "oiio:bordercolor" attribute.
     void set_full (int xbegin, int xend, int ybegin, int yend,
-                   int zbegin, int zend, const float *bordercolor);
+                   int zbegin, int zend, const float *bordercolor=NULL);
 
     bool pixels_valid (void) const { return m_pixels_valid; }
 

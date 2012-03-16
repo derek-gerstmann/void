@@ -36,10 +36,10 @@
 // Versioning of the OpenImageIO software
 
 #define OIIO_NAMESPACE OpenImageIO
-#define OIIO_VERSION_MAJOR 0
-#define OIIO_VERSION_MINOR 11
-#define OIIO_VERSION_PATCH 0
-#define OIIO_VERSION_NS v0_11
+#define OIIO_VERSION_MAJOR 1
+#define OIIO_VERSION_MINOR 0
+#define OIIO_VERSION_PATCH 1
+#define OIIO_VERSION_NS v1_0
 
 #define OIIO_VERSION (10000 * OIIO_VERSION_MAJOR + \
                         100 * OIIO_VERSION_MINOR + \
