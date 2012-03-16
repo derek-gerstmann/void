@@ -216,7 +216,7 @@ function checkout()
     local cmd="$(which svn)"
     if [ -e $cmd ];
     then
-        cmd="svn checkout"
+        cmd="svn export"
         $cmd $url $dir || bail "Failed to checkout '$url' into '$dir'"
     else
         bail "Failed to locate 'svn' command!  Please install this command line utility!"
@@ -411,6 +411,8 @@ function setup_pkg()
 
     separator
     report "Setting up external package '$pkg_base' for '$os_name' ... "
+    separator
+    
     make_dir "$ext_dir/pkgs"
     push_dir "$ext_dir/pkgs"
     separator
@@ -612,7 +614,6 @@ function cfg_pkg()
         use_amake=1
     fi
 
-    echo "Cmake[$use_cmake $has_cmake] Configure[$use_amake $has_amake]"
     if [ $use_cmake != 0 ] && [ $has_cmake != 0 ]
     then
         pop_dir
@@ -778,6 +779,7 @@ function migrate_pkg()
     then
         report "Keeping package build directory for '$pkg_base'"
     else
+        separator
         report "Removing package build directory for '$pkg_base'"
         remove_dir "$prefix"
         separator
