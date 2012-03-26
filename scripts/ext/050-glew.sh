@@ -32,8 +32,8 @@ function make_glew()
 
     report "Building package '$pkg_name'"
     separator
-    make GLEW_DEST="prefix" || bail "Failed to build package: '$prefix'"
-    make GLEW_DEST="prefix" install || bail "Failed to build package: '$prefix'"
+    make GLEW_DEST="$prefix" || bail "Failed to build package: '$prefix'"
+    make GLEW_DEST="$prefix" install || bail "Failed to build package: '$prefix'"
     separator
 
     pop_dir

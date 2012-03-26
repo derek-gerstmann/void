@@ -8,7 +8,9 @@ pkg_name="dsm"
 pkg_base="h5fddsm-0.9.7p1"
 pkg_file="h5fdsm-0.9.7p1.tar.bz2"
 pkg_url="http://hpcforge.org/frs/download.php/35/$pkg_file"
-pkg_cfg="--disable-shared --enable-static --with-pthread=/usr --with-szlib=$ext_dir/build/szip/$os_name --with-zlib=$ext_dir/build/zlib/$os_name --enable-threadsafe"
+pkg_cfg=" "
+#--disable-shared --enable-static --with-pthread=/usr --with-szlib=$ext_dir/build/szip/$os_name --with-zlib=$ext_dir/build/zlib/$os_name --enable-threadsafe"
+pkg_opt="keep"
 
 pkg_mpaths="$ext_dir/build/tiff/$os_name"
 pkg_mpaths="$pkg_mpaths:$ext_dir/build/boost/$os_name"
@@ -40,7 +42,6 @@ pkg_env="$pkg_env:-DHDF5_ENABLE_PARALLEL=ON"
 pkg_env="$pkg_env:-DHDF5_ENABLE_ZLIB=ON"
 pkg_env="$pkg_env:-DHDF5_ENABLE_HL_LIB=ON"
 
-pkg_opt="keep"
 
 ####################################################################################################
 # build and install pkg into external folder

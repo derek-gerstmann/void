@@ -91,7 +91,7 @@ function match_str
 function find_make_path
 {
     local make_path="."
-    local mk_paths=". .. ./build ../build ../src ../source"
+    local mk_paths="./build ../build . .. ../src ../source"
     for path in ${mk_paths}
     do
         if [ -f "$path/Makefile" ]
@@ -420,7 +420,8 @@ function setup_pkg()
     # remove any existing extracted pkg folder
     if [ -d "$pkg_base" ]
     then
-        report "Removing old package '$pkg_base'"
+        report "Removing old build '$ext_dir/pkgs/$pkg_base'"
+        separator
         remove_dir "$pkg_base"
         separator
     fi
@@ -440,27 +441,34 @@ function fetch_pkg()
     if [ ! -f "$pkg_file" ]
     then
         report "Retrieving package '$pkg_name' from '$pkg_url'"
+        separator
         if [[ $(echo "$pkg_url" | grep -c 'http://') == 1 ]]
         then
             fetch $pkg_url $pkg_file 
         fi
         if [[ $(echo "$pkg_url" | grep -c 'git://') == 1 ]]
         then
-            clone $pkg_url $pkg_base 
-            make_archive $pkg_file $pkg_base
+            clone $pkg_url $pkg_name 
+            separator
+            report "Archiving package '$pkg_file' from '$pkg_name'"
+            make_archive $pkg_file $pkg_name
+            separator
         fi
         if [[ $(echo "$pkg_url" | grep -c 'svn://') == 1 ]]
         then
-            checkout $pkg_url $pkg_base 
-            make_archive $pkg_file $pkg_base
+            checkout $pkg_url $pkg_name 
+            separator
+            report "Archiving package '$pkg_file' from '$pkg_name'"
+            make_archive $pkg_file $pkg_name
+            separator
         fi
-        separator
     fi
 
     # extract any pkg archives
     if [[ $(is_archive "$pkg_file") == 1 ]]
     then
         report "Extracting package '$pkg_file'"
+        separator
         extract_archive $pkg_file
     fi
     pop_dir
@@ -527,8 +535,8 @@ function cmake_pkg()
     local env_flags=" "
     if [ -n $pkg_mpath ] && [ $pkg_mpath != 0 ]
     then
-        pkg_mpath=$(echo $pkg_mpath | split_str ":" | join_str " ")
-        env_flags='-DCMAKE_MODULE_PATH="'$pkg_mpath'"'
+        pkg_mpath=$(echo $pkg_mpath | split_str ":" | join_str ";")
+        env_flags='-DCMAKE_MODULE_PATH="'$pkg_mpath'" -DCMAKE_PREFIX_PATH="'$pkg_mpath'"'
     fi
         
     if [ -n $pkg_env ] && [ $pkg_env != 0 ]
@@ -536,6 +544,8 @@ function cmake_pkg()
         pkg_env=$(echo $pkg_env | split_str ":" | join_str " ")
         env_flags=$env_flags' '$pkg_env
     fi
+
+    env_flags="$env_flags $pkg_cfg"
 
     local cmake_src_path=".."
     local src_paths=".. ../src ../source"
@@ -581,6 +591,15 @@ function cfg_pkg()
     local pkg_ldflags=$7
     local pkg_cfg="${@:$m}"
 
+#    echo "PkgName:      '$pkg_name'"
+#    echo "PkgBase:      '$pkg_base'"
+#    echo "PkgFile:      '$pkg_file'"
+#    echo "PkgUrl:       '$pkg_url'"
+#    echo "PkgOpt:       '$pkg_opt'"
+#    echo "PkgCFlags:    '$pkg_cflags'"
+#    echo "PkgLDFlags:   '$pkg_ldflags'"
+#    echo "PkgCFG:       '$pkg_cfg'"
+
     local prefix="$ext_dir/build/$pkg_name/$os_name"
     push_dir "$ext_dir/pkgs/$pkg_base"
 
@@ -617,7 +636,7 @@ function cfg_pkg()
     if [ $use_cmake != 0 ] && [ $has_cmake != 0 ]
     then
         pop_dir
-        cmake_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_cflags $pkg_ldflags $pkg_cfg
+        cmake_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg
     else
         use_amake=1
     fi
@@ -802,8 +821,9 @@ function build_pkg()
     local pkg_cfg="${@:$m}"
 
     local existing=0
-    if [ -d $ext_dir/$pkg_base/lib/$os_name ]
+    if [ -d "$ext_dir/$pkg_base" ]
     then
+        existing=1
         if [[ $(echo $pkg_opt | grep -c 'recompile' ) > 0 ]] 
         then
             existing=0
@@ -817,7 +837,16 @@ function build_pkg()
         return
     fi
 
-#    echo "PkgName: '$pkg_name' PkgBase: '$pkg_base' PkgFile: '$pkg_file' PkgUrl: '$pkg_url' PkgCfg: '$pkg_cfg' PkgKeep: '$pkg_opt'"
+    separator
+    echo "PkgName:      '$pkg_name'"
+    echo "PkgBase:      '$pkg_base'"
+    echo "PkgFile:      '$pkg_file'"
+    echo "PkgUrl:       '$pkg_url'"
+    echo "PkgOpt:       '$pkg_opt'"
+    echo "PkgCFlags:    '$pkg_cflags'"
+    echo "PkgLDFlags:   '$pkg_ldflags'"
+    echo "PkgCFG:       '$pkg_cfg'"
+    separator
 
     setup_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
     fetch_pkg   $pkg_name $pkg_base $pkg_file $pkg_url

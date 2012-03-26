@@ -8,14 +8,14 @@ source "./common.sh"
 ####################################################################################################
 
 pkg_name="exr"
-pkg_base="IlmBase"
-pkg_file="IlmBase-savannah-v1.7.x.zip"
-pkg_url="http://local.ivec.uwa.edu.au/~derek/files/dev/$pkg_file"
+pkg_base="exr/IlmBase"
+pkg_file="OpenEXR-github-v1.7.x.tar.bz2"
+pkg_url="git://github.com/openexr/openexr.git"
 
 pkg_opt="configure:keep"
-pkg_cflags="-I$ext_dir/zlib/include"
-pkg_ldflags="-L$ext_dir/zlib/lib/$os_name"
-pkg_cfg="--disable-shared --enable-static"
+pkg_cflags=0
+pkg_ldflags=0
+pkg_cfg="--disable-shared --enable-static --disable-ilmbasetest"
 
 ####################################################################################################
 # build and install pkg into external folder

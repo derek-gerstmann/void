@@ -8,10 +8,14 @@ source "./common.sh"
 ####################################################################################################
 
 pkg_name="oiio"
-pkg_base="OpenImageIO-oiio-6441966"
-pkg_file="OpenImageIO-oiio-Release-1.0.0-19-gcc5028d.tar.gz"
-pkg_url="http://nodeload.github.com/OpenImageIO/oiio/tarball/RB-1.0"
-pkg_cfg="--disable-shared --enable-static"
+pkg_base="OpenImageIO-oiio-5b37f1c"
+pkg_file="OpenImageIO-oiio-Release-1.0.0-5b37f1c.zip"
+pkg_url="http://github.com/OpenImageIO/oiio/zipball/Release-1.0.0"
+pkg_opt="cmake:keep"
+
+####################################################################################################
+# setup pkg dependency paths
+####################################################################################################
 
 ilm_base="$ext_dir/build/exr/$os_name"
 exr_base="$ext_dir/build/exr/$os_name"
@@ -26,21 +30,33 @@ jp2k_base="$ext_dir/build/jp2k/$os_name"
 glew_base="$ext_dir/build/glew/$os_name"
 boost_base="$ext_dir/build/boost/$os_name"
 
-pkg_mpath="$zlib_base"
-pkg_mpath="$pkg_mpath:$ilm_base"
-pkg_mpath="$pkg_mpath:$exr_base"
-pkg_mpath="$pkg_mpath:$zlib_base"
-pkg_mpath="$pkg_mpath:$szip_base"
-pkg_mpath="$pkg_mpath:$hdf_base"
-pkg_mpath="$pkg_mpath:$tiff_base"
-pkg_mpath="$pkg_mpath:$f3d_base"
-pkg_mpath="$pkg_mpath:$png_base"
-pkg_mpath="$pkg_mpath:$jpeg_base"
-pkg_mpath="$pkg_mpath:$jp2k_base"
-pkg_mpath="$pkg_mpath:$glew_base"
-pkg_mpath="$pkg_mpath:$boost_base"
+mpi_base="$ext_dir/mpi"
 
-pkg_env="-DBUILDSTATIC=1:-DLINKSTATIC=1:-DUSE_PYTHON=OFF"
+mpi_libs="$mpi_base/lib/$os_name/libmpi.a"
+mpi_libs="$mpi_libs\;$mpi_base/lib/$os_name/libmpi_cxx.a"
+mpi_libs="$mpi_libs\;$mpi_base/lib/$os_name/libmpi_f77.a"
+mpi_libs="$mpi_libs\;$mpi_base/lib/$os_name/libmpi_f90.a"
+mpi_libs="$mpi_libs\;$mpi_base/lib/$os_name/libompitrace.a"
+mpi_libs="$mpi_libs\;$mpi_base/lib/$os_name/libopen-rte.a"
+mpi_libs="$mpi_libs\;$mpi_base/lib/$os_name/libopen-pal.a"
+
+hdf_libs="$hdf_base/lib/libhdf5.a"
+hdf_libs="$hdf_libs\;$hdf_base/lib/libhdf5_hl.a"
+hdf_libs="$hdf_libs\;$hdf_base/lib/libhdf5_cpp.a"
+hdf_libs="$hdf_libs\;$zlib_base/lib/libz.a"
+hdf_libs="$hdf_libs\;$szip_base/lib/libsz.a"
+hdf_libs="$hdf_libs\;$mpi_libs"
+
+pkg_mpath="$ext_dir:$zlib_base:$png_base:$jpeg_base"
+
+pkg_env="-DCMAKE_PREFIX_PATH=$ext_dir"
+pkg_env="$pkg_env:-DBUILDSTATIC=ON"
+pkg_env="$pkg_env:-DLINKSTATIC=ON"
+pkg_env="$pkg_env:-DEMBEDPLUGINS=ON"
+pkg_env="$pkg_env:-DUSE_OPENGL=ON"
+pkg_env="$pkg_env:-DUSE_PYTHON=OFF"
+pkg_env="$pkg_env:-DUSE_FIELD3D=ON"
+pkg_env="$pkg_env:-DUSE_OPENJPEG=ON"
 
 pkg_env="$pkg_env:-DILMBASE_HOME=$ilm_base"
 pkg_env="$pkg_env:-DILMBASE_INCLUDE_DIR=$ilm_base/include"
@@ -54,10 +70,17 @@ pkg_env="$pkg_env:-DOPENEXR_INCLUDE_DIR=$ilm_base/include/OpenEXR"
 pkg_env="$pkg_env:-DOPENEXR_ILMIMF_LIBRARIES=$ilm_base/lib/libIlmImf.a\;$ilm_base/lib/libHalf.a\;$ilm_base/lib/libIex.a\;$ilm_base/lib/libImath.a\;$ilm_base/lib/libIlmThread.a\;$zlib_base/lib/libz.a"
 pkg_env="$pkg_env:-DOPENEXR_ILMIMF_LIBRARY=$ilm_base/lib/libIlmImf.a"
 
-pkg_env="$pkg_env:-DHDF5_HOME=$hdf_base"
-pkg_env="$pkg_env:-DHDF5_LIBRARY_DIRS=$hdf_base/lib"
+pkg_env="$pkg_env:-DHDF5_DIR=$hdf_base"
 pkg_env="$pkg_env:-DHDF5_INCLUDE_DIRS=$hdf_base/include"
-pkg_env="$pkg_env:-DHDF5_LIBRARIES=$hdf_base/lib/libhdf5.a\;$hdf_base/lib/libhdf5_hl.a\;$zlib_base/lib/libz.a\;$szip_base/lib/libsz.a"
+pkg_env="$pkg_env:-DHDF5_LIBRARIES=$hdf_libs"
+pkg_env="$pkg_env:-DHDF5_CXX_COMPILER_EXECUTABLE=$hdf_base/bin/h5c++"
+pkg_env="$pkg_env:-DHDF5_C_COMPILER_EXECUTABLE=$hdf_base/bin/h5cc"
+pkg_env="$pkg_env:-DHDF5_C_INCLUDE_DIR=$hdf_base/include"
+pkg_env="$pkg_env:-DHDF5_hdf5_LIBRARY_RELEASE=$hdf_base/lib/libhdf5.a"
+pkg_env="$pkg_env:-DHDF5_hdf5_hl_LIBRARY_RELEASE=$hdf_base/lib/libhdf5_hl.a"
+pkg_env="$pkg_env:-DHDF5_hdf5_cpp_LIBRARY_RELEASE=$hdf_base/lib/libhdf5_cpp.a"
+pkg_env="$pkg_env:-DHDF5_z_LIBRARY_RELEASE=$zlib_base/lib/libz.a"
+pkg_env="$pkg_env:-DHDF5_sz_LIBRARY_RELEASE=$szip_base/lib/libsz.a"
 
 pkg_env="$pkg_env:-DFIELD3D_HOME=$f3d_base"
 pkg_env="$pkg_env:-DFIELD3D_INCLUDE_DIR=$f3d_base/include/Field3D"
@@ -90,13 +113,25 @@ pkg_env="$pkg_env:-DBoost_REGEX_LIBRARY=$boost_base/lib/libboost_regex.a"
 pkg_env="$pkg_env:-DBoost_SYSTEM_LIBRARY=$boost_base/lib/libboost_system.a"
 pkg_env="$pkg_env:-DBoost_THREAD_LIBRARY=$boost_base/lib/libboost_thread.a"
 pkg_env="$pkg_env:-DBoost_PROGRAM_OPTIONS_LIBRARY=$boost_base/lib/libboost_program_options.a"
-
-pkg_keep=1
+    
+pkg_cfg="-DCMAKE_PREFIX_PATH=$ext_dir"
+pkg_cfg="$pkg_cfg -DCMAKE_EXE_LINKER_FLAGS='-L$mpi_base/lib/$os_name -lmpi -lmpi_cxx -lompitrace -lopen-rte -lopen-pal' "
+pkg_cfg="$pkg_cfg -DHDF5_INCLUDE_DIRS=$hdf_base/include"
+pkg_cfg="$pkg_cfg -DHDF5_INCLUDE_DIR=$hdf_base/include"
+pkg_cfg="$pkg_cfg -DHDF5_CXX_INCLUDE_DIR=$hdf_base/include"
+#pkg_cfg="$pkg_cfg -DHDF5_LIBRARIES='$hdf_libs'"
+#pkg_cfg="$pkg_cfg -DHDF5_CXX_LIBRARIES='$hdf_libs'"
+pkg_cfg="$pkg_cfg -DZLIB_INCLUDE_DIR=$zlib_base/include"
+pkg_cfg="$pkg_cfg -DZLIB_LIBRARY=$zlib_base/lib/libz.a"
+pkg_cfg="$pkg_cfg -DILMBASE_HOME=$exr_base"
+pkg_cfg="$pkg_cfg -DOPENEXR_INCLUDE_DIR=$exr_base/include"
+pkg_cfg="$pkg_cfg -DFIELD3D_HOME=$f3d_base"
+pkg_cfg="$pkg_cfg -DBOOST_ROOT=$boost_base"
 
 ####################################################################################################
 # build and install pkg into external folder
 ####################################################################################################
 
-build_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_keep $pkg_mpath $pkg_env $pkg_cfg
+build_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_mpath $pkg_env $pkg_cfg
 
 

@@ -8,10 +8,12 @@ pkg_name="vfd"
 pkg_base="hdf5-vfd-1.8.8"
 pkg_file="$pkg_base.tar.bz2"
 pkg_url="http://hpcforge.org/frs/download.php/41/$pkg_file"
-pkg_cfg="--disable-shared --enable-static --enable-parallel --with-pthread=/usr --with-szlib=$ext_dir/build/szip/$os_name --with-zlib=$ext_dir/build/zlib/$os_name"
+pkg_cfg=" "
+#--disable-shared --enable-static --enable-parallel --with-pthread=/usr --with-szlib=$ext_dir/build/szip/$os_name --with-zlib=$ext_dir/build/zlib/$os_name"
+
 pkg_cflags="-I$ext_dir/zlib/include:-I$ext_dir/mpi/include"
 pkg_ldflags="-L$ext_dir/zlib/lib/$os_name:-L$ext_dir/mpi/lib/$os_name"
-pkg_keep=1
+pkg_opt="keep"
 
 pkg_mpaths="$ext_dir/build/tiff/$os_name"
 pkg_mpaths="$pkg_mpaths:$ext_dir/build/boost/$os_name"
@@ -42,8 +44,6 @@ pkg_env="$pkg_env:-DHDF5_sz_LIBRARY=$szip_base/lib/libsz.a"
 pkg_env="$pkg_env:-DHDF5_ENABLE_PARALLEL=ON"
 pkg_env="$pkg_env:-DHDF5_ENABLE_ZLIB=ON"
 pkg_env="$pkg_env:-DHDF5_ENABLE_HL_LIB=ON"
-
-pkg_opt="keep"
 
 ####################################################################################################
 # build and install pkg into external folder
