@@ -567,10 +567,10 @@ function cmake_pkg()
         cmake_pre="$cmake_pre -DCMAKE_OSX_ARCHITECTURES=x86_64"
     fi
 
-    echo cmake $cmake_pre $env_flags $cmake_src_path
+    echo $ext_dir/cmake/bin/$os_name/cmake $cmake_pre $env_flags $cmake_src_path
     separator
 
-    eval cmake $cmake_pre $env_flags $cmake_src_path || bail "Failed to configure: '$prefix'"
+    eval $ext_dir/cmake/bin/$os_name/cmake $cmake_pre $env_flags $cmake_src_path || bail "Failed to configure: '$prefix'"
     separator
 
     report "Done configuring package '$pkg_name'"
@@ -746,7 +746,7 @@ function migrate_pkg()
     report "Migrating package '$pkg_name'"
     separator
 
-    local src_paths="include inc man share"
+    local src_paths="include inc man share etc"
     for path in ${src_paths}
     do
         # move product into external path
