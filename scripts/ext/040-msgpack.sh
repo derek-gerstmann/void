@@ -8,7 +8,7 @@ source "./common.sh"
 ####################################################################################################
 
 pkg_name="msgpack"
-pkg_base="msgpack-0.5.7"
+pkg_base="msgpack-0.5.6"
 pkg_file="$pkg_base.tar.gz"
 pkg_url="http://msgpack.org/releases/cpp/$pkg_file"
 

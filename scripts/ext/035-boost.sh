@@ -50,9 +50,9 @@ function make_boost()
     
     echo ./b2 --prefix="$prefix" $pkg_cfg $env_flags 
     separator
-    eval ./b2 --prefix="$prefix" $pkg_cfg $env_flags || bail "Failed to build: '$prefix'"
+    eval ./b2 --prefix="$prefix" $pkg_cfg $env_flags 
     separator
-    eval ./b2 install || bail "Failed to install: '$prefix'"
+    eval ./b2 install 
     separator
     report "Done building and installing package '$pkg_name'"
 
@@ -93,12 +93,11 @@ pkg_url="http://sourceforge.net/projects/boost/files/boost/1.49.0/boost_1_49_0.t
 
 pkg_opt="keep"
 pkg_cmkpaths=0
-pkg_envflags=" "
+pkg_envflags="variant=release link=static threading=multi runtime-link=static"
 
-pkg_cfg="variant=release link=static threading=multi runtime-link=static"
-# pkg_cfg="$pkg_cfg -sICU_PATH=$ext_dir/build/icu/$os_name"
-pkg_cfg="$pkg_cfg -sBZIP2_INCLUDE=$ext_dir/bzip/include -sBZIP2_LIBPATH=$ext_dir/bzip/lib/$os_name"
-pkg_cfg="$pkg_cfg -sZLIB_INCLUDE=$ext_dir/zlib/include -sZLIB_LIBPATH=$ext_dir/zlib/lib/$os_name"
+pkg_cfg="-s ICU_PATH=$ext_dir/build/icu/$os_name"
+pkg_cfg="$pkg_cfg -s BZIP2_INCLUDE=$ext_dir/bzip/include -s BZIP2_LIBPATH=$ext_dir/bzip/lib/$os_name"
+pkg_cfg="$pkg_cfg -s ZLIB_INCLUDE=$ext_dir/zlib/include -s ZLIB_LIBPATH=$ext_dir/zlib/lib/$os_name"
 
 ####################################################################################################
 # build and install pkg into external folder using custom BOOST build methods
