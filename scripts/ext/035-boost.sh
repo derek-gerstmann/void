@@ -34,13 +34,23 @@ function make_boost()
     	env_flags=$env_flags' '$pkg_envflags
     fi
 
+#    echo ./bootstrap.sh --prefix="$prefix" --with-icu="$ext_dir/build/icu/$os_name"
+#    eval ./bootstrap.sh --prefix="$prefix" --with-icu="$ext_dir/build/icu/$os_name" || bail "Failed to configure: '$prefix'"
+
     report "Configuring package '$pkg_name' ..."
     separator
-    echo ./bootstrap.sh --prefix="$prefix"
+    echo ./bootstrap.sh --prefix="$prefix" 
     separator
     eval ./bootstrap.sh --prefix="$prefix" || bail "Failed to configure: '$prefix'"
     separator
-    eval ./b2 --prefix="$prefix" $env_flags  || bail "Failed to build: '$prefix'"
+
+    report "Adding MPI support"    
+    echo "using mpi : $ext_dir/mpi/bin/$os_name/mpiCC ;" >> project-config.jam
+    separator
+    
+    echo ./b2 --prefix="$prefix" $pkg_cfg $env_flags 
+    separator
+    eval ./b2 --prefix="$prefix" $pkg_cfg $env_flags || bail "Failed to build: '$prefix'"
     separator
     eval ./b2 install || bail "Failed to install: '$prefix'"
     separator
@@ -83,8 +93,12 @@ pkg_url="http://sourceforge.net/projects/boost/files/boost/1.49.0/boost_1_49_0.t
 
 pkg_opt="keep"
 pkg_cmkpaths=0
-pkg_envflags="link=static;threading=single;threading=multi "
-pkg_cfg="--disable-shared --enable-static"
+pkg_envflags=" "
+
+pkg_cfg="variant=release link=static threading=multi runtime-link=static"
+# pkg_cfg="$pkg_cfg -sICU_PATH=$ext_dir/build/icu/$os_name"
+pkg_cfg="$pkg_cfg -sBZIP2_INCLUDE=$ext_dir/bzip/include -sBZIP2_LIBPATH=$ext_dir/bzip/lib/$os_name"
+pkg_cfg="$pkg_cfg -sZLIB_INCLUDE=$ext_dir/zlib/include -sZLIB_LIBPATH=$ext_dir/zlib/lib/$os_name"
 
 ####################################################################################################
 # build and install pkg into external folder using custom BOOST build methods
