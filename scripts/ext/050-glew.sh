@@ -78,7 +78,7 @@ function build_glew()
 ####################################################################################################
 
 pkg_name="glew"
-pkg_base="glew-nightly"
+pkg_base="glew"
 pkg_file="$pkg_base.tar.bz2"
 pkg_url="git://glew.git.sourceforge.net/gitroot/glew/glew"
 
