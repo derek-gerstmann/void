@@ -5,6 +5,37 @@ source "./common.sh"
 
 ####################################################################################################
 
+function make_tiff()
+{
+    local pkg_name=$1
+    local pkg_base=$2
+    local pkg_file=$3
+    local pkg_url=$4
+
+    local prefix="$ext_dir/build/$pkg_name/$os_name"
+
+    push_dir "$ext_dir/pkgs/$pkg_base"
+
+    # On OSX disable the tools from getting built since tiffgt.c fails to compile
+    if [ "$is_osx" != 0 ]
+    then
+        rm tools/Makefile
+        echo "all:"      >  tools/Makefile
+        echo " "         >> tools/Makefile
+        echo "install: " >> tools/Makefile
+        echo " "         >> tools/Makefile
+    fi
+
+
+    report "Building package '$pkg_name'"
+    separator
+    make  || bail "Failed to build package: '$prefix'"
+    make install  || bail "Failed to build package: '$prefix'"
+    separator
+    
+    pop_dir
+}
+
 function build_tiff()
 {
     local m=8
@@ -29,21 +60,7 @@ function build_tiff()
     fetch_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
     boot_pkg    $pkg_name $pkg_base $pkg_file $pkg_url
     cfg_pkg     $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg
-
-# On OSX disable the tools from getting built since tiffgt.c fails to compile
-if [ "$is_osx" != 0 ]
-then
-    push_dir "$ext_dir/pkgs/$pkg_base"
-    rm tools/Makefile
-    echo "all:"      >  tools/Makefile
-    echo " "         >> tools/Makefile
-    echo "install: " >> tools/Makefile
-    echo " "         >> tools/Makefile
-    pop_dir
-fi
-
-    make_pkg    $pkg_name $pkg_base $pkg_file $pkg_url
-    install_pkg $pkg_name $pkg_base $pkg_file $pkg_url
+    make_tiff   $pkg_name $pkg_base $pkg_file $pkg_url
     migrate_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt
 
     report "DONE building '$pkg_name' from '$pkg_file'! --"
