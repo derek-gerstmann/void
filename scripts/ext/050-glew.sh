@@ -30,10 +30,18 @@ function make_glew()
     prefix="$ext_dir/build/$pkg_name/$os_name"
     push_dir "$ext_dir/pkgs/$pkg_base"
 
+    if [ "$is_centos" -eq 1 ]
+    then
+        cp $scs_dir/data/glew/Makefile.centos config || bail "Failed to copy custom Makefile for CentOS!"
+        glew_sys="centos"
+    else
+        glew_sys="auto"
+    fi
+
     report "Building package '$pkg_name'"
     separator
-    make GLEW_DEST="$prefix" || bail "Failed to build package: '$prefix'"
-    make GLEW_DEST="$prefix" install || bail "Failed to build package: '$prefix'"
+    make GLEW_DEST="$prefix" SYSTEM="$glew_sys" || bail "Failed to build package: '$prefix'"
+    make GLEW_DEST="$prefix" SYSTEM="$glew_sys" install || bail "Failed to build package: '$prefix'"
     separator
 
     pop_dir

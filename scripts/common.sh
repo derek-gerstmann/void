@@ -11,6 +11,7 @@ export ID=$( basename "$ABSPATH" )
 abs_cwd="$( cd "$( dirname "$0" )/.." && pwd )"
 base_dir="$( basename "$abs_cwd" )"
 root_dir="$( dirname "$abs_cwd" )"
+scs_dir="$root_dir/scripts"
 ext_dir="$root_dir/external"
 pkg_dir="$root_dir/external/pkgs"
 
@@ -25,6 +26,14 @@ is_osx=$( uname -s | grep -c Darwin )
 if [ "$is_osx" -eq 1 ]
 then
     os_name="osx"
+fi
+
+if [ "$is_lnx" -eq 1 ]
+then
+    if [ -e /etc/redhat-release ]
+    then
+        is_centos=$( cat /etc/redhat-release | grep -c CentOS )
+    fi
 fi
 
 if [ "$os_name" == "unknown" ]
@@ -845,7 +854,7 @@ function build_pkg()
     if [ $existing != 0 ]
     then
         separator
-    	report "Skipping existing package '$pkg_name' ... "
+        report "Skipping existing package '$pkg_name' ... "
         return
     fi
 
