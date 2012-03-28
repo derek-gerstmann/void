@@ -42,6 +42,14 @@ function build_bzip()
     local pkg_cflags=$6
     local pkg_ldflags=$7
     local pkg_cfg="${@:$m}"
+    local existing=$(has_pkg "$pkg_name" "$pkg_opt")
+
+    if [ $existing != 0 ]
+    then
+        separator
+        report "Skipping existing package '$pkg_name' ... "
+        return
+    fi
 
     setup_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
     fetch_pkg   $pkg_name $pkg_base $pkg_file $pkg_url

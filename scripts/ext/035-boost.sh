@@ -71,6 +71,15 @@ function build_boost()
     local pkg_ldflags=$7
     local pkg_cfg="${@:$m}"
 
+    local existing=$(has_pkg "$pkg_name" "$pkg_opt")
+
+    if [ $existing != 0 ]
+    then
+        separator
+        report "Skipping existing package '$pkg_name' ... "
+        return
+    fi
+
 #    echo "PkgName: '$pkg_name' PkgBase: '$pkg_base' PkgFile: '$pkg_file' PkgUrl: '$pkg_url' PkgCfg: '$pkg_cfg' PkgKeep: '$pkg_keep'"
 
     setup_pkg   $pkg_name $pkg_base $pkg_file $pkg_url

@@ -402,6 +402,26 @@ function run_all()
     fi
 }
 
+function has_pkg()
+{
+    local pkg_name="$1"
+    local pkg_opt="$2"
+
+    local existing=0
+    if [ -d "$ext_dir/$pkg_name" ]
+    then
+        existing=1
+        if [[ $(echo $pkg_opt | grep -c 'force' ) > 0 ]] 
+        then
+            existing=0
+        else
+            existing=1
+        fi
+    fi
+
+    echo "$existing"
+}
+
 function setup_pkg()
 {
     local pkg_name=$1
@@ -820,20 +840,12 @@ function build_pkg()
     local pkg_ldflags=$7
     local pkg_cfg="${@:$m}"
 
-    local existing=0
-    if [ -d "$ext_dir/$pkg_base" ]
-    then
-        existing=1
-        if [[ $(echo $pkg_opt | grep -c 'recompile' ) > 0 ]] 
-        then
-            existing=0
-        else
-            existing=1
-        fi
-    fi
+    local existing=$(has_pkg "$pkg_name" "$pkg_opt")
 
     if [ $existing != 0 ]
     then
+        separator
+    	report "Skipping existing package '$pkg_name' ... "
         return
     fi
 

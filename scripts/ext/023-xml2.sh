@@ -6,7 +6,7 @@ source "./common.sh"
 ####################################################################################################
 # setup pkg definition and resource files
 ####################################################################################################
-ftp://xmlsoft.org/libxml2/libxml2-2.7.8.tar.gz
+
 pkg_name="xml2"
 pkg_base="libxml2-2.7.8"
 pkg_file="$pkg_base.tar.gz"
