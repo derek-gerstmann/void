@@ -50,6 +50,94 @@ class Program;
 class Shader;    
 
 // ============================================================================================== //
+// Enums
+// ============================================================================================== //
+
+VD_DECLARE_ENUM(ScalarTypeId,
+    Void,
+    I8,
+    U8,
+    I16,
+    U16,
+    I32,
+    U32,
+    I64,
+    U64,
+    F16,
+    F32,
+    F64,
+    Pointer,
+    Address,
+    ByteSize);
+
+// ============================================================================================== //
+// Data Structures
+// ============================================================================================== //
+
+template <typename T>
+struct TypeTraits 
+{  
+    static vd::cstr GetName() 
+    {
+        return ScalarTypeId::ToString(ScalarTypeId::Invalid);
+    }
+
+    static ScalarTypeId::Value GetTypeId() 
+    {
+        return ScalarTypeId::Invalid;
+    }
+
+    static int GetByteSize() 
+    {
+        return (int)(sizeof(T));
+    }
+
+    static int GetBitSize()
+    { 
+        return (int)(sizeof(T) * CHAR_BIT);
+    }
+
+    static int GetDimensions()
+    {
+        return 1;
+    }
+};
+
+// ============================================================================================== //
+// Template specializations
+// ============================================================================================== //
+
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<void>::GetName()                 { return ScalarTypeId::ToString(ScalarTypeId::Void);       }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::i8>::GetName()               { return ScalarTypeId::ToString(ScalarTypeId::I8);         }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::i16>::GetName()              { return ScalarTypeId::ToString(ScalarTypeId::I16);        }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::i32>::GetName()              { return ScalarTypeId::ToString(ScalarTypeId::I32);        }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::i64>::GetName()              { return ScalarTypeId::ToString(ScalarTypeId::I64);        }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::u8>::GetName()               { return ScalarTypeId::ToString(ScalarTypeId::U8);         }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::u16>::GetName()              { return ScalarTypeId::ToString(ScalarTypeId::U16);        }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::u32>::GetName()              { return ScalarTypeId::ToString(ScalarTypeId::U32);        }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::u64>::GetName()              { return ScalarTypeId::ToString(ScalarTypeId::U64);        }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::f16>::GetName()              { return ScalarTypeId::ToString(ScalarTypeId::F16);        }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::f32>::GetName()              { return ScalarTypeId::ToString(ScalarTypeId::F32);        }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::f64>::GetName()              { return ScalarTypeId::ToString(ScalarTypeId::F64);        }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::ptr>::GetName()              { return ScalarTypeId::ToString(ScalarTypeId::Pointer);    }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<size_t>::GetName()               { return ScalarTypeId::ToString(ScalarTypeId::ByteSize);   }
+
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<void>::GetTypeId()          { return ScalarTypeId::Void;     }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<vd::i8>::GetTypeId()        { return ScalarTypeId::I8;       }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<vd::i16>::GetTypeId()       { return ScalarTypeId::I16;      }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<vd::i32>::GetTypeId()       { return ScalarTypeId::I32;      }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<vd::i64>::GetTypeId()       { return ScalarTypeId::I64;      }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<vd::u8>::GetTypeId()        { return ScalarTypeId::U8;       }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<vd::u16>::GetTypeId()       { return ScalarTypeId::U16;      }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<vd::u32>::GetTypeId()       { return ScalarTypeId::U32;      }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<vd::u64>::GetTypeId()       { return ScalarTypeId::U64;      }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<vd::f16>::GetTypeId()       { return ScalarTypeId::F16;      }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<vd::f32>::GetTypeId()       { return ScalarTypeId::F32;      }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<vd::f64>::GetTypeId()       { return ScalarTypeId::F64;      }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<vd::ptr>::GetTypeId()       { return ScalarTypeId::Pointer;  }
+template <> VD_FORCE_INLINE ScalarTypeId::Value TypeTraits<size_t>::GetTypeId()        { return ScalarTypeId::ByteSize; }
+
+// ============================================================================================== //
 
 VD_GRAPHICS_NAMESPACE_END();
 

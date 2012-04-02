@@ -32,13 +32,13 @@
 
 // ============================================================================================== //
 
-#include <GL/glew.h>
-
-// ============================================================================================== //
-
 #if defined(VD_TARGET_OSX)
-	#include <OpenGL/OpenGL.h>
+    #include <GL/glew.h>
+//	#include <gl3.h>
+//    #include <gl3ext.h>
+//    #include <gl3.h>
 #else
+    #include <GL/glew.h>
 	#include <GL/gl.h>
 #endif
 

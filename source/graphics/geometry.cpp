@@ -53,16 +53,16 @@ Geometry::~Geometry()
 void
 Geometry::Reset()
 {
-    Core::Memory::MemSet(&m_Data, 0, sizeof(m_Data));
-    Core::Memory::MemSet(&(m_Data.Buffers), Geometry::InvalidBuffer, sizeof(m_Data.Buffers));
-    Core::Memory::MemSet(&(m_Data.Bindings), Geometry::InvalidSlot, sizeof(m_Data.Bindings));
+    Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
+    Core::Memory::SetBytes(&(m_Data.Buffers), Geometry::InvalidBuffer, sizeof(m_Data.Buffers));
+    Core::Memory::SetBytes(&(m_Data.Bindings), Geometry::InvalidSlot, sizeof(m_Data.Bindings));
 }
 
 void
 Geometry::Setup(
     const Geometry::Data& data)
 {
-    Core::Memory::MemCopy(&m_Data, &data, sizeof(m_Data));
+    Core::Memory::CopyBytes(&m_Data, &data, sizeof(m_Data));
 }
 
 vd::status 

@@ -27,9 +27,9 @@
 
 // ============================================================================================== //
 
-#if defined(VD_USE_EXTRACTED_SYMBOLS)
-#include "gui/symbols.h"
-#endif
+// #if defined(VD_USE_EXTRACTED_SYMBOLS)
+#include "symbols.h"
+// #endif
 
 #include "core/core.h"
 #include "core/builtins.h"

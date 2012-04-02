@@ -24,6 +24,7 @@
 
 #include "core/core.h"
 #include "core/system.h"
+#include "core/object.h"
 #include "core/symbol.h"
 #include "core/asserts.h"
 #include "core/resources.h"
@@ -83,23 +84,27 @@ System::GetShutdownTime(void)
 }
 
 bool
-System::Startup(void)
+System::Startup(
+	int*, void**)
 {
 	Mutex mutex;
 	mutex.Lock();
 	{
 		System::m_StartupTime = Process::GetTimeInSeconds();
-		Symbol::CreateRegistry();
-		MetaClass::CreateRegistry();
-		ResourceEngine::Startup();
+		Process::Startup();
 		ThreadEngine::Startup();
 		LogEngine::Startup();
-		Process::Startup();
-		vdLogGlobalInfo("Void Framework v%d.%d.%d - %s", 
+		ResourceEngine::Startup();
+		Symbol::CreateRegistry();
+		MetaClass::CreateRegistry();
+		vd::f64 dt = Process::GetTimeInSeconds();
+
+		vdLogGlobalInfo("Void Framework v%d.%d.%d - %s: startup time '%f' sec", 
 			VD_VERSION_MAJOR, 
 			VD_VERSION_MINOR, 
 			VD_VERSION_PATCH, 
-			VD_BUILD_INFO);
+			VD_BUILD_INFO,
+			dt - m_StartupTime);
 	}
 	mutex.Unlock();
 	return true;
@@ -111,9 +116,13 @@ System::Shutdown(void)
 	Mutex mutex;
 	mutex.Lock();
 	{
+		vd::f64 dt = Process::GetTimeInSeconds();
+		vdLogGlobalInfo("Shutting down: uptime '%f' secs!", 
+			dt - System::m_StartupTime);
+
 		Process::Shutdown();
-		LogEngine::Shutdown();
 		ThreadEngine::Shutdown();
+		LogEngine::Shutdown();
 		ResourceEngine::Shutdown();
 		Symbol::DestroyRegistry();
 		MetaClass::DestroyRegistry();
@@ -122,7 +131,7 @@ System::Shutdown(void)
 	mutex.Unlock();
 	return true;
 }
-    
+
 // ============================================================================================== //
 
 VD_CORE_NAMESPACE_END();

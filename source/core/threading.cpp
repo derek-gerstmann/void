@@ -63,7 +63,34 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-LocalHandle<Thread> Thread::m_Self;
+namespace
+{
+    const vd::u32   VD_THREAD_NAP_TIME_IN_MILLISEC = 21;
+}
+
+// ============================================================================================== //
+
+struct ThreadCore
+{
+#if defined(VD_TARGET_WINDOWS)
+    typedef ::HANDLE                NativeType;                      
+#elif defined(VD_USE_POSIX)
+    typedef ::pthread_t             NativeType;                  
+#endif
+    static const NativeType         Invalid;
+
+    NativeType                      Native;
+    bool                            IsAlive;                    
+    bool                            IsRunning;                    
+    bool                            IsCritical;                    
+    vd::i32                         Affinity;
+    vd::i32                         StackSize;
+    Handle<LogContext>              LogCtx;
+    Core::Mutex                     Mutex;
+    char*                           Name;
+};
+
+const ThreadCore::NativeType ThreadCore::Invalid = (ThreadCore::NativeType)NULL;
 
 // ============================================================================================== //
 
@@ -71,15 +98,9 @@ class MainThread : public Thread
 {
 public:
 
-    MainThread() : Thread()
+    MainThread() : Thread("Main", true)
     {
         // EMTPY!
-    }
-
-    void
-    Setup()
-    {
-        Thread::Setup("main", true);
     }
 
     virtual void Run()
@@ -87,9 +108,16 @@ public:
         vdLogError("The main thread is already running!");
     }
 
+    virtual const char* GetName() const
+    {
+        return "Main";
+    }
+
     VD_DECLARE_OBJECT(MainThread);
     
 protected:
+
+    VD_DISABLE_COPY_CONSTRUCTORS(MainThread);
 
     virtual ~MainThread() 
     { 
@@ -102,52 +130,19 @@ protected:
 bool 
 ThreadEngine::Startup()
 {
-    Thread* mt = VD_NEW(MainThread);
-    mt->Setup();
-    Thread::m_Self.Create();
-    Thread::m_Self.Set(mt);
+    MainThread* mt = VD_NEW(MainThread);
+    Thread::GetLocal().Set(mt);
 	return true;
 }
 
 bool 
 ThreadEngine::Shutdown()
 {
-	if(Thread::GetCurrent() && Thread::GetCurrent() != Thread::m_Self.Get())
+	if(Thread::GetCurrent() && Thread::GetCurrent() != Thread::GetLocal().Get())
 		Thread::GetCurrent()->Destroy();
-    Thread::m_Self.Destroy();
+    Thread::GetLocal().Destroy();
 	return true;
 }
-
-// ============================================================================================== //
-
-namespace
-{
-	const vd::u32 	VD_THREAD_NAP_TIME_IN_MILLISEC = 21;
-}
-
-// ============================================================================================== //
-
-struct ThreadCore
-{
-#if defined(VD_TARGET_WINDOWS)
-    typedef ::HANDLE 				NativeType;                      
-#elif defined(VD_USE_POSIX)
-    typedef ::pthread_t 			NativeType;                  
-#endif
-    static const NativeType         Invalid;
-
-    NativeType                      Native;
-    bool 							IsAlive;                    
-    bool 							IsRunning;                    
-    bool 							IsCritical;                    
-    vd::i32 						Affinity;
-    vd::i32 						StackSize;
-	Handle<LogContext>	            LogCtx;
-    Core::Mutex				        Mutex;
-    char*						    Name;
-};
-
-const ThreadCore::NativeType ThreadCore::Invalid = (ThreadCore::NativeType)NULL;
 
 // ============================================================================================== //
 
@@ -198,7 +193,6 @@ Thread::Thread() :
 
 }
 
-/*
 Thread::Thread(
     const char* name,
     bool critical,
@@ -210,11 +204,17 @@ Thread::Thread(
 {
     Setup(name, critical, affinity, stack_size);
 }
-*/
 
 Thread::~Thread()
 {
 	Destroy();
+}
+
+LocalHandle<Thread>&
+Thread::GetLocal()
+{
+    static LocalHandle<Thread> self;
+    return self;
 }
 
 vd::status
@@ -224,7 +224,7 @@ Thread::Setup(
 	vd::i32 affinity,
 	vd::bytesize stack_size)
 {
-//    vdAssert(m_Handle == NULL);	
+    vdAssert(m_Handle == NULL);	
     ThreadCore* core = VD_NEW(ThreadCore);
     core->Native = ThreadCore::Invalid;
 	core->Name = (name != NULL) ? strdup(name) : NULL;
@@ -240,6 +240,8 @@ Thread::Setup(
 vd::status 
 Thread::Destroy()
 {
+//    vdAssert(m_Handle != NULL); 
+
     if(m_Handle == NULL)
         return Status::Code::Reject;
     
@@ -407,7 +409,7 @@ Thread::Exit()
 
     Release();
     
-    m_Self.Set(NULL);
+    GetLocal().Set(NULL);
 
 #if defined(VD_TARGET_WINDOWS)
     
@@ -556,9 +558,7 @@ Thread::Sleep(double sec)
 bool
 Thread::IsCritical()
 {
-	if(m_Handle == NULL)
-		return false;
-		    
+    vdAssert(m_Handle != NULL);
     ThreadCore* core = reinterpret_cast<ThreadCore*>(m_Handle);
     return core->IsCritical;
 }
@@ -568,9 +568,7 @@ Thread::IsCritical()
 bool
 Thread::IsAlive()
 {
-	if(m_Handle == NULL)
-		return false;
-		    
+    vdAssert(m_Handle != NULL);
     ThreadCore* core = reinterpret_cast<ThreadCore*>(m_Handle);
     return core->IsAlive;
 }
@@ -580,9 +578,7 @@ Thread::IsAlive()
 bool
 Thread::IsRunning()
 {
-	if(m_Handle == NULL)
-		return false;
-		    
+    vdAssert(m_Handle != NULL);
     ThreadCore* core = reinterpret_cast<ThreadCore*>(m_Handle);
     return core->IsRunning;
 }
@@ -592,9 +588,10 @@ Thread::IsRunning()
 Handle<LogContext>
 Thread::GetLogContext()
 {
-	if(m_Handle == NULL)
-		return NULL;
-		    
+    if(m_Handle == NULL)
+        return NULL;
+
+    vdAssert(m_Handle != NULL);
     ThreadCore* core = reinterpret_cast<ThreadCore*>(m_Handle);
     return core->LogCtx;
 }
@@ -604,9 +601,7 @@ Thread::GetLogContext()
 void
 Thread::SetLogContext(LogContext* context)
 {
-	if(m_Handle == NULL)
-		return;
-		    
+    vdAssert(m_Handle != NULL);
     ThreadCore* core = reinterpret_cast<ThreadCore*>(m_Handle);
     core->LogCtx = context;
 }
@@ -616,9 +611,7 @@ Thread::SetLogContext(LogContext* context)
 const char*
 Thread::GetName() const
 {
-	if(m_Handle == NULL)
-		return "<NULL>";
-		    
+    vdAssert(m_Handle != NULL);
     const ThreadCore* core = reinterpret_cast<const ThreadCore*>(m_Handle);
 	return ((core->Name != NULL) ? core->Name : "<NULL>");
 }
@@ -675,7 +668,7 @@ vd::uid Thread::GetId()
 {    
     Thread* thread = reinterpret_cast<Thread>(arg);
     ThreadCore* core = reinterpret_cast<ThreadCore*>(thread->m_Handle);
-    Thread::m_Self.Set(thread);
+    Thread::GetLocal().Set(thread);
 	Thread* parent = Thread::GetCurrent();		
 
 	if(!core->LogCtx && parent && parent->GetLogContext())
@@ -717,7 +710,7 @@ void* Thread::Launch(void* arg)
 {    
     Thread* thread = reinterpret_cast<Thread*>(arg);
     ThreadCore* core = reinterpret_cast<ThreadCore*>(thread->m_Handle);
-    Thread::m_Self.Set(thread);
+    Thread::GetLocal().Set(thread);
 	Thread* parent = Thread::GetCurrent();		
 
 	if(!core->LogCtx && parent && parent->GetLogContext())

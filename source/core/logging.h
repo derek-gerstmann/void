@@ -32,6 +32,8 @@
 #include "core/locking.h"
 #include "core/handles.h"
 #include "containers/containers.h"
+
+// ============================================================================================== //
         
 VD_IMPORT(Containers, Vector);
 
@@ -58,9 +60,6 @@ public:
     static void Startup();
     static void Shutdown();
 
-    static void LogGlobal(LogLevel::Value level, const vd::string& text);
-    static void Log(LogLevel::Value level, const vd::string& text);
-    
     static Handle<LogContext> GetDefaultLogContext();
     static Handle<LogContext> GetCurrentLogContext();
 };

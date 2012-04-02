@@ -14,6 +14,7 @@ root_dir="$( dirname "$abs_cwd" )"
 scs_dir="$root_dir/scripts"
 ext_dir="$root_dir/external"
 pkg_dir="$root_dir/external/pkgs"
+lib_ext="a"
 
 os_name="unknown"
 is_lnx=$( uname -s | grep -c Linux )
@@ -28,6 +29,7 @@ then
     os_name="osx"
 fi
 
+is_centos=0
 if [ "$is_lnx" -eq 1 ]
 then
     if [ -e /etc/redhat-release ]
@@ -100,7 +102,7 @@ function match_str
 function find_make_path
 {
     local make_path="."
-    local mk_paths="./build ../build . .. ../src ../source"
+    local mk_paths="build ../build . .. ../src ../source"
     for path in ${mk_paths}
     do
         if [ -f "$path/Makefile" ]
@@ -565,7 +567,7 @@ function cmake_pkg()
     if [ -n $pkg_mpath ] && [ $pkg_mpath != 0 ]
     then
         pkg_mpath=$(echo $pkg_mpath | split_str ":" | join_str ";")
-        env_flags='-DCMAKE_MODULE_PATH="'$pkg_mpath'" -DCMAKE_PREFIX_PATH="'$pkg_mpath'"'
+        env_flags='-DCMAKE_PREFIX_PATH="'$pkg_mpath'"'
     fi
         
     if [ -n $pkg_env ] && [ $pkg_env != 0 ]
@@ -590,16 +592,18 @@ function cmake_pkg()
     report "Configuring package '$pkg_name' from source folder '$cmake_src_path' ..."
     separator
 
+    local cmake_exec="$ext_dir/cmake/bin/$os_name/cmake"
+    local cmake_mod="-DCMAKE_MODULE_PATH=$ext_dir/cmake/share/cmake-2.8/Modules"
     local cmake_pre="-DCMAKE_INSTALL_PREFIX=$prefix"
     if [ "$is_osx" -eq 1 ]
     then
         cmake_pre="$cmake_pre -DCMAKE_OSX_ARCHITECTURES=x86_64"
     fi
 
-    echo $ext_dir/cmake/bin/$os_name/cmake $cmake_pre $env_flags $cmake_src_path
+    echo $cmake_exec $cmake_mod $cmake_pre $env_flags $cmake_src_path
     separator
 
-    eval $ext_dir/cmake/bin/$os_name/cmake $cmake_pre $env_flags $cmake_src_path || bail "Failed to configure: '$prefix'"
+    eval $cmake_exec $cmake_mod $cmake_pre $env_flags $cmake_src_path || bail "Failed to configure: '$prefix'"
     separator
 
     report "Done configuring package '$pkg_name'"
@@ -674,6 +678,12 @@ function cfg_pkg()
     then
         local env_flags=" "
 
+        if [ "$is_centos" -eq 1 ]
+        then
+            pkg_cflags=$pkg_cflags":-I/usr/include"
+            pkg_ldflags=$pkg_ldflags":-L/usr/lib:-L/usr/lib64"
+        fi
+
         if [ -n $pkg_cflags ] && [ $pkg_cflags != 0 ]
         then
             pkg_cflags=$(echo $pkg_cflags | split_str ":" | join_str " ")
@@ -715,7 +725,8 @@ function make_pkg()
 
     # build using make if a makefile exists
     push_dir "$ext_dir/pkgs/$pkg_base/$make_path"
-    if [ -f "$make_path/Makefile" ] || [ -f "$make_path/makefile" ]
+    echo "Moving to '$ext_dir/pkgs/$pkg_base/$make_path'"
+    if [ -f "Makefile" ] || [ -f "$make_path/Makefile" ]
     then
         report "Building package '$pkg_name'"
         separator
@@ -823,6 +834,25 @@ function migrate_pkg()
         pop_dir
     fi    
 
+    if [[ $(echo $pkg_opt | grep -c 'migrate-build-libs' ) > 0 ]]
+    then
+        push_dir "$ext_dir/pkgs/$pkg_base"
+        local inc_paths="build"
+        for path in ${inc_paths}
+        do
+            # move product into external path
+            if [ -d "$path" ]
+            then
+                report "Migrating build libraries from '$path' for '$pkg_name'"
+                separator
+                make_dir "$ext_dir/$pkg_name/lib/$os_name"
+                separator
+                eval cp -v "$ext_dir/pkgs/$pkg_base/$path/*.$lib_ext" "$ext_dir/$pkg_name/lib/$os_name" || bail "Failed to copy shared files into directory: $ext_dir/$pkg_name/lib/$os_name"
+            fi
+        done
+        pop_dir
+    fi    
+
     if [[ $(echo $pkg_opt | grep -c 'keep' ) > 0 ]]
     then
         report "Keeping package build directory for '$pkg_base'"
@@ -867,7 +897,6 @@ function build_pkg()
     echo "PkgCFlags:    '$pkg_cflags'"
     echo "PkgLDFlags:   '$pkg_ldflags'"
     echo "PkgCFG:       '$pkg_cfg'"
-    separator
 
     setup_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
     fetch_pkg   $pkg_name $pkg_base $pkg_file $pkg_url

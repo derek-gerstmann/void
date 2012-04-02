@@ -88,7 +88,7 @@ Object::ToString() const
 
 // ============================================================================================== //
 
-VD_IMPLEMENT_ABSTRACT_OBJECT(Object, vd_sym(Object), Symbol::Invalid);
+VD_IMPLEMENT_ABSTRACT_OBJECT(Object, vd_sym(Object), vd::symbol());
 
 // ============================================================================================== //
 

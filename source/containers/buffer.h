@@ -84,7 +84,7 @@ public:
 			return false;
 
 	    if(clear)
-	        Memory::MemSet(m_Ptr, 0, bytes);
+	        Memory::SetBytes(m_Ptr, 0, bytes);
 
 		m_Bytes = bytes;
 		m_EntryCount = entry_count;

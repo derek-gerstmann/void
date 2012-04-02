@@ -26,6 +26,7 @@
 #include "core/symbol.h"
 #include "core/object.h"
 #include "core/threading.h"
+#include "core/asserts.h"
 #include "core/logging.h"
 #include "containers/containers.h"
 
@@ -139,7 +140,7 @@ MetaClass::Register(
 
 		if(	metaclass->m_ParentClass == NULL )
 		{
-            std::cerr << "Critical error during the static RTTI initialization: " << std::endl
+            std::cerr << "ERROR: Static runtime initialization failed! " << std::endl
                       << "Could not locate the base class '" << metaclass->m_ParentName.ToString() << "' while initializing '"
                       << metaclass->GetIdentifier().ToString() << "'!" << std::endl;
             exit(-1);
@@ -149,6 +150,8 @@ MetaClass::Register(
 
 void MetaClass::CreateRegistry()
 {
+    Core::Mutex mutex;
+    mutex.Lock();
     MetaClass* mc = ClassRegistryHead;
     while(mc != NULL)
     {
@@ -156,28 +159,24 @@ void MetaClass::CreateRegistry()
 	    mc = mc->m_Next;
     }
     m_IsInitialized = true;
+    mutex.Unlock();
 }
 
 Object* MetaClass::Create() const
 {
-    if(m_CreateFn == NULL)
-    {
-        vdLogGlobalError("RTTI error: An attempt to instantiate a "
-                         "class lacking the instantiation feature occurred (%s)!",
-                         GetIdentifier().ToString());
-    }
+    vdGlobalAssertMsg((m_CreateFn != NULL),
+        "ERROR: Attempted to instantiate an object without factory method (%s)!",
+        GetIdentifier().ToString());
 
     return ((CreateFn) m_CreateFn)();
 }
 
 Object* MetaClass::Load(Stream* stream, InstanceRegistry* instances) const
 {
-    if(m_LoadFn == NULL)
-    {
-        vdLogGlobalError("RTTI error: An attempt to instantiate a "
-                         "class lacking the unserialization feature occurred (%s)!",
-                         GetIdentifier().ToString());
-    }
+    vdGlobalAssertMsg((m_CreateFn != NULL),
+        "ERROR: Attempted to instantiate an object without a load method (%s)!",
+        GetIdentifier().ToString());
+
 
     return ((LoadFn) m_LoadFn)(stream, instances);
 }

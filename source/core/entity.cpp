@@ -76,14 +76,14 @@ vd::string
 Entity::ToString() const
 {
     std::ostringstream oss;
-    oss << GetTraits()->GetName();
+    oss << GetTraits()->GetName().GetStr();
     oss << " [unknown]";
     return oss.str();
 }
 
 // ============================================================================================== //
 
-VD_IMPLEMENT_ABSTRACT_ENTITY(Entity, Symbol("Entity"), Symbol::Invalid);
+VD_IMPLEMENT_ABSTRACT_ENTITY(Entity, vd_sym(Entity), vd::symbol());
 
 // ============================================================================================== //
 

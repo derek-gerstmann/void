@@ -17,6 +17,11 @@ pkg_cflags=0
 pkg_ldflags=0
 pkg_cfg="--disable-shared --enable-static --disable-ilmbasetest CXXFLAGS=-I/usr/include"
 
+if [ "$is_centos" -eq 1 ]
+then
+    pkg_cfg="$pkg_cfg LDFLAGS='-L/usr/lib -L/usr/lib64 -lpthread'"
+fi
+
 ####################################################################################################
 
 function make_exr()
@@ -30,7 +35,7 @@ function make_exr()
     prefix="$ext_dir/build/$pkg_name/$os_name"
     push_dir "$ext_dir/pkgs/$pkg_base"
 
-    echo "#include <stdint.h>" >> config/IlmBaseConfig.h
+	echo "#include <stdint.h>" >> config/IlmBaseConfig.h
 
     report "Building package '$pkg_name'"
     separator

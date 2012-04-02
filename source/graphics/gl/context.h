@@ -112,7 +112,8 @@ public:
 
     virtual Framebuffer* CreateFramebuffer(
         vd::u32 width, vd::u32 height, 
-        FramebufferFormat format=VD_FRAMEBUFFER_RGBA_F16, 
+        Graphics::ChannelFormat::Order::Value format = Graphics::ChannelFormat::Order::RGBA, 
+        Graphics::ScalarTypeId::Value datatype = Graphics::ScalarTypeId::U8, 
         bool depth=false);
 
     virtual vd::status Bind(Framebuffer* fb);

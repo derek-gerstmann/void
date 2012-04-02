@@ -30,6 +30,7 @@
 #include "vd.h"
 #include "core/core.h"
 #include "core/registry.h"
+#include "core/hashing.h"
 
 // ============================================================================================== //
 
@@ -49,10 +50,9 @@ private:
 public:
 
 	explicit Symbol();
-	explicit Symbol(const vd::symbol& sym);
-	explicit Symbol(const vd::uid key, const char* str, bool track=true);
-	explicit Symbol(const char* str);
-	Symbol(const Symbol& other);
+	explicit Symbol(const vd::uid key, const char* str);
+    Symbol(const Symbol& other);
+    Symbol(const vd::symbol& other);
 	virtual ~Symbol();
 
 	Symbol& operator=(const Symbol& other);
@@ -61,40 +61,58 @@ public:
 	bool operator!=(const Symbol& other) const;
 	bool operator<(const Symbol& other) const;
 
-	operator const char* () const { return m_Str; }
-	const char* c_str() const { return m_Str; }
-	const char* GetStr() const { return m_Str; }
+	operator const char* () const { return Lookup(m_Key); }
+	const char* c_str() const { return Lookup(m_Key); }
+	const char* GetStr() const { return Lookup(m_Key); }
 	vd::uid GetKey() const { return m_Key; }
 	vd::u64 GetId() const { return m_Id; }
 	bool IsValid() const;
 
-	operator vd::symbol () const { return vd::symbol(m_Key, c_str()); }
+    VD_FORCE_INLINE
+	operator vd::symbol () const 
+    { 
+        return IsValid() ?  
+            vd::symbol(m_Key, GetStr()) : 
+            vd::symbol(); 
+    }
 
+    VD_FORCE_INLINE
+    bool operator< (const Symbol& b)
+    {
+        if(this->GetKey() != b.GetKey() ) 
+            return this->GetKey().GetUpper() < b.GetKey().GetUpper() && 
+                   this->GetKey().GetLower() < b.GetKey().GetLower();
+
+        return false;
+    }
+
+    static Symbol GetInvalid();
 	static bool IsValid(const Symbol& symbol);
-	static const Symbol Invalid;
-	
-	static const Symbol& Retrieve(const vd::uid key);
-    static vd::uid Register(const char* bytes);
-	static vd::uid Register(const Symbol& symbol);
+
+    static const vd::u64 Resolve(const vd::uid key);   
+    static const char* Lookup(const vd::u64 key);	
+	static Symbol Retrieve(const vd::uid key);
+    static Symbol Register(const char* bytes);
+	static Symbol Register(const vd::uid key, const char* bytes);
+
 	static void DestroyRegistry();
 	static vd::u64 CreateRegistry();
 	
 	static const char* 
 	ToString(const Symbol& symbol);
 
-	static vd::uid
+	static vd::u64
 	ToId(const Symbol& symbol);
 
-protected:
-
-	void RegisterSelf(void);
-	Symbol* m_Next;
+    static vd::uid
+    ToKey(const Symbol& symbol);
 
 private:
 
+    static SymbolRegistry* GetRegistry(void);
+
 	vd::u64 m_Id;
 	vd::uid m_Key;
-	const char* m_Str;
 };
 
 // ============================================================================================== //

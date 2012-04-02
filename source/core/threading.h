@@ -68,11 +68,11 @@ class Thread : public Object
 	friend class ThreadEngine;
 
 public:
-//    explicit Thread(const char* name=NULL, bool critical=false, vd::i32 affinity=-1, vd::bytesize stack_size=0);
+    explicit Thread(const char* name, bool critical=false, vd::i32 affinity=-1, vd::bytesize stack_size=0);
 
     explicit Thread();
     virtual vd::status Destroy();
-    vd::status Setup(const char* name=NULL, bool critical=false, vd::i32 affinity=-1, vd::bytesize stack_size=0);
+    vd::status Setup(const char* name, bool critical=false, vd::i32 affinity=-1, vd::bytesize stack_size=0);
 	vd::status Start();
     vd::status Join();
     vd::status Detach();
@@ -94,7 +94,8 @@ public:
     void SetLogContext(LogContext* context);
     const char* GetName() const;
 
-	static inline Thread* GetCurrent() { return m_Self.Get(); }
+    static LocalHandle<Thread>& GetLocal();
+	static inline Thread* GetCurrent() { return GetLocal().Get(); }
     
 	VD_DECLARE_OBJECT(Thread);
 	
@@ -111,10 +112,9 @@ private:
 	static void* Launch(void* arg);
 #endif
 
-private:
+protected:
 
     void* 						m_Handle;
-	static LocalHandle<Thread>	m_Self;	
 };
 
 // ============================================================================================== //

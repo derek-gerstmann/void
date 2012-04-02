@@ -28,6 +28,7 @@
 // ============================================================================================== //
 
 #include "graphics/graphics.h"
+#include "graphics/image.h"
 
 // ============================================================================================== //
 
@@ -59,7 +60,8 @@ public:
 		vd::u32 DepthTexture;
 		vd::u32 Framebuffer;
 		vd::u32 Renderbuffer;
-		FramebufferFormat Format;		
+		ChannelFormat::Order::Value Format;	
+        ScalarTypeId::Value DataType;	
 	};
 
 public:

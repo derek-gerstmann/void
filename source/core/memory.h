@@ -69,10 +69,10 @@ public:
     static void* AlignedRealloc(void* ptr, size_t size, size_t align = 64);
     static void  AlignedFree(void* ptr);
 
-	static void* MemSet(void* b, int c, size_t len);
-	static void* MemCopy(void* s1, const void* s2, size_t n);
-	static void* MemMove(void* s1, const void* s2, size_t n);
-     
+    static void* SetBytes(void* b, int c, size_t len);
+    static void* CopyBytes(void* s1, const void* s2, size_t n);
+    static void* MoveBytes(void* s1, const void* s2, size_t n);
+
 #if defined(VD_DEBUG_MEMORY)
     static void* Acquire(void*, size_t bytes, const char*, const char*, int);
     static void  Release(void* ptr);
@@ -88,36 +88,51 @@ public:
 #endif // VD_DEBUG_MEMORY
 
     template <typename T>
+    T* NewArray(size_t size) 
+    {
+        T* ptr = VD_NEW_ARRAY(T, size);
+        vdGlobalAssertMsg((ptr != NULL), "Memory: System aligned allocation failed!");
+        return ptr;
+    }
+
+    template <typename T>
+    void DeleteArray(T* array) 
+    {
+        VD_DELETE_ARRAY(array);
+    }
+
+    char* StrDup(const char* str);
+    char* StrNDup(const char* str, int n);
+     
+    template <typename T>
     static inline T* Reserve(T* ptr, size_t bytes, const char* file, const char* function, int line)
     {
         Acquire(ptr, bytes, file, function, line);
         return ptr;
     }
+    
+    template <typename T1, typename T2, size_t N>
+    void CopyBytes(T1* to, const T2* fm)
+    {
+        struct ByteArray
+        {
+            char Data[N];
+        };
+
+        *(reinterpret_cast<ByteArray*>(to)) = *(reinterpret_cast<const ByteArray*>(fm));
+    }
+
+    template <typename T, size_t N>
+    void CopyEntries(T* to, const T* fm)
+    {
+        struct EntryArray
+        {
+            T Data[N];
+        };
+
+        *(reinterpret_cast<EntryArray*>(to)) = *(reinterpret_cast<const EntryArray*>(fm));
+    }
 };
-
-// ============================================================================================== //
-
-template <int Size, typename T1, typename T2>
-void CopyBytes(T1* to, const T2* fm)
-{
-    struct ByteArray
-    {
-        char Data[Size];
-    };
-
-    *(reinterpret_cast<ByteArray*>(to)) = *(reinterpret_cast<const ByteArray*>(fm));
-}
-
-template <int Count, typename T>
-void CopyEntries(T* to, const T* fm)
-{
-    struct EntryArray
-    {
-        T Data[Count];
-    };
-
-    *(reinterpret_cast<EntryArray*>(to)) = *(reinterpret_cast<const EntryArray*>(fm));
-}
 
 // ============================================================================================== //
 

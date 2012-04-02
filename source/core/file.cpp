@@ -307,7 +307,7 @@ bool FileAccess::Load (
 
     capacity = statistics.st_size;
     buffer = VD_NEW_ARRAY(char, capacity+1);
-    Memory::MemSet(buffer, 0, capacity);
+    Memory::SetBytes(buffer, 0, capacity);
     int read = (int)fread(buffer, sizeof(char), capacity, input);
     if (fclose(input) != 0 || read != capacity)
     {

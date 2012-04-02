@@ -68,7 +68,7 @@ public:
 		bool UseMipMaps;
 		
 		Properties() { }
-		void Reset() { Memory::MemSet(this, 0, sizeof(Texture::Properties)); }
+		void Reset() { Memory::SetBytes(this, 0, sizeof(Texture::Properties)); }
 	};
 	
 
@@ -121,8 +121,8 @@ public:
     void Capture();
     bool IsValid() const;
     bool IsActive() const                               { return m_IsActive;      	}
-    void SetTextureMatrix(const float rkM[16])          { Memory::MemCopy(m_TextureMatrix, rkM, 16*sizeof(float));   }
-    bool SetProperties(const Properties& properties)	{ Memory::MemCopy(&m_Properties, &properties, sizeof(Properties)); return true; }
+    void SetTextureMatrix(const float rkM[16])          { Memory::CopyBytes(m_TextureMatrix, rkM, 16*sizeof(float));   }
+    bool SetProperties(const Properties& properties)	{ Memory::CopyBytes(&m_Properties, &properties, sizeof(Properties)); return true; }
 	const Properties& GetProperties() const				{ return m_Properties;		}
 
 protected:

@@ -30,6 +30,7 @@
 #include "vd.h"
 #include "test/namespace.h"
 #include "test/types.h"
+#include "test/macros.h"
 
 // ============================================================================================== //
 

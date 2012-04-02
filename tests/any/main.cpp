@@ -22,36 +22,31 @@
 //
 // ============================================================================================== //
 
-#include "core/test.h"
-#include "core/framework.h"
-#include "core/geometry.h"
+#include "core/core.h"
+#include "test/test.h"
+#include "test/speed.h"
+#include "containers/containers.h"
+#include "containers/anymap.h"
+#include "containers/types.h"
 
 #include <boost/any.hpp>
-#include <string>
 
 // ============================================================================================== //
 
-using vd::core::BasicTest;
-using vd::core::SpeedTest;
-using vd::core::Vector3f;
+VD_TEST_NAMESPACE_BEGIN();
 
-typedef vd::core::AnyMap<vd::uid, vd::core::UidHash> TestAnyMap;
-typedef vd::core::AlignedVector<Vector3f>::type Array3f;
-
-/*
-class TestPropertySet : public PropertySetBase
-{
-	VD_DECLARE_PROPERTY_TYPE_SUPPORT(int);
-	VD_DECLARE_PROPERTY_TYPE_SUPPORT(float);
-	VD_DECLARE_PROPERTY_TYPE_SUPPORT(Vector3f);
-};
-*/
 // ============================================================================================== //
 
-class AnyMapSpeedTest : public SpeedTest
+typedef vd::Containers::AnyMap<vd::uid, vd::UidHash> TestAnyMap;
+typedef vd::Containers::AlignedVector<vd::v3f32>::type Array3f;
+
+// ============================================================================================== //
+
+class AnyMapSpeedTest : public Test::Speed
 {
 public:
-
+	virtual ~AnyMapSpeedTest() {}
+	
 	vd::f64 GetInsertTime(void) const { return m_InsertTime; }
 	vd::f64 GetRetrieveTime(void) const { return m_RetrieveTime; }
 	vd::f64 GetClearTime(void) const { return m_ClearTime; }
@@ -61,39 +56,39 @@ public:
 		vd::f64 start;
 		vd::f64 end;
 		
-		Vector3f v; 
+		vd::v3f32 v; 
 		TestAnyMap anymap;
 		Array3f array(N);
 			
 		for(int j=0; j<8; ++j)
 		{
-			start = vd::core::System::GetTimeInSeconds();
+			start = Core::Process::GetTimeInSeconds();
 			for(unsigned i = 0; i< N; ++i)
 			{
-				vd::uid id = i;
-				anymap.Set<Vector3f>(id) = array[i];
+				vd::uid id(i);
+				anymap.Set<vd::v3f32>(id) = array[i];
 			}
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();		
 			
 			m_InsertTime += (end - start) / N;
 			
-			start = vd::core::System::GetTimeInSeconds();
+			start = Core::Process::GetTimeInSeconds();
 			for(int k=0; k<100; ++k)
 			{
 				unsigned ai = anymap.size();
 				for(unsigned ei = 0; ei < ai; ei++)
 				{
-					vd::uid id = ei;
-					v = anymap.Get<Vector3f>(id);
+					vd::uid id(ei);
+					v = anymap.Get<vd::v3f32>(id);
 				}
 			}
-			end = vd::core::System::GetTimeInSeconds();
+			end = Core::Process::GetTimeInSeconds();
 	
 			m_RetrieveTime += (end - start) / 100.0 * N;
 	
-			start = vd::core::System::GetTimeInSeconds();
+			start = Core::Process::GetTimeInSeconds();
 			anymap.clear();
-			end = vd::core::System::GetTimeInSeconds();
+			end = Core::Process::GetTimeInSeconds();
 	
 			m_ClearTime += (end - start) / N;
 		}
@@ -109,18 +104,22 @@ protected:
 
 // ============================================================================================== //
 
-TEST_P(AnyMapSpeedTest, RunN) 
+VD_DEFINE_TEST_WITH_PARAM(AnyMapSpeedTest, RunN) 
 {
 	RunN(GetParam());
-	RecordProperty("Iterations", GetIterationCount());
-	RecordProperty("InsertTime", GetInsertTime());
-	RecordProperty("RetrieveTime", GetRetrieveTime());
-	RecordProperty("ClearTime", GetClearTime());
+	Base::RecordProperty("Iterations", GetIterationCount());
+	Base::RecordProperty("InsertTime", GetInsertTime());
+	Base::RecordProperty("RetrieveTime", GetRetrieveTime());
+	Base::RecordProperty("ClearTime", GetClearTime());
 }
 
 // ============================================================================================== //
 
-INSTANTIATE_TEST_CASE_P(AnyMapSpeedTestN, AnyMapSpeedTest,
-                        ::testing::Range(1000, 100000, 10000));
+VD_GENERATE_TEST_WITH_PARAM(AnyMapSpeedTestN, AnyMapSpeedTest,
+                        Test::Range(1000, 100000, 10000));
+
+// ============================================================================================== //
+
+VD_TEST_NAMESPACE_END();
 
 // ============================================================================================== //

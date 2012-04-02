@@ -34,8 +34,6 @@
 #include "core/filesystem.h"
 #include "core/file.h"
 
-#include "glsw.h"
-
 #include <cstring>
 #include <cmath>
 #include <string>
@@ -194,9 +192,15 @@ Shader::Compile(
 	
         glAttachShader(m_Handle, gsHandle);
 
+#if defined(VD_TARGET_OSX)
+        glProgramParameteri(m_Handle, GL_GEOMETRY_OUTPUT_TYPE, GL_TRIANGLE_STRIP);
+        glProgramParameteri(m_Handle, GL_GEOMETRY_INPUT_TYPE, GL_POINTS);
+        glProgramParameteri(m_Handle, GL_GEOMETRY_VERTICES_OUT, 24);
+#else
         glProgramParameteriEXT(m_Handle, GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP);
         glProgramParameteriEXT(m_Handle, GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS);
         glProgramParameteriEXT(m_Handle, GL_GEOMETRY_VERTICES_OUT_EXT, 24);
+#endif
     }
     
     GLuint fsHandle;
@@ -444,8 +448,8 @@ Shader::LocateUniforms()
 			if(location < 0)
 				continue;
 				
-			vd::uid key = Symbol::Register(uniform_string);
-			const vd::symbol& name = Symbol::Retrieve(key);
+			const vd::symbol& name = Symbol::Register(uniform_string);
+			vd::uid key = name.key;
 
 #if defined(VD_DEBUG_SHADERS)			
 			vdLogInfo("Shader[%s] : Adding uniform '%s' [%02d] : [%llx] '%s' as [%s] -> [%02d] ", 
@@ -475,8 +479,8 @@ Shader::LocateUniforms()
 					if(location < 0)
 						continue;
 
-					vd::uid key = Symbol::Register(uniform_string);
-					const vd::symbol& name = Symbol::Retrieve(key);
+					const vd::symbol& name = Symbol::Register(uniform_string);
+					vd::uid key = name.key;
 					m_UniformSlots[key] = location;
 					m_UniformTypes[key] = type;
 					AddUniform(name, type);
@@ -534,11 +538,12 @@ Shader::LocateAttributes()
 				if(location < 0)
 					continue;
 
-				vd::uid key = Symbol::Register(attrib_string);
+				const vd::symbol& name = Symbol::Register(attrib_string);
+				vd::uid key = name.key;
 				m_AttributeSlots[key] = location;
 
 #if defined(VD_DEBUG_SHADERS)			
-				const vd::symbol& name = Symbol::Retrieve(key);
+				vd::symbol name = Symbol::Retrieve(key);
 				vdLogInfo("Shader[%s] : Adding attrib '%s' [%02d] : [%llx] '%s' as [%s] -> [%02d] ", 
 					m_Name.c_str(), attrib_string, location, index, Symbol::ToString(name), 
 					Symbol::ToString(Shader::GetTypeIdentifier(type)), attrib_index);
@@ -558,17 +563,18 @@ Shader::BindSamplers()
 	BindingMap::const_iterator it;
 	for(it = m_SamplerSlots.begin(); it != m_SamplerSlots.end(); ++it)
 	{
-		const vd::symbol& name = Symbol::Retrieve(it->first);
 		GLint texture = m_SamplerBindings[it->first];
 		GLint type = m_UniformTypes[it->first];
 		GLint slot = m_SamplerSlots[it->first];
+		const char* name = Symbol::Lookup(it->first);
+		vd::uid key = it->first;
 
 		if(m_SamplerBindings.count(it->first) < 1)
 		{
 #if defined(VD_DEBUG_SHADERS)			
 			vdLogInfo("Shader[%s] : MISSING Sampler [%02d] %s [%s] : %s !!", 
-				m_Name.c_str(), slot, Symbol::ToString(name), name.ToKey().ToString().c_str(), 
-				Symbol::ToString(Shader::GetTypeIdentifier(m_UniformTypes[name.ToKey()])));
+				m_Name.c_str(), slot, name ? name : "<NULL>", key.ToString().c_str(), 
+				Symbol::ToString(Shader::GetTypeIdentifier(m_UniformTypes[key])));
 #endif
 			continue;
 		}
@@ -577,7 +583,7 @@ Shader::BindSamplers()
 
 #if defined(VD_DEBUG_SHADERS)			
 		vdLogInfo("Shader[%s] : Binding Sampler [%02d] %s [%s] : %s [%08d]", 
-			m_Name.c_str(), slot, Symbol::ToString(name), name.ToKey().ToString().c_str(), 
+			m_Name.c_str(), slot, name ? name : "<NULL>", key.ToString().c_str(), 
 			Symbol::ToString(Shader::GetTypeIdentifier(m_UniformTypes[name.ToKey()])),
 			texture);
 #else
@@ -599,16 +605,17 @@ Shader::UnbindSamplers()
 		if(m_SamplerBindings.count(it->first) < 1)
 			continue;
 
-		const vd::symbol& name = Symbol::Retrieve(it->first);
+		const char* name = Symbol::Lookup(it->first);
 		GLint type = m_UniformTypes[it->first];
 		GLint texture = m_SamplerBindings[it->first];
 		GLint target = GetSamplerTextureTarget(type);
 		GLint slot = m_SamplerSlots[it->first];
+		vd::uid key = it->first;
 
 #if defined(VD_DEBUG_SHADERS)			
 		vdLogInfo("Shader[%s] : Unbinding Sampler [%02d] %s [%s] : %s [%08d]", 
-			m_Name.c_str(), slot, Symbol::ToString(name), name.ToKey().ToString().c_str(), 
-			Symbol::ToString(Shader::GetTypeIdentifier(m_UniformTypes[name.ToKey()])),
+			m_Name.c_str(), slot, name ? name : "<NULL>", key.ToString().c_str(), 
+			Symbol::ToString(Shader::GetTypeIdentifier(m_UniformTypes[key])),
 			texture);
 #else
     	VD_IGNORE_UNUSED(name);
@@ -678,7 +685,8 @@ Shader::SubmitUniforms(bool force)
 	for(it = changes.begin(); it != changes.end(); ++it)
 	{
 #if defined(VD_DEBUG_SHADERS)			
-		const vd::symbol& name = Symbol::Retrieve(*it);
+		vd::uid key = *it;
+		vd::symbol name = Symbol::Retrieve(key);
 		vdLogInfo("Shader[%s] : Updating '%s' ... ", 
 			m_Name.c_str(), Symbol::ToString(name));
 #endif
@@ -686,8 +694,8 @@ Shader::SubmitUniforms(bool force)
 
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
-		const vd::symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.ToKey();
+		vd::uid key = *it;
+		vd::symbol name = Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::I32, name) && m_UniformSlots.count(key))
 		{
@@ -705,8 +713,8 @@ Shader::SubmitUniforms(bool force)
 
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
-		const vd::symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.ToKey();
+		vd::uid key = *it;
+		vd::symbol name = Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::F32, name) && m_UniformSlots.count(key))
 		{
@@ -724,8 +732,8 @@ Shader::SubmitUniforms(bool force)
 
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
-		const vd::symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.ToKey();
+		vd::uid key = *it;
+		vd::symbol name = Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::V2F32, name) && m_UniformSlots.count(key))
 		{
@@ -743,8 +751,9 @@ Shader::SubmitUniforms(bool force)
 
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
-		const vd::symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.ToKey();
+		vd::uid key = *it;
+		vd::symbol name = Symbol::Retrieve(key);
+
 		if(m_Uniforms.IsA(ParamSet::V3F32, name) && m_UniformSlots.count(key))
 		{
 			GLint slot = m_UniformSlots[key];
@@ -754,15 +763,15 @@ Shader::SubmitUniforms(bool force)
 
 #if defined(VD_DEBUG_SHADERS)			
 			vdLogInfo("Shader[%s] : Submitting '%s' -> [%8.3f %8.3f %8.3f]", 
-				m_Name.c_str(), Symbol::ToString(name), (GLfloat)value.x, (GLfloat)value.y, (GLfloat)value.z);
+				m_Name.c_str(), name, (GLfloat)value.x, (GLfloat)value.y, (GLfloat)value.z);
 #endif
 		}
 	}
 
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
-		const vd::symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.ToKey();
+		vd::uid key = *it;
+		vd::symbol name = Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::V4F32, name) && m_UniformSlots.count(key))
 		{
@@ -780,8 +789,8 @@ Shader::SubmitUniforms(bool force)
 
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
-		const vd::symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.ToKey();
+		vd::uid key = *it;
+		vd::symbol name = Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::M3F32, name) && m_UniformSlots.count(key))
 		{
@@ -809,8 +818,8 @@ Shader::SubmitUniforms(bool force)
 
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
-		const vd::symbol& name = Symbol::Retrieve(*it);
-		vd::uid key = name.ToKey();
+		vd::uid key = *it;
+		vd::symbol name = Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::M4F32, name) && m_UniformSlots.count(key))
 		{

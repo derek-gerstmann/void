@@ -30,18 +30,17 @@ pkg_env="$pkg_env:-DSZIP_LIBRARY=$szip_base/lib/$os_name/libsz.a"
 pkg_env="$pkg_env:-DZLIB_INCLUDE_DIR=$zlib_base/include"
 pkg_env="$pkg_env:-DZLIB_LIBRARY=$zlib_base/lib/$os_name/libz.a"
 
-# Silly HDF5: parallel (aka wrapped in thread-safe mutex locks) and C++ support are mutually exclusive
+# Silly HDF5: parallel (aka mpi enabled) and either threadsafe and/or C++ support are mutually exclusive
 # pkg_env="$pkg_env:-DHDF5_ENABLE_PARALLEL=ON"
 pkg_env="$pkg_env:-DHDF5_ENABLE_ZLIB=ON"
 pkg_env="$pkg_env:-DHDF5_ENABLE_Z_LIB_SUPPORT=ON"
 pkg_env="$pkg_env:-DHDF5_ENABLE_ZLIB_SUPPORT=ON"
 pkg_env="$pkg_env:-DHDF5_ENABLE_SZIP_SUPPORT=ON"
-pkg_env="$pkg_env:-DHDF5_ENABLE_HL_LIB=ON"
+pkg_env="$pkg_env:-DHDF5_BUILD_HL_LIB=ON"
 pkg_env="$pkg_env:-DHDF5_BUILD_CPP_LIB=ON"
 pkg_env="$pkg_env:-DHDF5_DISABLE_COMPILER_WARNINGS=ON"
 
-pkg_cfg="-DCMAKE_PREFIX_PATH=$ext_dir"
-pkg_cfg="$pkg_cfg -DZLIB_INCLUDE_DIR=$zlib_base/include"
+pkg_cfg="-DZLIB_INCLUDE_DIR=$zlib_base/include"
 pkg_cfg="$pkg_cfg -DZLIB_LIBRARY=$zlib_base/lib/$os_name/libz.a"
 pkg_cfg="$pkg_cfg -DSZIP_INCLUDE_DIR=$szip_base/include"
 pkg_cfg="$pkg_cfg -DSZIP_LIBRARY=$szip_base/lib/$os_name/libsz.a"

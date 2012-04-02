@@ -124,6 +124,337 @@ ConvertBufferAttributeToGL(
 	return GL_INVALID_ENUM;
 }
 
+
+static GLenum
+ConvertInternalAlphaFormatToGL(
+    Graphics::ChannelFormat::Order::Value format,
+    Graphics::ScalarTypeId::Value value)
+{
+    vdGlobalAssert(format == Graphics::ChannelFormat::Order::Alpha);
+
+    switch(value)
+    {
+        case Graphics::ScalarTypeId::I8:     return GL_ALPHA8I_EXT;
+        case Graphics::ScalarTypeId::U8:     return GL_ALPHA8UI_EXT;
+        case Graphics::ScalarTypeId::I16:    return GL_ALPHA16I_EXT; 
+        case Graphics::ScalarTypeId::U16:    return GL_ALPHA16UI_EXT;
+        case Graphics::ScalarTypeId::F16:    return GL_ALPHA16F_ARB;
+        case Graphics::ScalarTypeId::I32:    return GL_ALPHA32I_EXT; 
+        case Graphics::ScalarTypeId::U32:    return GL_ALPHA32UI_EXT;
+        case Graphics::ScalarTypeId::F32:    return GL_ALPHA32F_ARB;
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ScalarTypeId::ToString(value));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
+static GLenum
+ConvertInternalLuminanceFormatToGL(
+    Graphics::ChannelFormat::Order::Value format,
+    Graphics::ScalarTypeId::Value value)
+{
+    vdGlobalAssert(format == Graphics::ChannelFormat::Order::Luminance);
+    
+    switch(value)
+    {
+        case Graphics::ScalarTypeId::I8:     return GL_LUMINANCE8I_EXT; 
+        case Graphics::ScalarTypeId::U8:     return GL_LUMINANCE8UI_EXT; 
+        case Graphics::ScalarTypeId::I16:    return GL_LUMINANCE16I_EXT;
+        case Graphics::ScalarTypeId::U16:    return GL_LUMINANCE16UI_EXT;
+        case Graphics::ScalarTypeId::F16:    return GL_LUMINANCE16F_ARB;
+        case Graphics::ScalarTypeId::I32:    return GL_LUMINANCE32I_EXT;
+        case Graphics::ScalarTypeId::U32:    return GL_LUMINANCE32UI_EXT;
+        case Graphics::ScalarTypeId::F32:    return GL_LUMINANCE32F_ARB;
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ScalarTypeId::ToString(value));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
+static GLenum
+ConvertInternalLuminanceAlphaFormatToGL(
+    Graphics::ChannelFormat::Order::Value format,
+    Graphics::ScalarTypeId::Value value)
+{
+    vdGlobalAssert(format == Graphics::ChannelFormat::Order::LuminanceAlpha);
+    
+    switch(value)
+    {
+        case Graphics::ScalarTypeId::I8:     return GL_LUMINANCE_ALPHA8I_EXT;
+        case Graphics::ScalarTypeId::U8:     return GL_LUMINANCE_ALPHA8UI_EXT;
+        case Graphics::ScalarTypeId::I16:    return GL_LUMINANCE_ALPHA16I_EXT;
+        case Graphics::ScalarTypeId::U16:    return GL_LUMINANCE_ALPHA16UI_EXT;
+        case Graphics::ScalarTypeId::F16:    return GL_LUMINANCE_ALPHA16F_ARB;
+        case Graphics::ScalarTypeId::I32:    return GL_LUMINANCE_ALPHA32I_EXT;
+        case Graphics::ScalarTypeId::U32:    return GL_LUMINANCE_ALPHA32UI_EXT;
+        case Graphics::ScalarTypeId::F32:    return GL_LUMINANCE_ALPHA32F_ARB;
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ScalarTypeId::ToString(value));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
+static GLenum
+ConvertInternalIntensityFormatToGL(
+    Graphics::ChannelFormat::Order::Value format,
+    Graphics::ScalarTypeId::Value value)
+{
+    vdGlobalAssert(format == Graphics::ChannelFormat::Order::Intensity);
+    
+    switch(value)
+    {
+        case Graphics::ScalarTypeId::I8:     return GL_INTENSITY8I_EXT;  
+        case Graphics::ScalarTypeId::U8:     return GL_INTENSITY8UI_EXT;  
+        case Graphics::ScalarTypeId::I16:    return GL_INTENSITY16I_EXT;
+        case Graphics::ScalarTypeId::U16:    return GL_INTENSITY16UI_EXT; 
+        case Graphics::ScalarTypeId::F16:    return GL_INTENSITY16F_ARB;
+        case Graphics::ScalarTypeId::I32:    return GL_INTENSITY32I_EXT;  
+        case Graphics::ScalarTypeId::U32:    return GL_INTENSITY32UI_EXT;
+        case Graphics::ScalarTypeId::F32:    return GL_INTENSITY32F_ARB;
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ScalarTypeId::ToString(value));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
+static GLenum
+ConvertInternalRFormatToGL(
+    Graphics::ChannelFormat::Order::Value format,
+    Graphics::ScalarTypeId::Value value)
+{
+    vdGlobalAssert(format == Graphics::ChannelFormat::Order::R);
+    
+    switch(value)
+    {
+        case Graphics::ScalarTypeId::I8:     return GL_R8I; 
+        case Graphics::ScalarTypeId::U8:     return GL_R8UI; 
+        case Graphics::ScalarTypeId::I16:    return GL_R16I;
+        case Graphics::ScalarTypeId::U16:    return GL_R16UI;
+        case Graphics::ScalarTypeId::F16:    return GL_R16F;
+        case Graphics::ScalarTypeId::I32:    return GL_R32I;
+        case Graphics::ScalarTypeId::U32:    return GL_R32UI;
+        case Graphics::ScalarTypeId::F32:    return GL_R32F;
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ScalarTypeId::ToString(value));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
+static GLenum
+ConvertInternalRGFormatToGL(
+    Graphics::ChannelFormat::Order::Value format,
+    Graphics::ScalarTypeId::Value value)
+{
+    vdGlobalAssert(format == Graphics::ChannelFormat::Order::RG);
+    
+    switch(value)
+    {
+        case Graphics::ScalarTypeId::I8:     return GL_RG8I; 
+        case Graphics::ScalarTypeId::U8:     return GL_RG8UI; 
+        case Graphics::ScalarTypeId::I16:    return GL_RG16I;
+        case Graphics::ScalarTypeId::U16:    return GL_RG16UI;
+        case Graphics::ScalarTypeId::F16:    return GL_RG16F;
+        case Graphics::ScalarTypeId::I32:    return GL_RG32I;
+        case Graphics::ScalarTypeId::U32:    return GL_RG32UI;
+        case Graphics::ScalarTypeId::F32:    return GL_RG32F;
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ScalarTypeId::ToString(value));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
+static GLenum
+ConvertInternalRGBFormatToGL(
+    Graphics::ChannelFormat::Order::Value format,
+    Graphics::ScalarTypeId::Value value)
+{
+    vdGlobalAssert(format == Graphics::ChannelFormat::Order::RGB);
+    
+    switch(value)
+    {
+        case Graphics::ScalarTypeId::I8:     return GL_RGB8I; 
+        case Graphics::ScalarTypeId::U8:     return GL_RGB8UI;
+        case Graphics::ScalarTypeId::I16:    return GL_RGB16I; 
+        case Graphics::ScalarTypeId::U16:    return GL_RGB16UI; 
+        case Graphics::ScalarTypeId::F16:    return GL_RGB16F;
+        case Graphics::ScalarTypeId::I32:    return GL_RGB32I; 
+        case Graphics::ScalarTypeId::U32:    return GL_RGB32UI;
+        case Graphics::ScalarTypeId::F32:    return GL_RGB32F;
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ScalarTypeId::ToString(value));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
+static GLenum
+ConvertInternalRGBAFormatToGL(
+    Graphics::ChannelFormat::Order::Value format,
+    Graphics::ScalarTypeId::Value value)
+{
+    vdGlobalAssert(format == Graphics::ChannelFormat::Order::RGBA);
+    
+    switch(value)
+    {
+        case Graphics::ScalarTypeId::I8:     return GL_RGBA8I; 
+        case Graphics::ScalarTypeId::U8:     return GL_RGBA8UI;
+        case Graphics::ScalarTypeId::I16:    return GL_RGBA16I; 
+        case Graphics::ScalarTypeId::U16:    return GL_RGBA16UI; 
+        case Graphics::ScalarTypeId::F16:    return GL_RGBA16F;
+        case Graphics::ScalarTypeId::I32:    return GL_RGBA32I; 
+        case Graphics::ScalarTypeId::U32:    return GL_RGBA32UI;
+        case Graphics::ScalarTypeId::F32:    return GL_RGBA32F_ARB;
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ScalarTypeId::ToString(value));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
+
+static GLenum
+ConvertInternalDepthFormatToGL(
+    Graphics::ChannelFormat::Order::Value format,
+    Graphics::ScalarTypeId::Value value)
+{
+    vdGlobalAssert(format == Graphics::ChannelFormat::Order::Depth);
+    
+    switch(value)
+    {
+        case Graphics::ScalarTypeId::I16:   return GL_DEPTH_COMPONENT16;
+        case Graphics::ScalarTypeId::U16:   return GL_DEPTH_COMPONENT16;
+        case Graphics::ScalarTypeId::I32:   return GL_DEPTH_COMPONENT32;
+        case Graphics::ScalarTypeId::U32:   return GL_DEPTH_COMPONENT32;
+        case Graphics::ScalarTypeId::F32:   return GL_DEPTH_COMPONENT32F;
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ScalarTypeId::ToString(value));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
+static GLenum
+ConvertInternalChannelFormatToGL(
+    Graphics::ChannelFormat::Order::Value format,
+    Graphics::ScalarTypeId::Value datatype)
+{
+    switch(format)
+    {
+        case Graphics::ChannelFormat::Order::Alpha:                { return ConvertInternalAlphaFormatToGL(format, datatype); }
+        case Graphics::ChannelFormat::Order::Intensity:            { return ConvertInternalIntensityFormatToGL(format, datatype); }
+        case Graphics::ChannelFormat::Order::Luminance:            { return ConvertInternalLuminanceFormatToGL(format, datatype); }
+        case Graphics::ChannelFormat::Order::LuminanceAlpha:       { return ConvertInternalLuminanceAlphaFormatToGL(format, datatype); }
+        case Graphics::ChannelFormat::Order::Depth:                { return ConvertInternalDepthFormatToGL(format, datatype); }
+        case Graphics::ChannelFormat::Order::R:                    { return ConvertInternalRFormatToGL(format, datatype); }
+        case Graphics::ChannelFormat::Order::RG:                   { return ConvertInternalRGFormatToGL(format, datatype); }
+        case Graphics::ChannelFormat::Order::RGB:                  { return ConvertInternalRGBFormatToGL(format, datatype); }
+        case Graphics::ChannelFormat::Order::RGBA:                 { return ConvertInternalRGBAFormatToGL(format, datatype); }
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ChannelFormat::Order::ToString(format));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
+static GLenum
+ConvertBaseChannelFormatToGL(
+    Graphics::ChannelFormat::Order::Value value)
+{
+    switch(value)
+    {
+        case Graphics::ChannelFormat::Order::R:                    { return GL_R; }
+        case Graphics::ChannelFormat::Order::RG:                   { return GL_RG; }
+        case Graphics::ChannelFormat::Order::RGB:                  { return GL_RGB; }
+        case Graphics::ChannelFormat::Order::RGBA:                 { return GL_RGBA; }
+        case Graphics::ChannelFormat::Order::Alpha:                { return GL_ALPHA; }
+        case Graphics::ChannelFormat::Order::Depth:                { return GL_DEPTH_COMPONENT; }
+        case Graphics::ChannelFormat::Order::Intensity:            { return GL_INTENSITY; }
+        case Graphics::ChannelFormat::Order::Luminance:            { return GL_LUMINANCE; }
+        case Graphics::ChannelFormat::Order::LuminanceAlpha:       { return GL_LUMINANCE_ALPHA; }
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ChannelFormat::Order::ToString(value));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
+static GLenum
+ConvertScalarTypeIdToGL(
+    Graphics::ScalarTypeId::Value value)
+{
+    switch(value)
+    {
+        case Graphics::ScalarTypeId::U8:                    { return GL_UNSIGNED_BYTE; }
+        case Graphics::ScalarTypeId::U16:                   { return GL_UNSIGNED_SHORT; }
+        case Graphics::ScalarTypeId::U32:                   { return GL_UNSIGNED_INT; }
+        case Graphics::ScalarTypeId::I8:                    { return GL_BYTE; }
+        case Graphics::ScalarTypeId::I16:                   { return GL_SHORT; }
+        case Graphics::ScalarTypeId::I32:                   { return GL_INT; }
+        case Graphics::ScalarTypeId::F16:                   { return GL_HALF_FLOAT; }
+        case Graphics::ScalarTypeId::F32:                   { return GL_FLOAT; }
+        case Graphics::ScalarTypeId::F64:                   { return GL_DOUBLE; }
+        case Graphics::ScalarTypeId::Invalid:
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ScalarTypeId::ToString(value));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
 static GLenum
 ConvertBufferTypeIdToGL(
 	Buffer::TypeId::Value value)
@@ -379,13 +710,22 @@ Context::ReportErrors(
     const char *filename, 
     int linenum)
 {
+#ifndef VD_RELEASE_BUILD
     GLenum err;
+    bool die = false;
     while((err = glGetError()) != GL_NO_ERROR)
     {
+        die = true;
         const char* str = (const char*)gluErrorString(err);
-        vdLogWarning("%s %s(%d) : ", filename, func, linenum);
-        vdLogWarning("%s '%s'", msg ? msg : "   ", str != NULL ? str : "<NULL>");
+        vdLogWarning("%s %s at line %d : ", filename, func, linenum);
+        vdLogWarning("%s '%s' (%d - 0x%X)", 
+            msg ? msg : "   ", 
+            str != NULL ? str : "<NULL>",
+            err, err);
     }
+
+    vdAssertMsg(die == false, "OpenGL Errors Encountered!");
+#endif
 }
 
 void
@@ -490,7 +830,7 @@ Context::CreateBuffer(
     vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error after creating buffer!");
 
     Buffer::Data data;
-    Core::Memory::MemSet(&data, 0, sizeof(data));
+    Core::Memory::SetBytes(&data, 0, sizeof(data));
 
     data.Id = gl_id;
     data.Target = target;
@@ -743,7 +1083,7 @@ Context::CreatePointList(
     vdLogOpenGLErrors("Start");
 
     Geometry::Data data;
-    Core::Memory::MemSet(&data, 0, sizeof(data));
+    Core::Memory::SetBytes(&data, 0, sizeof(data));
 
     data.IndexCount = 0;
     data.PrimitiveType = GL_POINTS;
@@ -844,7 +1184,7 @@ Context::CreateQuad(
     const unsigned int faces[] = { 3, 2, 1, 1, 0, 3 };
 
     Geometry::Data data;
-    Core::Memory::MemSet(&data, 0, sizeof(data));
+    Core::Memory::SetBytes(&data, 0, sizeof(data));
     data.Index = m_Geometry.size();
     data.IndexCount = 6;
     data.PrimitiveCount = 4;
@@ -911,7 +1251,7 @@ Context::CreateWireGrid(
     size_t vertex_count = (rows+1) * 2 + (columns+1) * 2;
 
     Geometry::Data data;
-    Core::Memory::MemSet(&data, 0, sizeof(data));
+    Core::Memory::SetBytes(&data, 0, sizeof(data));
 
     data.Index = m_Geometry.size();
     data.IndexCount = vertex_count;
@@ -997,7 +1337,7 @@ Context::CreateGrid(
     size_t index_count = 2 * (uiCountY - 1) * uiCountX;
 
     Geometry::Data data;
-    Core::Memory::MemSet(&data, 0, sizeof(data));
+    Core::Memory::SetBytes(&data, 0, sizeof(data));
 
     data.Index = m_Geometry.size();
     data.IndexCount = index_count;
@@ -1332,7 +1672,9 @@ Context::Unbind(
 Framebuffer* 
 Context::CreateFramebuffer(
     vd::u32 width, vd::u32 height, 
-    FramebufferFormat format, bool depth)
+    Graphics::ChannelFormat::Order::Value format, 
+    Graphics::ScalarTypeId::Value scalar, 
+    bool depth)
 {
     GLuint handle = 0;
     GLuint renderbuffer = 0;
@@ -1344,6 +1686,8 @@ Context::CreateFramebuffer(
     glGenFramebuffers(1, &handle);
     glBindFramebuffer(GL_FRAMEBUFFER, handle);
 
+    vdLogOpenGLErrors("Bind Framebuffer");
+
     if(depth)
     {
         glGenTextures(1, &depth_texture);
@@ -1353,7 +1697,7 @@ Context::CreateFramebuffer(
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
-        vdGlobalAssertMsg(GL_NO_ERROR == glGetError(), "Unable to create depth texture");   
+        vdLogOpenGLErrors("Unable to create depth texture");   
     }
     
     glGenTextures(1, &color_texture);
@@ -1362,44 +1706,26 @@ Context::CreateFramebuffer(
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    switch(format)
-    {
-        case VD_FRAMEBUFFER_RGBA_F32:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
-            break;
-        case VD_FRAMEBUFFER_RGBA_F16:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_HALF_FLOAT, 0);
-            break;
-        case VD_FRAMEBUFFER_RGBA_U8:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-            break;
-        case VD_FRAMEBUFFER_LUMINANCE_F32:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width, height, 0, GL_LUMINANCE, GL_FLOAT, 0);
-            break;
-        case VD_FRAMEBUFFER_INVALID:
-        case VD_FRAMEBUFFER_COUNT:
-        default:
-        {
-            vdException("Invalid Format", "Invalid framebuffer format specified!\n");
-            return NULL;
-        }
-    }
 
-    vdAssertMsg(GL_NO_ERROR == glGetError(), "Unable to create color texture");
+    GLenum gl_base = ConvertBaseChannelFormatToGL(format);
+    GLenum gl_type = ConvertScalarTypeIdToGL(scalar);
+    GLenum gl_internal = ConvertInternalChannelFormatToGL(format, scalar);
+    glTexImage2D(GL_TEXTURE_2D, 0, gl_internal, width, height, 0, gl_base, gl_type, 0);
+    vdLogOpenGLErrors("Unable to create color texture");
 
     glGenRenderbuffers(1, &renderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_texture, 0);
-    vdAssertMsg(GL_NO_ERROR == glGetError(), "Unable to attach color texture to frame buffer");
+    vdLogOpenGLErrors("Unable to attach color texture to frame buffer");
     if(depth_texture)
     {
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_texture, 0);
-        vdGlobalAssertMsg(GL_NO_ERROR == glGetError(), "Unable to attach depth texture to frame buffer");
+        vdLogOpenGLErrors("Unable to attach depth texture to frame buffer");
     }
     vdAssertMsg(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER), "Unable to create framebuffer!\n");
     
     Framebuffer::Data data;
-    Core::Memory::MemSet(&data, 0, sizeof(data));
+    Core::Memory::SetBytes(&data, 0, sizeof(data));
 
     data.Width = width;
     data.Height = height;

@@ -40,6 +40,30 @@ struct Hashing
 
 // ============================================================================================== //
 
+template <unsigned int N, unsigned int I>
+struct Fnv
+{
+	VD_FORCE_INLINE static 
+	vd::u32 Hash(const char (&str)[N])
+	{
+		return (Fnv<N, I-1>::Hash(str) ^ str[I-1])*16777619u;
+	}
+};
+ 
+// ============================================================================================== //
+
+template <unsigned int N>
+struct Fnv<N, 1>
+{
+	VD_FORCE_INLINE static 
+	vd::u32 Hash(const char (&str)[N])
+	{
+		return (2166136261u ^ str[0])*16777619u;
+	}
+};
+ 
+// ============================================================================================== //
+
 // MurmurHash3 was written by Austin Appleby, and was placed in the public
 // domain. The author disclaimed all copyright to this source code.
 

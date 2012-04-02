@@ -138,7 +138,7 @@ FormatString(
     {
         // Temp buffer overflow! -- dynamically allocate memory
         msg = VD_NEW_ARRAY(char, size + 1);
-        Memory::MemSet(msg, 0, size);
+        Memory::SetBytes(msg, 0, size);
     }
     vsnprintf_s(msg, size, size - 1, fmt, iterator);
     va_end(iterator);
@@ -152,7 +152,7 @@ FormatString(
     {
         // Temp buffer overflow! -- dynamically allocate memory
         msg = VD_NEW_ARRAY(char, size + 1);
-        Memory::MemSet(msg, 0, size);
+        Memory::SetBytes(msg, 0, size);
         va_start(iterator, fmt);
         vsnprintf(msg, size + 1, fmt, iterator);
         va_end(iterator);

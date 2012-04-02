@@ -37,7 +37,7 @@ Buffer::Buffer(
 	Object(),
 	m_Context(ctx)
 {
-	Core::Memory::MemSet(&m_Data, 0, sizeof(m_Data));
+	Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
 }
 
 Buffer::~Buffer()
@@ -49,14 +49,14 @@ void
 Buffer::Reset()
 {
 	Destroy();
-	Core::Memory::MemSet(&m_Data, 0, sizeof(m_Data));
+	Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
 }
 
 void
 Buffer::Setup(
 	const Buffer::Data& data)
 {
-	Core::Memory::MemCopy(&m_Data, &data, sizeof(m_Data));
+	Core::Memory::CopyBytes(&m_Data, &data, sizeof(m_Data));
 }
 
 vd::status 

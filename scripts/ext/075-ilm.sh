@@ -30,7 +30,7 @@ function make_exr()
     prefix="$ext_dir/build/$pkg_name/$os_name"
     push_dir "$ext_dir/pkgs/$pkg_base"
 
-    echo "#include <stdint.h>" >> config/IlmBaseConfig.h
+	echo "#include <stdint.h>" >> config/IlmBaseConfig.h
 
     report "Building package '$pkg_name'"
     separator
@@ -51,7 +51,15 @@ function build_exr()
     local pkg_cflags=$6
     local pkg_ldflags=$7
     local pkg_cfg="${@:$m}"
+    local existing=$(has_pkg "$pkg_name" "$pkg_opt")
 
+    if [ $existing != 0 ]
+    then
+        separator
+        report "Skipping existing package '$pkg_name' ... "
+        return
+    fi
+    
     setup_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
     fetch_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
     boot_pkg    $pkg_name $pkg_base $pkg_file $pkg_url

@@ -51,6 +51,10 @@ if(VOID_USE_OPENGL)
 	file( GLOB VD_EXT_FTGL_SRC 	 	${VD_EXT_FTGL_DIR}/src/*.c )
 	file( GLOB VD_EXT_GLSW_SRC 	 	${VD_EXT_GLSW_DIR}/src/*.c )
 
+	if(VD_SYSTEM_OSX)
+		include_directories(		/System/Library/Frameworks/OpenGL.framework/Headers)
+	endif()
+
 	include_directories(
 		${OPENGL_INCLUDE_DIRS}
 		${VD_EXT_FC_DIR}/include

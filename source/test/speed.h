@@ -1,8 +1,8 @@
 // ============================================================================================== //
 //
 // License:		The Lesser GNU Public License (LGPL) v3.0.
-// 
-// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA). 
+//
+// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA).
 //				As well as the shoulders of many giants...
 //
 // This file is part of the Void framework.
@@ -28,6 +28,9 @@
 // ============================================================================================== //
 
 #include "test/test.h"
+#include "test/types.h"
+#include "core/system.h"
+#include "core/process.h"
 
 // ============================================================================================== //
 
@@ -35,92 +38,70 @@ VD_TEST_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-class SpeedTest : public Test::WithParam<int> 
+class Speed : public Test::WithParam<int>
 {
 
 public:
 
-  static const char* GetTestName() {
-	const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
-	return test_info ? test_info->name() : "<UNKNOWN>";
-  }
-  
-  static const char* GetTestCaseName() {
-	const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
-	return test_info ? test_info->test_case_name() : "<UNKNOWN>";
-  }
-  
-  int GetIterationCount() {
-  	return GetParam();
-  }
-  
+    static const char* GetTestName()
+    {
+        const Info* const test_info = Unit::GetInstance()->current_test_info();
+        return test_info ? test_info->name() : "<UNKNOWN>";
+    }
+
+    static const char* GetTestCaseName()
+    {
+        const Info* const test_info = Unit::GetInstance()->current_test_info();
+        return test_info ? test_info->test_case_name() : "<UNKNOWN>";
+    }
+
+    int GetIterationCount()
+    {
+        return GetParam();
+    }
+
 protected:
-  // You can implement all the usual fixture class members here.
-  // To access the test parameter, call GetParam() from class
-  // TestWithParam<T>.
-  // You can remove any or all of the following functions if its body
-  // is empty.
 
-  SpeedTest() {
-    // You can do set-up work for each test here.
-  }
+    Speed()
+    {
+        // Do set-up work for each test here.
+    }
 
-  virtual ~SpeedTest() 
-  {
-    // You can do clean-up work that doesn't throw exceptions here.
-  }
+    virtual ~Speed()
+    {
+        // Do clean-up work that doesn't throw exceptions here.
+    }
 
-  // If the constructor and destructor are not enough for setting up
-  // and cleaning up each test, you can define the following methods:
+    // If the constructor and destructor are not enough for setting up
+    // and cleaning up each test, you can define the following methods:
 
-  virtual void SetUp() 
-  {
-    // Code here will be called immediately after the constructor (right
-    // before each test).
-    
-	System::Startup();
-	m_StartTime = Process::GetTimeInSeconds();
-  }
+    virtual void SetUp()
+    {
+        // Code here will be called immediately after the constructor (right
+        // before each test).
 
-  virtual void TearDown() 
-  {
-	
-	m_EndTime = Process::GetTimeInSeconds();
-//	vd::f64 dt = m_EndTime - m_StartTime;
-//	vd::i32 count = GetIterationCount();
-//	vdLogGlobalInfo("Test '%s/%s' completed '%d' iterations in '%f' sec ('%f' ave sec per iteration)!",
-//		SpeedTest::GetTestName(), SpeedTest::GetTestCaseName(), 
-//		count, dt, dt / count);
+        Core::System::Startup();
+        m_StartTime = Core::Process::GetTimeInSeconds();
+    }
 
-	System::Shutdown();
+    virtual void TearDown()
+    {
+        // Code here will be called immediately after each test (right
+        // before the destructor).
 
-    // Code here will be called immediately after each test (right
-    // before the destructor).
-  }
+        m_EndTime = Core::Process::GetTimeInSeconds();
 
-  vd::f64 m_StartTime;
-  vd::f64 m_EndTime;
+        vd::f64 dt = m_EndTime - m_StartTime;
+
+        vdLogGlobalInfo("Test '%s/%s' completed in '%f' sec!",
+                        Speed::GetTestName(), Speed::GetTestCaseName(), dt);
+
+        Core::System::Shutdown();
+    }
+
+    vd::f64 m_StartTime;
+    vd::f64 m_EndTime;
 };
-
-// // Tests that the Foo::Bar() method does Abc.
-// TEST_F(FooTest, MethodBarDoesAbc) {
-//   const string input_filepath = "this/package/testdata/myinputfile.dat";
-//   const string output_filepath = "this/package/testdata/myoutputfile.dat";
-//   Foo f;
-//   EXPECT_EQ(0, f.Bar(input_filepath, output_filepath));
-// }
-// 
-// // Tests that Foo does Xyz.
-// TEST_F(FooTest, DoesXyz) {
-//   // Exercises the Xyz feature of Foo.
-// }
-// 
-// }  // namespace
-// 
-// int main(int argc, char **argv) {
-//   ::testing::InitGoogleTest(&argc, argv);
-//   return RUN_ALL_TESTS();
-// }
 
 // ============================================================================================== //
 

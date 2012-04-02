@@ -262,7 +262,7 @@ Texture::Destroy()
         Unbind();
         glDeleteTextures( 1, &m_Properties.Handle);
     }
-	Memory::MemSet(&m_Properties, 0, sizeof(Texture::Properties));
+	Memory::SetBytes(&m_Properties, 0, sizeof(Texture::Properties));
     return Status::Code::Success;
 }
 

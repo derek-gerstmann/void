@@ -95,10 +95,11 @@ public:
     virtual vd::status Unmap(Buffer* buffer) = 0;
     virtual vd::status Release(Buffer* buffer) = 0;
 
-    virtual Graphics::Framebuffer* CreateFramebuffer(
+    virtual Framebuffer* CreateFramebuffer(
         vd::u32 width, vd::u32 height, 
-        FramebufferFormat format, 
-        bool depth) = 0;
+        Graphics::ChannelFormat::Order::Value format = Graphics::ChannelFormat::Order::RGBA, 
+        Graphics::ScalarTypeId::Value datatype = Graphics::ScalarTypeId::U8, 
+        bool depth=false) = 0;
 
     virtual vd::status Bind(Framebuffer* fb) = 0;
     virtual vd::status Unbind(Framebuffer* fb) = 0;

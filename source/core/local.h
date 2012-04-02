@@ -139,7 +139,7 @@ public:
     explicit LocalHandle() :
     	m_Key(Release)
     {
-		// EMPTY!
+        // EMPTY!
     }
 
     inline ~LocalHandle()

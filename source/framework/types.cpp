@@ -30,11 +30,26 @@ VD_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-// const uid uid::Zero;
+symbol* symbol::head = NULL;
+symbol* symbol::tail = NULL;
 
 // ============================================================================================== //
 
-uid& uid::operator = ( const vd::string& from )
+void symbol::RegisterSelf(void)
+{
+    if(head != NULL)
+    {
+        tail->next = this;
+        tail = this;
+    }
+    else
+    {
+        head = this;
+        tail = this;
+    }
+}
+
+uid& uid::FromString( const vd::string& from )
 {
     char* next = 0;
 #ifdef _MSC_VER

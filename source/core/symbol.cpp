@@ -26,6 +26,7 @@
 #include "core/core.h"
 #include "constants/symbols.h"
 #include "containers/containers.h"
+#include "containers/set.h"
 
 #include "core/symbol.h"
 #include "core/macros.h"
@@ -44,16 +45,13 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-const Symbol Symbol::Invalid = Symbol(vd::uid(0,0), "<NULL>");
-
-// ============================================================================================== //
-
 class SymbolRegistry : public Object
 {
 public:
 
-	typedef Containers::Vector<vd::string>::type 							StringTable;
-	typedef Containers::Map<vd::uid, Symbol, UidHash, UidEqualTo>::type 	SymbolMap;
+	typedef Containers::SetVector<Core::Symbol>	 	 	SymbolSet;
+	typedef Containers::Vector<char*>::type 	 		StringTable;
+	typedef Containers::Map<vd::uid, vd::u64>::type 	SymbolMap;
 
 public:
 
@@ -70,64 +68,85 @@ public:
 
 	vd::status Destroy(void)
 	{
-		m_SymbolMap.clear();
+		m_SymbolSet.clear();
 		m_StringTable.clear();
 		return Status::Code::Success;
 	}
 	
-	vd::uid Add(Symbol& symbol)
+	Symbol
+	Add(const vd::uid key, const char* bytes)
 	{
-		if(symbol.IsValid() == false)
-			return Constants::Zero;
+		Symbol symbol;
+		symbol.m_Key = key;
+		if(bytes == NULL)
+			return symbol;
 
-		if(symbol.m_Str != NULL)
+		vd::u64 index = VD_U64_MAX;
+		size_t length = bytes ? strlen(bytes) : 0;
+		if(key == Constants::Zero && length)
 		{
-			vd::u64 index = 0;
-			vd::uid key = symbol.m_Key;
-			vd::string str = vd::string(symbol.m_Str);
-			if(key == Constants::Zero)
-			{
-				key = Hashing::Murmur(str.c_str(), str.length());
-			}
-
-			SymbolMap::const_iterator it = m_SymbolMap.find(key);
-			if(it == m_SymbolMap.end())
-			{
-				index = m_StringTable.size();
-				m_StringTable.push_back(str);
-				symbol.m_Str = m_StringTable[index].c_str();
-				symbol.m_Key = key;
-				symbol.m_Id = index;
-				m_SymbolMap[key] = symbol;
-
-				vdLogInfo("Symbol[%s] : Adding symbol [%02d] : [%s] '%s'", 
-					str.c_str(), index, 
-					Convert::ToString(key).c_str(), 
-					Symbol::ToString(symbol));
-			}
-			return key;
+			symbol.m_Key = Hashing::Murmur(bytes, length);
 		}
 
-		return Constants::Zero;
+		std::pair<SymbolSet::iterator, bool> added = m_SymbolSet.insert(symbol);
+		if(added.second)
+		{
+			index = m_StringTable.size();
+			char* str = VD_NEW_ARRAY(char, length + 1);
+			Memory::CopyBytes(str, bytes, length);
+			m_StringTable.push_back(str);
+			added.first->m_Id = index;
+		}
+
+		symbol = *(added.first);
+		return symbol;
 	}
 	
-	const Symbol& 
-	Find(const vd::uid key) const
+	Symbol
+	Retrieve(const vd::uid key) const
 	{
-		SymbolMap::const_iterator it = m_SymbolMap.find(key);
-		if(it != m_SymbolMap.end())
+		Symbol symbol;
+		symbol.m_Key = key;
+
+		SymbolSet::const_iterator it = m_SymbolSet.find(symbol);
+		if(it != m_SymbolSet.end())
 		{
-			const Symbol& s = (it->second);
-			return s;
+			return (*it);
 		}	
-		return Symbol::Invalid;
+		return Symbol::GetInvalid();
+	}
+
+	const vd::u64
+	Resolve(const vd::uid key) const
+	{
+		Symbol symbol;
+		symbol.m_Key = key;
+
+		SymbolSet::const_iterator it = m_SymbolSet.find(symbol);
+		if(it != m_SymbolSet.end())
+		{
+			return it->m_Id;
+		}	
+		return VD_U64_MAX;
+	}
+
+	const char* 
+	Lookup(const vd::u64 index) const
+	{
+		if(index < m_StringTable.size())
+		{
+			return m_StringTable[index];
+		}	
+		return NULL;
 	}
 
 	bool 
 	Exists(const vd::uid key) const
 	{
-		SymbolMap::const_iterator it = m_SymbolMap.find(key);
-		if(it != m_SymbolMap.end())
+		Symbol symbol;
+		symbol.m_Key = key;
+		SymbolSet::const_iterator it = m_SymbolSet.find(symbol);
+		if(it != m_SymbolSet.end())
 		{
 			return true;
 		}	
@@ -147,23 +166,26 @@ public:
 	bool 
 	Remove(const Symbol& symbol)
 	{
-		return Remove(symbol.GetKey());
+		SymbolSet::const_iterator it = m_SymbolSet.find(symbol);
+		if(it != m_SymbolSet.end())
+		{
+			vd::u64 index = it->m_Id;
+			m_SymbolSet.erase(*it);
+			char* str = m_StringTable[index];
+			m_StringTable[index] = NULL;
+			VD_DELETE_ARRAY(str);
+			return true;
+		}
+
+		return false;
 	}
 	
 	bool 
 	Remove(const vd::uid key)
 	{
-		SymbolMap::const_iterator it = m_SymbolMap.find(key);
-		if(it != m_SymbolMap.end())
-		{
-			const Symbol& s = (it->second);
-			vd::u64 index = s.m_Id;
-			m_StringTable[index] = vd::string();
-			m_SymbolMap.erase(it);
-			return true;
-		}
-
-		return false;
+		Symbol symbol;
+		symbol.m_Key = key;
+		return Remove(symbol);
 	}
     
 	VD_DECLARE_OBJECT(SymbolRegistry);
@@ -172,9 +194,16 @@ private:
 
 	VD_DISABLE_COPY_CONSTRUCTORS(SymbolRegistry);
 
-	SymbolMap 	m_SymbolMap;
 	StringTable m_StringTable;
+	SymbolSet	m_SymbolSet;
 };
+
+// ============================================================================================== //
+
+namespace Internal
+{
+	static SymbolRegistry* Registry = NULL;
+}
 
 // ============================================================================================== //
 
@@ -182,82 +211,32 @@ VD_IMPLEMENT_OBJECT(SymbolRegistry, vd_sym(SymbolRegistry), vd_sym(Object));
 
 // ============================================================================================== //
 
-namespace
-{
-	static SymbolRegistry GlobalSymbolRegistry;
-	static Symbol* SymbolListHead = NULL;
-	static Symbol* SymbolListTail = NULL;
-}
-
-// ============================================================================================== //
-
-void Symbol::RegisterSelf(void)
-{
-    if(SymbolListHead != NULL)
-    {
-        SymbolListTail->m_Next = this;
-        SymbolListTail = this;
-    }
-    else
-    {
-        SymbolListHead = this;
-        SymbolListTail = this;
-    }
-}
-
-// ============================================================================================== //
-
-Symbol::Symbol(
-	const char* str)
+Symbol::Symbol() : 
+	m_Id(0),
+	m_Key(0,0)
 { 
-	m_Str = str;
-	m_Id = 0;
-	m_Key = 0;
+
 }
 
 Symbol::Symbol(
 	const vd::symbol& sym
 ) :
-	m_Next(NULL),
 	m_Id(0),
-	m_Key(sym.ToId()),
-	m_Str(sym.ToString())
+	m_Key(sym.key)
 { 
-	if(m_Key && m_Str)
-		RegisterSelf();
+	if(sym.key)	
+		m_Id = Symbol::Retrieve(sym.key).GetId();
 }
 
 Symbol::Symbol(
 	const vd::uid key, 
-	const char* str,
-	bool track
+	const char* str
 ) :
-	m_Next(NULL),
 	m_Id(0),
-	m_Key(),
-	m_Str("<NULL>")
+	m_Key(key)
 { 
-	m_Key = key;
-	m_Str = str;
-
-	if(track && key && str)
-		RegisterSelf();
-}
-
-Symbol::Symbol() : 
-	m_Next(NULL),
-	m_Id(0),
-	m_Key(),
-	m_Str("<NULL>")
-{ 
-
-}
-
-Symbol::~Symbol() 
-{ 
-	m_Id = 0;
-	m_Key = 0;
-	m_Str = NULL;
+	if(key && str)	
+		*this = Symbol::Register(key, str);
 }
 
 Symbol::Symbol(
@@ -265,7 +244,12 @@ Symbol::Symbol(
 {
 	m_Id = other.m_Id;
 	m_Key = other.m_Key;
-	m_Str = other.m_Str;
+}
+
+Symbol::~Symbol() 
+{ 
+	m_Id = 0;
+	m_Key = Constants::Zero;
 }
 
 Symbol& 
@@ -273,10 +257,9 @@ Symbol::operator=(const Symbol& other)
 {
 	if(this == &other)
 		return *this;
-		
+
 	m_Id = other.m_Id;
 	m_Key = other.m_Key;
-	m_Str = other.m_Str;
 	return *this;
 }
 
@@ -298,75 +281,106 @@ Symbol::operator<(const Symbol& other) const
 	return (m_Key < other.m_Key);
 }
 
+Symbol
+Symbol::GetInvalid()
+{
+	static const Symbol invalid;
+	return invalid;
+}
+
 bool 
 Symbol::IsValid() const
 {
-	return Symbol::Invalid == *this;
+	return (*this == GetInvalid());
 }
 
-vd::uid 
+Symbol 
 Symbol::Register(const char* bytes)	
 {		
-	vd::uid key = Constants::Zero;
-	if(bytes == NULL)
-		return key;
-		
-	Symbol symbol(key, bytes, true);
-	key = Symbol::Register(symbol);
-	return key; // Symbol::Retrieve(key);
+	vdGlobalAssert(bytes != NULL);
+	if(bytes == NULL) return Symbol::GetInvalid();
+	SymbolRegistry* registry = Symbol::GetRegistry();
+	return registry->Add(Constants::Zero, bytes);
 }
 
-vd::uid 
-Symbol::Register(const Symbol& name)
+Symbol 
+Symbol::Register(
+	const vd::uid key, const char* bytes)
 {
-	Symbol rv = name;
-	return GlobalSymbolRegistry.Add(rv);
-	return rv.GetKey();	
+	SymbolRegistry* registry = Symbol::GetRegistry();
+	return registry->Add(key, bytes);
 }
 
-const Symbol&
+const vd::u64
+Symbol::Resolve(vd::uid key)
+{
+	SymbolRegistry* registry = Symbol::GetRegistry();
+	return registry->Resolve(key);
+}
+
+const char*
+Symbol::Lookup(vd::u64 index)
+{
+	SymbolRegistry* registry = Symbol::GetRegistry();
+	return registry->Lookup(index);
+}
+
+Symbol
 Symbol::Retrieve(vd::uid key)
 {
-	return GlobalSymbolRegistry.Find(key);
+	SymbolRegistry* registry = Symbol::GetRegistry();
+	return registry->Retrieve(key);
 }
 
 bool 
 Symbol::IsValid(
 	const Symbol& symbol)
 {
-	return Symbol::Invalid == symbol;
+	return (symbol == GetInvalid());
 }
 
 // ============================================================================================== //
 
 vd::u64
-Symbol::CreateRegistry(void)
+Symbol::CreateRegistry()
 {
-	typedef Containers::Map<vd::uid, bool, UidHash, UidEqualTo>::type 	SymbolMap;
+	if(Internal::Registry == NULL)
+		Internal::Registry = VD_NEW(SymbolRegistry);
+
+	SymbolRegistry* registry = Symbol::GetRegistry();
+	vd::symbol* sym = vd::symbol::head;
 
 	vd::u64 count = 0;
-	SymbolMap existing;
-
-	Symbol* sym = SymbolListHead; 
 	while(sym != NULL)
 	{
-		if(existing.find(sym->m_Key) == existing.end())
+		if(sym->key && sym->str && !registry->Exists(sym->key))
 		{
-			vd::uid key = Symbol::Register(*sym);
-			// const Symbol& s = Symbol::Retrieve(key);
-			existing[key] = true;
+			registry->Add(sym->key, sym->str);
 		}
-		sym = sym->m_Next;
+
+		sym = sym->next;
 		count++;
 	} 
-	
+
 	return count;
 }
 
 void
 Symbol::DestroyRegistry()
 {
-	GlobalSymbolRegistry.Destroy();
+	vdGlobalAssertMsg((Internal::Registry != NULL), 
+		"Symbol registry has not been initialized!");
+
+	VD_DELETE(Internal::Registry);
+}
+
+SymbolRegistry*
+Symbol::GetRegistry()
+{
+	vdGlobalAssertMsg((Internal::Registry != NULL), 
+		"Symbol registry has not been initialized!");
+
+	return Internal::Registry;
 }
 
 // ============================================================================================== //
@@ -374,11 +388,17 @@ Symbol::DestroyRegistry()
 const char* 
 Symbol::ToString(const Symbol& symbol)
 {
-	return symbol.GetStr() == NULL ? "<NULL>" : symbol.GetStr();
+	return Symbol::Lookup(symbol.GetId());
+}
+
+vd::u64
+Symbol::ToId(const Symbol& symbol)
+{
+	return symbol.GetId();
 }
 
 vd::uid
-Symbol::ToId(const Symbol& symbol)
+Symbol::ToKey(const Symbol& symbol)
 {
 	return symbol.GetKey();
 }

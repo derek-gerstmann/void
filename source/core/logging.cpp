@@ -49,25 +49,27 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-static Handle<LogContext> DefaultLogContext;
+namespace 
+{
+    static Handle<LogContext> DefaultLogContext;    
+}
 
 // ============================================================================================== //
 
 void 
 LogEngine::Startup()
 {
-    Handle<LogContext> context = GetDefaultLogContext();
     if(Thread::GetCurrent())
-        Thread::GetCurrent()->SetLogContext(context);
+        Thread::GetCurrent()->SetLogContext(GetDefaultLogContext());
 }
 
 void 
 LogEngine::Shutdown()
 {
-    if(Thread::GetCurrent())
-        Thread::GetCurrent()->SetLogContext(NULL);
-    
-    DefaultLogContext->Release();		
+    DefaultLogContext->Destroy();
+
+//    if(Thread::GetCurrent() && Thread::GetCurrent()->GetLogContext())
+//        Thread::GetCurrent()->SetLogContext(NULL);
 }
 
 // ============================================================================================== //
@@ -75,6 +77,9 @@ LogEngine::Shutdown()
 Handle<LogContext>
 LogEngine::GetDefaultLogContext(void)
 {
+    Core::Mutex locker;
+    locker.Lock();
+
     if(!DefaultLogContext)
     {	
     	DefaultLogContext = VD_NEW(LogContext, LogLevel::Info);
@@ -84,6 +89,8 @@ LogEngine::GetDefaultLogContext(void)
 		DefaultLogContext->SetFormat(format);	
 		DefaultLogContext->Retain();		
 	}	
+
+    locker.Unlock();
 	return DefaultLogContext;
 }
 
@@ -93,6 +100,7 @@ LogEngine::GetCurrentLogContext(void)
 	Thread* self = Thread::GetCurrent();
 	if(self && self->GetLogContext())
 		return self->GetLogContext();
+
 	return GetDefaultLogContext();
 }
 
@@ -160,7 +168,7 @@ LogContext::Log(
     if(size >= sizeof(tmp))
     {
         msg = VD_NEW_ARRAY(char, size + 1);
-        Memory::MemSet(msg, 0, size);
+        Memory::SetBytes(msg, 0, size);
     }
     vsnprintf_s(msg, size, size - 1, fmt, iterator);
     va_end(iterator);
@@ -175,7 +183,7 @@ LogContext::Log(
     {
         // Temp buffer overflow! -- dynamically allocate memory
         msg = VD_NEW_ARRAY(char, size + 1);
-        Memory::MemSet(msg, 0, size);
+        Memory::SetBytes(msg, 0, size);
         va_start(iterator, fmt);
         vsnprintf(msg, size + 1, fmt, iterator);
         va_end(iterator);
@@ -221,7 +229,7 @@ LogContext::Log(
 
         char exe_path[VD_MAX_PATH];
         pid_t ppid = getppid();
-        Memory::MemSet(exe_path, 0, sizeof(exe_path));
+        Memory::SetBytes(exe_path, 0, sizeof(exe_path));
 
         vd::string pid_name = Text::Format("/proc/%i/exe", ppid);
         if(readlink(pid_name.c_str(), exe_path, sizeof(exe_path)) != -1)
@@ -342,30 +350,30 @@ DefaultLogFormat::Format(
     {
         switch(level)
         {
-            case LogLevel::Trace: 		oss << "[TRACE]   "; break;
-            case LogLevel::Debug: 		oss << "[DEBUG]   "; break;
-            case LogLevel::Info:  		oss << "[INFO]    "; break;
+            case LogLevel::Trace: 		oss << "  [TRACE] "; break;
+            case LogLevel::Debug: 		oss << "  [DEBUG] "; break;
+            case LogLevel::Info:  		oss << "   [INFO] "; break;
             case LogLevel::Warning:  	oss << "[WARNING] "; break;
-            case LogLevel::Error: 		oss << "[ERROR]	  "; break;
-            default:     				oss << "[USER]    "; break;
+            case LogLevel::Error: 		oss << "  [ERROR] "; break;
+            default:     				oss << "   [USER] "; break;
         }
     }
 
-    if(m_ShowThread && thread && thread->GetName() != NULL)
+    if(m_ShowThread && thread && thread->GetCurrent()->GetName() != NULL)
     {
-    	vd::string name = thread->GetName();
+    	vd::string name = thread->GetCurrent()->GetName();
+        oss << "[";
         oss << name;
+        oss << "]";
 
-        for(int i = 0; i < (5 - (int) name.size()); i++)
-            oss << ' ';
     }
 
     if(m_ShowClass)
     {
         if(metaclass)
-            oss << " [" << metaclass->GetIdentifier().ToString() << "] ";
+            oss << " " << metaclass->GetIdentifier().ToString() << " : ";
         else if(line != -1 && file)
-            oss << " [" << file << ":" << line << "] ";
+            oss << " " << file << ":" << line << " : ";
 //            oss << "[" << fs::path(file).filename().string() << ":" << line << "] ";
     }
 

@@ -60,9 +60,9 @@ GadgetSnapshot::GadgetSnapshot() :
 	m_GasParticleCount(0),
 	m_FileIndex(0)
 {
-    Memory::MemSet(&m_MetaData, 		0, sizeof(m_MetaData));
-    Memory::MemSet(&m_ParticleData, 	0, sizeof(m_ParticleData));
-    Memory::MemSet(&m_StatisticsData,	0, sizeof(m_StatisticsData));
+    Memory::SetBytes(&m_MetaData, 		0, sizeof(m_MetaData));
+    Memory::SetBytes(&m_ParticleData, 	0, sizeof(m_ParticleData));
+    Memory::SetBytes(&m_StatisticsData,	0, sizeof(m_StatisticsData));
 }
  
 GadgetSnapshot::~GadgetSnapshot()
@@ -123,7 +123,7 @@ GadgetSnapshot::CreateBlockData(
 
 			return 0;
 		}
-		Memory::MemSet(ptr, 0, bytes);
+		Memory::SetBytes(ptr, 0, bytes);
 	}
 	
 	SetBlockDataPtr(block, ptr);
@@ -733,9 +733,9 @@ GadgetSnapshot::SwapFloat3DataAt(
     src = &(ptr[isrc * 3]);
     dst = &(ptr[idst * 3]);
 
-    Memory::MemCopy(tmp, src, sizeof(float) * 3);
-    Memory::MemCopy(src, dst, sizeof(float) * 3);
-    Memory::MemCopy(dst, tmp, sizeof(float) * 3);
+    Memory::CopyBytes(tmp, src, sizeof(float) * 3);
+    Memory::CopyBytes(src, dst, sizeof(float) * 3);
+    Memory::CopyBytes(dst, tmp, sizeof(float) * 3);
 }
 
 void
@@ -975,9 +975,9 @@ GadgetDataset::GadgetDataset(
     m_CacheSize(2*1024*1024),
     m_Runtime(runtime)
 {
-	Memory::MemSet(m_RequestedTypes,  0, sizeof(m_RequestedTypes));
-	Memory::MemSet(m_RequestedBlocks, 0, sizeof(m_RequestedBlocks));
-	Memory::MemSet(m_RequestedStatistics, 0, sizeof(m_RequestedStatistics));
+	Memory::SetBytes(m_RequestedTypes,  0, sizeof(m_RequestedTypes));
+	Memory::SetBytes(m_RequestedBlocks, 0, sizeof(m_RequestedBlocks));
+	Memory::SetBytes(m_RequestedStatistics, 0, sizeof(m_RequestedStatistics));
 }
 
 GadgetDataset::~GadgetDataset() 

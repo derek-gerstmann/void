@@ -371,7 +371,7 @@ struct Base
 #endif
         m_AsciiBuffer(NULL)
     {
-        Memory::MemSet(&m_Glob, 0, sizeof(m_Glob));
+        Memory::SetBytes(&m_Glob, 0, sizeof(m_Glob));
     }
 
     ~Base()
@@ -387,11 +387,11 @@ struct Base
     SetupFile()
     {
         m_AsciiBuffer = VD_NEW_ARRAY(char, VD_MAX_PATH_LENGTH);
-        Memory::MemSet(m_AsciiBuffer, 0, sizeof(char) * VD_MAX_PATH_LENGTH);
+        Memory::SetBytes(m_AsciiBuffer, 0, sizeof(char) * VD_MAX_PATH_LENGTH);
 
 #if VD_HAVE_ICU
         m_UnicodeBuffer = VD_NEW_ARRAY(UChar, VD_MAX_PATH_LENGTH);
-        Memory::MemSet(m_UnicodeBuffer, 0, sizeof(UChar) * VD_MAX_PATH_LENGTH);
+        Memory::SetBytes(m_UnicodeBuffer, 0, sizeof(UChar) * VD_MAX_PATH_LENGTH);
 #endif
 
         m_IsDir = false;
@@ -661,7 +661,7 @@ Template<CharType>::Setup(
     vd::u32 flags, vd::i32 slots)
 {
     m_PathPrefix = VD_NEW_ARRAY(CharType, VD_MAX_PATH_LENGTH);
-    Memory::MemSet(m_PathPrefix, 0, sizeof(CharType) * VD_MAX_PATH_LENGTH);
+    Memory::SetBytes(m_PathPrefix, 0, sizeof(CharType) * VD_MAX_PATH_LENGTH);
 
     m_ContentType = ContentType::Pointers;
     m_Flags = flags;

@@ -29,7 +29,6 @@
 
 #if defined(VD_USE_OPENGL)
 #include "graphics/gl/opengl.h"
-#include "glsw.h"
 #endif
 
 // ============================================================================================== //

@@ -41,15 +41,15 @@ VD_GRAPHICS_NAMESPACE_BEGIN();
 struct ChannelFormat
 {
 	VD_DECLARE_ENUM(Order,
-		Alpha,
-		Luminance,
 		R,
 		RG,
 		RGB,
-		BGR,
 		RGBA,
-		BGRA,
+		Alpha,
 		Depth,
+		Intensity,
+		Luminance,
+		LuminanceAlpha,
 		Custom);
 		
 	vd::i32 Count;
@@ -85,17 +85,17 @@ struct ChannelFormat
 		switch (order)
 		{
 			case ChannelFormat::Order::Alpha:
+			case ChannelFormat::Order::Intensity:
 			case ChannelFormat::Order::Luminance:
-			case ChannelFormat::Order::R:
 			case ChannelFormat::Order::Depth:
+			case ChannelFormat::Order::R:
 				return 1;
+			case ChannelFormat::Order::LuminanceAlpha:
 			case ChannelFormat::Order::RG:
 				return 2;
 			case ChannelFormat::Order::RGB:
-			case ChannelFormat::Order::BGR:
 				return 3;
 			case ChannelFormat::Order::RGBA:
-			case ChannelFormat::Order::BGRA:
 				return 4;
 			default:
 				return 1;

@@ -95,6 +95,8 @@ typedef double          	                 f64	 __attribute__((aligned(8)));
 typedef wchar_t                              wchar_t __attribute__((aligned(sizeof(wchar_t))));
 typedef size_t                               bytesize;
 typedef u32 				                 tag;
+typedef intptr_t                             address;
+typedef void*                                ptr;
 #else
 typedef int8_t                               flag;
 typedef int8_t                               i8;
@@ -161,6 +163,9 @@ class CompileTimeCheck<false>
         size_t s = sizeof(c);                                 	\
         (void)(s);                            					\
     } while (0)
+
+#define VD_STATIC_ASSERT_MSG(test, msg) vdStaticAssert(test, msg)
+#define VD_STATIC_ASSERT(test) vdStaticAssert(test, CompileTimeAssertionFailed)
 
 // ============================================================================================== //
 
@@ -266,7 +271,7 @@ public:
 
     explicit uid(const char* str)
     {
-        *this = vd::string(str);
+        *this = FromString(vd::string(str));
     }
 
     uid& operator = (const uid& rhs)
@@ -282,8 +287,6 @@ public:
         m_Data[0] = rhs.m_Data[0];
         return *this;
     }
-
-    uid& operator = (const vd::string& from);
 
     operator bool() const
     {
@@ -362,6 +365,8 @@ public:
         --m_Data[0];
         return *this;
     }
+
+    uid& FromString(const vd::string& from);
 
     const u64& GetLower() const { return m_Data[0]; }
     const u64& GetUpper() const { return m_Data[1]; }
@@ -444,15 +449,15 @@ public:
 
     VD_FORCE_INLINE 
     symbol()  
-        : key(0,0), str(NULL) {}
+        : key(0,0), str(NULL), next(NULL) { }
 
     VD_FORCE_INLINE 
     symbol(const vd::uid& k, const char* s) 
-        : key(k), str(s) { }
+        : key(k), str(s), next(NULL) { RegisterSelf(); }
     
     VD_FORCE_INLINE 
     symbol(const vd::symbol& s) 
-        : key(s.ToKey()), str(s.ToString()) { }
+        : key(s.ToKey()), str(s.ToString()), next(NULL) { RegisterSelf(); }
 
     bool operator==(const symbol& other) const
     {
@@ -503,8 +508,14 @@ public:
         return key && (str != NULL); 
     }
 
-    uid         key;
-    const char* str;
+    void RegisterSelf(void);
+
+    uid             key;
+    const char*     str;
+    symbol*         next;
+    static symbol*  head;
+    static symbol*  tail;
+
 };
 
 

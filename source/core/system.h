@@ -26,6 +26,7 @@
 #define VD_CORE_SYSTEM_INCLUDED
 
 #include "core/core.h"
+#include "core/object.h"
 
 // ============================================================================================== //
 
@@ -36,13 +37,14 @@ VD_CORE_NAMESPACE_BEGIN();
 class System
 {
 public:
-    static bool Startup(void);
+    static bool Startup(int* argc=NULL, void** argv=NULL);
     static bool Shutdown(void);
 
     static vd::f64 GetStartupTime(void);
     static vd::f64 GetShutdownTime(void);
 
 private:
+
     static vd::f64 m_StartupTime;
     static vd::f64 m_ShutdownTime;
 };

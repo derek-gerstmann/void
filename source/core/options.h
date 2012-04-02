@@ -236,7 +236,7 @@ private:
 #if defined(VD_MAX_ARGS)
         while(count-- > 0) *dst++ = *src++;
 #else
-        Memory::MemCopy(dst, src, count * sizeof(CharType*));
+        Memory::CopyBytes(dst, src, count * sizeof(CharType*));
 #endif
     }
 

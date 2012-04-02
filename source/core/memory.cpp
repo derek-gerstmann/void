@@ -217,38 +217,37 @@ private:
 // ============================================================================================== //
 
 void* 
-Memory::MemSet(
+Memory::SetBytes(
     void* b, int c, size_t len)
 {
 #if defined(VD_USE_ASMLIB)
-	return A_memset(b, c, len);
+    return A_memset(b, c, len);
 #else
-	return ::memset(b, c, len);
+    return ::memset(b, c, len);
 #endif
 }
 
 void* 
-Memory::MemCopy(
+Memory::CopyBytes(
     void* s1, const void* s2, size_t n)
 {
 #if defined(VD_USE_ASMLIB)
-	return A_memcpy(s1, s2, n);
+    return A_memcpy(s1, s2, n);
 #else
-	return ::memcpy(s1, s2, n);
+    return ::memcpy(s1, s2, n);
 #endif
 }
 
 void* 
-Memory::MemMove(
+Memory::MoveBytes(
     void *s1, const void *s2, size_t n)
 {
 #if defined(VD_USE_ASMLIB)
-	return A_memmove(s1, s2, n);
+    return A_memmove(s1, s2, n);
 #else
-	return ::memmove(s1, s2, n);
+    return ::memmove(s1, s2, n);
 #endif
 }
-
 
 #if defined(VD_DEBUG_MEMORY)
 
@@ -261,24 +260,23 @@ Memory::Track(
     const char* function, 
     int line)
 {
-    if(GlobalMemoryIndex) 
-    	return GlobalMemoryIndex->Track(ptr, bytes, file, function, line);
-    return ptr;
+    vdGlobalAssertMsg((GlobalMemoryIndex != NULL), "System memory tracking not initialized!")
+	return GlobalMemoryIndex->Track(ptr, bytes, file, function, line);
 }
 
 void 
 Memory::Ignore(
     void* ptr)
 {
-    if(GlobalMemoryIndex) 
-    	GlobalMemoryIndex->Ignore(ptr);
+    vdGlobalAssertMsg((GlobalMemoryIndex != NULL), "System memory tracking not initialized!")
+	GlobalMemoryIndex->Ignore(ptr);
 }
 
 void 
 Memory::Dump(void)
 {
-    if(GlobalMemoryIndex) 
-    	GlobalMemoryIndex->Dump();
+    vdGlobalAssertMsg((GlobalMemoryIndex != NULL), "System memory tracking not initialized!")
+	GlobalMemoryIndex->Dump();
 }
 
 void 

@@ -58,7 +58,7 @@ struct Config
 	
     Config()
 	{
-	    Memory::MemSet(this, 0, sizeof(Config));
+	    Memory::SetBytes(this, 0, sizeof(Config));
 	}
 	
 	~Config(){}

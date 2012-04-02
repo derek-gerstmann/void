@@ -4,6 +4,20 @@
 source "./common.sh"
 
 ####################################################################################################
+# setup pkg definition and resource files
+####################################################################################################
+
+pkg_name="glew"
+pkg_base="glew"
+pkg_file="$pkg_base.tar.bz2"
+pkg_url="git://glew.git.sourceforge.net/gitroot/glew/glew"
+
+pkg_opt="keep"
+pkg_ldflags=0
+pkg_cflags=0
+pkg_cfg=0
+
+####################################################################################################
 
 function boot_glew()
 {
@@ -30,20 +44,20 @@ function make_glew()
     prefix="$ext_dir/build/$pkg_name/$os_name"
     push_dir "$ext_dir/pkgs/$pkg_base"
 
+    report "Building package '$pkg_name'"
+    separator
     if [ "$is_centos" -eq 1 ]
     then
         cp $scs_dir/data/glew/Makefile.centos config || bail "Failed to copy custom Makefile for CentOS!"
         glew_sys="centos"
+        
+        make GLEW_DEST="$prefix" SYSTEM="$glew_sys" || bail "Failed to build package: '$prefix'"
+        make GLEW_DEST="$prefix" SYSTEM="$glew_sys" install || bail "Failed to build package: '$prefix'"
     else
-        glew_sys="auto"
+        make GLEW_DEST="$prefix" || bail "Failed to build package: '$prefix'"
+        make GLEW_DEST="$prefix" install || bail "Failed to build package: '$prefix'"        
     fi
-
-    report "Building package '$pkg_name'"
     separator
-    make GLEW_DEST="$prefix" SYSTEM="$glew_sys" || bail "Failed to build package: '$prefix'"
-    make GLEW_DEST="$prefix" SYSTEM="$glew_sys" install || bail "Failed to build package: '$prefix'"
-    separator
-
     pop_dir
 
 }
@@ -80,20 +94,6 @@ function build_glew()
     report "DONE building '$pkg_name' from '$pkg_file'! --"
     separator
 }
-
-####################################################################################################
-# setup pkg definition and resource files
-####################################################################################################
-
-pkg_name="glew"
-pkg_base="glew"
-pkg_file="$pkg_base.tar.bz2"
-pkg_url="git://glew.git.sourceforge.net/gitroot/glew/glew"
-
-pkg_opt="keep"
-pkg_ldflags=0
-pkg_cflags=0
-pkg_cfg=0
 
 ####################################################################################################
 # build and install pkg into external folder using custom GLEW build methods

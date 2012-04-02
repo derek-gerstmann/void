@@ -41,31 +41,41 @@ VD_CORE_NAMESPACE_BEGIN();
 class Object : public Shared<Object>
 {
 public:
+	
     Object(const Object* parent=NULL);
 
-    virtual vd::status Destroy(void);
+    virtual vd::status 
+    Destroy(void);
+
 	void SetId(vd::uid id);
 	vd::uid GetId() const;
-    virtual vd::string ToString() const;
+    
+    virtual vd::string 
+    ToString() const;
 
-	static const char* GetName()
+	static const char* 
+	GetName()
 	{ 
 		static const char* ident = "Object";
 		return ident; 
 	};
 
-	static const char* GetIdentifier()
+	static const char* 
+	GetIdentifier()
 	{ 
 		static const char* ident = "Object";
 		return ident; 
 	};
 
-	virtual Core::Object* DynamicCast( const char* identifier )
+	virtual Core::Object* 
+	DynamicCast( const char* identifier )
 	{
 		return NULL;
 	}
 	
-	virtual const Core::MetaClass* GetMetaClass() const;
+	virtual const 
+	Core::MetaClass* GetMetaClass() const;
+	
 	static Core::MetaClass m_MetaClass;
 
 protected:

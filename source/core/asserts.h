@@ -36,6 +36,49 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
+#ifndef VD_STATIC_ASSERT
+
+// ============================================================================================== //
+
+template<bool> 
+class CompileTimeCheck
+{
+public:
+    CompileTimeCheck(...) {}
+};
+
+template<> 
+class CompileTimeCheck<false>
+{
+	// EMPTY!
+};
+
+// ============================================================================================== //
+
+#define vdStaticAssertMsg(test, msg)       	                    \
+    do {                                                        \
+        struct VD_ERROR_##msg {};              		            \
+        typedef CompileTimeCheck< (test) != 0 > check;          \
+        check c = check(VD_ERROR_##msg());              		\
+        size_t s = sizeof(c);                                 	\
+        (void)(s);                            					\
+    } while (0)
+
+#define vdStaticAssert(test) \
+    vdStaticAssertMsg(test, CompileTimeAssertionFailed)
+
+#define VD_STATIC_ASSERT_MSG(test, msg) \
+    vdStaticAssertMsg(test, msg)
+
+#define VD_STATIC_ASSERT(test) \
+	vdStaticAssertMsg(test, CompileTimeAssertionFailed)
+
+// ============================================================================================== //
+
+#endif // VD_STATIC_ASSERT
+
+// ============================================================================================== //
+
 #if defined(VD_NDEBUG) || defined(VD_RELEASE_BUILD)
 
 // ============================================================================================== //

@@ -37,7 +37,7 @@ Framebuffer::Framebuffer(
     Object(),
     m_Context(ctx)
 {
-    Core::Memory::MemSet(&m_Data, 0, sizeof(m_Data));
+    Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
 }
 
 Framebuffer::~Framebuffer()
@@ -49,14 +49,14 @@ void
 Framebuffer::Reset()
 {
     Destroy();
-    Core::Memory::MemSet(&m_Data, 0, sizeof(m_Data));
+    Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
 }
 
 void
 Framebuffer::Setup(
     const Framebuffer::Data& data)
 {
-    Core::Memory::MemCopy(&m_Data, &data, sizeof(m_Data));
+    Core::Memory::CopyBytes(&m_Data, &data, sizeof(m_Data));
 }
 
 vd::status 
