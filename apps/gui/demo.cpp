@@ -24,10 +24,7 @@
 
 #include "vd.h"
 #include "demo.h"
-// #if defined(VD_USE_EXTRACTED_SYMBOLS)
 #include "symbols.h"
-// #endif
-#include "constants/constants.h"
 #include "core/symbol.h"
 #include <iostream>
 

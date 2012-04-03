@@ -54,10 +54,10 @@ TiledRenderer::TiledRenderer() :
 	m_RowOrder(RowOrder::BottomToTop),
 	m_UsePerspective(true)
 {
-	Memory::MemSet(&m_Tile, 0, sizeof(TileRegion));
-	Memory::MemSet(&m_Image, 0, sizeof(ImageRegion));
-	Memory::MemSet(&m_Frustum, 0, sizeof(Frustum));
-	Memory::MemSet(m_SavedViewport, 0, sizeof(m_SavedViewport));
+	Memory::SetBytes(&m_Tile, 0, sizeof(TileRegion));
+	Memory::SetBytes(&m_Image, 0, sizeof(ImageRegion));
+	Memory::SetBytes(&m_Frustum, 0, sizeof(Frustum));
+	Memory::SetBytes(m_SavedViewport, 0, sizeof(m_SavedViewport));
 }
 
 TiledRenderer::TiledRenderer(
@@ -79,10 +79,10 @@ TiledRenderer::TiledRenderer(
 	m_RowOrder(RowOrder),
 	m_UsePerspective(true)
 {
-	Memory::MemSet(&m_Tile, 0, sizeof(TileRegion));
-	Memory::MemSet(&m_Image, 0, sizeof(ImageRegion));
-	Memory::MemSet(&m_Frustum, 0, sizeof(Frustum));
-	Memory::MemSet(m_SavedViewport, 0, sizeof(m_SavedViewport));
+	Memory::SetBytes(&m_Tile, 0, sizeof(TileRegion));
+	Memory::SetBytes(&m_Image, 0, sizeof(ImageRegion));
+	Memory::SetBytes(&m_Frustum, 0, sizeof(Frustum));
+	Memory::SetBytes(m_SavedViewport, 0, sizeof(m_SavedViewport));
 
 	SetImageSize(img_width, img_height);
 	SetTileSize(tile_width, tile_height, border);

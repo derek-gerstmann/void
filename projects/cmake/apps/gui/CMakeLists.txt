@@ -48,7 +48,7 @@ if(VOID_USE_EXTRACTED_SYMBOLS)
         Demo
         ${VD_APPS_GUI_SYMEX_FILELIST})
 
-    add_custom_target(VdSymExDemoHeader ALL DEPENDS ${VD_APPS_GUI_SYMEX_FILELIST} ${VD_ALL_SRC} ${VD_ALL_INC} )
+    add_custom_target(VdSymExDemoHeader ALL DEPENDS ${VD_APPS_GUI_SYMEX_FILELIST} )
 endif()
 
 if(EXISTS ${VD_APPS_GUI_DEMO_SYMBOLS_H})

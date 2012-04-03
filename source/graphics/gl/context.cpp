@@ -48,6 +48,141 @@ bool IsOdd(T x)
     return ((x) % 2);
 }
 
+static const char*
+ConvertGLEnumToString(
+    GLenum value)
+{
+    switch(value)
+    {
+        case GL_BYTE:                       { return "GL_BYTE"; }
+        case GL_UNSIGNED_BYTE:              { return "GL_UNSIGNED_BYTE"; }
+        case GL_SHORT:                      { return "GL_SHORT"; }
+        case GL_INT:                        { return "GL_INT"; }
+        case GL_UNSIGNED_INT:               { return "GL_UNSIGNED_INT"; }
+        case GL_HALF_FLOAT:                 { return "GL_HALF_FLOAT"; }
+        case GL_FLOAT:                      { return "GL_FLOAT"; }
+        case GL_DOUBLE:                     { return "GL_DOUBLE"; }
+
+        case GL_POINTS:                     { return "GL_POINTS"; }
+        case GL_LINES:                      { return "GL_LINES"; }
+        case GL_LINE_STRIP:                 { return "GL_LINE_STRIP"; }
+        case GL_LINE_LOOP:                  { return "GL_LINE_LOOP"; }
+        case GL_QUADS:                      { return "GL_QUADS"; }
+        case GL_QUAD_STRIP:                 { return "GL_QUAD_STRIP"; }
+        case GL_TRIANGLES:                  { return "GL_TRIANGLES"; }
+        case GL_TRIANGLE_STRIP:             { return "GL_TRIANGLE_STRIP"; }
+        case GL_TRIANGLE_FAN:               { return "GL_TRIANGLE_FAN"; }
+        case GL_POLYGON:                    { return "GL_POLYGON"; }
+
+        case GL_ARRAY_BUFFER:               { return "GL_ARRAY_BUFFER"; }
+        case GL_ELEMENT_ARRAY_BUFFER:       { return "GL_ELEMENT_ARRAY_BUFFER";  }
+        case GL_PIXEL_UNPACK_BUFFER:        { return "GL_PIXEL_UNPACK_BUFFER"; }
+        case GL_FRAMEBUFFER:                { return "GL_FRAMEBUFFER"; }
+        case GL_RENDERBUFFER:               { return "GL_RENDERBUFFER"; }
+        case GL_TEXTURE_BUFFER:             { return "GL_TEXTURE_BUFFER"; }
+
+        case GL_VERTEX_ARRAY:               { return "GL_VERTEX_ARRAY"; }
+        case GL_NORMAL_ARRAY:               { return "GL_NORMAL_ARRAY"; }
+        case GL_COLOR_ARRAY:                { return "GL_COLOR_ARRAY"; }
+        case GL_TEXTURE_COORD_ARRAY:        { return "GL_TEXTURE_COORD_ARRAY"; }
+
+        case GL_ALPHA:                      { return "GL_ALPHA"; }
+        case GL_ALPHA8I_EXT:                { return "GL_ALPHA8I_EXT"; }
+        case GL_ALPHA8UI_EXT:               { return "GL_ALPHA8UI_EXT"; }
+        case GL_ALPHA16I_EXT:               { return "GL_ALPHA16I_EXT"; } 
+        case GL_ALPHA16UI_EXT:              { return "GL_ALPHA16UI_EXT"; }
+        case GL_ALPHA16F_ARB:               { return "GL_ALPHA16F_ARB"; }
+        case GL_ALPHA32I_EXT:               { return "GL_ALPHA32I_EXT"; } 
+        case GL_ALPHA32UI_EXT:              { return "GL_ALPHA32UI_EXT"; }
+        case GL_ALPHA32F_ARB:               { return "GL_ALPHA32F_ARB"; }
+
+        case GL_LUMINANCE:                  { return "GL_LUMINANCE"; } 
+        case GL_LUMINANCE8I_EXT:            { return "GL_LUMINANCE8I_EXT"; } 
+        case GL_LUMINANCE8UI_EXT:           { return "GL_LUMINANCE8UI_EXT"; } 
+        case GL_LUMINANCE16I_EXT:           { return "GL_LUMINANCE16I_EXT"; }
+        case GL_LUMINANCE16UI_EXT:          { return "GL_LUMINANCE16UI_EXT"; }
+        case GL_LUMINANCE16F_ARB:           { return "GL_LUMINANCE16F_ARB"; }
+        case GL_LUMINANCE32I_EXT:           { return "GL_LUMINANCE32I_EXT"; }
+        case GL_LUMINANCE32UI_EXT:          { return "GL_LUMINANCE32UI_EXT"; }
+        case GL_LUMINANCE32F_ARB:           { return "GL_LUMINANCE32F_ARB"; }
+
+        case GL_LUMINANCE_ALPHA:            { return "GL_LUMINANCE_ALPHA"; }
+        case GL_LUMINANCE_ALPHA8I_EXT:      { return "GL_LUMINANCE_ALPHA8I_EXT"; }
+        case GL_LUMINANCE_ALPHA8UI_EXT:     { return "GL_LUMINANCE_ALPHA8UI_EXT"; }
+        case GL_LUMINANCE_ALPHA16I_EXT:     { return "GL_LUMINANCE_ALPHA16I_EXT"; }
+        case GL_LUMINANCE_ALPHA16UI_EXT:    { return "GL_LUMINANCE_ALPHA16UI_EXT"; }
+        case GL_LUMINANCE_ALPHA16F_ARB:     { return "GL_LUMINANCE_ALPHA16F_ARB"; }
+        case GL_LUMINANCE_ALPHA32I_EXT:     { return "GL_LUMINANCE_ALPHA32I_EXT"; }
+        case GL_LUMINANCE_ALPHA32UI_EXT:    { return "GL_LUMINANCE_ALPHA32UI_EXT"; }
+        case GL_LUMINANCE_ALPHA32F_ARB:     { return "GL_LUMINANCE_ALPHA32F_ARB"; }
+
+        case GL_INTENSITY:                  { return "GL_INTENSITY"; }  
+        case GL_INTENSITY8I_EXT:            { return "GL_INTENSITY8I_EXT"; }  
+        case GL_INTENSITY8UI_EXT:           { return "GL_INTENSITY8UI_EXT"; }  
+        case GL_INTENSITY16I_EXT:           { return "GL_INTENSITY16I_EXT"; }
+        case GL_INTENSITY16UI_EXT:          { return "GL_INTENSITY16UI_EXT"; } 
+        case GL_INTENSITY16F_ARB:           { return "GL_INTENSITY16F_ARB"; }
+        case GL_INTENSITY32I_EXT:           { return "GL_INTENSITY32I_EXT"; }  
+        case GL_INTENSITY32UI_EXT:          { return "GL_INTENSITY32UI_EXT"; }
+        case GL_INTENSITY32F_ARB:           { return "GL_INTENSITY32F_ARB"; }
+
+        case GL_R:                          { return "GL_R"; } 
+        case GL_R8I:                        { return "GL_R8I"; } 
+        case GL_R8UI:                       { return "GL_R8UI"; } 
+        case GL_R16I:                       { return "GL_R16I"; }
+        case GL_R16UI:                      { return "GL_R16UI"; }
+        case GL_R16F:                       { return "GL_R16F"; }
+        case GL_R32I:                       { return "GL_R32I"; }
+        case GL_R32UI:                      { return "GL_R32UI"; }
+        case GL_R32F:                       { return "GL_R32F"; }
+
+        case GL_RG:                         { return "GL_RG"; } 
+        case GL_RG8I:                       { return "GL_RG8I"; } 
+        case GL_RG8UI:                      { return "GL_RG8UI"; } 
+        case GL_RG16I:                      { return "GL_RG16I"; }
+        case GL_RG16UI:                     { return "GL_RG16UI"; }
+        case GL_RG16F:                      { return "GL_RG16F"; }
+        case GL_RG32I:                      { return "GL_RG32I"; }
+        case GL_RG32UI:                     { return "GL_RG32UI"; }
+        case GL_RG32F:                      { return "GL_RG32F"; }
+
+        case GL_RGB:                        { return "GL_RGB"; } 
+        case GL_RGB8I:                      { return "GL_RGB8I"; } 
+        case GL_RGB8UI:                     { return "GL_RGB8UI"; }
+        case GL_RGB16I:                     { return "GL_RGB16I"; } 
+        case GL_RGB16UI:                    { return "GL_RGB16UI"; } 
+        case GL_RGB16F:                     { return "GL_RGB16F"; }
+        case GL_RGB32I:                     { return "GL_RGB32I"; } 
+        case GL_RGB32UI:                    { return "GL_RGB32UI"; }
+        case GL_RGB32F:                     { return "GL_RGB32F"; }
+
+        case GL_RGBA:                       { return "GL_RGBA"; } 
+        case GL_RGBA8I:                     { return "GL_RGBA8I"; } 
+        case GL_RGBA8UI:                    { return "GL_RGBA8UI"; }
+        case GL_RGBA16I:                    { return "GL_RGBA16I"; } 
+        case GL_RGBA16UI:                   { return "GL_RGBA16UI"; } 
+        case GL_RGBA16F_ARB:                { return "GL_RGBA16F"; }
+        case GL_RGBA32I:                    { return "GL_RGBA32I"; } 
+        case GL_RGBA32UI:                   { return "GL_RGBA32UI"; }
+        case GL_RGBA32F_ARB:                { return "GL_RGBA32F"; }
+
+        case GL_DEPTH_COMPONENT16:          { return "GL_DEPTH_COMPONENT16"; }
+        case GL_DEPTH_COMPONENT32:          { return "GL_DEPTH_COMPONENT32"; }
+        case GL_DEPTH_COMPONENT32F:         { return "GL_DEPTH_COMPONENT32F"; }
+
+        case GL_INVALID_ENUM:               { return "GL_INVALID_ENUM"; }
+        default:
+        {
+            vdLogGlobalError("Invalid GL enum value '%d : 0x%X' specified for conversion!", 
+                value, value);
+
+            return "GL_INVALID_ENUM"; 
+        }
+    };
+    return "GL_INVALID_ENUM";
+
+}
+
 static GLenum 
 ConvertBufferTargetToGL(
 	Buffer::TargetType::Value value)
@@ -334,7 +469,7 @@ ConvertInternalRGBAFormatToGL(
         case Graphics::ScalarTypeId::U8:     return GL_RGBA8UI;
         case Graphics::ScalarTypeId::I16:    return GL_RGBA16I; 
         case Graphics::ScalarTypeId::U16:    return GL_RGBA16UI; 
-        case Graphics::ScalarTypeId::F16:    return GL_RGBA16F;
+        case Graphics::ScalarTypeId::F16:    return GL_RGBA16F_ARB;
         case Graphics::ScalarTypeId::I32:    return GL_RGBA32I; 
         case Graphics::ScalarTypeId::U32:    return GL_RGBA32UI;
         case Graphics::ScalarTypeId::F32:    return GL_RGBA32F_ARB;
@@ -1701,6 +1836,7 @@ Context::CreateFramebuffer(
     }
     
     glGenTextures(1, &color_texture);
+    glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, color_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -1710,6 +1846,14 @@ Context::CreateFramebuffer(
     GLenum gl_base = ConvertBaseChannelFormatToGL(format);
     GLenum gl_type = ConvertScalarTypeIdToGL(scalar);
     GLenum gl_internal = ConvertInternalChannelFormatToGL(format, scalar);
+
+    vdLogInfo("Creating framebuffer attachment: Internal[%s : 0x%X] Base[%s : 0x%X] Type[%s : 0x%X] for '%s' '%s' ",
+        ConvertGLEnumToString(gl_internal), gl_internal, 
+        ConvertGLEnumToString(gl_base), gl_base, 
+        ConvertGLEnumToString(gl_type), gl_type,
+        Graphics::ChannelFormat::Order::ToString(format), 
+        Graphics::ScalarTypeId::ToString(scalar));
+
     glTexImage2D(GL_TEXTURE_2D, 0, gl_internal, width, height, 0, gl_base, gl_type, 0);
     vdLogOpenGLErrors("Unable to create color texture");
 
@@ -1723,13 +1867,15 @@ Context::CreateFramebuffer(
         vdLogOpenGLErrors("Unable to attach depth texture to frame buffer");
     }
     vdAssertMsg(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER), "Unable to create framebuffer!\n");
-    
+    glDisable(GL_TEXTURE_2D);
+
     Framebuffer::Data data;
     Core::Memory::SetBytes(&data, 0, sizeof(data));
 
     data.Width = width;
     data.Height = height;
     data.Format = format;
+    data.DataType = scalar;
     data.Framebuffer = handle;
     data.Renderbuffer = renderbuffer;
     data.ColorTexture = color_texture;

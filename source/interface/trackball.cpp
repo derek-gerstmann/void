@@ -105,7 +105,7 @@ TrackBall::ResetPosition()
 void 
 TrackBall::ResetGoal()
 {
-	vd::core::Memory::MemSet(&m_Goal, 0, sizeof(TrackBall::Goal));
+	vd::core::Memory::SetBytes(&m_Goal, 0, sizeof(TrackBall::Goal));
 	
     m_Goal.IsActive = VD_FALSE;
 	m_Goal.Microseconds = 0;
@@ -116,7 +116,7 @@ TrackBall::ResetGoal()
 void 
 TrackBall::ResetInertia()
 {
-	vd::core::Memory::MemSet(&m_Inertia, 0, sizeof(TrackBall::Inertia));
+	vd::core::Memory::SetBytes(&m_Inertia, 0, sizeof(TrackBall::Inertia));
 	
     m_Inertia.IsActive = VD_FALSE;
 	m_Inertia.RadiansPerSecond = 0.0f;
