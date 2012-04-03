@@ -1,14 +1,41 @@
-#include <ctime>
-#include <cstdio>
-#include <vector>
+// ============================================================================================== //
+//
+// License:		The Lesser GNU Public License (LGPL) v3.0.
+// 
+// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA). 
+//				As well as the shoulders of many giants...
+//
+// This file is part of the Void framework.
+//
+// The Void framework is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// The Void framework is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with the Void framework.  If not, see <http://www.gnu.org/licenses/>.
+//
+// ============================================================================================== //
 
-#include "core/framework.h"
+#include "core/core.h"
+#include "core/registry.h"
+#include "test/test.h"
+#include "test/speed.h"
 
 // ============================================================================================== //
 
-using vd::core::Symbol;
-using vd::core::Registry;
-using namespace vd::constants;
+VD_TEST_NAMESPACE_BEGIN();
+
+// ============================================================================================== //
+
+class TestValue;
+typedef Core::ValueRegistry<TestValue>	 TestRegistry;
+typedef Core::ValueRegistry<Core::Symbol> TestSymbolRegistry;
 
 // ============================================================================================== //
 
@@ -53,141 +80,109 @@ protected:
 
 };
 
-typedef Registry<TestValue> TestRegistry;
-typedef Registry<Symbol> TestSymbolRegistry;
+// ============================================================================================== //
+
+class RegistrySpeedTest : public Test::Speed
+{
+public:
+	virtual ~RegistrySpeedTest() {}
+	
+	vd::f64 GetInsertTime(void) const { return m_InsertTime; }
+	vd::f64 GetRetrieveTime(void) const { return m_RetrieveTime; }
+	vd::f64 GetClearTime(void) const { return m_ClearTime; }
+	
+	void RunN(unsigned N)
+	{
+		TestRegistry registry;
+		vd::u32 index[N];
+		vd::f32 values[N];
+			
+		registry.Clear();
+
+		vd::f64 start;
+		vd::f64 end;
+		
+		vd::v3f32 v; 
+			
+		for(int j=0; j<8; ++j)
+		{
+			start = Core::Process::GetTimeInSeconds();
+			for(unsigned i = 0; i< N; ++i)
+			{
+				vd::u32 id = registry.Reserve();
+				registry.Retrieve(id).SetValue(i);
+				index[i] = id;
+				values[i] = i;  
+			}
+			end = Core::Process::GetTimeInSeconds();		
+			
+			m_InsertTime += (end - start) / N;
+			
+			start = Core::Process::GetTimeInSeconds();
+			for(int k=0; k<100; ++k)
+			{
+				unsigned ai = registry.Size();
+				for(unsigned ei = 0; ei < ai; ei++)
+				{
+					vd::u32 id = index[ei];
+					vd::f32 v = values[ei];
+
+					VD_TEST_EXPECT_EQ(registry.Retrieve(id).GetValue(), v);
+				}
+			}
+			end = Core::Process::GetTimeInSeconds();
+	
+			m_RetrieveTime += (end - start) / 100.0 * N;
+	
+			start = Core::Process::GetTimeInSeconds();
+			registry.Clear();
+			end = Core::Process::GetTimeInSeconds();
+	
+			m_ClearTime += (end - start) / N;
+		}
+	}
+
+protected:
+
+	vd::f64 m_InsertTime;
+	vd::f64 m_RetrieveTime;
+	vd::f64 m_ClearTime;
+
+};
 
 // ============================================================================================== //
 
-void RunRegistryTest(unsigned N)
+VD_DEFINE_TEST_WITH_PARAM(RegistrySpeedTest, RunN) 
 {
-	TestRegistry registry;
-	vd::u32 index[N];
-	vd::f32 values[N];
-		
-	unsigned X1 = 0, X2 = 0, X3 = 0;
-	registry.Clear();
-
-	for(int j=0; j<8; ++j)
-	{
-		clock_t c0 = clock();
-
-		for(unsigned i = 0; i < N; ++i)
-		{
-			vd::uid uid = registry.Reserve();
-			registry.Retrieve(uid).SetValue(i);
-			index[i] = uid;
-			values[i] = i;  
-		}
-
-		clock_t c1 = clock();
-
-		for(int k=0; k<100; ++k)
-		{
-			unsigned ai = registry.Size();
-			for(unsigned ei = 0; ei < ai; ei++)
-			{
-				vd::uid uid = index[ei];
-				vd::f32 v = values[ei];
-				VD_FATAL_IF(registry.Retrieve(uid).GetValue() != v, "Failed!");
-			}
-		}
-
-		clock_t c2 = clock();
-		registry.Clear();
-		clock_t c3 = clock();
-		
-		X1 += (unsigned)(c1 - c0);
-		X2 += (unsigned)(c2 - c1);
-		X3 += (unsigned)(c3 - c2);
-	}
-	printf("%8u\t%06u\t%06u\t%06u\n", N, X1, X2, X3);
+	RunN(GetParam());
+	Base::RecordProperty("Iterations", GetIterationCount());
+	Base::RecordProperty("InsertTime", GetInsertTime());
+	Base::RecordProperty("RetrieveTime", GetRetrieveTime());
+	Base::RecordProperty("ClearTime", GetClearTime());
 }
 
 // ============================================================================================== //
 
-void RunSymbolTest(unsigned N)
+VD_GENERATE_TEST_WITH_PARAM(RegistrySpeedTestN, RegistrySpeedTest,
+	Test::Range(1000, 16384, 1000));
+
+// ============================================================================================== //
+
+VD_TEST_NAMESPACE_END();
+
+// ============================================================================================== //
+
+VD_IMPORT_MODULE(Test);
+
+// ============================================================================================== //
+
+int main(int argc, char **argv) 
 {
-	TestSymbolRegistry registry;
-	vd::u32 index[N];
-	Symbol values[N];
-		
-	unsigned X1 = 0, X2 = 0, X3 = 0;
-	registry.Clear();
-
-	for(int j=0; j<8; ++j)
-	{
-		clock_t c0 = clock();
-
-		for(unsigned i = 0; i < N; ++i)
-		{
-			vd::string value = vd::core::ToString(i);
-			index[i] = Symbol::Register(value.c_str());
-			values[i] = Symbol::Retrieve(index[i]);
-		}
-
-		clock_t c1 = clock();
-
-		for(int k=0; k<100; ++k)
-		{
-			unsigned ai = registry.Size();
-			for(unsigned ei = 0; ei < ai; ei++)
-			{
-				vd::uid uid = index[ei];
-				Symbol s = values[ei];
-				
-				VD_FATAL_IF(registry.Retrieve(uid) != s, "Failed!");
-			}
-		}
-
-		clock_t c2 = clock();
-		registry.Clear();
-		clock_t c3 = clock();
-		
-		X1 += (unsigned)(c1 - c0);
-		X2 += (unsigned)(c2 - c1);
-		X3 += (unsigned)(c3 - c2);
-	}
-	printf("%8u\t%06u\t%06u\t%06u\n", N, X1, X2, X3);
+	Test::System::Startup(&argc, argv);
+	int status = Test::System::RunAllTests();
+	Test::System::Shutdown();
+	return status;
 }
 
-void RunTest()
-{
-	printf("Registry speed test\n");
-	printf("  Repetitions   Insert Replace Clear\n");
-	for(unsigned a = 1024; a < 8 * 1024; )
-	{
-		unsigned x = a;
-		for(unsigned i=0; i<10; ++i)
-		{
-			RunRegistryTest(x);
-			x += a;
-		}
-		a = x;
-	}
+// ============================================================================================== //
 
-	printf("Symbol Registry speed test\n");
-	printf("  Repetitions   Insert Replace Clear\n");
-	for(unsigned a = 1024; a < 8 * 1024;  )
-	{
-		unsigned x = a;
-		for(unsigned i=0; i<10; ++i)
-		{
-			RunSymbolTest(x);
-			x += a;
-		}
-		a = x;
-	}
-}
-
-int 
-main(int argc, char** argv)
-{
-	vd::core::System::Startup();
-	vdLogGlobalInfo("Starting test '%s'...", argv[0]);
-	vd::f64 start = vd::core::System::GetTimeInSeconds();
-	RunTest();
-	vd::f64 end = vd::core::System::GetTimeInSeconds();
-	vdLogGlobalInfo("Test '%s' completed in '%f' sec!\n", argv[0], end - start);
-	vd::core::System::Shutdown();
-	return 0;
-}

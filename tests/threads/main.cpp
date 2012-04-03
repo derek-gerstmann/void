@@ -1,3 +1,5 @@
+#if 0
+
 #include "core/framework.h"
 
 int RunTest()
@@ -34,4 +36,4 @@ main(int argc, char** argv)
 	return 0;
 }
 
-
+#endif

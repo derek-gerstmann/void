@@ -1190,7 +1190,7 @@ Context::Release(
     vdLogOpenGLErrors("Start");
 
     const Geometry::Data& data = geo->GetData();
-    for(vd::u32 i = 0; i < Geometry::AttributeSlot::Count; i++)
+    for(vd::u32 i = Geometry::AttributeSlot::StartIndex; i < Geometry::AttributeSlot::Count; i++)
     {
         vd::u32 index = data.Buffers[i];
         if(m_Buffers.size() < index)
@@ -1600,23 +1600,19 @@ Context::Bind(
 
     vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error prior to render geometry.");
 
-    for(vd::u32 i = 0; i < Geometry::AttributeSlot::Count; i++)
+    for(vd::u32 i = Geometry::AttributeSlot::StartIndex; i < Geometry::AttributeSlot::Count; i++)
     {
-        if(data.Buffers[i] >= VD_U32_MAX)
-            continue;
-        
         vd::u32 index = data.Buffers[i];
+        vd::u32 slot = data.Bindings[i];
+        Geometry::AttributeSlot::Value attrib = Geometry::AttributeSlot::FromInteger(i);
+
         if(m_Buffers.size() < index)
-            continue;
+            return Status::Code::Reject;
         
-        Graphics::Buffer* buffer = m_Buffers[i];
+        Buffer* buffer = m_Buffers[index];
         if(buffer == NULL)
-            continue;
-
-        Geometry::AttributeSlot::Value attrib =  Geometry::AttributeSlot::FromInteger(i);
-        Geometry::AttributeSlot::Value binding = Geometry::AttributeSlot::FromInteger(data.Bindings[i]);
-        vd::u32 slot = Geometry::AttributeSlot::ToInteger(binding);
-
+            return Status::Code::Reject;
+                
         Bind(buffer);
         Bind(attrib, buffer, slot);
     }
@@ -1639,9 +1635,10 @@ Context::Submit(
 
     vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error prior to render geometry.");
 
-    if(data.Buffers[Geometry::AttributeSlot::Index] < VD_U32_MAX)
+    vd::u32 attrib = Geometry::AttributeSlot::ToInteger(Geometry::AttributeSlot::Index);
+    if(data.Buffers[attrib] < VD_U32_MAX)
     {
-        vd::u32 index = data.Buffers[Geometry::AttributeSlot::Index];
+        vd::u32 index = data.Buffers[attrib];
         if(m_Buffers.size() < index)
             return Status::Code::Reject;
         
@@ -1680,20 +1677,19 @@ Context::Unbind(
     const Geometry::Data& data = geo->GetData();
     vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error prior to render geometry.");
 
-    for(vd::u32 i = 0; i < Geometry::AttributeSlot::Count; i++)
+    for(vd::u32 i = Geometry::AttributeSlot::StartIndex; i < Geometry::AttributeSlot::Count; i++)
     {
+        vd::u32 slot = data.Bindings[i];
         vd::u32 index = data.Buffers[i];
+        Geometry::AttributeSlot::Value attrib = Geometry::AttributeSlot::FromInteger(i);
+        
         if(m_Buffers.size() < index)
             return Status::Code::Reject;
         
-        Buffer* buffer = m_Buffers[i];
+        Buffer* buffer = m_Buffers[index];
         if(buffer == NULL)
             return Status::Code::Reject;
         
-        Geometry::AttributeSlot::Value attrib =  Geometry::AttributeSlot::FromInteger(i);
-        Geometry::AttributeSlot::Value binding = Geometry::AttributeSlot::FromInteger(data.Bindings[i]);
-        vd::u32 slot = Geometry::AttributeSlot::ToInteger(binding);
-
         Unbind(buffer);
         Unbind(attrib, buffer, slot);
     }
@@ -1730,7 +1726,6 @@ Context::Bind(
     Buffer* buffer,
     vd::u32 slot)
 {
-    vdAssert(Geometry::AttributeSlot::IsValid(attrib) == true);
     vdAssert(buffer != NULL);
 
     const Buffer::Data& data = buffer->GetData();
@@ -1746,28 +1741,49 @@ Context::Bind(
         glVertexAttribPointer(slot, components, datatype, GL_FALSE, stride, ptr);
         glEnableVertexAttribArray(slot);    
     }
-    else if(attrib == Geometry::AttributeSlot::Position)    
+    else
     {
-        glVertexPointer( components, datatype, stride, ptr);
-        glEnableClientState( GL_VERTEX_ARRAY );
-    }  
-    else if(attrib == Geometry::AttributeSlot::Normal)
-    {
-        glNormalPointer( datatype, stride, ptr);
-        glEnableClientState( GL_NORMAL_ARRAY );
-    } 
-    else if(attrib == Geometry::AttributeSlot::TexCoord)
-    {
-        glTexCoordPointer( components, datatype, stride, ptr );
-        glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-    }    
-    else if(attrib == Geometry::AttributeSlot::Color)
-    {
-        glColorPointer( components, datatype, stride, ptr );
-        glEnableClientState( GL_COLOR_ARRAY );
-    }    
+        switch(attrib)
+        {
+            case Geometry::AttributeSlot::Index:
+            {
+                // Used for submission of geometry
+                break;
+            }
+            case Geometry::AttributeSlot::Position: 
+            {
+                glVertexPointer( components, datatype, stride, ptr);
+                glEnableClientState( GL_VERTEX_ARRAY );
+                break;
+            }  
+            case Geometry::AttributeSlot::Normal:
+            {
+                glNormalPointer( datatype, stride, ptr);
+                glEnableClientState( GL_NORMAL_ARRAY );
+                break;
+            } 
+            case Geometry::AttributeSlot::TexCoord:
+            {
+                glTexCoordPointer( components, datatype, stride, ptr );
+                glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+                break;
+            }    
+            case Geometry::AttributeSlot::Color:
+            {
+                glColorPointer( components, datatype, stride, ptr );
+                glEnableClientState( GL_COLOR_ARRAY );
+                break;
+            }
+            default:
+            {
+                vdLogGlobalError("Invalid attribute slot '%s' specified for submitting geometry!",
+                    Geometry::AttributeSlot::ToString(attrib));
+                break;
+            }    
+        };
+    }
 
-    vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error enabling vertex attribute array!");        
+    vdAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error enabling vertex attribute array!");        
     return Status::Code::Success;
 }
 
@@ -1780,22 +1796,43 @@ Context::Unbind(
     {    
         glDisableVertexAttribArray(slot);
     }
-    else if(attrib == Geometry::AttributeSlot::Position)    
+    else 
     {
-        glDisableClientState( GL_VERTEX_ARRAY );
-    }  
-    else if(attrib == Geometry::AttributeSlot::Normal)
-    {
-        glDisableClientState( GL_NORMAL_ARRAY );
-    } 
-    else if(attrib == Geometry::AttributeSlot::TexCoord)
-    {
-        glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-    }    
-    else if(attrib == Geometry::AttributeSlot::Color)
-    {
-        glDisableClientState( GL_COLOR_ARRAY );
-    }    
+        switch(attrib)
+        {
+            case Geometry::AttributeSlot::Index:
+            {
+                // Used for submission of geometry
+                break;
+            }
+            case Geometry::AttributeSlot::Position:
+            {
+                glDisableClientState( GL_VERTEX_ARRAY );
+                break;
+            }  
+            case Geometry::AttributeSlot::Normal:
+            {
+                glDisableClientState( GL_NORMAL_ARRAY );
+                break;
+            } 
+            case Geometry::AttributeSlot::TexCoord:
+            {
+                glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+                break;
+            }    
+            case Geometry::AttributeSlot::Color:
+            {
+                glDisableClientState( GL_COLOR_ARRAY );
+                break;
+            }    
+            default:
+            {
+                vdLogGlobalError("Invalid attribute slot '%s' specified for submitting geometry!",
+                    Geometry::AttributeSlot::ToString(attrib));
+                break;
+            }
+        };
+    }
 
     vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error disabling vertex attribute array!");     
        

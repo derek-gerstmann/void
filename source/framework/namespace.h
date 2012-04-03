@@ -39,6 +39,7 @@
 
 #define VD_USING_NAMESPACE(x)			using namespace VD_FRAMEWORK_SCOPE
 #define VD_IMPORT(M,C)                  using VD_NAMESPACE_SCOPE::M::C
+#define VD_IMPORT_MODULE(M)             using namespace VD_NAMESPACE_SCOPE
 #define VD_IMPORT_NAMESPACE(M)          using namespace VD_NAMESPACE_SCOPE::M
 #endif
 

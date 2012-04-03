@@ -37,7 +37,7 @@ VD_CORE_NAMESPACE_BEGIN();
 class System
 {
 public:
-    static bool Startup(int* argc=NULL, void** argv=NULL);
+    static bool Startup(int* argc=NULL, char** argv=NULL);
     static bool Shutdown(void);
 
     static vd::f64 GetStartupTime(void);

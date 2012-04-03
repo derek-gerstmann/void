@@ -1,9 +1,9 @@
 // ============================================================================================== //
 //
-// License:		The Lesser GNU Public License (LGPL) v3.0.
+// License:     The Lesser GNU Public License (LGPL) v3.0.
 // 
-// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA). 
-//				As well as the shoulders of many giants...
+// Author(s):   Derek Gerstmann. The University of Western Australia (UWA). 
+//              As well as the shoulders of many giants...
 //
 // This file is part of the Void framework.
 //
@@ -22,18 +22,28 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_TEST_INCLUDED
-#define VD_TEST_INCLUDED
+#ifndef VD_TEST_SYSTEM_INCLUDED
+#define VD_TEST_SYSTEM_INCLUDED
 
 // ============================================================================================== //
 
-#include "vd.h"
-#include "test/namespace.h"
-#include "test/types.h"
-#include "test/macros.h"
-#include "test/system.h"
+VD_TEST_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-#endif // VD_TEST_INCLUDED
+struct System 
+{
 
+static bool Startup(int* argc=NULL, char** argv=NULL);
+static int RunAllTests(void);
+static bool Shutdown(void);
+
+};
+
+// ============================================================================================== //
+
+VD_TEST_NAMESPACE_END();
+
+// ============================================================================================== //
+
+#endif // VD_TEST_SYSTEM_INCLUDED

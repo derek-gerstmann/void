@@ -22,16 +22,16 @@
 //
 // ============================================================================================== //
 
-#include "core/test.h"
-#include "core/shared.h"
+#include "core/core.h"
 #include "core/delegates.h"
-#include "core/framework.h"
+#include "test/test.h"
+#include "test/speed.h"
+#include "containers/containers.h"
+#include "containers/types.h"
 
 // ============================================================================================== //
 
-using vd::core::Delegate;
-using vd::core::DelegateThread;
-using vd::core::SpeedTest;
+VD_TEST_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
@@ -44,12 +44,12 @@ StaticTestMethod( float args )
 
 // ============================================================================================== //
 
-class SerialDelegateSpeedTest : public SpeedTest
+class SerialDelegateSpeedTest : public Test::Speed
 {
 public:
 
-	typedef Delegate<float (float)> TestDelegate;
-	typedef DelegateThread< TestDelegate > TestDelegateThread;
+	typedef Core::Delegate<float (float)> 			TestDelegate;
+	typedef Core::DelegateThread< TestDelegate > 	TestDelegateThread;
 
 	vd::f64 GetConnectTime(void) const { return m_ConnectTime; }
 	vd::f64 GetInvokeTime(void) const { return m_InvokeTime; }
@@ -60,24 +60,23 @@ public:
 		vd::f64 start;
 		vd::f64 end;
 
-		typedef Delegate<float (float)> TestDelegate;
 		std::vector<TestDelegate> delegates;	
 		for(int j=0; j<8; ++j)
 		{
 			float value = 3.14f;
-			start = vd::core::System::GetTimeInSeconds();
+			start = Core::Process::GetTimeInSeconds();
 			for(int i = 0; i< N; ++i)
 			{
-				TestDelegate::Function cb = VD_BIND_FUNCTION(StaticTestMethod);
+				TestDelegate::FunctionType cb = VD_BIND_FUNCTION(StaticTestMethod);
 				TestDelegate dg(cb, value);
 				delegates.push_back(dg);
 				value += value;
 			}
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();
 	
 			m_ConnectTime += (end - start) / N;	
 			
-			start = vd::core::System::GetTimeInSeconds();	
+			start = Core::Process::GetTimeInSeconds();
 			for(int k=0; k<100; ++k)
 			{
 				for(int ei = 0; ei < (int)delegates.size(); ei++)
@@ -85,13 +84,13 @@ public:
 					delegates[ei]();
 				}
 			}
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();
 
 			m_InvokeTime += (end - start) / 100 * N;	
 	
-			start = vd::core::System::GetTimeInSeconds();	
+			start = Core::Process::GetTimeInSeconds();
 			delegates.clear();
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();	
 
 			m_DisconnectTime += (end - start) / N;	
 		}
@@ -108,12 +107,12 @@ protected:
 
 // ============================================================================================== //
 
-class ParallelDelegateSpeedTest : public SpeedTest
+class ParallelDelegateSpeedTest : public Test::Speed
 {
 public:
 
-	typedef Delegate<float (float)> TestDelegate;
-	typedef DelegateThread< TestDelegate > TestDelegateThread;
+	typedef Core::Delegate<float (float)> 			TestDelegate;
+	typedef Core::DelegateThread< TestDelegate > 	TestDelegateThread;
 
 	vd::f64 GetConnectTime(void) const { return m_ConnectTime; }
 	vd::f64 GetInvokeTime(void) const { return m_InvokeTime; }
@@ -124,14 +123,14 @@ public:
 		vd::f64 start;
 		vd::f64 end;
 
-		TestDelegate::Function callback = VD_BIND_FUNCTION(StaticTestMethod);
+		TestDelegate::FunctionType callback = VD_BIND_FUNCTION(StaticTestMethod);
 	
-		std::vector< vd::core::Handle<TestDelegateThread> > threads;
+		std::vector< Core::Handle<TestDelegateThread> > threads;
 	
 		for(int j=0; j<8; ++j)
 		{
 			float value = 3.14f;
-			start = vd::core::System::GetTimeInSeconds();
+			start = Core::Process::GetTimeInSeconds();
 			for(int i = 0; i < N; ++i)
 			{
 				TestDelegateThread::DelegateType* delegate = VD_NEW(TestDelegateThread::DelegateType, callback, value);
@@ -139,24 +138,24 @@ public:
 				threads.push_back(thread);
 				value += value;
 			}
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();	
 	
 			m_ConnectTime += (end - start) / N;	
 			
-			start = vd::core::System::GetTimeInSeconds();	
+			start = Core::Process::GetTimeInSeconds();	
 			for(int h = 0; h < (int)threads.size(); ++h)
 			{
 				threads[h]->Setup();
 				threads[h]->Start();
 			}
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();
 
 			m_InvokeTime += (end - start) / N;	
 	
 			bool more = true;
 			while(more)
 			{
-				vd::core::Thread::Yield();
+				Core::Thread::Yield();
 				more = false;
 				for(int h = 0; h < (int)threads.size(); ++h)
 				{
@@ -166,13 +165,13 @@ public:
 				}
 			}
 	
-			start = vd::core::System::GetTimeInSeconds();	
+			start = Core::Process::GetTimeInSeconds();	
 			for(int h = 0; h < (int)threads.size(); ++h)
 			{
 				TestDelegateThread* t = threads[h];
 				t->Join();
 			}
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();		
 
 			m_DisconnectTime += (end - start) / N;	
 		}
@@ -188,7 +187,7 @@ protected:
 
 // ============================================================================================== //
 
-TEST_P(SerialDelegateSpeedTest, RunN) 
+VD_DEFINE_TEST_WITH_PARAM(SerialDelegateSpeedTest, RunN) 
 {
 	RunN(GetParam());
 	RecordProperty("Iterations", GetIterationCount());
@@ -199,7 +198,7 @@ TEST_P(SerialDelegateSpeedTest, RunN)
 
 // ============================================================================================== //
 
-TEST_P(ParallelDelegateSpeedTest, RunN) 
+VD_DEFINE_TEST_WITH_PARAM(ParallelDelegateSpeedTest, RunN) 
 {
 	RunN(GetParam());
 	RecordProperty("Iterations", GetIterationCount());
@@ -210,11 +209,29 @@ TEST_P(ParallelDelegateSpeedTest, RunN)
 
 // ============================================================================================== //
 
-INSTANTIATE_TEST_CASE_P(SerialDelegateSpeedTestN, SerialDelegateSpeedTest,
-                        ::testing::Range(1000, 100000, 10000));
+VD_GENERATE_TEST_WITH_PARAM(SerialDelegateSpeedTestN, SerialDelegateSpeedTest,
+	Test::Range(1000, 100000, 10000));
 
-INSTANTIATE_TEST_CASE_P(ParallelDelegateSpeedTestN, ParallelDelegateSpeedTest,
-                        ::testing::Range(1, 8, 1));
+VD_GENERATE_TEST_WITH_PARAM(ParallelDelegateSpeedTestN, ParallelDelegateSpeedTest,
+	Test::Range(1, 8, 1));
+
+// ============================================================================================== //
+
+VD_TEST_NAMESPACE_END();
+
+// ============================================================================================== //
+
+VD_IMPORT_MODULE(Test);
+
+// ============================================================================================== //
+
+int main(int argc, char **argv) 
+{
+	Test::System::Startup(&argc, argv);
+	int status = Test::System::RunAllTests();
+	Test::System::Shutdown();
+	return status;
+}
 
 // ============================================================================================== //
 

@@ -41,19 +41,19 @@ struct Hashing
 // ============================================================================================== //
 
 template <unsigned int N, unsigned int I>
-struct Fnv
+struct Fnv1A
 {
 	VD_FORCE_INLINE static 
 	vd::u32 Hash(const char (&str)[N])
 	{
-		return (Fnv<N, I-1>::Hash(str) ^ str[I-1])*16777619u;
+		return (Fnv1A<N, I-1>::Hash(str) ^ str[I-1])*16777619u;
 	}
 };
- 
+
 // ============================================================================================== //
 
 template <unsigned int N>
-struct Fnv<N, 1>
+struct Fnv1A<N, 1>
 {
 	VD_FORCE_INLINE static 
 	vd::u32 Hash(const char (&str)[N])
@@ -61,7 +61,27 @@ struct Fnv<N, 1>
 		return (2166136261u ^ str[0])*16777619u;
 	}
 };
- 
+
+// ============================================================================================== //
+
+class StringHashFnv
+{
+public:
+	template <unsigned int N>
+	VD_FORCE_INLINE 
+	StringHashFnv(const char (&str)[N]) : 
+		m_Key(Fnv1A<N, N>::Hash(str))
+	{
+		// EMPTY!
+	}
+
+	VD_FORCE_INLINE operator vd::u32() { return m_Key; }
+	VD_FORCE_INLINE operator vd::uid() { return vd::uid(0, m_Key); }
+
+private:
+	vd::u32 m_Key;
+} ;
+
 // ============================================================================================== //
 
 // MurmurHash3 was written by Austin Appleby, and was placed in the public
@@ -104,7 +124,6 @@ struct Fnv<N, 1>
 
 	static vd::u32 
 	Whiz(const char *str, size_t wrdlen);
-};
 
 // ============================================================================================== //
 
@@ -121,6 +140,10 @@ struct Tiny
 
 	static
 	vd::u64 Decode(vd::u64 v, vd::i32 length);
+};
+
+// ============================================================================================== //
+
 };
 
 // ============================================================================================== //

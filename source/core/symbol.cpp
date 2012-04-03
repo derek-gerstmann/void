@@ -98,7 +98,8 @@ public:
 			added.first->m_Id = index;
 		}
 
-		symbol = *(added.first);
+        symbol.m_Key = added.first->m_Key;
+        symbol.m_Id = added.first->m_Id;
 		return symbol;
 	}
 	

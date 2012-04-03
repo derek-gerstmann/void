@@ -386,7 +386,7 @@ public:
         Internal();
         virtual ~Internal();
 
-        virtual void read(bool& val) = 0;
+        virtual void Read(bool& val) = 0;
         virtual void Read(char& val) = 0;
         virtual void Read(short& val) = 0;
         virtual void Read(int& val) = 0;

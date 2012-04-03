@@ -22,14 +22,16 @@
 //
 // ============================================================================================== //
 
-#include "core/test.h"
-#include "core/shared.h"
-#include "core/framework.h"
+#include "core/core.h"
+#include "core/functions.h"
+#include "test/test.h"
+#include "test/speed.h"
+#include "containers/containers.h"
+#include "containers/types.h"
 
 // ============================================================================================== //
 
-using vd::core::Function;
-using vd::core::SpeedTest;
+VD_TEST_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
@@ -55,10 +57,10 @@ StaticTestMethod( float args )
 
 // ============================================================================================== //
 
-class CallbackSpeedTest : public SpeedTest
+class CallbackSpeedTest : public Test::Speed
 {
 public:
-	typedef Function< float (float) > TestCallback;
+	typedef Core::Function< float (float) > TestCallback;
 
 	vd::f64 GetConnectTime(void) const { return m_ConnectTime; }
 	vd::f64 GetInvokeTime(void) const { return m_InvokeTime; }
@@ -74,7 +76,7 @@ public:
 	
 		for(int j=0; j<8; ++j)
 		{
-			start = vd::core::System::GetTimeInSeconds();
+			start = Core::Process::GetTimeInSeconds();
 			for(unsigned i = 0; i< N; ++i)
 			{
 				TestClass* tc = VD_NEW(TestClass);
@@ -82,12 +84,12 @@ public:
 				bindings.push_back(cb);
 				pool.push_back(tc);
 			}
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();
 	
 			m_ConnectTime += (end - start) / N;	
 			
 			float value = 3.14f;
-			start = vd::core::System::GetTimeInSeconds();	
+			start = Core::Process::GetTimeInSeconds();
 			for(int k=0; k<100; ++k)
 			{
 				for(unsigned ei = 0; ei < bindings.size(); ei++)
@@ -95,13 +97,13 @@ public:
 					value = bindings[ei]( value );
 				}
 			}
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();	
 
 			m_InvokeTime += (end - start) / 100 * N;	
 	
-			start = vd::core::System::GetTimeInSeconds();	
+			start = Core::Process::GetTimeInSeconds();
 			bindings.clear();
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();		
 
 			for(unsigned p = 0; p < pool.size(); p++)
 			{
@@ -122,18 +124,18 @@ public:
 		std::vector<TestCallback> bindings;	
 		for(int j=0; j<8; ++j)
 		{
-			start = vd::core::System::GetTimeInSeconds();
+			start = Core::Process::GetTimeInSeconds();
 			for(unsigned i = 0; i< N; ++i)
 			{
 				TestCallback cb = VD_BIND_FUNCTION(StaticTestMethod);
 				bindings.push_back(cb);
 			}
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();	
 	
 			m_ConnectTime += (end - start) / N;	
 			
 			float value = 3.14f;
-			start = vd::core::System::GetTimeInSeconds();	
+			start = Core::Process::GetTimeInSeconds();
 			for(int k=0; k<100; ++k)
 			{
 				for(unsigned ei = 0; ei < bindings.size(); ei++)
@@ -141,13 +143,13 @@ public:
 					value = bindings[ei]( value );
 				}
 			}
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();
 
 			m_InvokeTime += (end - start) / 100 * N;	
 	
-			start = vd::core::System::GetTimeInSeconds();	
+			start = Core::Process::GetTimeInSeconds();
 			bindings.clear();
-			end = vd::core::System::GetTimeInSeconds();		
+			end = Core::Process::GetTimeInSeconds();
 
 			m_DisconnectTime += (end - start) / N;	
 		}
@@ -164,7 +166,7 @@ protected:
 
 // ============================================================================================== //
 
-TEST_P(CallbackSpeedTest, RunStaticN) 
+VD_DEFINE_TEST_WITH_PARAM(CallbackSpeedTest, RunStaticN) 
 {
 	RunStaticN(GetParam());
 	RecordProperty("Iterations", GetIterationCount());
@@ -175,7 +177,7 @@ TEST_P(CallbackSpeedTest, RunStaticN)
 
 // ============================================================================================== //
 
-TEST_P(CallbackSpeedTest, RunDynamicN) 
+VD_DEFINE_TEST_WITH_PARAM(CallbackSpeedTest, RunDynamicN) 
 {
 	RunDynamicN(GetParam());
 	RecordProperty("Iterations", GetIterationCount());
@@ -186,8 +188,25 @@ TEST_P(CallbackSpeedTest, RunDynamicN)
 
 // ============================================================================================== //
 
-INSTANTIATE_TEST_CASE_P(CallbackSpeedTestN, CallbackSpeedTest,
-                        ::testing::Range(1000, 100000, 10000));
+VD_GENERATE_TEST_WITH_PARAM(CallbackSpeedTestN, CallbackSpeedTest,
+	Test::Range(1000, 100000, 10000));
 
 // ============================================================================================== //
 
+VD_TEST_NAMESPACE_END();
+
+// ============================================================================================== //
+
+VD_IMPORT_MODULE(Test);
+
+// ============================================================================================== //
+
+int main(int argc, char **argv) 
+{
+	Test::System::Startup(&argc, argv);
+	int status = Test::System::RunAllTests();
+	Test::System::Shutdown();
+	return status;
+}
+
+// ============================================================================================== //

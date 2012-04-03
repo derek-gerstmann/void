@@ -32,21 +32,21 @@
 
 // ============================================================================================== //
 
-#define VD_GET_FUNCTION_FACTORY_BIND(method) \
-    (vdGetFunctionFactory(method).Bind<method>())
-#define VD_BIND_FUNCTION VD_GET_FUNCTION_FACTORY_BIND
-
-#define VD_GET_FUNCTION_FACTORY_BIND_MEMBER(instance, member) \
-    (vdGetFunctionFactory(member).Bind<member>(instance))
-#define VD_BIND_MEMBER_FUNCTION VD_GET_FUNCTION_FACTORY_BIND_MEMBER
-
-#define VD_GET_FUNCTION_FACTORY_BIND_ANY(method, ...) \
-    (vdGetFunctionFactory(method).Bind<method>(## __VA_ARGS__))
-#define VD_BIND VD_GET_FUNCTION_FACTORY_BIND_ANY
+VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_CORE_NAMESPACE_BEGIN();
+#define VD_GET_FUNCTION_FACTORY_BIND(method) \
+    (Core::FunctionFactory(method).Bind<method>())
+#define VD_BIND_FUNCTION VD_GET_FUNCTION_FACTORY_BIND
+
+#define VD_GET_FUNCTION_FACTORY_BIND_MEMBER(instance, member) \
+    (Core::FunctionFactory(member).Bind<member>(instance))
+#define VD_BIND_MEMBER_FUNCTION VD_GET_FUNCTION_FACTORY_BIND_MEMBER
+
+#define VD_GET_FUNCTION_FACTORY_BIND_ANY(method, ...) \
+    (Core::FunctionFactory(method).Bind<method>(## __VA_ARGS__))
+#define VD_BIND VD_GET_FUNCTION_FACTORY_BIND_ANY
 
 // ============================================================================================== //
 
@@ -151,7 +151,7 @@ public:
 
 template<typename R>
 inline MethodFunctionFactory0<R>
-GetFunctionFactory(R (*)())
+FunctionFactory(R (*)())
 {
     return MethodFunctionFactory0<R>();
 }
@@ -189,7 +189,7 @@ public:
 
 template<typename R, class T>
 inline MemberFunctionFactory0<R, T>
-GetFunctionFactory(R (T::*)())
+FunctionFactory(R (T::*)())
 {
     return MemberFunctionFactory0<R, T>();
 }
@@ -215,7 +215,7 @@ public:
 
 template<typename R, class T>
 inline ConstMemberFunctionFactory0<R, T>
-GetFunctionFactory(R (T::*)() const)
+FunctionFactory(R (T::*)() const)
 {
     return ConstMemberFunctionFactory0<R, T>();
 }
@@ -305,7 +305,7 @@ public:
 
 template<typename R, typename P1>
 inline MethodFunctionFactory1<R, P1>
-vdGetFunctionFactory(R (*)(P1))
+FunctionFactory(R (*)(P1))
 {
     return MethodFunctionFactory1<R, P1>();
 }
@@ -335,7 +335,7 @@ public:
 
 template<typename R, class T, typename P1>
 inline MemberFunctionFactory1<R, T, P1>
-vdGetFunctionFactory(R (T::*)(P1))
+FunctionFactory(R (T::*)(P1))
 {
     return MemberFunctionFactory1<R, T, P1>();
 }
@@ -365,7 +365,7 @@ public:
 
 template<typename R, class T, typename P1>
 inline ConstMemberFunctionFactory1<R, T, P1>
-vdGetFunctionFactory(R (T::*)(P1) const)
+FunctionFactory(R (T::*)(P1) const)
 {
     return ConstMemberFunctionFactory1<R, T, P1>();
 }
@@ -456,7 +456,7 @@ public:
 
 template<typename R, typename P1, typename P2>
 inline MethodFunctionFactory2<R, P1, P2>
-vdGetFunctionFactory(R (*)(P1, P2))
+FunctionFactory(R (*)(P1, P2))
 {
     return MethodFunctionFactory2<R, P1, P2>();
 }
@@ -486,7 +486,7 @@ public:
 
 template<typename R, class T, typename P1, typename P2>
 inline MemberFunctionFactory2<R, T, P1, P2>
-vdGetFunctionFactory(R (T::*)(P1, P2))
+FunctionFactory(R (T::*)(P1, P2))
 {
     return MemberFunctionFactory2<R, T, P1, P2>();
 }
@@ -516,7 +516,7 @@ public:
 
 template<typename R, class T, typename P1, typename P2>
 inline ConstMemberFunctionFactory2<R, T, P1, P2>
-vdGetFunctionFactory(R (T::*)(P1, P2) const)
+FunctionFactory(R (T::*)(P1, P2) const)
 {
     return ConstMemberFunctionFactory2<R, T, P1, P2>();
 }
@@ -606,7 +606,7 @@ public:
 
 template<typename R, typename P1, typename P2, typename P3>
 inline MethodFunctionFactory3<R, P1, P2, P3>
-vdGetFunctionFactory(R (*)(P1, P2, P3))
+FunctionFactory(R (*)(P1, P2, P3))
 {
     return MethodFunctionFactory3<R, P1, P2, P3>();
 }
@@ -636,7 +636,7 @@ public:
 
 template<typename R, class T, typename P1, typename P2, typename P3>
 inline MemberFunctionFactory3<R, T, P1, P2, P3>
-vdGetFunctionFactory(R (T::*)(P1, P2, P3))
+FunctionFactory(R (T::*)(P1, P2, P3))
 {
     return MemberFunctionFactory3<R, T, P1, P2, P3>();
 }
@@ -666,7 +666,7 @@ public:
 
 template<typename R, class T, typename P1, typename P2, typename P3>
 inline ConstMemberFunctionFactory3<R, T, P1, P2, P3>
-vdGetFunctionFactory(R (T::*)(P1, P2, P3) const)
+FunctionFactory(R (T::*)(P1, P2, P3) const)
 {
     return ConstMemberFunctionFactory3<R, T, P1, P2, P3>();
 }
@@ -762,7 +762,7 @@ public:
 
 template<typename R, typename P1, typename P2, typename P3, typename P4>
 inline MethodFunctionFactory4<R, P1, P2, P3, P4>
-vdGetFunctionFactory(R (*)(P1, P2, P3, P4))
+FunctionFactory(R (*)(P1, P2, P3, P4))
 {
     return MethodFunctionFactory4<R, P1, P2, P3, P4>();
 }
@@ -792,7 +792,7 @@ public:
 
 template<typename R, class T, typename P1, typename P2, typename P3, typename P4>
 inline MemberFunctionFactory4<R, T, P1, P2, P3, P4>
-vdGetFunctionFactory(R (T::*)(P1, P2, P3, P4))
+FunctionFactory(R (T::*)(P1, P2, P3, P4))
 {
     return MemberFunctionFactory4<R, T, P1, P2, P3, P4>();
 }
@@ -822,7 +822,7 @@ public:
 
 template<typename R, class T, typename P1, typename P2, typename P3, typename P4>
 inline ConstMemberFunctionFactory4<R, T, P1, P2, P3, P4>
-vdGetFunctionFactory(R (T::*)(P1, P2, P3, P4) const)
+FunctionFactory(R (T::*)(P1, P2, P3, P4) const)
 {
     return ConstMemberFunctionFactory4<R, T, P1, P2, P3, P4>();
 }
@@ -920,7 +920,7 @@ public:
 
 template<typename R, typename P1, typename P2, typename P3, typename P4, typename P5>
 inline MethodFunctionFactory5<R, P1, P2, P3, P4, P5>
-vdGetFunctionFactory(R (*)(P1, P2, P3, P4, P5))
+FunctionFactory(R (*)(P1, P2, P3, P4, P5))
 {
     return MethodFunctionFactory5<R, P1, P2, P3, P4, P5>();
 }
@@ -950,7 +950,7 @@ public:
 
 template<typename R, class T, typename P1, typename P2, typename P3, typename P4, typename P5>
 inline MemberFunctionFactory5<R, T, P1, P2, P3, P4, P5>
-vdGetFunctionFactory(R (T::*)(P1, P2, P3, P4, P5))
+FunctionFactory(R (T::*)(P1, P2, P3, P4, P5))
 {
     return MemberFunctionFactory5<R, T, P1, P2, P3, P4, P5>();
 }
@@ -980,7 +980,7 @@ public:
 
 template<typename R, class T, typename P1, typename P2, typename P3, typename P4, typename P5>
 inline ConstMemberFunctionFactory5<R, T, P1, P2, P3, P4, P5>
-vdGetFunctionFactory(R (T::*)(P1, P2, P3, P4, P5) const)
+FunctionFactory(R (T::*)(P1, P2, P3, P4, P5) const)
 {
     return ConstMemberFunctionFactory5<R, T, P1, P2, P3, P4, P5>();
 }
@@ -1077,7 +1077,7 @@ public:
 
 template<typename R, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6>
 inline MethodFunctionFactory6<R, P1, P2, P3, P4, P5, P6>
-vdGetFunctionFactory(R (*)(P1, P2, P3, P4, P5, P6))
+FunctionFactory(R (*)(P1, P2, P3, P4, P5, P6))
 {
     return MethodFunctionFactory6<R, P1, P2, P3, P4, P5, P6>();
 }
@@ -1107,7 +1107,7 @@ public:
 
 template<typename R, class T, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6>
 inline MemberFunctionFactory6<R, T, P1, P2, P3, P4, P5, P6>
-vdGetFunctionFactory(R (T::*)(P1, P2, P3, P4, P5, P6))
+FunctionFactory(R (T::*)(P1, P2, P3, P4, P5, P6))
 {
     return MemberFunctionFactory6<R, T, P1, P2, P3, P4, P5, P6>();
 }
@@ -1137,7 +1137,7 @@ public:
 
 template<typename R, class T, typename P1, typename P2, typename P3, typename P4, typename P5, typename P6>
 inline ConstMemberFunctionFactory6<R, T, P1, P2, P3, P4, P5, P6>
-vdGetFunctionFactory(R (T::*)(P1, P2, P3, P4, P5, P6) const)
+FunctionFactory(R (T::*)(P1, P2, P3, P4, P5, P6) const)
 {
     return ConstMemberFunctionFactory6<R, T, P1, P2, P3, P4, P5, P6>();
 }

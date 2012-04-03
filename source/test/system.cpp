@@ -1,9 +1,9 @@
 // ============================================================================================== //
 //
-// License:		The Lesser GNU Public License (LGPL) v3.0.
+// License:     The Lesser GNU Public License (LGPL) v3.0.
 // 
-// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA). 
-//				As well as the shoulders of many giants...
+// Author(s):   Derek Gerstmann. The University of Western Australia (UWA). 
+//              As well as the shoulders of many giants...
 //
 // This file is part of the Void framework.
 //
@@ -22,18 +22,38 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_TEST_INCLUDED
-#define VD_TEST_INCLUDED
+#include "test/test.h"
 
 // ============================================================================================== //
 
-#include "vd.h"
-#include "test/namespace.h"
-#include "test/types.h"
-#include "test/macros.h"
-#include "test/system.h"
+VD_TEST_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-#endif // VD_TEST_INCLUDED
+bool
+System::Startup(int* argc, char** argv)
+{
+    ::testing::InitGoogleTest(argc, argv);
+    Core::System::Startup(argc, argv);
+    Core::LogEngine::GetCurrentContext()->SetLogLevel(Core::LogLevel::Error);
+    return true;
+}
 
+int
+System::RunAllTests(void)
+{
+    return VD_RUN_ALL_TESTS();
+}
+
+bool
+System::Shutdown(void)
+{
+    Core::System::Shutdown();
+    return true;
+}
+
+// ============================================================================================== //
+
+VD_TEST_NAMESPACE_END();
+
+// ============================================================================================== //

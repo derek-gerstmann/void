@@ -386,7 +386,7 @@ Hashing::Whiz(const char *str, size_t wrdlen)
 // ============================================================================================== //
 
 vd::u64 
-Tiny::Encode(
+Hashing::Tiny::Encode(
     vd::u64 value, vd::i32 length)
 {
     vd::u32 sum = 0;
@@ -406,7 +406,7 @@ Tiny::Encode(
 }
 
 vd::u64 
-Tiny::Decode(
+Hashing::Tiny::Decode(
     vd::u64 value, vd::i32 length)
 {
     u32 sum = 0xC6EF3720;

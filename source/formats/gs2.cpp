@@ -222,9 +222,10 @@ vd::i32
 GadgetSnapshot::SkipToNextBlock(
 	FILE* fh)
 {
-    vd::i32 dummy;
-    size_t bytes = fread(&dummy, sizeof(dummy), 1, fh);
-    vdAssert(bytes == sizeof(dummy));
+    vd::i32 dummy = 1;
+    int result = fseek(fh, sizeof(dummy), SEEK_CUR);
+//    size_t bytes = fread(&dummy, sizeof(dummy), 1, fh);
+    vdAssert(result == 0);
 	return dummy;
 }
 

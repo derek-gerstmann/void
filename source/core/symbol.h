@@ -145,11 +145,17 @@ struct SymbolHash
 
 #else
 
+#if defined(VD_SYMEX_CLIENT)
+#define vd_sym( X )
+#define vd_str( I )
+#define vd_uid( X )
+#else
+#include "core/hashing.h"
 #warning "Using inline symbols (run SymEx to extract symbols into static data)"
-
-#define vd_sym( X )  (const char *)( #X )
+#define vd_sym( X )  vd::symbol(Core::Hashing::StringHashFnv( #X ), (const char *)( #X ))
 #define vd_str( I )  (const char *)( I )
-#define vd_uid( X )  (vd::uid)( AsId( Symbol::Create( #X ) ))
+#define vd_uid( X )  ((vd::uid)Core::Hashing::StringHashFnv( #X ))
+#endif
 
 #endif
 

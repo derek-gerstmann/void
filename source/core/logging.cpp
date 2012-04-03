@@ -57,10 +57,10 @@ namespace
 // ============================================================================================== //
 
 void 
-LogEngine::Startup()
+LogEngine::Startup(int*, char**)
 {
     if(Thread::GetCurrent())
-        Thread::GetCurrent()->SetLogContext(GetDefaultLogContext());
+        Thread::GetCurrent()->SetLogContext(LogEngine::GetDefaultContext());
 }
 
 void 
@@ -75,7 +75,7 @@ LogEngine::Shutdown()
 // ============================================================================================== //
     
 Handle<LogContext>
-LogEngine::GetDefaultLogContext(void)
+LogEngine::GetDefaultContext(void)
 {
     Core::Mutex locker;
     locker.Lock();
@@ -95,13 +95,13 @@ LogEngine::GetDefaultLogContext(void)
 }
 
 Handle<LogContext>
-LogEngine::GetCurrentLogContext(void)
+LogEngine::GetCurrentContext(void)
 {
 	Thread* self = Thread::GetCurrent();
 	if(self && self->GetLogContext())
 		return self->GetLogContext();
 
-	return GetDefaultLogContext();
+	return LogEngine::GetDefaultContext();
 }
 
 // ============================================================================================== //

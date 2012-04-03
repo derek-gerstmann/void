@@ -85,7 +85,7 @@ System::GetShutdownTime(void)
 
 bool
 System::Startup(
-	int*, void**)
+	int*, char**)
 {
 	Mutex mutex;
 	mutex.Lock();

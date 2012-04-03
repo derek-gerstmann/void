@@ -57,11 +57,11 @@ class LogContext;
 class LogEngine
 {
 public:
-    static void Startup();
+    static void Startup(int* argc=NULL, char** argv=NULL);
     static void Shutdown();
 
-    static Handle<LogContext> GetDefaultLogContext();
-    static Handle<LogContext> GetCurrentLogContext();
+    static Handle<LogContext> GetDefaultContext();
+    static Handle<LogContext> GetCurrentContext();
 };
 
 // ============================================================================================== //
@@ -289,37 +289,37 @@ VD_CORE_NAMESPACE_END();
 // ============================================================================================== //
 
 #define vdLog(level, fmt, ...) do { \
-    Core::LogEngine::GetCurrentLogContext()->Log( \
+    Core::LogEngine::GetCurrentContext()->Log( \
         level, GetMetaClass(), \
         __FILE__, __LINE__, fmt, ## __VA_ARGS__); \
     } while (0)
     
 #define vdLogTrace(fmt, ...) do { \
-    Core::LogEngine::GetCurrentLogContext()->Log( \
+    Core::LogEngine::GetCurrentContext()->Log( \
         Core::LogLevel::Trace, GetMetaClass(), \
         __FILE__, __LINE__, fmt, ## __VA_ARGS__); \
     } while (0)
     
 #define vdLogDebug(fmt, ...) do { \
-    Core::LogEngine::GetCurrentLogContext()->Log( \
+    Core::LogEngine::GetCurrentContext()->Log( \
         Core::LogLevel::Debug, GetMetaClass(), \
         __FILE__, __LINE__, fmt, ## __VA_ARGS__); \
     } while (0)
 
 #define vdLogInfo(fmt, ...) do { \
-    Core::LogEngine::GetCurrentLogContext()->Log( \
+    Core::LogEngine::GetCurrentContext()->Log( \
         Core::LogLevel::Info, GetMetaClass(), \
         __FILE__, __LINE__, fmt, ## __VA_ARGS__); \
     } while (0)
     
 #define vdLogWarning(fmt, ...) do { \
-    Core::LogEngine::GetCurrentLogContext()->Log( \
+    Core::LogEngine::GetCurrentContext()->Log( \
         Core::LogLevel::Warning, GetMetaClass(), \
         __FILE__, __LINE__, fmt, ## __VA_ARGS__); \
     } while (0)
 
 #define vdLogError(fmt, ...) do { \
-    Core::LogEngine::GetCurrentLogContext()->Log( \
+    Core::LogEngine::GetCurrentContext()->Log( \
         Core::LogLevel::Error, GetMetaClass(), \
         __FILE__, __LINE__, fmt, ## __VA_ARGS__); \
     } while (0)
@@ -327,37 +327,37 @@ VD_CORE_NAMESPACE_END();
 // ============================================================================================== //
 
 #define vdLogGlobal(level, fmt, ...) do { \
-    Core::LogEngine::GetCurrentLogContext()->Log( \
+    Core::LogEngine::GetCurrentContext()->Log( \
         level, NULL, \
         __FILE__, __LINE__, fmt, ## __VA_ARGS__);  \
     } while (0)
 
 #define vdLogGlobalTrace(fmt, ...) do { \
-    Core::LogEngine::GetCurrentLogContext()->Log( \
+    Core::LogEngine::GetCurrentContext()->Log( \
         Core::LogLevel::Trace, NULL, \
         __FILE__, __LINE__, fmt, ## __VA_ARGS__); \
     } while (0)
 
 #define vdLogGlobalDebug(fmt, ...) do { \
-    Core::LogEngine::GetCurrentLogContext()->Log( \
+    Core::LogEngine::GetCurrentContext()->Log( \
         Core::LogLevel::Debug, NULL, \
         __FILE__, __LINE__, fmt, ## __VA_ARGS__); \
     } while (0)
 
 #define vdLogGlobalInfo(fmt, ...) do { \
-    Core::LogEngine::GetCurrentLogContext()->Log( \
+    Core::LogEngine::GetCurrentContext()->Log( \
         Core::LogLevel::Info, NULL, \
         __FILE__, __LINE__, fmt, ## __VA_ARGS__); \
     } while (0)
 
 #define vdLogGlobalWarning(fmt, ...) do { \
-    Core::LogEngine::GetCurrentLogContext()->Log( \
+    Core::LogEngine::GetCurrentContext()->Log( \
         Core::LogLevel::Warning, NULL, \
         __FILE__, __LINE__, fmt, ## __VA_ARGS__); \
     } while (0)
 
 #define vdLogGlobalError(fmt, ...) do { \
-    Core::LogEngine::GetCurrentLogContext()->Log( \
+    Core::LogEngine::GetCurrentContext()->Log( \
         Core::LogLevel::Error, NULL, \
         __FILE__, __LINE__, fmt, ## __VA_ARGS__); \
     } while (0)

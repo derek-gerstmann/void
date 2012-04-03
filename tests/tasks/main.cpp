@@ -1,3 +1,5 @@
+#if 0
+
 #include "core/framework.h"
 
 enum
@@ -138,4 +140,6 @@ main(int argc, char** argv)
 	vd::core::System::Shutdown();
 	return 0;
 }
+#endif
+
 

@@ -46,11 +46,11 @@ struct VD_API StructName                                                        
     {                                                                                             \
     		switch (value)                                                                        \
     		{                                                                                     \
-    			  VD_PP_PASS_ENUM_ARGS(VD_PP_EXPAND_ENUM_VALUE_TO_STRING,__VA_ARGS__)             \
-            case StructName::Invalid: return (vd::cstr)(VD_PP_STRINGIZE(StructName) "::Invalid"); \
-    			  default: VD_NO_SWITCH_DEFAULT;                                                  \
-        }                                                                                         \
-    		return NULL;                                                                          \
+    	        VD_PP_PASS_ENUM_ARGS(VD_PP_EXPAND_ENUM_VALUE_TO_STRING,__VA_ARGS__)               \
+                case StructName::Invalid: return (vd::cstr)(VD_PP_STRINGIZE(StructName) "::Invalid"); \
+    		    default: return (vd::cstr)(VD_PP_STRINGIZE(StructName) "::Invalid");              \
+            }                                                                                     \
+    		return (vd::cstr)(VD_PP_STRINGIZE(StructName) "::Invalid");                           \
     }                                                                                             \
     static vd::u32 ToInteger(const StructName::Value& value)                                      \
     {                                                                                             \
@@ -58,7 +58,7 @@ struct VD_API StructName                                                        
         {                                                                                         \
             VD_PP_PASS_ENUM_ARGS(VD_PP_EXPAND_ENUM_VALUE_TO_U32,__VA_ARGS__)                      \
             case StructName::Invalid: return StructName::EndIndex;                                \
-            default: VD_NO_SWITCH_DEFAULT;                                                        \
+            default: return StructName::EndIndex;                                                 \
         }                                                                                         \
         return StructName::EndIndex;                                                              \
     }                                                                                             \
@@ -68,7 +68,7 @@ struct VD_API StructName                                                        
         {                                                                                         \
             VD_PP_PASS_ENUM_ARGS(VD_PP_EXPAND_ENUM_U32_TO_VALUE,__VA_ARGS__)                      \
             case StructName::EndIndex: return StructName::Invalid;                                \
-            default: VD_NO_SWITCH_DEFAULT;                                                        \
+            default: return StructName::Invalid;                                                  \
         }                                                                                         \
         return StructName::Invalid;                                                               \
     }                                                                                             \
@@ -96,7 +96,7 @@ struct VD_API StructName                                                        
   case v: return (n + StartIndex - 1);
 
 #define VD_PP_EXPAND_ENUM_U32_TO_VALUE(v,n) \
-  case n: return v;
+  case (n-1): return v;
 
 #define VD_PP_EXPAND_ENUM_VALUE_TO_STRING(v,n) \
 	case v: return VD_PP_STRINGIZE(v);

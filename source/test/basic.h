@@ -75,8 +75,6 @@ protected:
     {
         // Code here will be called immediately after the constructor (right
         // before each test).
-
-        Core::System::Startup();
         m_StartTime = Core::Process::GetTimeInSeconds();
     }
 
@@ -90,8 +88,6 @@ protected:
 
         vdLogGlobalInfo("Test '%s/%s' completed in '%f' sec!",
                         Basic::GetTestName(), Basic::GetTestCaseName(), dt);
-
-        Core::System::Shutdown();
     }
 
     vd::f64 m_StartTime;

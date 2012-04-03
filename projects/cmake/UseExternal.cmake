@@ -82,6 +82,7 @@ endif()
 if(VOID_BUILD_TESTS)
 	set( VD_EXT_GTEST_DIR			${VD_EXT_DIR}/gtest )
 	file( GLOB VD_EXT_GTEST_LIB	 	${VD_EXT_GTEST_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+	include_directories(			${VD_EXT_GTEST_DIR}/include )
 endif()
 
 if(VOID_USE_GWEN)

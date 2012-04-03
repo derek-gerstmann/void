@@ -22,6 +22,8 @@
 //
 // ============================================================================================== //
 
+#if 0
+
 #include "core/test.h"
 #include "core/framework.h"
 #include "core/symbol.h"
@@ -117,3 +119,5 @@ INSTANTIATE_TEST_CASE_P(SymbolRegistrySpeedTestN, SymbolRegistrySpeedTest,
                         ::testing::Range(0, 32*1024, 16));
 
 // ============================================================================================== //
+
+#endif

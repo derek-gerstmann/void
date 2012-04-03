@@ -448,8 +448,8 @@ Shader::LocateUniforms()
 			if(location < 0)
 				continue;
 				
-			const vd::symbol& name = Symbol::Register(uniform_string);
-			vd::uid key = name.key;
+            Core::Symbol name = Symbol::Register(uniform_string);
+			vd::uid key = name.GetKey();
 
 #if defined(VD_DEBUG_SHADERS)			
 			vdLogInfo("Shader[%s] : Adding uniform '%s' [%02d] : [%llx] '%s' as [%s] -> [%02d] ", 
@@ -479,8 +479,8 @@ Shader::LocateUniforms()
 					if(location < 0)
 						continue;
 
-					const vd::symbol& name = Symbol::Register(uniform_string);
-					vd::uid key = name.key;
+                    Core::Symbol name = Symbol::Register(uniform_string);
+					vd::uid key = name.GetKey();
 					m_UniformSlots[key] = location;
 					m_UniformTypes[key] = type;
 					AddUniform(name, type);
@@ -538,8 +538,8 @@ Shader::LocateAttributes()
 				if(location < 0)
 					continue;
 
-				const vd::symbol& name = Symbol::Register(attrib_string);
-				vd::uid key = name.key;
+                Core::Symbol name = Symbol::Register(attrib_string);
+				vd::uid key = name.GetKey();
 				m_AttributeSlots[key] = location;
 
 #if defined(VD_DEBUG_SHADERS)			

@@ -22,6 +22,8 @@
 //
 // ============================================================================================== //
 
+#define VD_SYMEX_CLIENT (1)
+
 #include <boost/program_options.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/filesystem.hpp>
