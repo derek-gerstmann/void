@@ -362,10 +362,7 @@ DefaultLogFormat::Format(
     if(m_ShowThread && thread && thread->GetCurrent()->GetName() != NULL)
     {
     	vd::string name = thread->GetCurrent()->GetName();
-        oss << "[";
         oss << name;
-        oss << "]";
-
     }
 
     if(m_ShowClass)

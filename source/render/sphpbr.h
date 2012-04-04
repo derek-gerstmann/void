@@ -52,7 +52,7 @@ public:
     SphPointBasedRenderer();
     ~SphPointBasedRenderer();
 
-    bool Setup();
+    bool Setup(Graphics::Context* context);
     virtual vd::status Destroy();
     
     void SetVertexBuffer(vd::u32 uiBufferId, int iParticleCount, int vecsize);
@@ -163,6 +163,7 @@ protected:
     vd::v2f32 m_DensityRange;
 
     Shader m_Shader;
+    Graphics::Context* m_Graphics;
 };
 
 // ============================================================================================== //

@@ -36,6 +36,23 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
+class Mallocator 
+{
+public:
+    void* operator new(size_t size) { return New(size); }
+    void  operator delete(void* p) { Delete(p); }
+
+    static void* New(size_t size);
+    static void Delete(void* p);
+};
+
+class MallocPolicy 
+{
+public:
+    VD_FORCE_INLINE static void* New(size_t size) { return Mallocator::New(size); }
+    VD_FORCE_INLINE static void Delete(void* p) { Mallocator::Delete(p); }
+};
+
 template <typename T>
 class RawAllocator
 {

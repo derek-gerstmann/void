@@ -28,6 +28,11 @@
 
 // ============================================================================================== //
 
+// Enable the following directive for verbose output to help debugging
+// #define VD_DEBUG_GS2 (1)
+
+// ============================================================================================== //
+
 #include "formats/gs2.h"
 #include "core/asserts.h"
 #include "core/utilities.h"
@@ -445,7 +450,9 @@ GadgetSnapshot::ReadBlockData(
 	ptr = (char*)GetBlockDataPtr(block);
 //	size_t bytes = GetBlockEntrySize(block) * m_TotalParticleCount;
 
+#if defined(VD_DEBUG_GS2)
 	vdLogInfo("Reading block [%d = %s] (raw %d)...", Block::ToInteger(block), Block::ToString(block), (vd::i32)block);
+#endif
 
 	SkipToNextBlock(fd);
 	for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
@@ -521,7 +528,9 @@ GadgetSnapshot::ReadMassData(
 		size_t dx = 0;
 		ptr = (char*)GetBlockDataPtr(block);
 
+#if defined(VD_DEBUG_GS2)
 		vdLogInfo("Reading block [%d = %s] (raw %d)...", Block::ToInteger(block), Block::ToString(block), (vd::i32)block);
+#endif
 
 		SkipToNextBlock(fd);
 		for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
@@ -867,7 +876,9 @@ GadgetSnapshot::Load(
 			return Status::Code::ReadError;
         }
 
+#if defined(VD_DEBUG_GS2)
         vdLogDebug("Reading snapshot '%s' ...", filename.c_str());
+#endif
 
 		if(!ReadHeader(fd, splits))
 		{
@@ -875,7 +886,9 @@ GadgetSnapshot::Load(
 			return Status::Code::ReadError;
         }
 
+#if defined(VD_DEBUG_GS2)
 	    vdLogInfo("Reading block 'ParticleType' from '%s'!", filename.c_str());
+#endif
 		ReadTypeData(fd, pc);
 
 		m_FilteredParticleCount = 0;
@@ -884,14 +897,22 @@ GadgetSnapshot::Load(
 			if(req_types && req_types[k] > 0)
 				m_FilteredParticleCount += m_MetaData.ParticleCountTotal[k];
 		}
-	    vdLogInfo("Loading only '%d' / '%d' particles!", m_FilteredParticleCount, m_TotalParticleCount);
+
+#if defined(VD_DEBUG_GS2)
+	    vdLogInfo("Loading '%d' / '%d' particles!", 
+	    	m_FilteredParticleCount, m_TotalParticleCount);
+#endif
 
 		for(vd::u32 n = 0; n < Block::Count; n++)
 		{
 			GadgetSnapshot::Block::Value block = GadgetSnapshot::Block::FromInteger(n);
 			if(req_data[n] > 0)
 			{
-	            vdLogInfo("Reading block '%s' from '%s'!", GadgetSnapshot::Block::ToString(block), filename.c_str());
+#if defined(VD_DEBUG_GS2)
+	            vdLogInfo("Reading block '%s' from '%s'!", 
+	            	GadgetSnapshot::Block::ToString(block), 
+	            	filename.c_str());
+#endif
 				ReadBlock(fd, block, pc, req_types);
  			}
 			else
@@ -912,9 +933,12 @@ GadgetSnapshot::Load(
     	ComputeTempFromInternalEnergy();
     }
 
-    vdLogInfo("Loaded only '%d'/'%d' particles!", m_FilteredParticleCount, m_TotalParticleCount);
-
+#if defined(VD_DEBUG_GS2)
+    vdLogInfo("Loaded '%d'/'%d' particles!", m_FilteredParticleCount, m_TotalParticleCount);
     vdLogInfo("Filtering by type for '%s'!", filename.c_str());
+#endif
+
+#if defined(VD_DEBUG_GS2)
     m_FilteredParticleCount = 0;
 	for(vd::i64 i = 0; i < (vd::i64)m_TotalParticleCount; i++)
     {
@@ -924,6 +948,7 @@ GadgetSnapshot::Load(
 	    }
 	}
     vdLogInfo("Validating '%d'/'%d' particles!", m_FilteredParticleCount, m_TotalParticleCount);
+#endif
 
     m_FileIndex = index;
     m_IsLoaded.Increment();
@@ -1132,7 +1157,11 @@ GadgetDataset::Request(
 		return false;
 
 	bool hit = m_DataCache.Load(index);
+
+#if defined(VD_DEBUG_GS2)
 	vdLogInfo("Requesting snapshot: Index[%d] Hit[%s] ...", index, hit ? "true" : "false");
+#endif
+
 	return hit;
 }
 
@@ -1143,7 +1172,9 @@ GadgetDataset::OnFetch(
 	if(IsValidIndex(index) == false)
 		return NULL;
 		
+#if defined(VD_DEBUG_GS2)
 	vdLogInfo("Miss on snapshot '%d' ...", index);
+#endif
 
 	GadgetSnapshot* snapshot = NULL; 
 	GadgetWorkItem* work = NULL;
@@ -1151,9 +1182,10 @@ GadgetDataset::OnFetch(
 	bool hit = m_WorkCache.Fetch(index, work);
 	if(hit && work && work->IsReady())
 	{
+#if defined(VD_DEBUG_GS2)
 		vdLogInfo("OnFetch snapshot: Index [%d] Ptr[%p] ...", 
 			index, work);
-
+#endif
 		snapshot = work->GetSnapshot();
 	}
 
@@ -1166,6 +1198,7 @@ GadgetDataset::OnEvict(
 {
 	if(snapshot != NULL)
 		vdLogInfo("Evicting snapshot '%d' ...", snapshot->GetFileIndex());
+
 	VD_DELETE(snapshot);
 }
 
@@ -1176,7 +1209,9 @@ GadgetDataset::OnSubmit(
 	if(IsValidIndex(index) == false)
 		return NULL;
 		
+#if defined(VD_DEBUG_GS2)
 	vdLogInfo("Adding load request for snapshot '%d' ...", index);
+#endif
 
 	GadgetSnapshot* snapshot = VD_NEW(GadgetSnapshot);
 	GadgetWorkItem* work = VD_NEW(GadgetWorkItem, 
@@ -1198,8 +1233,11 @@ void
 GadgetDataset::OnComplete(
 	GadgetWorkItem* work)
 {
+#if defined(VD_DEBUG_GS2)
 	if(work != NULL)
 		vdLogInfo("Snapshot '%d' loaded!", work->GetFileIndex());
+#endif
+
 	VD_DELETE(work);
 }
 
@@ -1274,9 +1312,11 @@ GadgetWorkQueue::OnRun(
 	vd::f64 t0 = Process::GetTimeInSeconds();
     GadgetSnapshot* snapshot = work->m_Snapshot;
 
+#if defined(VD_DEBUG_GS2)
 	vdLogInfo("[%d] %s Index[%d] Splits[%d] Padding[%d]", 
 		(int)work->GetSlotId(), work->m_FilePrefix.c_str(), 
 		work->m_FileIndex, work->m_FileSplits, work->m_FileNumberPadding);
+#endif
 		
 	if(work->IsAborted())
 	{

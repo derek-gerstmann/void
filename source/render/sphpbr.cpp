@@ -606,8 +606,10 @@ void SphPointBasedRenderer::DisableProjection()
 }
 
 bool
-SphPointBasedRenderer::Setup()
+SphPointBasedRenderer::Setup(
+    Graphics::Context* gfx)
 {
+    m_Graphics = gfx;
     m_Shader.SetName("SPBR");
     m_Shader.Compile(SphereVS, NULL, SphereFS);
 	m_WdC = CWd(m_SmoothingRadius*m_SmoothingRadius);

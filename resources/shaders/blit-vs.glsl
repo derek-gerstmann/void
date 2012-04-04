@@ -1,14 +1,12 @@
 // -- VS
 
-attribute vec4 Position;
+attribute vec2 Position;
 attribute vec2 TexCoord;
 varying vec2 vTexCoord;
-// uniform float Depth;
 
 void main()
 {
-    vTexCoord = TexCoord;
-	gl_Position = Position;
-//    gl_Position.z = Depth;
+    vTexCoord = vec2(TexCoord);
+	gl_Position = gl_ModelViewProjectionMatrix * vec4(Position.x, Position.y, 0.0, 1.0);
 }
 

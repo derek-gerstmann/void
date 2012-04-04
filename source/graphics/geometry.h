@@ -95,6 +95,7 @@ public:
         vd::u32         IndexCount;
         vd::u32         PrimitiveType;
 		vd::u32         PrimitiveCount;
+        vd::u32         ShaderId;
 		vd::u32         Bindings[AttributeSlot::Count];
         vd::u32         Buffers[AttributeSlot::Count];
 	};

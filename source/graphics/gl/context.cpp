@@ -1297,23 +1297,24 @@ Context::CreatePoint(
 
 Geometry*
 Context::CreateQuad(
-	vd::f32 left, vd::f32 top, vd::f32 right, vd::f32 bottom,
+	vd::f32 left,  vd::f32 top, 
+    vd::f32 right, vd::f32 bottom,
     vd::f32 u0, vd::f32 u1, vd::f32 v0, vd::f32 v1)
 {
     vdLogOpenGLErrors("Start");
 
     const vd::f32 positions[] = {
-        left,   top,    0.0f, 1.0f,
-        right,  top,    0.0f, 1.0f,
-        right,  bottom, 0.0f, 1.0f,
-        left,   bottom, 0.0f, 1.0f,
+        left,   top,   
+        right,  top,    
+        right,  bottom, 
+        left,   bottom, 
     };
 
     const vd::f32 texcoords[] = {
-        u0, v0,
-        u1, v0,
-        u1, v1,
         u0, v1,
+        u1, v1,
+        u1, v0,
+        u0, v0,
     };
 
     const unsigned int faces[] = { 3, 2, 1, 1, 0, 3 };
@@ -1331,7 +1332,7 @@ Context::CreateQuad(
         Buffer::AccessMode::ReadOnly,
         Buffer::UsageMode::Static,
         Buffer::TypeId::F32,
-        4, data.PrimitiveCount, positions
+        2, data.PrimitiveCount, positions
     );
 
     Buffer* texcoord_buffer = CreateBuffer(
@@ -1370,7 +1371,8 @@ Context::CreateQuad(
 Geometry*
 Context::CreateQuad()
 {
-	return CreateQuad(-1.0f, +1.0f, +1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f);
+	return CreateQuad(-1.0f, +1.0f, +1.0f, -1.0f, 
+                      +0.0f, +1.0f, +0.0f, +1.0f);
 }
 
 Geometry*
@@ -1589,7 +1591,7 @@ Context::CreateGrid(
     vdLogOpenGLErrors("End");
     return geo;
 }
-    
+
 vd::status 
 Context::Bind(
     Geometry* geo)
@@ -1718,6 +1720,48 @@ Context::Detach(
 {
     vdAssert(geo != NULL);
     return geo->Detach(attrib);
+}
+
+vd::status
+Context::Attach(
+    Geometry* geo,
+    Shader* shader)
+{
+    for(vd::u32 i = Graphics::Geometry::AttributeSlot::StartIndex; i < Graphics::Geometry::AttributeSlot::Count; i++)
+    {
+        Graphics::Geometry::AttributeSlot::Value attrib = Graphics::Geometry::AttributeSlot::FromInteger(i);
+        vd::u32 buffer = geo->GetBuffer(attrib);
+        if(buffer < VD_U32_MAX)
+        {
+            Core::Symbol name = Symbol::Register(Graphics::Geometry::AttributeSlot::ToString(attrib));
+            vd::u32 slot = shader->GetAttributeSlot(name);
+            if(slot < VD_U32_MAX)
+            {
+                Attach(geo, attrib, buffer, slot);
+            }
+        }
+    }
+    vdAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error attaching shader to geometry!");        
+    return Status::Code::Success;
+}
+
+vd::status
+Context::Detach(
+    Geometry* geo,
+    Shader* shader)
+{
+    for(vd::u32 i = Graphics::Geometry::AttributeSlot::StartIndex; i < Graphics::Geometry::AttributeSlot::Count; i++)
+    {
+        Graphics::Geometry::AttributeSlot::Value attrib = Graphics::Geometry::AttributeSlot::FromInteger(i);
+        vd::u32 buffer = geo->GetBuffer(attrib);
+        if(buffer < VD_U32_MAX)
+        {
+            Detach(geo, attrib);
+        }
+    }
+
+    vdAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error detaching shader from geometry!");        
+    return Status::Code::Success;
 }
 
 vd::status
@@ -1873,7 +1917,6 @@ Context::CreateFramebuffer(
     }
     
     glGenTextures(1, &color_texture);
-    glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, color_texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

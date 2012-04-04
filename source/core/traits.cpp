@@ -164,7 +164,7 @@ Entity* Traits::Create() const
     {
         vdLogGlobalError("RTTI error: An attempt to instantiate a "
                          "class lacking the instantiation feature occurred (%s)!",
-                         GetName().c_str());
+                         GetName().GetStr());
     }
 
     return ((CreateFn) m_CreateFn)();
@@ -176,7 +176,7 @@ Entity* Traits::Load(Stream* stream, Registry* registry) const
     {
         vdLogGlobalError("RTTI error: An attempt to instantiate a "
                          "class lacking the unserialization feature occurred (%s)!",
-                         GetName().c_str());
+                         GetName().GetStr());
     }
 
     return ((LoadFn) m_LoadFn)(stream, registry);

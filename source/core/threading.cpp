@@ -98,7 +98,7 @@ class MainThread : public Thread
 {
 public:
 
-    MainThread() : Thread("Main", true)
+    MainThread() : Thread("[Main]", true)
     {
         // EMTPY!
     }

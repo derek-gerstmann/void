@@ -364,7 +364,7 @@ Shader::GetSamplerTextureTarget(
 
 bool
 Shader::AddUniform(
-	const vd::symbol& name, GLint type)
+	const Core::Symbol name, GLint type)
 {
 	switch (type)
 	{
@@ -414,7 +414,7 @@ Shader::AddUniform(
 
 bool
 Shader::IsValidUniform(
-	const vd::symbol& name)
+	const Core::Symbol name)
 {
 	return m_Uniforms.IsUsed(name);
 }
@@ -452,15 +452,17 @@ Shader::LocateUniforms()
 			vd::uid key = name.GetKey();
 
 #if defined(VD_DEBUG_SHADERS)			
-			vdLogInfo("Shader[%s] : Adding uniform '%s' [%02d] : [%llx] '%s' as [%s] -> [%02d] ", 
-				m_Name.c_str(), uniform_string, location, index, Symbol::ToString(name), 
+			vdLogInfo("Shader[%s] : Adding sampler '%s' [%02d] : [%s] '%s' as [%s] -> [%02d] ", 
+				m_Name.c_str(), uniform_string, location, 
+				Core::Convert::ToString(key).c_str(), Symbol::ToString(name), 
 				Symbol::ToString(Shader::GetTypeIdentifier(type)), sampler_count);
 #endif
 
 			m_UniformSlots[key] = location;
 			m_UniformTypes[key] = type;
 			m_Uniforms.Add1i(name, (vd::i32)sampler_count);
-			m_SamplerSlots[key] = sampler_count++;
+			m_SamplerSlots[key] = sampler_count;
+			sampler_count++;
 		} 
 		else 
 		{
@@ -486,9 +488,10 @@ Shader::LocateUniforms()
 					AddUniform(name, type);
 	
 #if defined(VD_DEBUG_SHADERS)			
-					vdLogInfo("Shader[%s] : Adding uniform '%s' [%02d] : [%llx] '%s' as [%s] -> [%02d] ", 
-						m_Name.c_str(), uniform_string, location, index, Symbol::ToString(name), 
-						Symbol::ToString(Shader::GetTypeIdentifier(type)), sampler_count);
+					vdLogInfo("Shader[%s] : Adding uniform '%s' [%02d] : [%s] '%s' as [%s] -> [%02d] ", 
+						m_Name.c_str(), uniform_string, location, 
+						Core::Convert::ToString(key).c_str(), Symbol::ToString(name), 
+						Symbol::ToString(Shader::GetTypeIdentifier(type)), location);
 #endif
 
 				} 
@@ -543,9 +546,9 @@ Shader::LocateAttributes()
 				m_AttributeSlots[key] = location;
 
 #if defined(VD_DEBUG_SHADERS)			
-				vd::symbol name = Symbol::Retrieve(key);
-				vdLogInfo("Shader[%s] : Adding attrib '%s' [%02d] : [%llx] '%s' as [%s] -> [%02d] ", 
-					m_Name.c_str(), attrib_string, location, index, Symbol::ToString(name), 
+				vdLogInfo("Shader[%s] : Adding attrib '%s' [%02d] : [%s] '%s' as [%s] -> [%02d] ", 
+					m_Name.c_str(), attrib_string, location, 
+					Core::Convert::ToString(key).c_str(), Symbol::ToString(name), 
 					Symbol::ToString(Shader::GetTypeIdentifier(type)), attrib_index);
 #endif
 				attrib_index++;
@@ -563,17 +566,17 @@ Shader::BindSamplers()
 	BindingMap::const_iterator it;
 	for(it = m_SamplerSlots.begin(); it != m_SamplerSlots.end(); ++it)
 	{
-		GLint texture = m_SamplerBindings[it->first];
-		GLint type = m_UniformTypes[it->first];
-		GLint slot = m_SamplerSlots[it->first];
-		const char* name = Symbol::Lookup(it->first);
 		vd::uid key = it->first;
+		GLint texture = m_SamplerBindings[key];
+		GLint type = m_UniformTypes[key];
+		GLint slot = m_SamplerSlots[key];
+		const char* name = Symbol::Lookup(key);
 
-		if(m_SamplerBindings.count(it->first) < 1)
+		if(m_SamplerBindings.count(key) < 1)
 		{
 #if defined(VD_DEBUG_SHADERS)			
 			vdLogInfo("Shader[%s] : MISSING Sampler [%02d] %s [%s] : %s !!", 
-				m_Name.c_str(), slot, name ? name : "<NULL>", key.ToString().c_str(), 
+				m_Name.c_str(), slot, name ? name : "<NULL>", Core::Convert::ToString(key).c_str(), 
 				Symbol::ToString(Shader::GetTypeIdentifier(m_UniformTypes[key])));
 #endif
 			continue;
@@ -583,8 +586,8 @@ Shader::BindSamplers()
 
 #if defined(VD_DEBUG_SHADERS)			
 		vdLogInfo("Shader[%s] : Binding Sampler [%02d] %s [%s] : %s [%08d]", 
-			m_Name.c_str(), slot, name ? name : "<NULL>", key.ToString().c_str(), 
-			Symbol::ToString(Shader::GetTypeIdentifier(m_UniformTypes[name.ToKey()])),
+			m_Name.c_str(), slot, name ? name : "<NULL>", Core::Convert::ToString(key).c_str(), 
+			Symbol::ToString(Shader::GetTypeIdentifier(m_UniformTypes[key])),
 			texture);
 #else
     	VD_IGNORE_UNUSED(name);
@@ -605,16 +608,17 @@ Shader::UnbindSamplers()
 		if(m_SamplerBindings.count(it->first) < 1)
 			continue;
 
-		const char* name = Symbol::Lookup(it->first);
-		GLint type = m_UniformTypes[it->first];
-		GLint texture = m_SamplerBindings[it->first];
-		GLint target = GetSamplerTextureTarget(type);
-		GLint slot = m_SamplerSlots[it->first];
 		vd::uid key = it->first;
+		GLint texture = m_SamplerBindings[key];
+		GLint type = m_UniformTypes[key];
+		GLint slot = m_SamplerSlots[key];
+		GLint target = Shader::GetSamplerTextureTarget(type);
+		const char* name = Symbol::Lookup(key);
+
 
 #if defined(VD_DEBUG_SHADERS)			
 		vdLogInfo("Shader[%s] : Unbinding Sampler [%02d] %s [%s] : %s [%08d]", 
-			m_Name.c_str(), slot, name ? name : "<NULL>", key.ToString().c_str(), 
+			m_Name.c_str(), slot, name ? name : "<NULL>", Core::Convert::ToString(key).c_str(), 
 			Symbol::ToString(Shader::GetTypeIdentifier(m_UniformTypes[key])),
 			texture);
 #else
@@ -636,7 +640,7 @@ Shader::BindAttributes()
 	BindingMap::const_iterator it;
 	for(it = m_AttributeSlots.begin(); it != m_AttributeSlots.end(); ++it)
 	{
-		const vd::symbol& name = Symbol::Retrieve(it->first);
+		const Core::Symbol name = Symbol::Retrieve(it->first);
 		GLint slot = m_AttributeSlots[it->first];
 		Geometry::AttributeSlot::Value attrib = (Geometry::AttributeSlot::Value)slot;
 
@@ -686,7 +690,7 @@ Shader::SubmitUniforms(bool force)
 	{
 #if defined(VD_DEBUG_SHADERS)			
 		vd::uid key = *it;
-		vd::symbol name = Symbol::Retrieve(key);
+		Core::Symbol name = Core::Symbol::Retrieve(key);
 		vdLogInfo("Shader[%s] : Updating '%s' ... ", 
 			m_Name.c_str(), Symbol::ToString(name));
 #endif
@@ -695,7 +699,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
-		vd::symbol name = Symbol::Retrieve(key);
+		Core::Symbol name = Core::Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::I32, name) && m_UniformSlots.count(key))
 		{
@@ -714,7 +718,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
-		vd::symbol name = Symbol::Retrieve(key);
+		Core::Symbol name = Core::Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::F32, name) && m_UniformSlots.count(key))
 		{
@@ -733,7 +737,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
-		vd::symbol name = Symbol::Retrieve(key);
+		Core::Symbol name = Core::Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::V2F32, name) && m_UniformSlots.count(key))
 		{
@@ -752,7 +756,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
-		vd::symbol name = Symbol::Retrieve(key);
+		Core::Symbol name = Core::Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::V3F32, name) && m_UniformSlots.count(key))
 		{
@@ -763,7 +767,7 @@ Shader::SubmitUniforms(bool force)
 
 #if defined(VD_DEBUG_SHADERS)			
 			vdLogInfo("Shader[%s] : Submitting '%s' -> [%8.3f %8.3f %8.3f]", 
-				m_Name.c_str(), name, (GLfloat)value.x, (GLfloat)value.y, (GLfloat)value.z);
+				m_Name.c_str(), Symbol::ToString(name), (GLfloat)value.x, (GLfloat)value.y, (GLfloat)value.z);
 #endif
 		}
 	}
@@ -771,7 +775,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
-		vd::symbol name = Symbol::Retrieve(key);
+		Core::Symbol name = Core::Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::V4F32, name) && m_UniformSlots.count(key))
 		{
@@ -782,7 +786,8 @@ Shader::SubmitUniforms(bool force)
 
 #if defined(VD_DEBUG_SHADERS)			
 			vdLogInfo("Shader[%s] : Submitting '%s' -> [%8.3f %8.3f %8.3f %8.3f]", 
-				m_Name.c_str(), Symbol::ToString(name), (GLfloat)value.x, (GLfloat)value.y, (GLfloat)value.z, (GLfloat)value.w );
+				m_Name.c_str(), Symbol::ToString(name), 
+				(GLfloat)value.x, (GLfloat)value.y, (GLfloat)value.z, (GLfloat)value.w );
 #endif
 		}
 	}
@@ -790,7 +795,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
-		vd::symbol name = Symbol::Retrieve(key);
+		Core::Symbol name = Core::Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::M3F32, name) && m_UniformSlots.count(key))
 		{
@@ -819,7 +824,7 @@ Shader::SubmitUniforms(bool force)
 	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
-		vd::symbol name = Symbol::Retrieve(key);
+		Core::Symbol name = Core::Symbol::Retrieve(key);
 
 		if(m_Uniforms.IsA(ParamSet::M4F32, name) && m_UniformSlots.count(key))
 		{
@@ -850,7 +855,7 @@ Shader::SubmitUniforms(bool force)
 
 bool 
 Shader::SetUniform(
-	const vd::symbol& name, const vd::v2f32& value)
+	const Core::Symbol name, const vd::v2f32& value)
 {
 	if(m_Uniforms.IsUsed(name))
 	{
@@ -865,7 +870,7 @@ Shader::SetUniform(
 
 bool 
 Shader::SetUniform(
-	const vd::symbol& name, const vd::v3f32& value)
+	const Core::Symbol name, const vd::v3f32& value)
 {
 	if(m_Uniforms.IsUsed(name))
 	{
@@ -880,7 +885,7 @@ Shader::SetUniform(
 
 bool 
 Shader::SetUniform(
-	const vd::symbol& name, const vd::v4f32& value)
+	const Core::Symbol name, const vd::v4f32& value)
 {
 	if(m_Uniforms.IsUsed(name))
 	{
@@ -895,7 +900,7 @@ Shader::SetUniform(
 
 bool
 Shader::SetUniform(
-	const vd::symbol& name, vd::i32 value)
+	const Core::Symbol name, vd::i32 value)
 {
 	if(m_Uniforms.IsUsed(name))
 	{
@@ -910,7 +915,7 @@ Shader::SetUniform(
 
 bool 
 Shader::SetUniform(
-	const vd::symbol& name, vd::f32 x)
+	const Core::Symbol name, vd::f32 x)
 {
 	if(m_Uniforms.IsUsed(name))
 	{
@@ -925,7 +930,7 @@ Shader::SetUniform(
 
 bool 
 Shader::SetUniform(
-	const vd::symbol& name, vd::f32 x, vd::f32 y)
+	const Core::Symbol name, vd::f32 x, vd::f32 y)
 {
 	if(m_Uniforms.IsUsed(name))
 	{
@@ -940,7 +945,7 @@ Shader::SetUniform(
 
 bool 
 Shader::SetUniform(
-	const vd::symbol& name, vd::f32 x, vd::f32 y, vd::f32 z)
+	const Core::Symbol name, vd::f32 x, vd::f32 y, vd::f32 z)
 {
 	if(m_Uniforms.IsUsed(name))
 	{
@@ -955,7 +960,7 @@ Shader::SetUniform(
 
 bool 
 Shader::SetUniform(
-	const vd::symbol& name, vd::f32 x, vd::f32 y, vd::f32 z, vd::f32 w)
+	const Core::Symbol name, vd::f32 x, vd::f32 y, vd::f32 z, vd::f32 w)
 {
 	if(m_Uniforms.IsUsed(name))
 	{
@@ -970,7 +975,7 @@ Shader::SetUniform(
 
 bool
 Shader::SetUniform(
-	const vd::symbol& name, const vd::m3f32& value)
+	const Core::Symbol name, const vd::m3f32& value)
 {
 	if(m_Uniforms.IsUsed(name))
 	{
@@ -985,7 +990,7 @@ Shader::SetUniform(
 
 bool 
 Shader::SetUniform(
-	const vd::symbol& name, const vd::m4f32& value)
+	const Core::Symbol name, const vd::m4f32& value)
 {
 	if(m_Uniforms.IsUsed(name))
 	{
@@ -1000,39 +1005,43 @@ Shader::SetUniform(
 
 vd::i32
 Shader::GetSamplerSlot(
-	const vd::symbol& name)
+	const Core::Symbol name)
 {
-	if(m_SamplerSlots.count(name.ToKey()))
-		return m_SamplerSlots[name.ToKey()];
+	vd::uid key = name.GetKey();
+	if(m_SamplerSlots.count(key))
+		return m_SamplerSlots[key];
 	return Shader::InvalidSlot;
 }
 
 vd::i32
 Shader::GetUniformSlot(
-	const vd::symbol& name)
+	const Core::Symbol name)
 {
-	if(m_UniformSlots.count(name.ToKey()))
-		return m_UniformSlots[name.ToKey()];
+	vd::uid key = name.GetKey();
+	if(m_UniformSlots.count(key))
+		return m_UniformSlots[key];
 	return Shader::InvalidSlot;
 }
 
 vd::i32
 Shader::GetAttributeSlot(
-	const vd::symbol& name)
+	const Core::Symbol name)
 {
-	if(m_AttributeSlots.count(name.ToKey()))
-		return m_AttributeSlots[name.ToKey()];
+	vd::uid key = name.GetKey();
+	if(m_AttributeSlots.count(key))
+		return m_AttributeSlots[key];
 	return Shader::InvalidSlot;
 }
 
 bool
 Shader::BindTexture(
-	const vd::symbol& name,
+	const Core::Symbol name,
 	vd::i32 texture)
 {
-	if(m_SamplerSlots.count(name.ToKey()))
+	vd::uid key = name.GetKey();
+	if(m_SamplerSlots.count(key))
 	{
-		m_SamplerBindings[name.ToKey()] = texture;
+		m_SamplerBindings[key] = texture;
 		return true;
 	}
 	return false;
@@ -1040,12 +1049,13 @@ Shader::BindTexture(
 
 bool
 Shader::UnbindTexture(
-	const vd::symbol& name,
+	const Core::Symbol name,
 	vd::i32 texture)
 {
-	if(m_SamplerSlots.count(name.ToKey()))
+	vd::uid key = name.GetKey();
+	if(m_SamplerSlots.count(key))
 	{
-		m_SamplerBindings.erase(name.ToKey());
+		m_SamplerBindings.erase(key);
 		return true;
 	}
 	return false;
@@ -1054,12 +1064,13 @@ Shader::UnbindTexture(
 
 bool
 Shader::BindAttribute(
-	const vd::symbol& name,
+	const Core::Symbol name,
 	vd::i32 texture)
 {
-	if(m_AttributeSlots.count(name.ToKey()))
+	vd::uid key = name.GetKey();
+	if(m_AttributeSlots.count(key))
 	{
-		m_AttributeSlots[name.ToKey()] = texture;
+		m_AttributeSlots[key] = texture;
 		return true;
 	}
 	return false;
@@ -1067,12 +1078,13 @@ Shader::BindAttribute(
 
 bool
 Shader::UnbindAttribute(
-	const vd::symbol& name,
+	const Core::Symbol name,
 	vd::i32 texture)
 {
-	if(m_AttributeSlots.count(name.ToKey()))
+	vd::uid key = name.GetKey();
+	if(m_AttributeSlots.count(key))
 	{
-		m_AttributeSlots.erase(name.ToKey());
+		m_AttributeSlots.erase(key);
 		return true;
 	}
 	return false;

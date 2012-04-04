@@ -87,6 +87,9 @@ public:
 
     virtual vd::status Attach(Geometry* geo, Geometry::AttributeSlot::Value attrib, vd::u32 buffer, vd::u32 slot);
     virtual vd::status Detach(Geometry* geo, Geometry::AttributeSlot::Value attrib);
+    
+    virtual vd::status Attach(Geometry* geo, Shader* shader);
+    virtual vd::status Detach(Geometry* geo, Shader* shader);
 
     virtual vd::status Bind(Geometry* geo);
     virtual vd::status Submit(Geometry* geo, vd::u32 start=0, vd::u32 end=VD_U32_MAX, vd::u32 count=VD_U32_MAX);

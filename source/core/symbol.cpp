@@ -320,9 +320,10 @@ Symbol::Resolve(vd::uid key)
 }
 
 const char*
-Symbol::Lookup(vd::u64 index)
+Symbol::Lookup(vd::uid key)
 {
 	SymbolRegistry* registry = Symbol::GetRegistry();
+	vd::u64 index = registry->Resolve(key);
 	return registry->Lookup(index);
 }
 
@@ -335,7 +336,7 @@ Symbol::Retrieve(vd::uid key)
 
 bool 
 Symbol::IsValid(
-	const Symbol& symbol)
+	const Symbol symbol)
 {
 	return (symbol == GetInvalid());
 }
@@ -387,19 +388,21 @@ Symbol::GetRegistry()
 // ============================================================================================== //
 
 const char* 
-Symbol::ToString(const Symbol& symbol)
+Symbol::ToString(const Symbol symbol)
 {
-	return Symbol::Lookup(symbol.GetId());
+	SymbolRegistry* registry = Symbol::GetRegistry();
+	vd::u64 index = symbol.GetId();
+	return registry->Lookup(index);
 }
 
 vd::u64
-Symbol::ToId(const Symbol& symbol)
+Symbol::ToId(const Symbol symbol)
 {
 	return symbol.GetId();
 }
 
 vd::uid
-Symbol::ToKey(const Symbol& symbol)
+Symbol::ToKey(const Symbol symbol)
 {
 	return symbol.GetKey();
 }

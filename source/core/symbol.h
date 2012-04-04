@@ -61,20 +61,12 @@ public:
 	bool operator!=(const Symbol& other) const;
 	bool operator<(const Symbol& other) const;
 
-	operator const char* () const { return Lookup(m_Key); }
-	const char* c_str() const { return Lookup(m_Key); }
+//	operator const char* () const { return Lookup(m_Key); }
+//	const char* c_str() const { return Lookup(m_Key); }
 	const char* GetStr() const { return Lookup(m_Key); }
 	vd::uid GetKey() const { return m_Key; }
 	vd::u64 GetId() const { return m_Id; }
 	bool IsValid() const;
-
-    VD_FORCE_INLINE
-	operator vd::symbol () const 
-    { 
-        return IsValid() ?  
-            vd::symbol(m_Key, GetStr()) : 
-            vd::symbol(); 
-    }
 
     VD_FORCE_INLINE
     bool operator< (const Symbol& b)
@@ -87,10 +79,10 @@ public:
     }
 
     static Symbol GetInvalid();
-	static bool IsValid(const Symbol& symbol);
+	static bool IsValid(const Symbol symbol);
 
     static const vd::u64 Resolve(const vd::uid key);   
-    static const char* Lookup(const vd::u64 key);	
+    static const char* Lookup(const vd::uid key);	
 	static Symbol Retrieve(const vd::uid key);
     static Symbol Register(const char* bytes);
 	static Symbol Register(const vd::uid key, const char* bytes);
@@ -99,13 +91,13 @@ public:
 	static vd::u64 CreateRegistry();
 	
 	static const char* 
-	ToString(const Symbol& symbol);
+	ToString(const Symbol symbol);
 
 	static vd::u64
-	ToId(const Symbol& symbol);
+	ToId(const Symbol symbol);
 
     static vd::uid
-    ToKey(const Symbol& symbol);
+    ToKey(const Symbol symbol);
 
 private:
 
