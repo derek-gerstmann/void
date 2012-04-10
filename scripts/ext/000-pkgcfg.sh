@@ -7,15 +7,15 @@ source "./common.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="png"
-pkg_base="libpng-1.5.9"
+pkg_name="pkgcfg"
+pkg_base="pkg-config-0.24"
 pkg_file="$pkg_base.tar.gz"
-pkg_url="http://prdownloads.sourceforge.net/libpng/$pkg_file?download"
+pkg_url="http://pkgconfig.freedesktop.org/releases/$pkg_file"
 
 pkg_opt="configure:keep"
-pkg_cflags="-I$ext_dir/zlib/include"
-pkg_ldflags="-L$ext_dir/zlib/lib/$os_name"
-pkg_cfg="--disable-shared --enable-static --with-zlib-prefix=$ext_dir/build/zlib/$os_name"
+pkg_cflags="-I$ext_dir/zlib/include:-I$ext_dir/iconv/include"
+pkg_ldflags="-L$ext_dir/zlib/lib/$os_name:-L$ext_dir/iconv/lib/$os_name:-liconv"
+pkg_cfg="--disable-shared --enable-static --enable-static-testprogs --disable-openmp"
 
 ####################################################################################################
 # build and install pkg into external folder

@@ -27,6 +27,9 @@ is_osx=$( uname -s | grep -c Darwin )
 if [ "$is_osx" -eq 1 ]
 then
     os_name="osx"
+    export MACOSX_DEPLOYMENT_TARGET=10.6
+    export LDFLAGS="-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.6.sdk"
+    export CFLAGS="-arch x86_64 -isysroot /Developer/SDKs/MacOSX10.6.sdk"
 fi
 
 is_centos=0
@@ -50,6 +53,12 @@ then
     echo "Please execute package build script from within the void/scripts subfolder: '$abs_cwd'!"
     exit 0
 fi 
+
+if [ -d "$ext_dir/pkgcfg/bin/$os_name" ]
+then
+    export PKG_CONFIG=$ext_dir/pkgcfg/bin/$os_name/pkg-config
+    export PKG_CONFIG_PATH=$ext_dir/pkgcfg/lib/$os_name/pkgconfig
+fi
 
 ####################################################################################################
 
@@ -281,34 +290,54 @@ function is_archive()
 {
     local is=0
     local archive=$1
-    if test -f ${archive%.*}*.bz2 ; then
-        is=1
-    elif  test -f ${archive%.*}*.gz ; then
-        is=1
-    elif  test -f ${archive%.*}*.tgz ; then
-        is=1
-    elif  test -f ${archive%.*}*.zip ; then
-        is=1
-    fi  
+    if [ -f $archive ] ; then
+       case $archive in
+        *.tar.bz2)  is=1;;
+        *.tar.gz)   is=1;;
+        *.tar.xz)   is=1;;
+        *.bz2)      is=1;;
+        *.rar)      is=1;;
+        *.gz)       is=1;;
+        *.tar)      is=1;;
+        *.tbz2)     is=1;;
+        *.tgz)      is=1;;
+        *.zip)      is=1;;
+        *.Z)        is=1;;
+        *.7z)       is=1;;
+        *)          is=0;;
+       esac    
+    fi
     echo "$is"
 }
 
 function extract_archive()
 {
     local archive=$1
+    local extr=$(which tar)
     echo "-- Extracting '$archive'"
 
-    if test -f ${archive%.*}*.bz2 ; then
-        tar jxf ${archive} || bail "Failed to extract archive '${archive}'"
-    elif  test -f ${archive%.*}*.gz ; then
-        tar zxf ${archive} || bail "Failed to extract archive '${archive}'"
-    elif  test -f ${archive%.*}*.tgz ; then
-        tar zxf ${archive} || bail "Failed to extract archive '${archive}'"
-    elif  test -f ${archive%.*}*.zip ; then
-        unzip -uo ${archive} || bail "Failed to extract archive '${archive}'"
-    else
-        bail "Invalid archive!  Failed to extract archive '${archive}'"
-    fi  
+    if [ -e $ext_dir/gtar/bin/$os_name/tar ]
+    then
+        extr=$ext_dir/gtar/bin/$os_name/tar
+    fi
+
+    if [ -f $archive ] ; then
+       case $archive in
+        *.tar.bz2)  eval $extr xvjf ${archive} || bail "Failed to extract archive '${archive}'";;
+        *.tar.gz)   eval $extr xvzf ${archive} || bail "Failed to extract archive '${archive}'";;
+        *.tar.xz)   eval $extr Jxvf ${archive} || bail "Failed to extract archive '${archive}'";;
+        *.bz2)      eval bunzip2 ${archive} || bail "Failed to extract archive '${archive}'";;
+        *.rar)      eval unrar x ${archive} || bail "Failed to extract archive '${archive}'";;
+        *.gz)       eval gunzip ${archive} || bail "Failed to extract archive '${archive}'";;
+        *.tar)      eval $extr xvf ${archive} || bail "Failed to extract archive '${archive}'";;
+        *.tbz2)     eval $extr xvjf ${archive} || bail "Failed to extract archive '${archive}'";;
+        *.tgz)      eval $extr xvzf ${archive} || bail "Failed to extract archive '${archive}'";;
+        *.zip)      eval unzip -uo ${archive} || bail "Failed to extract archive '${archive}'";;
+        *.Z)        eval uncompress ${archive} || bail "Failed to extract archive '${archive}'";;
+        *.7z)       eval 7z x ${archive} || bail "Failed to extract archive '${archive}'";;
+        *)          bail "Failed to extract archive '${archive}'";;
+       esac    
+    fi
 }
 
 function make_dir()
@@ -811,6 +840,13 @@ function migrate_pkg()
             make_dir "$ext_dir/$pkg_name/$path/$os_name"
             cp_dir "$prefix/$path" "$ext_dir/$pkg_name/$path/$os_name" || bail "Failed to copy OS binaries into directory: $ext_dir/$pkg_name/$os_name"
             separator
+            if [ -d "$prefix/$path/pkgconfig" ] && [ -d "$PKG_CONFIG_PATH" ]
+            then
+                report "Installing package config from '$prefix/$path/pkfconfig' for '$pkg_name'"
+                separator
+                cp -v $prefix/$path/pkgconfig/*.pc "$PKG_CONFIG_PATH" || bail "Failed to copy pkg-config into directory: $PKG_CONFIG_PATH"
+                separator
+            fi
         fi
     done
     pop_dir
