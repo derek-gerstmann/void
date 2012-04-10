@@ -31,6 +31,98 @@
 
 // ============================================================================================== //
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// ============================================================================================== //
+
+#if (defined(VD_TARGET_WINDOWS) && defined(_MSC_VER))
+
+// ============================================================================================== //
+
+typedef signed   __int8                      vd_flag;
+typedef signed   __int8                      vd_i8;
+typedef unsigned __int8                      vd_u8;
+typedef signed   __int16                     vd_i16;
+typedef unsigned __int16                     vd_u16;
+typedef signed   __int32                     vd_i32;
+typedef unsigned __int32                     vd_u32;
+typedef signed   __int64                     vd_i64;
+typedef unsigned __int64                     vd_u64;
+typedef unsigned __int16                     vd_f16;
+typedef float                                vd_f32;
+typedef double                               vd_f64;
+typedef wchar_t                              vd_utf8;
+typedef size_t                               vd_size;
+typedef vd_u32                               vd_tag;
+typedef intptr_t                             vd_address;
+typedef void*                                vd_ptr;
+
+// ============================================================================================== //
+
+#else
+
+// ============================================================================================== //
+
+#include <stdint.h>
+
+typedef int8_t                               vd_flag;
+typedef int8_t                               vd_i8;
+typedef uint8_t                              vd_u8;
+typedef int16_t                              vd_i16;
+typedef uint16_t                             vd_u16;
+typedef int32_t                              vd_i32;
+typedef uint32_t                             vd_u32;
+typedef int64_t                              vd_i64;
+typedef uint64_t                             vd_u64;
+typedef uint16_t                             vd_f16;
+typedef float                                vd_f32;
+typedef double                               vd_f64;
+typedef wchar_t                              vd_utf8;
+typedef size_t                               vd_size;
+typedef vd_u32                               vd_tag;
+typedef intptr_t                             vd_address;
+typedef void*                                vd_ptr;
+
+#endif
+
+// ============================================================================================== //
+
+typedef vd_u32                               vd_code;
+typedef vd_u32                               vd_status;
+typedef vd_u64                               vd_uid[2];
+
+// ============================================================================================== //
+
+#if     defined(VD_USE_DOUBLE_PRECISION)
+typedef vd_i64                               vd_int;
+typedef vd_f64                               vd_real;
+#ifdef VD_USE_SINGLE_PRECISION
+#undef VD_USE_SINGLE_PRECISION            
+#endif
+#elif   defined(VD_USE_SINGLE_PRECISION)
+typedef vd_i32                               vd_int;
+typedef vd_f32                               vd_real;
+#else
+#define VD_USE_SINGLE_PRECISION              1
+typedef vd_i32                               vd_int;
+typedef vd_f32                               vd_real;
+
+// ============================================================================================== //
+#warning "No numeric precision flag defined!  Using single precision floating-point for numeric values!"
+// ============================================================================================== //
+
+#endif
+
+// ============================================================================================== //
+
+#ifdef __cplusplus
+}
+#endif
+
+// ============================================================================================== //
+
 VD_NAMESPACE_BEGIN();
 
 // ============================================================================================== //

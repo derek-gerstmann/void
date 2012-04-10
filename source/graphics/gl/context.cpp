@@ -1636,7 +1636,6 @@ Context::Submit(
     const Geometry::Data& data = geo->GetData();
 
     vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error prior to render geometry.");
-
     vd::u32 attrib = Geometry::AttributeSlot::ToInteger(Geometry::AttributeSlot::Index);
     if(data.Buffers[attrib] < VD_U32_MAX)
     {
@@ -1727,9 +1726,9 @@ Context::Attach(
     Geometry* geo,
     Shader* shader)
 {
-    for(vd::u32 i = Graphics::Geometry::AttributeSlot::StartIndex; i < Graphics::Geometry::AttributeSlot::Count; i++)
+    for(vd::u32 i = Geometry::AttributeSlot::StartIndex; i < Geometry::AttributeSlot::Count; i++)
     {
-        Graphics::Geometry::AttributeSlot::Value attrib = Graphics::Geometry::AttributeSlot::FromInteger(i);
+        Geometry::AttributeSlot::Value attrib = Graphics::Geometry::AttributeSlot::FromInteger(i);
         vd::u32 buffer = geo->GetBuffer(attrib);
         if(buffer < VD_U32_MAX)
         {
@@ -1750,7 +1749,7 @@ Context::Detach(
     Geometry* geo,
     Shader* shader)
 {
-    for(vd::u32 i = Graphics::Geometry::AttributeSlot::StartIndex; i < Graphics::Geometry::AttributeSlot::Count; i++)
+    for(vd::u32 i = Geometry::AttributeSlot::StartIndex; i < Geometry::AttributeSlot::Count; i++)
     {
         Graphics::Geometry::AttributeSlot::Value attrib = Graphics::Geometry::AttributeSlot::FromInteger(i);
         vd::u32 buffer = geo->GetBuffer(attrib);

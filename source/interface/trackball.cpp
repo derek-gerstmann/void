@@ -29,6 +29,158 @@
 
 // ============================================================================================== //
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// ============================================================================================== //
+
+static const float kTol = 0.001;
+static const float kRad2Deg = 180. / 3.1415927;
+static const float kDeg2Rad = 3.1415927 / 180.;
+
+float gRadiusTrackball;
+float gStartPtTrackball[3];
+float gEndPtTrackball[3];
+long gXCenterTrackball = 0, gYCenterTrackball = 0;
+
+// ============================================================================================== //
+
+void vdTrackballStart(
+    long x, long y, 
+    long originX, long originY, 
+    long width, long height)
+{
+    float xxyy;
+    float nx, ny;
+    
+    nx = width;
+    ny = height;
+
+    if (nx > ny)
+        gRadiusTrackball = ny * 0.5;
+    else
+        gRadiusTrackball = nx * 0.5;
+
+    gXCenterTrackball = originX + width * 0.5;
+    gYCenterTrackball = originY + height * 0.5;
+    
+    gStartPtTrackball[0] = x - gXCenterTrackball;
+    gStartPtTrackball[1] = y - gYCenterTrackball;
+
+    xxyy = gStartPtTrackball [0] * gStartPtTrackball[0] + gStartPtTrackball [1] * gStartPtTrackball [1];
+    if (xxyy > gRadiusTrackball * gRadiusTrackball) 
+    {
+        gStartPtTrackball[2] = 0.;
+    } 
+    else
+    {
+        gStartPtTrackball[2] = sqrt (gRadiusTrackball * gRadiusTrackball - xxyy);
+    }
+}
+
+void vdTrackballRollTo(
+    long x, long y, float rot [4])
+{
+    float xxyy;
+    float cosAng, sinAng;
+    float ls, le, lr;
+    
+    gEndPtTrackball[0] = x - gXCenterTrackball;
+    gEndPtTrackball[1] = y - gYCenterTrackball;
+
+    if (fabs (gEndPtTrackball [0] - gStartPtTrackball [0]) < kTol && fabs (gEndPtTrackball [1] - gStartPtTrackball [1]) < kTol)
+        return; 
+
+    xxyy = gEndPtTrackball [0] * gEndPtTrackball [0] + gEndPtTrackball [1] * gEndPtTrackball [1];
+    
+    if (xxyy > gRadiusTrackball * gRadiusTrackball) 
+    {
+        gEndPtTrackball [2] = 0.;
+    }
+    else 
+    {
+        gEndPtTrackball[ 2] = sqrt (gRadiusTrackball * gRadiusTrackball - xxyy);
+    }
+
+    rot[1] =  gStartPtTrackball[1] * gEndPtTrackball[2] - gStartPtTrackball[2] * gEndPtTrackball[1];
+    rot[2] = -gStartPtTrackball[0] * gEndPtTrackball[2] + gStartPtTrackball[2] * gEndPtTrackball[0];
+    rot[3] =  gStartPtTrackball[0] * gEndPtTrackball[1] - gStartPtTrackball[1] * gEndPtTrackball[0];
+    
+    cosAng = gStartPtTrackball[0] * gEndPtTrackball[0] + gStartPtTrackball[1] * gEndPtTrackball[1] + gStartPtTrackball[2] * gEndPtTrackball[2]; // (s . e)
+    ls = sqrt(gStartPtTrackball[0] * gStartPtTrackball[0] + gStartPtTrackball[1] * gStartPtTrackball[1] + gStartPtTrackball[2] * gStartPtTrackball[2]);
+    ls = 1. / ls; // 1 / ||s||
+    le = sqrt(gEndPtTrackball[0] * gEndPtTrackball[0] + gEndPtTrackball[1] * gEndPtTrackball[1] + gEndPtTrackball[2] * gEndPtTrackball[2]);
+    le = 1. / le; // 1 / ||e||
+    cosAng = cosAng * ls * le;
+    
+    sinAng = lr = sqrt(rot[1] * rot[1] + rot[2] * rot[2] + rot[3] * rot[3]);
+                               
+    sinAng = sinAng * ls * le;
+    rot[0] = (float) atan2 (sinAng, cosAng) * kRad2Deg;
+    
+    // Normalize the rotation axis.
+    lr = 1.0 / lr;
+    rot[1] *= lr; 
+    rot[2] *= lr; 
+    rot[3] *= lr;
+}
+
+static 
+void ConvertAxisToQuaternion(
+    float *A, float *q)
+{
+    float ang2;  
+    float sinAng2; 
+    
+    ang2 = A[0] * kDeg2Rad * 0.5;  
+    sinAng2 = sin(ang2);
+    q[0] = A[1] * sinAng2; 
+    q[1] = A[2] * sinAng2; 
+    q[2] = A[3] * sinAng2;
+    q[3] = cos(ang2);
+}
+
+void vdTrackballAddTo(
+    float * dA, float * A)
+{
+    float q0[4], q1[4], q2[4];
+    float theta2, sinTheta2;
+        
+    ConvertAxisToQuaternion(A, q0);
+    ConvertAxisToQuaternion(dA, q1);
+    
+    // q2 = q1 + q0;
+    q2[0] = q1[1]*q0[2] - q1[2]*q0[1] + q1[3]*q0[0] + q1[0]*q0[3];
+    q2[1] = q1[2]*q0[0] - q1[0]*q0[2] + q1[3]*q0[1] + q1[1]*q0[3];
+    q2[2] = q1[0]*q0[1] - q1[1]*q0[0] + q1[3]*q0[2] + q1[2]*q0[3];
+    q2[3] = q1[3]*q0[3] - q1[0]*q0[0] - q1[1]*q0[1] - q1[2]*q0[2];
+
+    if (fabs(fabs(q2[3] - 1.)) < 1.0e-7) {
+        // Identity rotation.
+        A[0] = 0.0f;
+        A[1] = 1.0f;
+        A[2] = A[3] = 0.0f;
+        return;
+    }
+    
+    theta2 = (float) acos (q2[3]);
+    sinTheta2 = (float)  (1.0 /  sin ((double) theta2));
+
+    A[0] = theta2 * 2.0f * kRad2Deg;
+    A[1] = q2[0] * sinTheta2;
+    A[2] = q2[1] * sinTheta2;
+    A[3] = q2[2] * sinTheta2;
+}
+
+// ============================================================================================== //
+
+#ifdef __cplusplus
+}
+#endif
+
+// ============================================================================================== //
+
 VD_INTERFACE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //

@@ -7,6 +7,6 @@ varying vec2 vTexCoord;
 void main()
 {
     vTexCoord = vec2(TexCoord);
-	gl_Position = gl_ModelViewProjectionMatrix * vec4(Position.x, Position.y, 0.0, 1.0);
+	gl_Position = vec4(Position.x, Position.y, 0.0, 1.0) * 2.0 - 1.0; 
 }
 
