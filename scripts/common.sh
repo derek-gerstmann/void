@@ -709,8 +709,11 @@ function cfg_pkg()
 
         if [ "$is_centos" -eq 1 ]
         then
-            pkg_cflags=$pkg_cflags":-I/usr/include"
-            pkg_ldflags=$pkg_ldflags":-L/usr/lib:-L/usr/lib64"
+            if [ -n $pkg_cflags ] && [ $pkg_cflags != 0 ]
+            then
+                pkg_cflags=$pkg_cflags":-I/usr/include"
+                pkg_ldflags=$pkg_ldflags":-L/usr/lib:-L/usr/lib64"
+            fi
         fi
 
         if [ -n $pkg_cflags ] && [ $pkg_cflags != 0 ]
