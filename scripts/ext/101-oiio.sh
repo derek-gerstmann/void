@@ -17,7 +17,7 @@ pkg_opt="cmake:keep"
 # setup pkg dependency paths
 ####################################################################################################
 
-ilm_base="$ext_dir/build/ilm/$os_name"
+ilm_base="$ext_dir/build/exr/$os_name"
 exr_base="$ext_dir/build/exr/$os_name"
 zlib_base="$ext_dir/build/zlib/$os_name"
 szip_base="$ext_dir/build/szip/$os_name"
@@ -40,7 +40,7 @@ mpi_link="$mpi_link $mpi_base/lib/libopen-pal.a"
 
 if [ "$is_centos" -eq 1 ]
 then
-	mpi_link="$mpi_link -L/usr/lib64 -L/usr/lib -lpthread $zlib_base/lib/libz.a $ilm_base/lib/libIlmThread.a"
+	mpi_link="$mpi_link -L/usr/lib -L/usr/lib64 -lpthread_nonshared"
 else
 	mpi_link="$mpi_link -lpthread"
 fi
@@ -80,9 +80,9 @@ exr_libs="$exr_libs $ilm_base/lib/libIex.a"
 exr_libs="$exr_libs $ilm_base/lib/libIexMath.a"
 exr_libs="$exr_libs $ilm_base/lib/libImath.a"
 exr_libs="$exr_libs $ilm_base/lib/libIlmThread.a"
-exr_libs="$exr_libs $exr_base/lib/libIlmImf.a"
+exr_libs="$exr_libs $ilm_base/lib/libIlmImf.a"
 exr_libs="$exr_libs $zlib_base/lib/libz.a"
-exr_libs="$exr_libs -lpthread"
+exr_libs="$exr_libs -lpthread_nonshared"
 exr_link="-L$ilm_base/lib $exr_libs"
 
 pkg_mpath="$ext_dir:$zlib_base:$png_base:$jpeg_base:$boost_base:$exr_base:$hdf_base:$mpi_base"
@@ -108,8 +108,8 @@ pkg_env="$pkg_env:-DILMBASE_LIBRARIES=$ilm_libs"
 
 pkg_env="$pkg_env:-DOPENEXR_HOME=$ilm_base"
 pkg_env="$pkg_env:-DOPENEXR_INCLUDE_DIR=$ilm_base/include/OpenEXR"
-pkg_env="$pkg_env:-DOPENEXR_ILMIMF_LIBRARIES=$exr_base/lib/libIlmImf.a\;$ilm_libs"
-pkg_env="$pkg_env:-DOPENEXR_ILMIMF_LIBRARY=$exr_base/lib/libIlmImf.a"
+pkg_env="$pkg_env:-DOPENEXR_ILMIMF_LIBRARIES=$ilm_base/lib/libIlmImf.a\;$ilm_libs"
+pkg_env="$pkg_env:-DOPENEXR_ILMIMF_LIBRARY=$ilm_base/lib/libIlmImf.a"
 
 pkg_env="$pkg_env:-DHDF5_DIR=$hdf_base"
 pkg_env="$pkg_env:-DHDF5_INCLUDE_DIRS=$hdf_base/include"
@@ -168,7 +168,7 @@ pkg_cfg="$pkg_cfg -DHDF5_CXX_INCLUDE_DIR=$hdf_base/include"
 #pkg_cfg="$pkg_cfg -DHDF5_CXX_LIBRARIES='$hdf_libs'"
 pkg_cfg="$pkg_cfg -DZLIB_INCLUDE_DIR=$zlib_base/include"
 pkg_cfg="$pkg_cfg -DZLIB_LIBRARY=$zlib_base/lib/libz.a"
-pkg_cfg="$pkg_cfg -DILMBASE_HOME=$ilm_base"
+pkg_cfg="$pkg_cfg -DILMBASE_HOME=$exr_base"
 pkg_cfg="$pkg_cfg -DOPENEXR_INCLUDE_DIR=$exr_base/include"
 pkg_cfg="$pkg_cfg -DFIELD3D_HOME=$f3d_base"
 pkg_cfg="$pkg_cfg -DBOOST_ROOT=$boost_base"
@@ -194,18 +194,7 @@ function boot_oiio()
     # Disable the horribly broken imagebufalgo_test from the OIIO CMakeLists
     sed -i "s/\(.*\)\(imagebufalgo_test\)/\#\1\2/g" src/libOpenImageIO/CMakeLists.txt
 
-    # Disable all tool subdirectories
-    sed -i "s/\(.*\)\(add_subdirectory (iv)\)/\# \1\2/g" src/CMakeLists.txt
-    sed -i "s/\(.*\)\(add_subdirectory (iconvert)\)/\# \1\2/g" src/CMakeLists.txt
-    sed -i "s/\(.*\)\(add_subdirectory (idiff)\)/\# \1\2/g" src/CMakeLists.txt
-    sed -i "s/\(.*\)\(add_subdirectory (igrep)\)/\# \1\2/g" src/CMakeLists.txt
-    sed -i "s/\(.*\)\(add_subdirectory (iinfo)\)/\# \1\2/g" src/CMakeLists.txt
-    sed -i "s/\(.*\)\(add_subdirectory (iprocess)\)/\# \1\2/g" src/CMakeLists.txt
-    sed -i "s/\(.*\)\(add_subdirectory (testtex)\)/\# \1\2/g" src/CMakeLists.txt
-    sed -i "s/\(.*\)\(add_subdirectory (oiiotool)\)/\# \1\2/g" src/CMakeLists.txt
-    sed -i "s/\(.*\)\(add_subdirectory (maketx)\)/\# \1\2/g" src/CMakeLists.txt
     pop_dir
-
 }
 
 ####################################################################################################

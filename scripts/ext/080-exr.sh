@@ -15,7 +15,7 @@ pkg_url="git://github.com/openexr/openexr.git"
 pkg_opt="configure:keep"
 pkg_cflags=0
 pkg_ldflags=0
-pkg_cfg="--disable-shared --enable-static --disable-ilmbasetest CXXFLAGS=-I/usr/include"
+pkg_cfg="--disable-shared --enable-static --disable-ilmbasetest CXXFLAGS='-I/usr/include -I$ext_dir/ilm/include'"
 
 if [ "$is_centos" -eq 1 ]
 then

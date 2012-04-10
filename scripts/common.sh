@@ -711,8 +711,8 @@ function cfg_pkg()
         then
             if [ -n $pkg_cflags ] && [ $pkg_cflags != 0 ]
             then
-                pkg_cflags=$pkg_cflags":-I/usr/include"
-                pkg_ldflags=$pkg_ldflags":-L/usr/lib:-L/usr/lib64"
+                pkg_cflags="$pkg_cflags":-I/usr/include
+                pkg_ldflags="$pkg_ldflags":-L/usr/lib64:-L/usr/lib
             fi
         fi
 

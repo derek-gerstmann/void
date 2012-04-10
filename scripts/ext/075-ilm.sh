@@ -7,7 +7,7 @@ source "./common.sh"
 # setup pkg definition and resource files
 ####################################################################################################
 
-pkg_name="exr"
+pkg_name="ilm"
 pkg_base="exr/IlmBase"
 pkg_file="OpenEXR-github-v1.7.x.tar.bz2"
 pkg_url="git://github.com/openexr/openexr.git"
@@ -19,7 +19,7 @@ pkg_cfg="--disable-shared --enable-static --disable-ilmbasetest CXXFLAGS=-I/usr/
 
 ####################################################################################################
 
-function make_exr()
+function make_ilm()
 {
     local pkg_name=$1
     local pkg_base=$2
@@ -40,7 +40,7 @@ function make_exr()
     pop_dir
 }
 
-function build_exr()
+function build_ilm()
 {
     local m=8
     local pkg_name=$1
@@ -64,7 +64,7 @@ function build_exr()
     fetch_pkg   $pkg_name $pkg_base $pkg_file $pkg_url
     boot_pkg    $pkg_name $pkg_base $pkg_file $pkg_url
     cfg_pkg     $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg 
-    make_exr    $pkg_name $pkg_base $pkg_file $pkg_url 
+    make_ilm    $pkg_name $pkg_base $pkg_file $pkg_url 
     install_pkg $pkg_name $pkg_base $pkg_file $pkg_url
     migrate_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt
 
@@ -76,5 +76,5 @@ function build_exr()
 # build and install pkg into external folder
 ####################################################################################################
 
-build_exr $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg
+build_ilm $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg
 
