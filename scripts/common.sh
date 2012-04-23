@@ -54,10 +54,37 @@ then
     exit 0
 fi 
 
+####################################################################################################
+
+# setup the environment to support our own version of PKG_CONFIG
 if [ -d "$ext_dir/pkgcfg/bin/$os_name" ]
 then
     export PKG_CONFIG=$ext_dir/pkgcfg/bin/$os_name/pkg-config
     export PKG_CONFIG_PATH=$ext_dir/pkgcfg/lib/$os_name/pkgconfig
+fi
+
+# setup the environment to support our own version of AUTOCONF
+if [ -d "$ext_dir/ac/bin/$os_name" ]
+then
+    export PATH="$ext_dir/ac/bin/$os_name:$PATH"
+fi
+
+# setup the environment to support our own version of AUTOMAKE
+if [ -d "$ext_dir/am/bin/$os_name" ]
+then
+    export PATH="$ext_dir/am/bin/$os_name:$PATH"
+fi
+
+# setup the environment to support our own version of GETTEXT
+if [ -d "$ext_dir/gettext/bin/$os_name" ]
+then
+    export PATH="$ext_dir/gettext/bin/$os_name:$PATH"
+fi
+
+# setup the environment to support our own version of GLIB
+if [ -d "$ext_dir/glib/bin/$os_name" ]
+then
+    export PATH="$ext_dir/glib/bin/$os_name:$PATH"
 fi
 
 ####################################################################################################
@@ -111,7 +138,7 @@ function match_str
 function find_make_path
 {
     local make_path="."
-    local mk_paths="build ../build . .. ../src ../source"
+    local mk_paths=". ./build ../build .. ../src ../source"
     for path in ${mk_paths}
     do
         if [ -f "$path/Makefile" ]
@@ -845,7 +872,7 @@ function migrate_pkg()
             separator
             if [ -d "$prefix/$path/pkgconfig" ] && [ -d "$PKG_CONFIG_PATH" ]
             then
-                report "Installing package config from '$prefix/$path/pkfconfig' for '$pkg_name'"
+                report "Installing package config from '$prefix/$path/pkgconfig' for '$pkg_name'"
                 separator
                 cp -v $prefix/$path/pkgconfig/*.pc "$PKG_CONFIG_PATH" || bail "Failed to copy pkg-config into directory: $PKG_CONFIG_PATH"
                 separator
