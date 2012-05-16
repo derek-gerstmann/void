@@ -8,7 +8,6 @@
 #ifndef GWEN_CONTROLS_BUTTON_H
 #define GWEN_CONTROLS_BUTTON_H
 
-#include "Gwen/TextObject.h"
 #include "Gwen/Controls/Base.h"
 #include "Gwen/Controls/Label.h"
 
@@ -51,12 +50,14 @@ namespace Gwen
 
 				virtual void SetImage( const TextObject& strName, bool bCenter = false );
 
-				// You can use this to trigger OnPress directly from other controls using GWEN_CALL_EX
-				virtual void ReceiveEventPress( Base* /*pControl*/ ){ OnPress(); }
-
 				virtual void SizeToContents();
-				virtual void Layout( Skin::Base* pSkin );
+				virtual void PostLayout( Skin::Base* pSkin );
 				virtual void UpdateColours();
+
+				virtual void SetImageAlpha( float fMultiply );
+
+				virtual void DoAction(){ OnPress(); }
+				virtual void SetAction( Event::Handler* pObject, Handler::FunctionWithInformation pFunction, const Gwen::Event::Packet& packet );
 
 			public:
 

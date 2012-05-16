@@ -14,19 +14,20 @@ if(VOID_USE_EXTRACTED_SYMBOLS)
         Global
         ${VD_SYMEX_FILELIST})
 
-    add_custom_target(VdSymExHeader ALL DEPENDS ${VD_SYMBOLS_H} ${VD_ALL_SRC} ${VD_ALL_INC} )
+    add_custom_target(VdSymExHeader ALL DEPENDS ${VD_ALL_SRC} ${VD_ALL_INC} )
+    set(VD_ALL_INC ${VD_ALL_INC} ${VD_SYMBOLS_H})
+    add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
 
+endif()
+
+if(EXISTS "${VD_SYMBOLS_H}")
+    add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
+    add_definitions( -DVD_EXTRACTED_SYMBOLS_EXIST=1 )
+    message(STATUS "Using Extracted Symbols: ${VD_SYMBOLS_H}")
 endif()
 
 add_definitions( -DVD_BUILDING_FRAMEWORK=1 )
-
-if(EXISTS ${VD_SYMBOLS_H})
-    add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
-    add_definitions( -DVD_EXTRACTED_SYMBOLS_EXIST=1 )
-endif()
-    
-add_library( VdFramework ${VD_LIBRARY_TYPE} ${VD_ALL_SRC} ${VD_ALL_INC} ${VD_SYMBOLS_H} )
-add_dependencies( VdFramework ${VD_ALL_SRC} ${VD_SYMBOLS_H} )
-message(STATUS "Configured: Void Framework ${VOID_VERSION_STRING} ${CMAKE_BUILD_TYPE}")
+add_library( VdFramework ${VD_LIBRARY_TYPE} ${VD_ALL_SRC} ${VD_ALL_INC} )
+message(STATUS "Configured Framework: Void v${VOID_VERSION_STRING}")
 
 install(DIRECTORY ${VD_SRC_DIR}/ DESTINATION include FILES_MATCHING PATTERN "*.h")

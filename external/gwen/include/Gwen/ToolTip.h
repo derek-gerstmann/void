@@ -18,6 +18,8 @@ using namespace Gwen::Controls;
 
 namespace ToolTip
 {
+	GWEN_EXPORT bool TooltipActive();
+
 	GWEN_EXPORT void Enable	( Controls::Base* pControl );
 	GWEN_EXPORT void Disable ( Controls::Base* pControl );
 

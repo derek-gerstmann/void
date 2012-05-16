@@ -1,0 +1,15 @@
+--- gettext-0.18.1.1/gettext-tools/gnulib-m4/stpncpy.m4
++++ gettext-0.18.1.1/gettext-tools/gnulib-m4/stpncpy.m4
+@@ -31,8 +31,11 @@ AC_DEFUN([gl_FUNC_STPNCPY],
+       AC_TRY_RUN([
+ #include <stdlib.h>
+ #include <string.h> /* for strcpy */
+-/* The stpncpy prototype is missing in <string.h> on AIX 4.  */
++/* The stpncpy prototype is missing in <string.h> on AIX 4,
++   but on Mac OS X 10.7 it is defined as a macro in <string.h>.  */
++#if !defined stpncpy
+ extern char *stpncpy (char *dest, const char *src, size_t n);
++#endif
+ int main () {
+   const char *src = "Hello";
+   char dest[10];

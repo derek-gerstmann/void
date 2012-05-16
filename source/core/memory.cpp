@@ -218,12 +218,13 @@ private:
 
 void* 
 Memory::SetBytes(
-    void* b, int c, size_t len)
+    void* b, int c, size_t n)
 {
+    if(n < 1) return NULL;
 #if defined(VD_USE_ASMLIB)
-    return A_memset(b, c, len);
+    return A_memset(b, c, n);
 #else
-    return ::memset(b, c, len);
+    return ::memset(b, c, n);
 #endif
 }
 
@@ -231,6 +232,7 @@ void*
 Memory::CopyBytes(
     void* s1, const void* s2, size_t n)
 {
+    if(n < 1) return NULL;
 #if defined(VD_USE_ASMLIB)
     return A_memcpy(s1, s2, n);
 #else

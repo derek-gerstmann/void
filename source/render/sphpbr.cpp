@@ -59,6 +59,12 @@ varying float vDistance;
 varying float vDensity;
 varying float vColor;
 
+float 
+Log10(float x)
+{
+    return log(x)/log(10.0);
+}
+
 float LinearRemap(float x, 
     float a, float b,
     float c, float d)
@@ -76,13 +82,13 @@ void main()
     vec3 Extents = vec3(gl_ModelViewMatrix * vec4(BoxSize, BoxSize, BoxSize, 1.0));
 
     float maxd = length(Extents);
-    float dist = length(EyePosition) / maxd;
+    float dist = length(EyePosition); // / maxd;
     float pscale = PointScale;
 
     vDistance = (pscale / dist / maxd);
     vPointSize = ParticleRadius * (pscale / dist);
     vIncident = normalize(-VertexPosition);
-    vDensity = LinearRemap(ParticleDensity, DensityRange.x, DensityRange.y, 0.0, 1.0);
+    vDensity = LinearRemap(Log10(ParticleDensity), Log10(DensityRange.x), Log10(DensityRange.y), 0.0, 1.0);
     vColor = ParticleColor;
     vEye = EyePosition;
 
@@ -189,27 +195,38 @@ void main()
 {
     vec3 normal;
     vec4 base = vec4(gl_Color);
-    if(vColor >= 2.0)        // ignore
-        base = vec4(0.01, 0.05, 0.025, 0.0);
-    else if(vColor >= 1.0)   // halo
+/*
+    if(vColor      >= 5.0)        // boundary
+        base = vec4(0.001, 0.002, 0.002, 0.0);
+    else if(vColor >= 4.0)   // stars
+        base = vec4(0.01, 0.01, 0.01, 0.0);
+    else if(vColor >= 3.0)        // bulge
+        base = vec4(0.00, 0.02, 0.0, 0.0);
+    else if(vColor >= 2.0)        // disk
+        base = vec4(0.00, 0.0,  0.02, 0.0);
+    else if(vColor >= 1.0)        // halo
         base = vec4(0.01, 0.0125, 0.025, 0.0);
-    else if(vColor >= 0.0)   // gas
+    else if(vColor >= 0.0)        // gas
         base = vec4(0.015, 0.01, 0.01, 0.0);
     else
         base = base;
-
+*/
     normal.xy = gl_TexCoord[0].xy*vec2(2.0, -2.0) + vec2(-1.0, 1.0);
 
     float h = dot(normal.xy, normal.xy);
-    float d = h;
-//    float a = DensityKernel(d, SmoothingRadius * vPointSize * SmoothingScale) * DensityScale * vDensity;
-    float a = DensityKernel(d, SmoothingRadius * vPointSize * SmoothingScale) * DensityScale * vDensity;
-//    float a = Poly6Kernel(d, SmoothingRadius * vPointSize * SmoothingScale) * DensityScale * vDensity;
-//    float a = exp(-d) * DensityScale * vDensity; // gaussian
+    float d = h; // length(normal);
+    float dw = DensityScale * vDensity;
+    dw = DensityScale * vDensity > 0.0 ? dw : 1.0;
+    float a = DensityKernel(d * SmoothingScale, SmoothingRadius*SmoothingRadius) * dw;
+//    float a = DensityKernel(d, SmoothingRadius * vPointSize) * DensityScale * vDensity;
+    // float a = Poly6Kernel(d, SmoothingRadius * SmoothingScale) * DensityScale * vDensity;
+//    float a = Poly6Kernel(d, SmoothingRadius * vPointSize) * DensityScale * vDensity;
+//    float a = Wd(d * SmoothingRadius * vPointSize, WdC) * DensityScale * vDensity;
+//    float a = exp(-d * SmoothingScale) * DensityScale * vDensity; // gaussian
 
-    float e = (1.0 / ExposureScale); // 0.0000000001, 10000000.0);
-    float i = (d * IntensityScale); //,  0.0000000001, 10000000.0);
-    float w = pow(i, e); // log(d * -DensityScale);  //-log2(i); // 
+    float e = (ExposureScale); // 0.0000000001, 10000000.0);
+    float i = (IntensityScale); //,  0.0000000001, 10000000.0);
+    float w = pow(i*a, e); // log(d * -DensityScale);  //-log2(i); // 
 
 //    float w = exp(i) * e;
 //    float w = (log2(i+0.0000000001) * -e);
@@ -218,7 +235,8 @@ void main()
 
     vec4 color = base;
     color.rgb *= a;
-    color.a = (w * AlphaScale); // (w * AlphaScale); // 1.0 - clamp((a * AlphaScale), 0.0000000001, 10000000.0);
+    color.a = w * AlphaScale;
+//    color.a = (w * AlphaScale); // (w * AlphaScale); // 1.0 - clamp((a * AlphaScale), 0.0000000001, 10000000.0);
     
     gl_FragColor = color;   
     gl_FragDepth = vDistance;
@@ -261,7 +279,7 @@ SphPointBasedRenderer::SphPointBasedRenderer() :
     m_DensityBufferId(0),
     m_DensityComponents(1)
 {
-
+    m_CameraDepthRange = vd::v2f32(0.01f, 100.0f);
 }
 
 SphPointBasedRenderer::~SphPointBasedRenderer()
@@ -377,6 +395,13 @@ void SphPointBasedRenderer::SetCameraFov(
     SetPointScale(m_PointScale);
 }
 
+
+void SphPointBasedRenderer::SetCameraDepthRange(
+    vd::f32 minval, vd::f32 maxval)
+{
+    m_CameraDepthRange = v2f32(minval, maxval);
+}
+
 void SphPointBasedRenderer::SetScreenSize(
     vd::u32 w, vd::u32 h)      
 { 
@@ -407,8 +432,8 @@ void SphPointBasedRenderer::SetSmoothingRadius(
 	vd::f32 v)
 {
 	m_SmoothingRadius = v;
-	m_WdC = CWd(m_SmoothingRadius*m_SmoothingRadius);
-	m_Shader.SetUniform(vd_sym(SmoothingRadius), m_SmoothingRadius*0.5f);
+	m_WdC = CWd(m_SmoothingRadius);
+	m_Shader.SetUniform(vd_sym(SmoothingRadius), m_SmoothingRadius);
 	m_Shader.SetUniform(vd_sym(WdC), m_WdC);
 }
 
@@ -605,14 +630,14 @@ void SphPointBasedRenderer::DisableProjection()
     glPopMatrix();
 }
 
-bool
+vd::status
 SphPointBasedRenderer::Setup(
     Graphics::Context* gfx)
 {
     m_Graphics = gfx;
     m_Shader.SetName("SPBR");
     m_Shader.Compile(SphereVS, NULL, SphereFS);
-	m_WdC = CWd(m_SmoothingRadius*m_SmoothingRadius);
+	m_WdC = CWd(m_SmoothingRadius);
     m_CameraFocalLength = (1.0f / Core::Tan(Core::Deg2Rad(m_CameraFov)) * 0.5f);
 	vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
 	m_Shader.SetUniform(vd_sym(PointScale), m_PointScale * ps );
@@ -628,7 +653,7 @@ SphPointBasedRenderer::Setup(
     m_Shader.SetUniform(vd_sym(BoxSize), m_BoxSize);  
 	m_Shader.SetUniform(vd_sym(WdC), m_WdC);
     m_IsStale = true;
-    return true;
+    return Status::Code::Success;
 }
 
 // ============================================================================================== //

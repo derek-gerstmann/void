@@ -9,4 +9,4 @@ include_directories( ${VD_TOOLS_DIR}/gdgtex )
 
 add_executable( VdGdgtEx ${VD_TOOLS_GDGTEX_SRC} )
 
-message(STATUS "Configured GdgtEx ...")
+message(STATUS "Configured: GdgtEx")

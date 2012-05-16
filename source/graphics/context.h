@@ -50,8 +50,14 @@ public:
     Context(Runtime::Context* runtime);
     virtual ~Context();
 
+    virtual vd::status Setup();
     virtual vd::status Destroy();
-    virtual vd::status Clear(vd::f32 r, vd::f32 g, vd::f32 b, vd::f32 a) = 0;
+    
+    virtual vd::status Clear(
+        Graphics::Viewport vp, 
+        vd::f32 r=0.0f, vd::f32 g=0.0f, vd::f32 b=0.0f, vd::f32 a=0.0f,
+        bool clear_color=true, bool clear_depth=true) = 0;
+
     virtual vd::status Flush() = 0;
     virtual vd::status Finish() = 0;
 
@@ -74,19 +80,23 @@ public:
     virtual vd::status Attach(Geometry* geo, Geometry::AttributeSlot::Value attrib, vd::u32 buffer, vd::u32 slot) = 0;
     virtual vd::status Detach(Geometry* geo, Geometry::AttributeSlot::Value attrib) = 0;
 
-    virtual vd::status Attach(Geometry* geo, Shader* shader) = 0;
-    virtual vd::status Detach(Geometry* geo, Shader* shader) = 0;
+    virtual vd::status Attach(Geometry* geo, Shader* shader, Shader::Pass::Value pass) = 0;
+    virtual vd::status Detach(Geometry* geo, Shader* shader, Shader::Pass::Value pass) = 0;
 
     virtual vd::status Bind(Geometry* geo) = 0;
-    virtual vd::status Submit(Geometry* geo, vd::u32 start=0, vd::u32 end=VD_U32_MAX, vd::u32 count=VD_U32_MAX) = 0;
+    virtual vd::status Submit(Geometry* geo, Shader::Pass::Value pass = Shader::Pass::Normal, 
+                              vd::u32 start=0, vd::u32 end=VD_U32_MAX, vd::u32 count=VD_U32_MAX) = 0;
     virtual vd::status Unbind(Geometry* geo) = 0;
+    virtual vd::status Acquire(Geometry* buffer) = 0;
     virtual vd::status Release(Geometry* buffer) = 0;
+    virtual vd::status Retain(Geometry* buffer) = 0;
+    virtual vd::status Destroy(Geometry* buffer) = 0;
         
     virtual Graphics::Buffer* CreateBuffer(
         Buffer::TargetType::Value target, 
         Buffer::AttributeType::Value attrib,
         Buffer::AccessMode::Value access,
-        Buffer::UsageMode::Value usage,
+        Buffer::UpdateMode::Value update,
         Buffer::TypeId::Value datatype,
         vd::u8 components, 
         vd::u32 count, 
@@ -97,23 +107,45 @@ public:
     virtual vd::status Unbind(Buffer* buffer) = 0;
     virtual void* Map(Buffer* buffer, Buffer::AccessMode::Value access) = 0;
     virtual vd::status Unmap(Buffer* buffer) = 0;
+    virtual vd::status Acquire(Buffer* buffer) = 0;
     virtual vd::status Release(Buffer* buffer) = 0;
+    virtual vd::status Retain(Buffer* buffer) = 0;
+    virtual vd::status Destroy(Buffer* buffer) = 0;
 
-    virtual Framebuffer* CreateFramebuffer(
-        vd::u32 width, vd::u32 height, 
-        Graphics::ChannelFormat::Order::Value format = Graphics::ChannelFormat::Order::RGBA, 
-        Graphics::ScalarTypeId::Value datatype = Graphics::ScalarTypeId::U8, 
-        bool depth=false) = 0;
+    virtual Framebuffer* 
+    CreateFramebuffer(
+          Graphics::Viewport viewport, 
+          Graphics::ChannelLayout::Value channel_format   = Graphics::ChannelLayout::RGBA, 
+           Graphics::ScalarTypeId::Value channel_datatype = Graphics::ScalarTypeId::U8, 
+            Graphics::DepthFormat::Value depth_format     = Graphics::DepthFormat::None, 
+           Graphics::ScalarTypeId::Value depth_datatype   = Graphics::ScalarTypeId::Invalid) = 0;
 
     virtual vd::status Bind(Framebuffer* fb) = 0;
     virtual vd::status Unbind(Framebuffer* fb) = 0;
+    virtual vd::status Acquire(Framebuffer* fb) = 0;
     virtual vd::status Release(Framebuffer* fb) = 0;
+    virtual vd::status Retain(Framebuffer* fb) = 0;
+    virtual vd::status Destroy(Framebuffer* fb) = 0;
     virtual vd::status Clear(Framebuffer* fb, vd::f32 r, vd::f32 g, vd::f32 b, vd::f32 a) = 0;
 
-    virtual Shader* CompileShaderFromFile(const vd::string& name, const vd::string& vertex, const vd::string& geometry, const vd::string& fragment) = 0;
+    virtual Shader* CreateShaderFromSource(
+        const vd::string& name, 
+        const vd::string& vp, 
+        const vd::string& gp, 
+        const vd::string& fp) = 0;
+    
+    virtual Shader* CreateShaderFromFile(
+        const vd::string& name, 
+        const vd::string& vertex, 
+        const vd::string& geometry, 
+        const vd::string& fragment) = 0;
+
     virtual vd::status Bind(Shader* s) = 0;
     virtual vd::status Unbind(Shader* s) = 0;
+    virtual vd::status Acquire(Shader* s) = 0;
     virtual vd::status Release(Shader* s) = 0;
+    virtual vd::status Retain(Shader* s) = 0;
+    virtual vd::status Destroy(Shader* s) = 0;
     
     virtual void RenderToScreen(
         vd::u32 uiTextureId, const Graphics::Viewport& vp, 

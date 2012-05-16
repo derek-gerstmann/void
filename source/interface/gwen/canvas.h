@@ -40,7 +40,11 @@ VD_INTERFACE_GWEN_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-typedef Gwen::Controls::Canvas Canvas;
+namespace Canvas {
+
+typedef Gwen::Controls::Canvas Base;
+
+};
 
 // ============================================================================================== //
 

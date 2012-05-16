@@ -20,15 +20,6 @@
 
 class UnitTest;
 
-#ifdef _MSC_VER
-#	ifdef NDEBUG
-#		pragma comment ( lib, "unittest.lib" )
-#	else
-#		pragma comment ( lib, "unittestd.lib" )
-#	endif
-#endif
-
-
 class GUnit : public Gwen::Controls::Base
 {
 	public:
@@ -40,11 +31,13 @@ class GUnit : public Gwen::Controls::Base
 
 		void SetUnitTest( UnitTest* u ){ m_pUnitTest = u; }
 
-		void UnitPrint( const Gwen::UnicodeString& str );
-		void UnitPrint( const Gwen::String& str );
+		void UnitPrint( Gwen::UnicodeString str );
+		void UnitPrint( Gwen::String str );
 
 		void Layout( Gwen::Skin::Base* skin )
 		{
+			if ( GetDock() != Gwen::Pos::None ) return;
+
 			SizeToChildren( true, true );
 		}
 
@@ -65,7 +58,7 @@ class UnitTest : public Gwen::Controls::DockBase
 
 	private:
 
-		void OnCategorySelect( Gwen::Controls::Base* pBase, Gwen::Controls::Base* pControl );
+		void OnCategorySelect( Gwen::Event::Info info );
 
 		Gwen::Controls::TabControl*	m_TabControl;
 		Gwen::Controls::ListBox*	m_TextOutput;

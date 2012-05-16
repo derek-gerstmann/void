@@ -55,6 +55,8 @@ VD_IMPORT(Containers, LruCache);
 
 // ============================================================================================== //
 
+class GadgetDataset;
+
 struct GadgetMetaData
 {
 	int ParticleCount[6];                  
@@ -99,15 +101,16 @@ struct GadgetParticleData
     float* TimeStep;
 };
 
-struct GadgetScalarStatistic
+struct GadgetStatistic
 {
-    float Minimum;
-    float Maximum;
-    float Mean;
-    float Variance;
-    float TotalSum;
-    float SumSqr;
-    size_t Count;
+    float Minimum[3];
+    float Maximum[3];
+    float Mean[3];
+    float Variance[3];
+    float TotalSum[3];
+    float SumSqr[3];
+    size_t Count[3];
+    int    Components;
 };
 
 struct GadgetRangeData
@@ -325,7 +328,7 @@ public:
 	
 public:
 		
-    GadgetSnapshot();    
+    GadgetSnapshot(GadgetDataset* dataset);    
     virtual ~GadgetSnapshot();
 
 	vd::status
@@ -333,7 +336,7 @@ public:
 		const vd::string& prefix, 
 		vd::i32 index,
 		vd::i32 splits=1,
-		vd::i32 padding=3,
+		vd::i32 padding=4,
 		vd::i32* req_data=0,
 		vd::i32* req_types=0);
 	
@@ -459,12 +462,12 @@ public:
     
     const GadgetMetaData& GetMetaData() const { return m_MetaData; }
 
-    GadgetScalarStatistic& GetScalarStatistic(Block::Value v) 
+    GadgetStatistic& GetStatistic(Block::Value v) 
     { 
         return m_StatisticsData[Block::ToInteger(v)]; 
     }
 
-    void SetScalarStatistic(Block::Value v, const GadgetScalarStatistic& stats) 
+    void SetStatistic(Block::Value v, const GadgetStatistic& stats) 
     {
         m_StatisticsData[Block::ToInteger(v)] = stats; 
     }
@@ -489,10 +492,16 @@ public:
 
     size_t
     GetResidentMemorySize() const;
+
+    void
+    ProcessParticleTypesRequest(vd::i32* req_types);
     
     bool
-    IsLoaded() { return m_IsLoaded.Get() > 0 ? true : false; }
+    IsResident() { return m_IsLoaded.Get() > 0 ? true : false; }
     
+    void
+    SetResident(bool enable) { m_IsLoaded.Set(enable ? 1 : 0); }
+
     vd::string
     GetFilename(const vd::string& prefix, vd::i32 index, vd::i32 padding);
     
@@ -502,9 +511,10 @@ private:
 
 	VD_DISABLE_COPY_CONSTRUCTORS(GadgetSnapshot);
 
+    GadgetDataset*          m_DataSet;
 	GadgetMetaData 			m_MetaData;
 	GadgetParticleData 		m_ParticleData;
-    GadgetScalarStatistic   m_StatisticsData[Block::Count];
+    GadgetStatistic         m_StatisticsData[Block::Count];
 	vd::u64 				m_TotalParticleCount;
 	vd::u64 				m_FilteredParticleCount;
 	vd::u64 				m_GasParticleCount;
@@ -597,7 +607,7 @@ struct GadgetResidentSizeFn
     unsigned long operator()( const GadgetSnapshot* x ) 
     {
     	if(x != NULL)
-    		return x->GetResidentMemorySize() / 1024; 
+    		return x->GetResidentMemorySize() / 1024 / 1024; 
 	    return 1; 
 	}
 };
@@ -620,7 +630,7 @@ public:
 	vd::status 
 	Close();
 	
-	static vd::string
+	vd::string
 	GetFilenameForSnapshot(const vd::string& prefix, vd::i32 index, vd::i32 padding);
 
 	bool Request(vd::i32 index);

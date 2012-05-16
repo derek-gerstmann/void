@@ -36,6 +36,7 @@
 #include "compute/program.h"
 #include "compute/commands.h"
 #include "compute/kernel.h"
+#endif
 
 #include "runtime/runtime.h"
 #include "runtime/context.h"
@@ -79,4 +80,3 @@ VD_COMPUTE_NAMESPACE_END();
 // ============================================================================================== //
 
 #endif
-#endif 

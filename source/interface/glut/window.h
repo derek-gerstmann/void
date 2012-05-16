@@ -85,7 +85,9 @@ public:
 	virtual bool RemoveEventHandlers(Event::Type::Value kind);
 	virtual void RemoveAllEventHandlers();
 	
-	virtual void SetFullScreen( bool enable = true );
+	virtual void ExitFullScreen();
+	virtual void EnterFullScreen();
+
 	virtual void SetClearColor( const vd::v4f32& color )	{ m_ClearColor = color; }
 	virtual const vd::v4f32& GetClearColor()				{ return m_ClearColor; }
     virtual Config GetConfig();

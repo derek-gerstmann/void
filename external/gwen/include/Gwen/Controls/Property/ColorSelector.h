@@ -57,7 +57,7 @@ namespace Gwen
 					picker->SetSize( 256, 128 );
 
 					float defaultColor[3];
-					Gwen::Utility::Strings::To::Floats( Gwen::Utility::UnicodeToString( m_TextBox->GetText() ), defaultColor, 3);
+					Gwen::Utility::Strings::To::Floats( m_TextBox->GetText().Get(), defaultColor, 3);
 
 					picker->SetColor( Gwen::Color( defaultColor[0], defaultColor[1], defaultColor[2], 255 ), false, true );
 					picker->onColorChanged.Add( this, &ThisClass::ColorChanged );
@@ -78,7 +78,7 @@ namespace Gwen
 					DoChanged();
 				}
 
-				virtual UnicodeString GetPropertyValue()
+				virtual TextObject GetPropertyValue()
 				{
 					return m_TextBox->GetText();
 				}
@@ -98,7 +98,7 @@ namespace Gwen
 					BaseClass::DoChanged();
 
 					float col[3];
-					Gwen::Utility::Strings::To::Floats( Gwen::Utility::UnicodeToString( m_TextBox->GetText() ), col, 3);
+					Gwen::Utility::Strings::To::Floats( m_TextBox->GetText().Get(), col, 3);
 
 					m_Button->SetColor( Gwen::Color( col[0], col[1], col[2] ) );
 				}

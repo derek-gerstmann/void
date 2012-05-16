@@ -41,6 +41,7 @@ namespace Gwen
 
 	typedef std::wstring UnicodeString;
 	typedef std::string String;
+
 	typedef wchar_t UnicodeChar; // Portability??
 
 	struct GWEN_EXPORT Margin
@@ -104,6 +105,28 @@ namespace Gwen
 		{ 
 			this->x = x_; 
 			this->y = y_;
+		}
+
+		void operator +=( const Point& p )
+		{
+			x += p.x;
+			y += p.y;
+		}
+
+		Point operator +( const Point& p ) const
+		{
+			return Point( x + p.x, p.y + y );
+		}
+
+		void operator -=( const Point& p )
+		{
+			x -= p.x;
+			y -= p.y;
+		}
+
+		Point operator -( const Point& p ) const
+		{
+			return Point( x - p.x, y - p.y );
 		}
 
 		int x, y;

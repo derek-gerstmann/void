@@ -77,8 +77,6 @@ namespace Gwen
 						case sf::Key::RAlt:			return Gwen::Key::Alt;
 						case sf::Key::RShift:		return Gwen::Key::Shift;
 #endif
-						default:
-							return Gwen::Key::Invalid;
 					}
 
 					return Gwen::Key::Invalid;
@@ -133,8 +131,6 @@ namespace Gwen
 								return m_Canvas->InputKey( iKey, bPressed );
 
 							}
-						default:
-							return false;
 					}
 
 					return false;

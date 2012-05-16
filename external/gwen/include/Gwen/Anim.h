@@ -25,7 +25,7 @@ namespace Gwen
 				typedef std::map< Gwen::Controls::Base *, ChildList > List;
 
 				virtual void Think() = 0;
-				virtual bool Finished() = 0;
+				virtual bool Finished(){ return false; }
 
 				virtual ~Animation() {}
 
@@ -43,7 +43,7 @@ namespace Gwen
 		{
 			public:
 
-				TimedAnimation( float fLength, float fDelay = 0.0f, float fEase = 1.0f );
+				TimedAnimation( float fLength, float fDelay = 0.0f, float fEase = -1.0f );
 
 				virtual void Think();
 				virtual bool Finished();
@@ -70,7 +70,7 @@ namespace Gwen
 			{
 				public:
 
-					Height( int iStartSize, int iEndSize, float fLength, bool bHide = false, float fDelay = 0.0f, float fEase = 1.0f ) : TimedAnimation( fLength, fDelay, fEase )
+					Height( int iStartSize, int iEndSize, float fLength, bool bHide = false, float fDelay = 0.0f, float fEase = -1.0f ) : TimedAnimation( fLength, fDelay, fEase )
 					{
 						m_iStartSize = iStartSize;
 						m_iDelta = iEndSize - m_iStartSize;
@@ -92,7 +92,7 @@ namespace Gwen
 			{
 				public:
 
-					Width( int iStartSize, int iEndSize, float fLength, bool bHide = false, float fDelay = 0.0f, float fEase = 1.0f ) : TimedAnimation( fLength, fDelay, fEase )
+					Width( int iStartSize, int iEndSize, float fLength, bool bHide = false, float fDelay = 0.0f, float fEase = -1.0f ) : TimedAnimation( fLength, fDelay, fEase )
 					{
 						m_iStartSize = iStartSize;
 						m_iDelta = iEndSize - m_iStartSize;
@@ -102,6 +102,53 @@ namespace Gwen
 					virtual void OnStart(){ m_Control->SetWidth( m_iStartSize ); }
 					virtual void Run( float delta ){ m_Control->SetWidth( m_iStartSize + (((float)m_iDelta) * delta) ); }
 					virtual void OnFinish(){ m_Control->SetWidth( m_iStartSize + m_iDelta ); m_Control->SetHidden( m_bHide ); }
+
+				protected:
+
+					int		m_iStartSize;
+					int		m_iDelta;
+					bool	m_bHide;
+			};
+		}
+
+		namespace Pos
+		{
+			class GWEN_EXPORT X : public Anim::TimedAnimation
+			{
+				public:
+
+					X( int iStartSize, int iEndSize, float fLength, bool bHide = false, float fDelay = 0.0f, float fEase = 1.0f ) : TimedAnimation( fLength, fDelay, fEase )
+					{
+						m_iStartSize = iStartSize;
+						m_iDelta = iEndSize - m_iStartSize;
+						m_bHide = bHide;
+					}
+
+					virtual void OnStart(){ m_Control->SetPos( m_iStartSize, m_Control->GetPos().y ); }
+					virtual void Run( float delta ){ m_Control->SetPos( m_iStartSize + (((float)m_iDelta) * delta), m_Control->GetPos().y ); }
+					virtual void OnFinish(){ m_Control->SetPos( m_iStartSize + m_iDelta, m_Control->GetPos().y ); m_Control->SetHidden( m_bHide ); }
+
+				protected:
+
+					int		m_iStartSize;
+					int		m_iDelta;
+					bool	m_bHide;
+			};
+
+			class Y : public Anim::TimedAnimation
+			{
+				public:
+
+					Y( int iStartSize, int iEndSize, float fLength, bool bHide = false, float fDelay = 0.0f, float fEase = 1.0f ) : TimedAnimation( fLength, fDelay, fEase )
+					{
+						m_iStartSize = iStartSize;
+						m_iDelta = iEndSize - m_iStartSize;
+						m_bHide = bHide;
+					}
+
+					virtual void OnStart(){ m_Control->SetPos( m_Control->GetPos().x, m_iStartSize ); }
+					virtual void Run( float delta ){ m_Control->SetPos( m_Control->GetPos().x, m_iStartSize + (((float)m_iDelta) * delta) ); }
+					virtual void OnFinish(){ m_Control->SetPos( m_Control->GetPos().x, m_iStartSize + m_iDelta ); m_Control->SetHidden( m_bHide ); }
 
 				protected:
 

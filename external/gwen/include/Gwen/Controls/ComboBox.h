@@ -28,7 +28,9 @@ namespace Gwen
 
 				virtual void Render( Skin::Base* skin );
 				virtual void Layout( Skin::Base* skin );
+				virtual void UpdateColours();
 
+				virtual void SelectItemByName( const Gwen::String& name, bool bFireChangeEvents = true );
 				virtual Gwen::Controls::Label* GetSelectedItem();
 
 				virtual void OnPress();
@@ -53,6 +55,8 @@ namespace Gwen
 				Gwen::Event::Caller	onSelection;
 
 			protected:
+
+				void SelectItem( MenuItem* pItem );
 
 				Menu* m_Menu;
 				MenuItem* m_SelectedItem;

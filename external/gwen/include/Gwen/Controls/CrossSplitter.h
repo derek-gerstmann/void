@@ -37,7 +37,6 @@ namespace Gwen
 				virtual void ZoomChanged();
 				virtual void CenterPanels() { m_fHVal = 0.5f; m_fVVal = 0.5f; Invalidate(); }
 
-				virtual void SetSplittersVisible( bool b ){ m_VSplitter->SetShouldDrawBackground( b ); m_HSplitter->SetShouldDrawBackground( b ); m_CSplitter->SetShouldDrawBackground( b ); }
 				virtual void SetSplitterSize( int size ) { m_fBarSize = size; }
 		
 			private:

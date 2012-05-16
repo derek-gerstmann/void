@@ -38,6 +38,15 @@ namespace Gwen
 
 					switch ( msg.message )
 					{
+						//case WM_NCLBUTTONDOWN:
+						case WM_SYSCOMMAND:
+							{
+								if ( msg.message == WM_SYSCOMMAND && msg.wParam != SC_CLOSE )
+									return false;
+
+								return m_Canvas->InputQuit();
+							}
+
 						case WM_MOUSEMOVE:
 							{
 								int x = (signed short)LOWORD( msg.lParam );
@@ -56,11 +65,12 @@ namespace Gwen
 								Gwen::UnicodeChar chr = (Gwen::UnicodeChar)msg.wParam;
 								return m_Canvas->InputCharacter( chr );
 							}
-
+#ifdef WM_MOUSEWHEEL 
 						case WM_MOUSEWHEEL:
 							{
 								return m_Canvas->InputMouseWheel( (short)HIWORD( msg.wParam ) );
 							}
+#endif
 
 						case WM_LBUTTONDOWN:
 							{
@@ -95,7 +105,7 @@ namespace Gwen
 						case WM_MBUTTONUP:
 							{
 								ReleaseCapture();
-								return m_Canvas->InputMouseButton( 2, true );
+								return m_Canvas->InputMouseButton( 2, false );
 							}
 
 						case WM_LBUTTONDBLCLK:

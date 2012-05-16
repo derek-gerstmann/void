@@ -8,9 +8,8 @@
 #ifndef GWEN_CONTROLS_LAYOUT_TABLE_H
 #define GWEN_CONTROLS_LAYOUT_TABLE_H
 
-#include "Gwen/Controls/Label.h"
+#include "Gwen/Controls/Button.h"
 #include "Gwen/Utility.h"
-
 
 namespace Gwen 
 {
@@ -22,7 +21,7 @@ namespace Gwen
 
 			class GWEN_EXPORT TableRow : public Base
 			{
-				static const int MaxColumns = 5;
+				static const int MaxColumns = 16;
 
 				GWEN_CONTROL_INLINE( TableRow, Base )
 				{
@@ -70,8 +69,7 @@ namespace Gwen
 					m_Columns[i]->SetWidth( iWidth );
 				}
 
-				template <typename T>
-				void SetCellText( int i, const T& strString )
+				void SetCellText( int i, const TextObject& strString )
 				{
 					if ( !m_Columns[i] ) return;
 					m_Columns[i]->SetText( strString );
@@ -125,7 +123,7 @@ namespace Gwen
 				}
 
 				//You might hate this. Actually I know you will
-				virtual UnicodeString GetText( int i )
+				virtual const TextObject& GetText( int i )
 				{
 					return m_Columns[i]->GetText();
 				}
@@ -161,9 +159,8 @@ namespace Gwen
 
 						for (int i=0; i<TableRow::MaxColumns; i++)
 						{
-							m_ColumnWidth[i] = 20;
+							m_ColumnWidth[i] = 0;
 						}
-
 
 						m_bSizeToContents = false;
 					}
@@ -194,9 +191,7 @@ namespace Gwen
 					TableRow* AddRow()
 					{
 						TableRow* row = new TableRow( this );
-						row->SetColumnCount( m_iColumnCount );
-						row->SetHeight( m_iDefaultRowHeight );
-						row->Dock( Pos::Top );
+						AddRow( row );
 						return row;
 					}
 
@@ -206,6 +201,8 @@ namespace Gwen
 						pRow->SetColumnCount( m_iColumnCount );
 						pRow->SetHeight( m_iDefaultRowHeight );
 						pRow->Dock( Pos::Top );
+
+						Invalidate();
 					}
 
 					TableRow* GetRow( int i )
@@ -242,20 +239,37 @@ namespace Gwen
 							DoSizeToContents();
 						}
 
+						int iSizeRemainder = Width();
+						int iAutoSizeColumns = 0;
+
+						for (int i=0; i<TableRow::MaxColumns && i < m_iColumnCount; i++)
+						{
+							iSizeRemainder -= m_ColumnWidth[i];
+							if ( m_ColumnWidth[i] == 0 ) iAutoSizeColumns++;
+						}
+
+						if ( iAutoSizeColumns > 1 ) iSizeRemainder /= iAutoSizeColumns;
+
 						bool bEven = false;
 						for ( Base::List::iterator it = Children.begin(); it != Children.end(); ++it )
 						{
 							TableRow* pRow = gwen_cast<TableRow>(*it);
 							if ( !pRow ) continue;
 
+							pRow->SizeToContents();
 							pRow->SetEven( bEven );
 							bEven = !bEven;
 
 							for (int i=0; i<TableRow::MaxColumns && i < m_iColumnCount; i++)
 							{
-								pRow->SetColumnWidth( i, m_ColumnWidth[i] );
+								if ( m_ColumnWidth[i] == 0 )
+									pRow->SetColumnWidth( i, iSizeRemainder );
+								else 
+									pRow->SetColumnWidth( i, m_ColumnWidth[i] );
 							}
 						}
+
+						InvalidateParent();
 					}
 
 					void PostLayout( Skin::Base* /*skin*/ )

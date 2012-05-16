@@ -29,6 +29,7 @@
 
 #include "graphics/graphics.h"
 #include "graphics/image.h"
+#include "graphics/viewport.h"
 
 // ============================================================================================== //
 
@@ -36,32 +37,23 @@ VD_GRAPHICS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-enum FramebufferFormat
-{
-	VD_FRAMEBUFFER_INVALID,
-	VD_FRAMEBUFFER_LUMINANCE_F32,
-	VD_FRAMEBUFFER_RGBA_F32,
-	VD_FRAMEBUFFER_RGBA_F16,
-	VD_FRAMEBUFFER_RGBA_U8,
-	VD_FRAMEBUFFER_COUNT
-};
-
 class Framebuffer : public Object
 {
 public:
 
 	struct Data 
 	{
-		bool IsActive;
-		vd::u32 Index;
-		vd::i32 Width;
-		vd::i32 Height;
-		vd::u32 ColorTexture;
-		vd::u32 DepthTexture;
-		vd::u32 Framebuffer;
-		vd::u32 Renderbuffer;
-		ChannelFormat::Order::Value Format;	
-        ScalarTypeId::Value DataType;	
+        vd::u32                     Id;
+		vd::u32                     Index;
+        vd::u32                     Usage;
+		vd::u32                     ColorTexture;
+		vd::u32                     DepthTexture;
+		vd::u32                     Renderbuffer;
+		ChannelLayout::Value        ChannelLayout;	
+        ScalarTypeId::Value         ChannelDataType;	
+        DepthFormat::Value          DepthFormat; 
+        ScalarTypeId::Value         DepthDataType;    
+        Graphics::Viewport          Viewport;
 	};
 
 public:
@@ -69,12 +61,18 @@ public:
     Framebuffer(Context* context);
     virtual ~Framebuffer();
 
+    virtual vd::status Acquire();
+    virtual vd::status Release();
     virtual vd::status Destroy();
+
     void Reset();
     void Setup(const Data& data);
-    const Data& GetData() const;
+    void Bind();
+    void Unbind();
 
-    void SetActive(bool v);
+    const Data& GetData() const;
+    const Data* GetPtr() const;
+
     bool IsActive(void);
     
 	VD_DECLARE_OBJECT(Framebuffer);

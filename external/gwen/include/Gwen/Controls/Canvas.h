@@ -23,6 +23,7 @@ namespace Gwen
 				typedef Controls::Base BaseClass;
 
 				Canvas( Skin::Base* pSkin );
+				virtual ~Canvas();
 
 				//
 				// For additional initialization 
@@ -62,11 +63,8 @@ namespace Gwen
 
 				virtual void OnBoundsChanged( Gwen::Rect oldBounds );
 
-				//
-				// Call this to delete the canvas, and its children
-				// in the right order.
-				//
-				virtual void Release();
+				// Delete all children (this is done called in the destructor too)
+				virtual void ReleaseChildren();
 
 				// Delayed deletes
 				virtual void AddDelayedDelete( Controls::Base* pControl );
@@ -81,12 +79,13 @@ namespace Gwen
 				virtual bool InputKey( int iKey, bool bDown );
 				virtual bool InputCharacter( Gwen::UnicodeChar chr );
 				virtual bool InputMouseWheel( int val );
+				virtual bool InputQuit(){ return true; };
 
 				// Background
 				virtual void SetBackgroundColor( const Gwen::Color& color ){ m_BackgroundColor = color; }
 				virtual void SetDrawBackground( bool bShouldDraw ){ m_bDrawBackground = bShouldDraw; }
 
-			private:
+			protected:
 
 				bool	m_bNeedsRedraw;
 				bool	m_bAnyDelete;

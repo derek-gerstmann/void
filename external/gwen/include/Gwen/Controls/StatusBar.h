@@ -18,7 +18,7 @@ namespace Gwen
 					SetHeight( 22 );
 					Dock( Pos::Bottom );
 					SetPadding( Padding( 2, 2, 2, 2 ) );
-					SetText( "Status Bar." );
+					SetText( "" );
 					SetAlignment( Pos::Left | Pos::CenterV );
 				}
 

@@ -38,6 +38,7 @@ Framebuffer::Framebuffer(
     m_Context(ctx)
 {
     Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
+    m_Data.Index = VD_INVALID_INDEX;
 }
 
 Framebuffer::~Framebuffer()
@@ -49,14 +50,30 @@ void
 Framebuffer::Reset()
 {
     Destroy();
-    Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
 }
 
 void
 Framebuffer::Setup(
     const Framebuffer::Data& data)
 {
+    if(&m_Data == &data)
+        return;
+
+    Destroy();
     Core::Memory::CopyBytes(&m_Data, &data, sizeof(m_Data));
+}
+
+vd::status 
+Framebuffer::Acquire()
+{
+    return Status::Code::Success;
+}
+
+vd::status 
+Framebuffer::Release()
+{
+    m_Data.Index = VD_INVALID_INDEX;
+    return Status::Code::Success;
 }
 
 vd::status 
@@ -64,6 +81,9 @@ Framebuffer::Destroy()
 {
     if(m_Context)
         m_Context->Release(this);
+
+    Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
+    m_Data.Index = VD_INVALID_INDEX;
     return Status::Code::Success;
 }
 
@@ -73,16 +93,29 @@ Framebuffer::GetData() const
     return m_Data;
 }
 
-void
-Framebuffer::SetActive(bool b)
+const Framebuffer::Data*
+Framebuffer::GetPtr() const
 {
-    m_Data.IsActive = b;
+    return &m_Data;
+}
+
+void
+Framebuffer::Bind()
+{
+    m_Data.Usage++;
+}
+
+void
+Framebuffer::Unbind()
+{
+    vdAssert(m_Data.Usage > 0);
+    m_Data.Usage--;
 }
 
 bool 
 Framebuffer::IsActive()
 {
-    return m_Data.IsActive;
+    return m_Data.Usage > 0;
 }
 
 // ============================================================================================== //

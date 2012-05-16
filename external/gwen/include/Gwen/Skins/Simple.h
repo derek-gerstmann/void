@@ -14,6 +14,11 @@ namespace Gwen
 		{
 			public:
 
+				Simple( Gwen::Renderer::Base* renderer ) : Gwen::Skin::Base( renderer )
+				{
+
+				}
+
 				Gwen::Color m_colBorderColor;
 				Gwen::Color m_colControlOutlineLight;
 				Gwen::Color m_colControlOutlineLighter;
@@ -58,6 +63,10 @@ namespace Gwen
 					m_DefaultFont.size		= 11;
 				}
 
+				virtual void DrawGenericPanel( Controls::Base* control )
+				{
+					// TODO.
+				}
 
 				virtual void DrawButton( Gwen::Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled )
 				{
@@ -68,6 +77,18 @@ namespace Gwen
 				}
 
 				virtual void DrawWindowCloseButton( Gwen::Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled )
+				{
+					// TODO.
+					DrawButton( control, bDepressed, bHovered, bDisabled );
+				}
+
+				virtual void DrawWindowMaximizeButton( Gwen::Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled, bool bMaximized )
+				{
+					// TODO.
+					DrawButton( control, bDepressed, bHovered, bDisabled );
+				}
+
+				virtual void DrawWindowMinimizeButton( Gwen::Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled )
 				{
 					// TODO.
 					DrawButton( control, bDepressed, bHovered, bDisabled );

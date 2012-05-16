@@ -19,6 +19,7 @@ set( VD_GRAPHICS_DIR            ${VD_SRC_DIR}/graphics)
 set( VD_RENDER_DIR              ${VD_SRC_DIR}/render)
 set( VD_INTERFACE_DIR           ${VD_SRC_DIR}/interface)
 set( VD_RUNTIME_DIR             ${VD_SRC_DIR}/runtime)
+set( VD_SPATIAL_DIR             ${VD_SRC_DIR}/spatial)
 set( VD_STORAGE_DIR             ${VD_SRC_DIR}/storage)
 set( VD_TEST_DIR                ${VD_SRC_DIR}/test)
 set( VD_CONSTANTS_DIR           ${VD_SRC_DIR}/constants)
@@ -46,6 +47,8 @@ file( GLOB VD_INTERFACE_INC     ${VD_INTERFACE_DIR}/*.h ${VD_INTERFACE_DIR}/*.hp
 file( GLOB VD_INTERFACE_SRC     ${VD_INTERFACE_DIR}/*.c ${VD_INTERFACE_DIR}/*.cpp ${VD_INTERFACE_DIR}/*/*.cpp)
 file( GLOB VD_RUNTIME_INC       ${VD_RUNTIME_DIR}/*.h ${VD_RUNTIME_DIR}/*.hpp ${VD_RUNTIME_DIR}/*/*.h)
 file( GLOB VD_RUNTIME_SRC       ${VD_RUNTIME_DIR}/*.c ${VD_RUNTIME_DIR}/*.cpp ${VD_RUNTIME_DIR}/*/*.cpp)
+file( GLOB VD_SPATIAL_INC       ${VD_SPATIAL_DIR}/*.h ${VD_SPATIAL_DIR}/*.hpp )
+file( GLOB VD_SPATAIL_SRC       ${VD_SPATIAL_DIR}/*.c ${VD_SPATIAL_DIR}/*.cpp )
 file( GLOB VD_STORAGE_INC       ${VD_STORAGE_DIR}/*.h ${VD_STORAGE_DIR}/*.hpp )
 file( GLOB VD_STORAGE_SRC       ${VD_STORAGE_DIR}/*.c ${VD_STORAGE_DIR}/*.cpp )
 file( GLOB VD_TEST_INC          ${VD_TEST_DIR}/*.h ${VD_TEST_DIR}/*.hpp )
@@ -54,14 +57,15 @@ file( GLOB VD_TEST_SRC          ${VD_TEST_DIR}/*.c ${VD_TEST_DIR}/*.cpp )
 set( VD_ALL_SRC 
     ${VD_FRAMEWORK_SRC} 
     ${VD_CORE_SRC} 
+    ${VD_COMPUTE_SRC} 
     ${VD_CONSTANTS_SRC} 
     ${VD_CONTAINERS_SRC} 
     ${VD_FORMATS_SRC} 
     ${VD_GRAPHICS_SRC} 
     ${VD_RENDER_SRC} 
-    ${VD_COMPUTE_SRC} 
     ${VD_INTERFACE_SRC} 
     ${VD_RUNTIME_SRC}
+    ${VD_SPATIAL_SRC}
     ${VD_STORAGE_SRC}
     ${VD_TEST_SRC}
 )
@@ -69,14 +73,15 @@ set( VD_ALL_SRC
 set( VD_ALL_INC
     ${VD_FRAMEWORK_INC} 
     ${VD_CORE_INC} 
+    ${VD_COMPUTE_INC} 
     ${VD_CONSTANTS_INC} 
     ${VD_CONTAINERS_INC} 
     ${VD_FORMATS_INC} 
     ${VD_GRAPHICS_INC} 
     ${VD_RENDER_INC} 
-    ${VD_COMPUTE_INC} 
     ${VD_INTERFACE_INC} 
     ${VD_RUNTIME_INC}
+    ${VD_SPATIAL_INC}
     ${VD_STORAGE_INC}
     ${VD_TEST_INC}
 )

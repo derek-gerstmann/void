@@ -41,8 +41,6 @@ namespace Controls = Gwen::Controls;
 namespace Location = Gwen::Pos;
 namespace Internal = Gwen::ControlsInternal;
 
-typedef Gwen::Controls::Base Widget;
-
 // ============================================================================================== //
 
 VD_INTERFACE_GWEN_NAMESPACE_END();

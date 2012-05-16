@@ -27,22 +27,22 @@ namespace Gwen
 
 				typedef std::list<Layout::TableRow*> Rows;
 
-				Layout::TableRow* AddItem( const String& strLabel, const String& strName = "" );
-				Layout::TableRow* AddItem( const UnicodeString& strLabel, const String& strName = "" );
+				Layout::TableRow* AddItem( const TextObject& strLabel, const String& strName = "" );
 
 				void RemoveItem( Layout::TableRow * row );
 
 				void Render( Skin::Base* skin );
+				void Layout( Skin::Base* skin );
 
-				void UnselectAll();
-
-				void SetColumnCount( int iCount ) { m_Table->SetColumnCount( iCount ); }
+				void UnselectAll();			
 
 				void SetAllowMultiSelect( bool bMultiSelect ){ m_bMultiSelect = bMultiSelect; }
 				bool AllowMultiSelect() const { return m_bMultiSelect; }
 
 				const ListBox::Rows& GetSelectedRows(){ return m_SelectedRows; }
-				Layout::TableRow* GetSelectedRow();
+
+				virtual Layout::TableRow* GetSelectedRow();
+				virtual Gwen::String GetSelectedRowName();
 
 				virtual void SetSelectedRow( Gwen::Controls::Base* pRow, bool bClearOthers = true );
 				virtual void SelectByString( const TextObject& string, bool bClearOthers = true );
@@ -51,6 +51,10 @@ namespace Gwen
 
 				Controls::Layout::Table* GetTable() { return m_Table; }
 				virtual void Clear();
+
+				// Pass through, to embedded table
+				void SetColumnCount( int iCount ) { m_Table->SetColumnCount( iCount ); }
+				void SetColumnWidth( int iCount, int iSize ) { m_Table->SetColumnWidth( iCount, iSize ); }
 
 			protected:
 

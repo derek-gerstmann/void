@@ -38,6 +38,7 @@ Buffer::Buffer(
 	m_Context(ctx)
 {
 	Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
+    m_Data.Index = VD_INVALID_INDEX;
 }
 
 Buffer::~Buffer()
@@ -49,14 +50,30 @@ void
 Buffer::Reset()
 {
 	Destroy();
-	Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
 }
 
 void
 Buffer::Setup(
 	const Buffer::Data& data)
 {
+	if(&m_Data == &data)
+		return;
+	
+	Destroy();
 	Core::Memory::CopyBytes(&m_Data, &data, sizeof(m_Data));
+}
+
+vd::status 
+Buffer::Acquire()
+{
+	return Status::Code::Success;
+}
+
+vd::status 
+Buffer::Release()
+{
+    m_Data.Index = VD_INVALID_INDEX;
+	return Status::Code::Success;
 }
 
 vd::status 
@@ -64,6 +81,9 @@ Buffer::Destroy()
 {
 	if(m_Context)
 		m_Context->Release(this);
+
+	Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
+    m_Data.Index = VD_INVALID_INDEX;
 	return Status::Code::Success;
 }
 
@@ -71,6 +91,25 @@ const Buffer::Data&
 Buffer::GetData() const
 {
 	return m_Data;
+}
+
+const Buffer::Data*
+Buffer::GetPtr() const
+{
+	return &m_Data;
+}
+
+void
+Buffer::Bind()
+{
+	m_Data.Usage++;
+}
+
+void
+Buffer::Unbind()
+{
+	vdAssert(m_Data.Usage > 0);
+	m_Data.Usage--;
 }
 
 void
@@ -84,6 +123,11 @@ Buffer::StateId::Value
 Buffer::GetState() const
 {
 	return m_Data.State;
+}
+
+bool Buffer::IsActive() const
+{
+	return m_Data.Usage > 0;
 }
 
 // ============================================================================================== //

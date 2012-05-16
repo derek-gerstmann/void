@@ -37,11 +37,15 @@ VD_INTERFACE_GWEN_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-class Input 
+namespace Input {
+
+// ============================================================================================== //
+
+class Base 
 {
 public:
 
-	Input() 
+	Base() 
 	:	m_Canvas(NULL),
 		m_MouseX(0),
 		m_MouseY(0)
@@ -51,7 +55,7 @@ public:
 
 	void 
 	Initialize( 
-		Canvas* c )
+		Canvas::Base* c )
 	{
 		m_Canvas = c;
 	}
@@ -168,11 +172,15 @@ public:
 
 protected:
 
-	Canvas*	m_Canvas;
-	int m_MouseX;
-	int m_MouseY;
+	Canvas::Base*	m_Canvas;
+	int 			m_MouseX;
+	int 			m_MouseY;
 
 };
+
+// ============================================================================================== //
+
+}
 
 // ============================================================================================== //
 

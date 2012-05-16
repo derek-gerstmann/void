@@ -52,7 +52,7 @@ public:
     SphPointBasedRenderer();
     ~SphPointBasedRenderer();
 
-    bool Setup(Graphics::Context* context);
+    virtual vd::status Setup(Graphics::Context* context);
     virtual vd::status Destroy();
     
     void SetVertexBuffer(vd::u32 uiBufferId, int iParticleCount, int vecsize);
@@ -106,6 +106,9 @@ public:
     void SetCameraFov(vd::f32 fFov);
     vd::f32 GetCameraFov(void) const  			  { return m_CameraFov; }
 
+    void SetCameraDepthRange(vd::f32 near, vd::f32 far);
+    vd::v2f32 GetCameraDepthRange(void) const     { return m_CameraDepthRange; }
+
     void SetScreenSize(vd::u32 w, vd::u32 h);
     void SetUseCustomProjection(bool v);
     void SetCameraPosition(const vd::v3f32& v);
@@ -134,6 +137,7 @@ protected:
 	vd::v3f32 m_CameraPosition;
 	vd::v3f32 m_CameraRotation;
     vd::f32 m_CameraFov;
+    vd::v2f32 m_CameraDepthRange;
     vd::f32 m_CameraFocalLength;
 	
     vd::u32 m_ScreenWidth;

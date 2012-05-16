@@ -45,6 +45,12 @@ Context::~Context()
 }
 
 vd::status
+Context::Setup()
+{
+    return Status::Code::Success;
+}
+
+vd::status
 Context::Destroy()
 {
     return Status::Code::Success;       

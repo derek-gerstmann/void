@@ -36,6 +36,8 @@ VD_CONSTANTS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
+#define VD_INVALID_INDEX                            (987654321)
+
 static struct NullValue 
 {
 

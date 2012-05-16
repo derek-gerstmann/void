@@ -45,6 +45,8 @@
 #include "Gwen/TextObject.h"
 #include "Gwen/Texture.h"
 #include "Gwen/ToolTip.h"
+#include "Gwen/Skins/TexturedBase.h"
+#include "Gwen/Skins/Simple.h"
 
 // ============================================================================================== //
 

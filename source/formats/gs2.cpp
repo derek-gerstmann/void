@@ -59,9 +59,12 @@ class GadgetInputThread : public Thread
 
 };
 
-GadgetSnapshot::GadgetSnapshot() :
+GadgetSnapshot::GadgetSnapshot(
+	GadgetDataset* dataset) :
 	Core::Object(),
+	m_DataSet(dataset),
 	m_TotalParticleCount(0),
+	m_FilteredParticleCount(0),
 	m_GasParticleCount(0),
 	m_FileIndex(0)
 {
@@ -85,7 +88,7 @@ GadgetSnapshot::GetResidentMemorySize() const
 		const char* ptr = (char*)GetBlockDataPtr(block);
 		if(ptr != NULL)
 		{
-			bytes += GetBlockEntrySize(block) * m_TotalParticleCount;
+			bytes += GetBlockEntrySize(block) * GetFilteredParticleCount();
 		}
 	}
 	return bytes;
@@ -109,7 +112,7 @@ size_t
 GadgetSnapshot::GetBlockSize(
 	Block::Value block) const
 {
-	return GetBlockEntrySize(block) * m_TotalParticleCount;
+	return GetBlockEntrySize(block) * GetFilteredParticleCount();
 }
 
 size_t
@@ -117,7 +120,7 @@ GadgetSnapshot::CreateBlockData(
 	Block::Value block)
 {
 	char* ptr = (char*)GetBlockDataPtr(block);
-	size_t bytes = GetBlockEntrySize(block) * m_TotalParticleCount;
+	size_t bytes = GetBlockEntrySize(block) * GetFilteredParticleCount();
 	if(ptr == NULL)
 	{
 		ptr = VD_NEW_ARRAY(char, bytes);
@@ -443,12 +446,12 @@ GadgetSnapshot::ReadBlockData(
 {
 	size_t rd = 0;
 	size_t dx = 0;
-	char* ptr = (char*)GetBlockDataPtr(block);
+	void* ptr = GetBlockDataPtr(block);
 	if(ptr == NULL)
+	{
 		CreateBlockData(block);
-		
-	ptr = (char*)GetBlockDataPtr(block);
-//	size_t bytes = GetBlockEntrySize(block) * m_TotalParticleCount;
+		ptr = GetBlockDataPtr(block);
+	}
 
 #if defined(VD_DEBUG_GS2)
 	vdLogInfo("Reading block [%d = %s] (raw %d)...", Block::ToInteger(block), Block::ToString(block), (vd::i32)block);
@@ -457,16 +460,20 @@ GadgetSnapshot::ReadBlockData(
 	SkipToNextBlock(fd);
 	for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
 	{
-		size_t bytes = GetBlockEntrySize(block) * m_MetaData.ParticleCountTotal[k];
+		size_t load = (types && types[k]) ? 1 : 0;
+		size_t bytes = load * GetBlockEntrySize(block) * m_MetaData.ParticleCountTotal[k];
 		if(bytes < 1)
 			continue;
 
+		ptr = Memory::Increment(ptr, dx);
+
 		if(types == NULL)
-			rd += fread(ptr+dx, bytes, 1, fd);
+			rd += fread(ptr, bytes, 1, fd);
 		else if(types[k] > 0)
-			rd += fread(ptr+dx, bytes, 1, fd);
+			rd += fread(ptr, bytes, 1, fd);
 		else
 			rd += fseek(fd, bytes, SEEK_CUR);
+
 		dx += bytes;
 	}	
 	SkipToNextBlock(fd);	
@@ -503,9 +510,12 @@ GadgetSnapshot::ReadMassData(
 
 	Block::Value block = Block::Mass;
 
-	char* ptr = (char*)GetBlockDataPtr(block);
+	void* ptr = GetBlockDataPtr(block);
 	if(ptr == NULL)
+	{
 		CreateBlockData(block);
+		ptr = GetBlockDataPtr(block);
+	}
 		
 	vd::i64 pc = 0;
 	for(vd::i32 pt = 0; pt < (vd::i32)ParticleType::Count; pt++)
@@ -526,7 +536,6 @@ GadgetSnapshot::ReadMassData(
 	if(per_particle_mass > 0)
 	{
 		size_t dx = 0;
-		ptr = (char*)GetBlockDataPtr(block);
 
 #if defined(VD_DEBUG_GS2)
 		vdLogInfo("Reading block [%d = %s] (raw %d)...", Block::ToInteger(block), Block::ToString(block), (vd::i32)block);
@@ -535,22 +544,23 @@ GadgetSnapshot::ReadMassData(
 		SkipToNextBlock(fd);
 		for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
 		{
-			size_t bytes = GetBlockEntrySize(block) * m_MetaData.ParticleCountTotal[k];
+			size_t load = (types && types[k]) ? 1 : 0;
+			size_t bytes = load * GetBlockEntrySize(block) * m_MetaData.ParticleCountTotal[k];
 			if(bytes < 1)
 				continue;
+
+			ptr = Memory::Increment(ptr, dx);
+			
 			if(types == NULL)
-				rd += fread(ptr+dx, bytes, 1, fd);
+				rd += fread(ptr, bytes, 1, fd);
 			else if(types[k] > 0)
-				rd += fread(ptr+dx, bytes, 1, fd);
+				rd += fread(ptr, bytes, 1, fd);
 			else
 				rd += fseek(fd, bytes, SEEK_CUR);
+
 			dx += bytes;
 		}	
 		SkipToNextBlock(fd);	
-
-//		SkipToNextBlock(fd);
-//		rd = fread(m_ParticleData.Mass, bytes, 1, fd);
-//		SkipToNextBlock(fd);	
 		return rd;
 	}
 
@@ -613,20 +623,46 @@ GadgetSnapshot::ReadTimeStepData(
 
 	void* ptr = GetBlockDataPtr(block);
 	if(ptr == NULL)
-		CreateBlockData(block);
-			
-	vd::u64 pc = 0;
-	size_t bytes = GetBlockEntrySize(block) * m_TotalParticleCount;
-	for(vd::i32 pt = 0; pt < (vd::i32)ParticleType::Count; pt++)
 	{
-		for(vd::i32 pn = 0; pn < m_MetaData.ParticleCount[pt]; pn++)
+		CreateBlockData(block);
+		ptr = GetBlockDataPtr(block);
+	}
+
+	vd::u64 pc = 0;
+	for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
+	{
+		size_t load = (types && types[k]) ? 1 : 0;
+		size_t bytes = load * GetBlockEntrySize(block) * m_MetaData.ParticleCountTotal[k];
+		if(bytes < 1)
+			continue;
+
+		for(vd::i32 n = 0; n < m_MetaData.ParticleCount[k]; n++)
 		{
 			m_ParticleData.TimeStep[pc++] = m_MetaData.Time;
 		}
 	}
 	
+	size_t dx = 0;
+	size_t rd = 0;
 	SkipToNextBlock(fd);
-	size_t rd = fread(m_ParticleData.TimeStep, bytes, 1, fd);
+	for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
+	{
+		size_t load = (types && types[k]) ? 1 : 0;
+		size_t bytes = load * GetBlockEntrySize(block) * m_MetaData.ParticleCountTotal[k];
+		if(bytes < 1)
+			continue;
+
+		ptr = Memory::Increment(ptr, dx);
+
+		if(types == NULL)
+			rd += fread(ptr, bytes, 1, fd);
+		else if(types[k] > 0)
+			rd += fread(ptr, bytes, 1, fd);
+		else
+			rd += fseek(fd, bytes, SEEK_CUR);
+
+		dx += bytes;
+	}	
 	SkipToNextBlock(fd);	
 	return rd;
 }
@@ -775,6 +811,7 @@ GadgetSnapshot::ReadHeader(
 
 	if(splits <= 1)
 	{
+		m_FilteredParticleCount = 0;
 		m_TotalParticleCount = 0;
 		m_GasParticleCount = 0;
 	}
@@ -782,6 +819,7 @@ GadgetSnapshot::ReadHeader(
 	for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
 		m_TotalParticleCount += m_MetaData.ParticleCountTotal[k];
 
+	m_FilteredParticleCount = m_TotalParticleCount;
 	m_GasParticleCount += m_MetaData.ParticleCountTotal[0];
 	return rd;
 }
@@ -822,7 +860,7 @@ GadgetSnapshot::ComputeTempFromInternalEnergy()
 	if(ptr == NULL)
 		return;
 
-    for(vd::i64 i = 0; i < (vd::i64)m_TotalParticleCount; i++)
+    for(vd::i64 i = 0; i < (vd::i64)GetFilteredParticleCount(); i++)
     {
         if(m_ParticleData.Type[i] == ParticleType::Gas)
         {
@@ -844,7 +882,33 @@ GadgetSnapshot::GetFilename(
 	vd::i32 index,
 	vd::i32 padding)
 {
-	return GadgetDataset::GetFilenameForSnapshot(prefix, index, padding);
+	return m_DataSet->GetFilenameForSnapshot(prefix, index, padding);
+}
+
+void
+GadgetSnapshot::ProcessParticleTypesRequest(
+	vd::i32* req_types)
+{
+	bool filter_types = false;
+	for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
+	{
+		if(req_types && req_types[k] > 0)
+			filter_types = true;
+	}
+
+	if(filter_types)
+	{
+		m_FilteredParticleCount = 0;
+		for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
+		{
+			if(req_types && req_types[k] > 0)
+				m_FilteredParticleCount += m_MetaData.ParticleCountTotal[k];
+		}
+	}
+	else
+	{
+		m_FilteredParticleCount = m_TotalParticleCount;
+	}
 }
 
 vd::status
@@ -861,9 +925,7 @@ GadgetSnapshot::Load(
 	vd::i32 pc = 1;
 	vd::i32 total_pc = pc;
 
-    m_IsLoaded.Set(0);
-	m_FilteredParticleCount = 0;
-    vd::string filename = GadgetDataset::GetFilenameForSnapshot(prefix, index, padding);
+    vd::string filename = m_DataSet->GetFilenameForSnapshot(prefix, index, padding);
     for(vd::i32 i = 0; i < splits; i++)
     {
     	if(splits > 1)
@@ -890,18 +952,12 @@ GadgetSnapshot::Load(
 	    vdLogInfo("Reading block 'ParticleType' from '%s'!", filename.c_str());
 #endif
 		ReadTypeData(fd, pc);
+		ProcessParticleTypesRequest(req_types);
 
-		m_FilteredParticleCount = 0;
-		for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
-		{
-			if(req_types && req_types[k] > 0)
-				m_FilteredParticleCount += m_MetaData.ParticleCountTotal[k];
-		}
-
-#if defined(VD_DEBUG_GS2)
-	    vdLogInfo("Loading '%d' / '%d' particles!", 
-	    	m_FilteredParticleCount, m_TotalParticleCount);
-#endif
+	#if defined(VD_DEBUG_GS2)
+		    vdLogInfo("Loading '%d' / '%d' particles!", 
+		    	m_FilteredParticleCount, m_TotalParticleCount);
+	#endif
 
 		for(vd::u32 n = 0; n < Block::Count; n++)
 		{
@@ -939,6 +995,7 @@ GadgetSnapshot::Load(
 #endif
 
 #if defined(VD_DEBUG_GS2)
+#if 0
     m_FilteredParticleCount = 0;
 	for(vd::i64 i = 0; i < (vd::i64)m_TotalParticleCount; i++)
     {
@@ -949,9 +1006,9 @@ GadgetSnapshot::Load(
 	}
     vdLogInfo("Validating '%d'/'%d' particles!", m_FilteredParticleCount, m_TotalParticleCount);
 #endif
+#endif
 
     m_FileIndex = index;
-    m_IsLoaded.Increment();
     return 1;
 }
 
@@ -959,15 +1016,15 @@ void
 GadgetSnapshot::Reorder()
 {
     vd::i64 idst;
-    for(vd::i64 i = 0; i < (vd::i64)m_TotalParticleCount; i++)
+    for(vd::i64 i = 0; i < (vd::i64)GetFilteredParticleCount(); i++)
     	m_ParticleData.Id[i]--;
         	
-    for(vd::i64 i = 0; i < (vd::i64)m_TotalParticleCount; i++)
+    for(vd::i64 i = 0; i < (vd::i64)GetFilteredParticleCount(); i++)
     {
         if(m_ParticleData.Id[i] != i)
         {
             idst = m_ParticleData.Id[i];
-            if(idst > (vd::i64)m_TotalParticleCount)
+            if(idst > (vd::i64)GetFilteredParticleCount())
                 continue;
 
             do
@@ -982,7 +1039,7 @@ GadgetSnapshot::Reorder()
         }
     }
     
-    for(vd::i64 i = 0; i < (vd::i64)m_TotalParticleCount; i++)
+    for(vd::i64 i = 0; i < (vd::i64)GetFilteredParticleCount(); i++)
     	m_ParticleData.Id[i]++;
 }
 
@@ -998,7 +1055,7 @@ GadgetDataset::GadgetDataset(
 	m_StartFileIndex(0),
 	m_EndFileIndex(0),
 	m_FileSplits(0),
-    m_CacheSize(2*1024*1024),
+    m_CacheSize(2*1024),
     m_Runtime(runtime)
 {
 	Memory::SetBytes(m_RequestedTypes,  0, sizeof(m_RequestedTypes));
@@ -1087,15 +1144,23 @@ GadgetDataset::GetFilenameForSnapshot(
     const vd::string& prefix, vd::i32 index, vd::i32 padding)
 {
 	char digits[1024] = {0};
+	Core::FileSystem* fs = m_Runtime->GetFileSystem();
+
 	snprintf(digits, sizeof(digits), "%d", index);
 	vd::i32 digit_len = (vd::i32) std::strlen(digits);
-	
-	vd::string result = prefix;
-	for(vd::i32 p = 0; p < padding - digit_len; p++)
-		result += vd::string("0");
-	
-	result += vd::string(digits);
-	return result;
+
+	for(vd::i32 i = digit_len; i < digit_len + 8; i++)
+	{		
+		vd::string result = prefix;
+		for(vd::i32 p = 0; p < i - digit_len; p++)
+			result += vd::string("0");
+		
+		result += vd::string(digits);
+		if(fs->Exists(result) == true)
+			return result;
+	}
+
+	return vd::string();
 }
 	
 vd::status 
@@ -1144,7 +1209,7 @@ GadgetDataset::Retrieve(
 	
 	GadgetSnapshot* data = NULL;
 	bool hit = m_DataCache.Fetch(index, data);
-	hit = hit && data && data->IsLoaded();
+	hit = hit && data && data->IsResident();
 //	vdLogInfo("Fetching snapshot: Index[%d] Hit[%s] ...", index, hit ? "true" : "false");
 	return hit ? data : NULL;
 }
@@ -1213,7 +1278,10 @@ GadgetDataset::OnSubmit(
 	vdLogInfo("Adding load request for snapshot '%d' ...", index);
 #endif
 
-	GadgetSnapshot* snapshot = VD_NEW(GadgetSnapshot);
+	GadgetSnapshot* snapshot = VD_NEW(GadgetSnapshot, this);
+
+	snapshot->SetResident(false);
+
 	GadgetWorkItem* work = VD_NEW(GadgetWorkItem, 
 		snapshot, 
 		m_FilePrefix, 
@@ -1309,10 +1377,10 @@ GadgetWorkQueue::OnRun(
     if(work == NULL)
         return;
 
-	vd::f64 t0 = Process::GetTimeInSeconds();
     GadgetSnapshot* snapshot = work->m_Snapshot;
 
 #if defined(VD_DEBUG_GS2)
+	vd::f64 t0 = Process::GetTimeInSeconds();
 	vdLogInfo("[%d] %s Index[%d] Splits[%d] Padding[%d]", 
 		(int)work->GetSlotId(), work->m_FilePrefix.c_str(), 
 		work->m_FileIndex, work->m_FileSplits, work->m_FileNumberPadding);
@@ -1332,6 +1400,7 @@ GadgetWorkQueue::OnRun(
 												work->m_FileIndex, 
 												work->m_FileNumberPadding);
 
+#if defined(VD_DEBUG_GS2)
 	GadgetMetaData m = snapshot->GetMetaData();
 	vd::f64 t1 = Process::GetTimeInSeconds();
 	vdLogInfo("Loaded '%s' in '%f' sec.", filename.c_str(), t1 - t0);
@@ -1365,84 +1434,107 @@ GadgetWorkQueue::OnRun(
 	vdLogInfo("-- '%s' = %f", "Omega0", m.Omega0);
 	vdLogInfo("-- '%s' = %f", "OmegaLambda", m.OmegaLambda);
 	vdLogInfo("-- '%s' = %f", "HubbleParam", m.HubbleParam);
-
+#endif
+	
 	for(vd::i32 i = 0; i < (vd::i32)GadgetSnapshot::Block::Count; i++)
 	{
 		GadgetSnapshot::Block::Value block = GadgetSnapshot::Block::FromInteger(i);
 		if(work->m_Stats[i] < 1)
 			continue;
 
-		if(snapshot->GetBlockVectorLength(block) > 1)
-			continue;
-
 		vd::f64 t0 = Process::GetTimeInSeconds();
-		GadgetScalarStatistic& s = snapshot->GetScalarStatistic(block);
+		GadgetStatistic& s = snapshot->GetStatistic(block);
+		s.Components = snapshot->GetBlockVectorLength(block);
 		if(snapshot->IsBlockEntryIntegerValue(block))
 		{
-			s.Minimum = +VD_F32_MAX;
-			s.Maximum = -VD_F32_MAX;
-
 			int* src = (int*)snapshot->GetBlockDataPtr(block);
 			if(src == NULL)
 				continue;
 
+			for(vd::i8 vc = 0; vc < s.Components; vc++)
+			{
+				s.Minimum[vc] = +VD_F32_MAX;
+				s.Maximum[vc] = -VD_F32_MAX;
+			}
+
 			float* dst = (float*)snapshot->GetBlockDataPtr(block);
 			for(vd::u64 n = 0; n < snapshot->GetFilteredParticleCount(); n++)
 			{
-				float value = src[n];
-				dst[n] = float(value);
+				for(vd::i8 vc = 0; vc < s.Components; vc++)
+				{
+					float value = src[n * s.Components + vc];
+					dst[n * s.Components + vc] = float(value);
 
-				s.TotalSum += value;
-			    s.SumSqr += (value * value);
-			    s.Count += 1.0f;
+					s.TotalSum[vc] += value;
+				    s.SumSqr[vc] += (value * value);
+				    s.Count[vc] += 1.0f;
 
-			    if (value < s.Minimum)
-			      s.Minimum = value;
+				    if (value < s.Minimum[vc])
+				      s.Minimum[vc] = value;
 
-			    if (value > s.Maximum)
-			      s.Maximum = value;
+				    if (value > s.Maximum[vc])
+				      s.Maximum[vc] = value;
+				}
 			}
-			float inverse = 1.0f / s.Count;
-	   		float first = s.SumSqr * inverse;
-	    	float second = s.TotalSum * inverse;
-			s.Variance = first - second * second;
+	
+			for(vd::i8 vc = 0; vc < s.Components; vc++)
+			{
+				float inverse = 1.0f / s.Count[vc];
+		   		float first = s.SumSqr[vc] * inverse;
+		    	float second = s.TotalSum[vc] * inverse;
+				s.Variance[vc] = first - second * second;
+			}
 		}
 		else
 		{
-			s.Minimum = +VD_F32_MAX;
-			s.Maximum = -VD_F32_MAX;
-
 			float* src = (float*)snapshot->GetBlockDataPtr(block);
 			if(src == NULL)
 				continue;
 
-			for(vd::u64 n = 0; n < snapshot->GetFilteredParticleCount(); n++)
+			for(vd::i8 vc = 0; vc < s.Components; vc++)
 			{
-				float value = src[n];
-
-				s.TotalSum += value;
-			    s.SumSqr += (value * value);
-			    s.Count += 1.0f;
-
-			    if (value < s.Minimum)
-			      s.Minimum = value;
-
-			    if (value > s.Maximum)
-			      s.Maximum = value;
+				s.Minimum[vc] = +VD_F32_MAX;
+				s.Maximum[vc] = -VD_F32_MAX;
 			}
 
-			float inverse = 1.0f / s.Count;
-	   		float first = s.SumSqr * inverse;
-	    	float second = s.TotalSum * inverse;
-			s.Variance = first - second * second;
+			for(vd::u64 n = 0; n < snapshot->GetFilteredParticleCount(); n++)
+			{
+				for(vd::i8 vc = 0; vc < s.Components; vc++)
+				{
+					float value = src[n * s.Components + vc];
+
+					s.TotalSum[vc] += value;
+				    s.SumSqr[vc] += (value * value);
+				    s.Count[vc] += 1.0f;
+
+				    if (value < s.Minimum[vc])
+				      s.Minimum[vc] = value;
+
+				    if (value > s.Maximum[vc])
+				      s.Maximum[vc] = value;
+				}
+			}
+	
+			for(vd::i8 vc = 0; vc < s.Components; vc++)
+			{
+				float inverse = 1.0f / s.Count[vc];
+		   		float first = s.SumSqr[vc] * inverse;
+		    	float second = s.TotalSum[vc] * inverse;
+				s.Variance[vc] = first - second * second;
+			}
 		}
 
 		vd::f64 t1 = Process::GetTimeInSeconds();
 		vdLogInfo("Computed stats for '%s' in '%f' sec:",
 			GadgetSnapshot::Block::ToString(i), t1 - t0);
 
-		vdLogInfo("-- Min[%f] Max[%f] Sum[%f] Var[%f]", 
-			s.Minimum, s.Maximum, s.TotalSum, s.Variance);
+		for(vd::i8 vc = 0; vc < s.Components; vc++)
+		{
+			vdLogInfo("-- Min[%f] Max[%f] Sum[%f] Var[%f]", 
+				s.Minimum[vc], s.Maximum[vc], s.TotalSum[vc], s.Variance[vc]);
+		}
+
+		snapshot->SetResident(true);
 	}
 //	VD_DELETE(work);
 }

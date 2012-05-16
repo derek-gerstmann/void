@@ -49,35 +49,27 @@ namespace Clipboard = Gwen::DragAndDrop;
 namespace Tooltip = ToolTip;
 namespace Platform = Gwen::Platform;
 namespace Render = Gwen::Renderer;
-namespace Skins = Gwen::Skin;
 
 using namespace Gwen;
 
 // ============================================================================================== //
 
 template< class T >
-T* vd_ui_cast( Widget* p )
+T* vd_ui_cast( Controls::Base* p )
 {
     if ( !p ) return NULL;
 
-    Widget* pReturn = p->DynamicCast( T::GetIdentifier() );
+    Controls::Base* pReturn = p->DynamicCast( T::GetIdentifier() );
     if ( !pReturn ) return NULL;
 
     return static_cast<T*>(pReturn);
 }
-
 // ============================================================================================== //
 
 VD_INTERFACE_GWEN_NAMESPACE_END();
 
 // ============================================================================================== //
 
-#define VD_UI_DYNAMIC GWEN_DYNAMIC
-#define VD_UI_CONTROL GWEN_CONTROL
-#define VD_UI_CONTROL_INLINE GWEN_CONTROL_INLINE
-#define VD_UI_CONTROL_CONSTRUCTOR GWEN_CONTROL_CONTRUCTOR
-
-#if 0
 #define VD_UI_DYNAMIC( ThisName, BaseName )                                 \
                                                                             \
     static const char* GetIdentifier()                                      \
@@ -85,28 +77,31 @@ VD_INTERFACE_GWEN_NAMESPACE_END();
         static const char* ident = #BaseName ":" #ThisName;                 \
         return ident;                                                       \
     };                                                                      \
-                                                                            \
-    virtual Widget* DynamicCast( const char* Variable )                     \
+    virtual Controls::Base* DynamicCast( const char* Variable )             \
     {                                                                       \
         if ( GetIdentifier() == Variable )                                  \
-            return this;                                                    \
+        return this;                                                        \
                                                                             \
         return BaseClass::DynamicCast( Variable);                           \
     }
 
-#define VD_UI_CONTROL( ThisName, BaseName )                                 \
-    public:                                                                 \
-        typedef BaseName BaseClass;                                         \
-        typedef ThisName ThisClass;                                         \
-        VD_UI_DYNAMIC( ThisName, BaseName )                                 \
-        ThisName( Widget* pParent )
+#define VD_UI_CLASS( ThisName, BaseName )\
+        typedef BaseName BaseClass;\
+        typedef ThisName ThisClass;\
 
-#define VD_UI_CONTROL_INLINE( ThisName, BaseName )                          \
-    VD_UI_CONTROL( ThisName, BaseName ) : BaseClass( pParent )
+#define VD_UI_CONTROL( ThisName, BaseName )\
+    public:\
+    VD_UI_CLASS( ThisName, BaseName )\
+    VD_UI_DYNAMIC( ThisName, BaseName )\
+    virtual const char* GetTypeName(){ return #ThisName; }\
+    virtual const char* GetBaseTypeName(){ return BaseClass::GetTypeName(); }\
+    ThisName( Controls::Base* pParent, const String& pName = "" )
 
-#define VD_UI_CONTROL_CONSTRUCTOR( ThisName )                               \
-    ThisName::ThisName( Widget* pParent ) : BaseClass( pParent )
-#endif
+#define VD_UI_CONTROL_INLINE( ThisName, BaseName )\
+    VD_UI_CONTROL( ThisName, BaseName ) : BaseClass( pParent, pName )
+
+#define VD_UI_CONTROL_CONSTRUCTOR( ThisName )\
+    ThisName::ThisName( Controls::Base* pParent, const String& pName ) : BaseClass( pParent, pName )
 
 // ============================================================================================== //
 

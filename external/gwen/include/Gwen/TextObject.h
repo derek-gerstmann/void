@@ -8,7 +8,6 @@
 #ifndef GWEN_TEXTOBJECT_H
 #define GWEN_TEXTOBJECT_H
 
-#include "Gwen/Gwen.h"
 #include "Gwen/Utility.h"
 
 namespace Gwen
@@ -28,50 +27,72 @@ namespace Gwen
 
 			TextObject( const Gwen::String& text )
 			{
-				*this = text;
+				m_String = text;
+				m_Unicode = Gwen::Utility::StringToUnicode( m_String );
 			}
 
 			TextObject( const char* text )
 			{
-				*this = Gwen::String( text );
+				m_String = text;
+				m_Unicode = Gwen::Utility::StringToUnicode( m_String );
 			}
 
 			TextObject( const wchar_t* text )
 			{
-				*this = Gwen::UnicodeString( text );
+				m_Unicode = text;
+				m_String = Gwen::Utility::UnicodeToString( m_Unicode );
 			}
 
 			TextObject( const Gwen::UnicodeString& unicode )
 			{
 				*this = unicode;
 			}
-			
+
+			operator const Gwen::String&(){ return m_String; }
+			operator const Gwen::UnicodeString&(){ return m_Unicode; }
+		
+			void operator = ( const char* str )
+			{
+				m_String = str;
+				m_Unicode = Gwen::Utility::StringToUnicode( m_String );
+			}
+
 			void operator = ( const Gwen::String& str )
 			{
-				m_Data = Gwen::Utility::StringToUnicode( str );
+				m_String = str;
+				m_Unicode = Gwen::Utility::StringToUnicode( m_String );
 			}
 
 			void operator = ( const Gwen::UnicodeString& unicodeStr )
 			{
-				m_Data = unicodeStr;
+				m_Unicode = unicodeStr;
+				m_String = Gwen::Utility::UnicodeToString( m_Unicode );
 			}
 
 			bool operator == ( const TextObject& to ) const
 			{
-				return m_Data == to.m_Data;
+				return m_Unicode == to.m_Unicode;
 			}
 
-			Gwen::String Get() const
+			const Gwen::String& Get() const
 			{
-				return Gwen::Utility::UnicodeToString( m_Data );
+				return m_String;
+			}
+
+			const char* c_str() const 
+			{
+				return m_String.c_str();
 			}
 
 			const Gwen::UnicodeString& GetUnicode() const
 			{
-				return m_Data;
+				return m_Unicode;
 			}
 
-			Gwen::UnicodeString m_Data;
+			int length() const { return m_Unicode.length(); }
+
+			Gwen::UnicodeString		m_Unicode;
+			Gwen::String			m_String;
 	};
 }
 #endif

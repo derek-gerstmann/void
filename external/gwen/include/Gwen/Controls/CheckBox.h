@@ -61,7 +61,7 @@ namespace Gwen
 
 					m_Label = new LabelClickable( this );
 					m_Label->Dock( Pos::Fill );
-					m_Label->onPress.Add( m_Checkbox, &CheckBox::ReceiveEventPress );
+					m_Label->onPress.Add( m_Checkbox, &CheckBox::OnPress );
 					m_Label->SetTabable( false );
 
 					SetTabable( false );

@@ -23,19 +23,15 @@ namespace Gwen
 		Font()
 		{
 			data = NULL;
-
 			facename = L"Arial";
 			size = 10;
-
-			dropshadow = false;
+			realsize = 0;
 			bold = false;
-
 		}
 
 		UnicodeString	facename;
 		float size;
 		bool  bold;
-		bool dropshadow;
 
 		// This should be set by the renderer
 		// if it tries to use a font where it's

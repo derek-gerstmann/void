@@ -14,6 +14,7 @@ namespace Gwen
 {
 	struct Font;
 	struct Texture;
+	class WindowProvider;
 	
 	namespace Renderer
 	{
@@ -21,17 +22,17 @@ namespace Gwen
 
 		class ICacheToTexture
 		{
+			public:
 
-		public:
-			virtual ~ICacheToTexture() { }
-			virtual void Initialize() = 0;
-			virtual void ShutDown() = 0;
-			virtual void SetupCacheTexture( Gwen::Controls::Base* control ) = 0;
-			virtual void FinishCacheTexture( Gwen::Controls::Base* control ) = 0;
-			virtual void DrawCachedControlTexture( Gwen::Controls::Base* control ) = 0;
-			virtual void CreateControlCacheTexture( Gwen::Controls::Base* control ) = 0;
-			virtual void UpdateControlCacheTexture( Gwen::Controls::Base* control ) = 0;
-			virtual void SetRenderer( Gwen::Renderer::Base* renderer ) = 0;
+				virtual ~ICacheToTexture() {}
+				virtual void Initialize() = 0;
+				virtual void ShutDown() = 0;
+				virtual void SetupCacheTexture( Gwen::Controls::Base* control ) = 0;
+				virtual void FinishCacheTexture( Gwen::Controls::Base* control ) = 0;
+				virtual void DrawCachedControlTexture( Gwen::Controls::Base* control ) = 0;
+				virtual void CreateControlCacheTexture( Gwen::Controls::Base* control ) = 0;
+				virtual void UpdateControlCacheTexture( Gwen::Controls::Base* control ) = 0;
+				virtual void SetRenderer( Gwen::Renderer::Base* renderer ) = 0;
 
 		};
 
@@ -41,6 +42,8 @@ namespace Gwen
 
 				Base();
 				virtual ~Base();
+
+				virtual void Init(){};
 
 				virtual void Begin(){};
 				virtual void End(){};
@@ -114,6 +117,24 @@ namespace Gwen
 				float Scale() const { return m_fScale; }
 
 				float m_fScale;
+
+
+			public:
+
+				//
+				// Self Initialization, shutdown
+				//
+
+				virtual bool InitializeContext( Gwen::WindowProvider* pWindow ){ return false; }
+				virtual bool ShutdownContext( Gwen::WindowProvider* pWindow ){ return false; }
+				virtual bool ResizedContext( Gwen::WindowProvider* pWindow, int w, int h ){ return false; }
+
+				virtual bool BeginContext( Gwen::WindowProvider* pWindow){ return false; }
+				virtual bool EndContext( Gwen::WindowProvider* pWindow ){ return false; }
+				virtual bool PresentContext( Gwen::WindowProvider* pWindow ){ return false; }
+
+
+
 		};
 	}
 }

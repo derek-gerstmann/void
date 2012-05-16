@@ -21,20 +21,20 @@
 
 	#define GwenUtil_OutputDebugCharString( lpOutputString ) OutputDebugStringA( lpOutputString )
 	#define GwenUtil_OutputDebugWideString( lpOutputString ) OutputDebugStringW( lpOutputString )
-	#define GwenUtil_WideStringToFloat( _Str ) _wtof( _Str )
+	//#define GwenUtil_WideStringToFloat( _Str ) _wtof( _Str )
 
 #elif defined(__APPLE__)
 
 	#include <CoreFoundation/CoreFoundation.h>
 	#define GwenUtil_OutputDebugCharString( lpOutputString ) //printf( lpOutputString )
 	#define GwenUtil_OutputDebugWideString( lpOutputString ) //wprintf( lpOutputString  )
-	#define GwenUtil_WideStringToFloat( _Str ) wcstof(_Str, NULL)
+	//#define GwenUtil_WideStringToFloat( _Str ) wcstof(_Str, NULL)
 
 #elif defined(__linux__)
 
 	#define GwenUtil_OutputDebugCharString( lpOutputString ) //printf( lpOutputString )
 	#define GwenUtil_OutputDebugWideString( lpOutputString ) //wprintf( lpOutputString  )
-	#define GwenUtil_WideStringToFloat( _Str ) wcstof(_Str, NULL)
+	//#define GwenUtil_WideStringToFloat( _Str ) wcstof(_Str, NULL)
 
 #else
 

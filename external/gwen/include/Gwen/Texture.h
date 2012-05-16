@@ -11,7 +11,6 @@
 #include <string>
 
 #include "Gwen/BaseRender.h"
-#include "Gwen/TextObject.h"
 
 namespace Gwen
 {
@@ -20,6 +19,8 @@ namespace Gwen
 	//
 	struct Texture
 	{
+		typedef std::list<Texture*>		List;
+
 		TextObject	name;
 		void*	data;
 		bool	failed;
@@ -48,6 +49,11 @@ namespace Gwen
 		void Release( Gwen::Renderer::Base* render )
 		{
 			render->FreeTexture( this );
+		}
+
+		bool FailedToLoad() const
+		{
+			return failed;
 		}
 	};
 

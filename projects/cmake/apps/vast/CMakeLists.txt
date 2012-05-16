@@ -128,7 +128,7 @@ if(APPLE)
 
 endif()
 
-message(STATUS "Configured features: ${CMAKE_BUILD_TYPE} ${VOID_VERSION_STRING}")
+message(STATUS "Configured: ${VD_APP_NAME}")
 
 endif()
 

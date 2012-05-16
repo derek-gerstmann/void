@@ -28,9 +28,16 @@ pkg_ldflags="$pkg_ldflags:-L$ext_dir/iconv/lib/$os_name:-liconv"
 pkg_ldflags="$pkg_ldflags:-L$ext_dir/glib/lib/$os_name"
 pkg_ldflags="$pkg_ldflags:-lglib-2.0:-lgio-2.0:-lgobject-2.0:-lgmodule-2.0:-lgthread-2.0"
 pkg_ldflags="$pkg_ldflags:-L$ext_dir/gettext/lib/$os_name"
-pkg_ldflags="$pkg_ldflags:-lasprintf:-lgettextpo:-lintl"
+pkg_ldflags="$pkg_ldflags:-lasprintf:-lgettextpo"
 
-pkg_cfg="--disable-glibtest --disable-shared --enable-static --with-libiconv-prefix=$ext_dir/build/iconv/$os_name --with-libintl-prefix=$ext_dir/build/gettext/$os_name"
+pkg_cfg="--disable-glibtest --disable-shared --enable-static"
+pkg_cfg="$pkg_cfg --with-libiconv-prefix=$ext_dir/build/iconv/$os_name"
+
+if [ "$is_osx" -eq 1 ]
+then
+    pkg_ldflags="$pkg_ldflags:-lintl"
+    pkg_cfg="$pkg_cfg --with-libintl-prefix=$ext_dir/build/gettext/$os_name"
+fi
 
 ####################################################################################################
 # build and install pkg into external folder

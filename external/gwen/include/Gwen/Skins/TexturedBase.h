@@ -16,16 +16,26 @@ namespace Gwen
 		{
 			public:
 
+				TexturedBase( Gwen::Renderer::Base* renderer ) : Gwen::Skin::Base( renderer )
+				{
+
+				}
+
+				~TexturedBase()
+				{
+					m_Texture.Release( m_Render );
+				}
+
 				Texture m_Texture;
 
-				struct
+				struct Textures_t
 				{
 					Texturing::Bordered StatusBar;
 					Texturing::Bordered Selection;
 					Texturing::Bordered	Shadow;
 					Texturing::Bordered	Tooltip;
 
-					struct /* Panel */
+					struct Panel_t
 					{
 						Texturing::Bordered Normal;
 						Texturing::Bordered Bright;
@@ -34,29 +44,37 @@ namespace Gwen
 
 					} Panel;
 
-					struct /* Window */
+					struct Window_t
 					{
 						Texturing::Bordered Normal;
 						Texturing::Bordered Inactive;
 						Texturing::Single Close;
 						Texturing::Single Close_Hover;
 						Texturing::Single Close_Down;
-						Texturing::Single Close_Disabled;
+						Texturing::Single Maxi;
+						Texturing::Single Maxi_Hover;
+						Texturing::Single Maxi_Down;
+						Texturing::Single Mini;
+						Texturing::Single Mini_Hover;
+						Texturing::Single Mini_Down;
+						Texturing::Single Restore;
+						Texturing::Single Restore_Hover;
+						Texturing::Single Restore_Down;
 
 					} Window;
 
 
 
-					struct /* Checkbox */
+					struct Checkbox_t
 					{
-						struct /* Active */
+						struct  Active_t
 						{
 							Texturing::Single Normal;
 							Texturing::Single Checked;
 
 						} Active;
 
-						struct /* Disabled */
+						struct  Disabled_t
 						{
 							Texturing::Single Normal;
 							Texturing::Single Checked;
@@ -65,16 +83,16 @@ namespace Gwen
 
 					} Checkbox;
 
-					struct /* RadioButton */
+					struct  RadioButton_t
 					{
-						struct /* Active */
+						struct  Active_t
 						{
 							Texturing::Single Normal;
 							Texturing::Single Checked;
 
 						} Active;
 
-						struct /* Disabled */
+						struct  Disabled_t
 						{
 							Texturing::Single Normal;
 							Texturing::Single Checked;
@@ -83,7 +101,7 @@ namespace Gwen
 
 					} RadioButton;
 
-					struct /* TextBox */
+					struct  TextBox_t
 					{
 						Texturing::Bordered Normal;
 						Texturing::Bordered Focus;
@@ -91,7 +109,7 @@ namespace Gwen
 
 					} TextBox;
 
-					struct   /* Tree */
+					struct  Tree_t
 					{
 						Texturing::Bordered Background;
 						Texturing::Single Minus;
@@ -100,14 +118,14 @@ namespace Gwen
 					} Tree;
 					
 
-					struct  /* ProgressBar */
+					struct  ProgressBar_t
 					{
 						Texturing::Bordered Back;
 						Texturing::Bordered Front;
 
 					} ProgressBar;
 
-					struct  /* Scroller */
+					struct  Scroller_t
 					{
 						Texturing::Bordered TrackV;
 						Texturing::Bordered ButtonV_Normal;
@@ -120,7 +138,7 @@ namespace Gwen
 						Texturing::Bordered ButtonH_Down;
 						Texturing::Bordered ButtonH_Disabled;
 
-						struct /* Button */
+						struct  Button_t
 						{
 							Texturing::Bordered	Normal[4];
 							Texturing::Bordered	Hover[4];
@@ -131,7 +149,7 @@ namespace Gwen
 
 					} Scroller;
 
-					struct /* Menu */
+					struct  Menu_t
 					{
 						Texturing::Single RightArrow;
 						Texturing::Single Check;
@@ -143,9 +161,9 @@ namespace Gwen
 
 					} Menu;
 
-					struct /* Input */
+					struct  Input_t
 					{
-						struct /* Button */
+						struct  Button_t
 						{
 							Texturing::Bordered Normal;
 							Texturing::Bordered Hovered;
@@ -154,7 +172,7 @@ namespace Gwen
 
 						} Button;
 
-						struct /* ListBox */
+						struct  ListBox_t
 						{
 							Texturing::Bordered Background;
 							Texturing::Bordered Hovered;
@@ -166,9 +184,9 @@ namespace Gwen
 
 						} ListBox;
 
-						struct /* UpDown */
+						struct  UpDown_t
 						{
-							struct /* Up */
+							struct  Up_t
 							{
 								Texturing::Single Normal;
 								Texturing::Single Hover;
@@ -177,7 +195,7 @@ namespace Gwen
 
 							} Up;
 
-							struct /* Down */
+							struct  Down_t
 							{
 								Texturing::Single Normal;
 								Texturing::Single Hover;
@@ -188,14 +206,14 @@ namespace Gwen
 
 						} UpDown;
 
-						struct /* ComboBox */
+						struct  ComboBox_t
 						{
 							Texturing::Bordered Normal;
 							Texturing::Bordered Hover;
 							Texturing::Bordered Down;
 							Texturing::Bordered Disabled;
 
-							struct /* Button */
+							struct  Button_t
 							{
 								Texturing::Single Normal;
 								Texturing::Single Hover;
@@ -206,9 +224,9 @@ namespace Gwen
 
 						} ComboBox;
 
-						struct /* Slider */
+						struct  Slider_t
 						{
-							struct /* H */
+							struct  H_t
 							{
 								Texturing::Single Normal;
 								Texturing::Single Hover;
@@ -216,7 +234,7 @@ namespace Gwen
 								Texturing::Single Disabled;
 							} H;
 
-							struct /* Slider */
+							struct  V_t
 							{
 								Texturing::Single Normal;
 								Texturing::Single Hover;
@@ -228,27 +246,27 @@ namespace Gwen
 
 					} Input;
 
-					struct /* Tab */
+					struct  Tab_t
 					{
-						struct /* Bottom */
+						struct  Bottom_t
 						{
 							Texturing::Bordered Active;
 							Texturing::Bordered Inactive;
 						} Bottom;
 
-						struct /* Top */
+						struct  Top_t
 						{
 							Texturing::Bordered Active;
 							Texturing::Bordered Inactive;
 						} Top;
 
-						struct /* Left */
+						struct  Left_t
 						{
 							Texturing::Bordered Active;
 							Texturing::Bordered Inactive;
 						} Left;
 
-						struct /* Right */
+						struct  Right_t
 						{
 							Texturing::Bordered Active;
 							Texturing::Bordered Inactive;
@@ -259,13 +277,15 @@ namespace Gwen
 
 					} Tab;
 
-					struct /* CategoryList */
+					struct  CategoryList_t
 					{
 						Texturing::Bordered Outer;
 						Texturing::Bordered Inner;
 						Texturing::Bordered Header;
 
 					} CategoryList;
+
+					Texturing::Bordered GroupBox;
 
 				} Textures;
 
@@ -351,12 +371,12 @@ namespace Gwen
 
 					Textures.Checkbox.Active.Checked.Init		( &m_Texture, 448, 32, 15, 15 );
 					Textures.Checkbox.Active.Normal.Init		( &m_Texture, 464, 32, 15, 15 );
-					Textures.Checkbox.Disabled.Normal.Init		( &m_Texture, 448, 48, 15, 15 );
+					Textures.Checkbox.Disabled.Checked.Init		( &m_Texture, 448, 48, 15, 15 );
 					Textures.Checkbox.Disabled.Normal.Init		( &m_Texture, 464, 48, 15, 15 );
 
 					Textures.RadioButton.Active.Checked.Init	( &m_Texture, 448, 64, 15, 15 );
 					Textures.RadioButton.Active.Normal.Init		( &m_Texture, 464, 64, 15, 15 );
-					Textures.RadioButton.Disabled.Normal.Init	( &m_Texture, 448, 80, 15, 15 );
+					Textures.RadioButton.Disabled.Checked.Init	( &m_Texture, 448, 80, 15, 15 );
 					Textures.RadioButton.Disabled.Normal.Init	( &m_Texture, 464, 80, 15, 15 );
 					
 					Textures.TextBox.Normal.Init		( &m_Texture, 0, 150, 127, 21, Margin( 4, 4, 4, 4 ) );
@@ -381,10 +401,21 @@ namespace Gwen
 					Textures.Tab.Right.Inactive.Init			( &m_Texture, 96+128,	384, 31, 63, Margin( 8, 8, 8, 8 ) );
 					Textures.Tab.HeaderBar.Init				( &m_Texture, 128, 352, 127, 31, Margin( 4, 4, 4, 4 ) );
 
-					Textures.Window.Close.Init			( &m_Texture, 0, 224, 24, 24 );
-					Textures.Window.Close_Hover.Init	( &m_Texture, 32, 224, 24, 24 );
-					Textures.Window.Close_Down.Init		( &m_Texture, 64, 224, 24, 24 );
-					Textures.Window.Close_Disabled.Init	( &m_Texture, 96, 224, 24, 24 );
+					Textures.Window.Close.Init			( &m_Texture, 32, 448, 31, 31 );
+					Textures.Window.Close_Hover.Init	( &m_Texture, 64, 448, 31, 31 );
+					Textures.Window.Close_Down.Init		( &m_Texture, 96, 448, 31, 31 );
+
+					Textures.Window.Maxi.Init			( &m_Texture, 32 + 96*2, 448, 31, 31 );
+					Textures.Window.Maxi_Hover.Init		( &m_Texture, 64 + 96*2, 448, 31, 31 );
+					Textures.Window.Maxi_Down.Init		( &m_Texture, 96 + 96*2, 448, 31, 31 );
+
+					Textures.Window.Restore.Init		( &m_Texture, 32 + 96*2, 448+32, 31, 31 );
+					Textures.Window.Restore_Hover.Init	( &m_Texture, 64 + 96*2, 448+32, 31, 31 );
+					Textures.Window.Restore_Down.Init	( &m_Texture, 96 + 96*2, 448+32, 31, 31 );
+
+					Textures.Window.Mini.Init			( &m_Texture, 32 + 96, 448, 31, 31 );
+					Textures.Window.Mini_Hover.Init		( &m_Texture, 64 + 96, 448, 31, 31 );
+					Textures.Window.Mini_Down.Init		( &m_Texture, 96 + 96, 448, 31, 31 );
 
 					Textures.Tree.Background.Init			( &m_Texture, 256, 128, 127,	127,	Margin( 16, 16, 16, 16 ) );
 					Textures.Tree.Plus.Init					( &m_Texture, 448, 96, 15, 15 );
@@ -421,7 +452,7 @@ namespace Gwen
 					Textures.Input.ListBox.Hovered.Init			( &m_Texture, 320,	320, 31, 31, Margin( 8, 8, 8, 8 ) );
 					Textures.Input.ListBox.EvenLine.Init		( &m_Texture, 352,  256, 31, 31, Margin( 8, 8, 8, 8 ) );
 					Textures.Input.ListBox.OddLine.Init			( &m_Texture, 352,  288, 31, 31, Margin( 8, 8, 8, 8 ) );
-					Textures.Input.ListBox.EvenLineSelected.Init( &m_Texture, 320,	270, 31, 31, Margin( 8, 8, 8, 8 ) );
+					Textures.Input.ListBox.EvenLineSelected.Init( &m_Texture, 320,	256, 31, 31, Margin( 8, 8, 8, 8 ) );
 					Textures.Input.ListBox.OddLineSelected.Init	( &m_Texture, 320,	288, 31, 31, Margin( 8, 8, 8, 8 ) );
 
 					Textures.Input.ComboBox.Normal.Init			 ( &m_Texture, 384,	336,	127, 31, Margin( 8, 8, 32, 8 ) );
@@ -460,6 +491,8 @@ namespace Gwen
 					Textures.CategoryList.Outer.Init			 ( &m_Texture, 256,			384, 63, 63, Margin( 8, 8, 8, 8 ) );
 					Textures.CategoryList.Inner.Init			 ( &m_Texture, 256 + 64,	384, 63, 63, Margin( 8, 21, 8, 8 ) );
 					Textures.CategoryList.Header.Init			 ( &m_Texture, 320,			352, 63, 31, Margin( 8, 8, 8, 8 ) );
+
+					Textures.GroupBox.Init						 ( &m_Texture, 0,			448, 31, 31, Margin( 8, 8, 8, 8 ) );
 				}
 
 
@@ -555,26 +588,12 @@ namespace Gwen
 					rect.y += textHeight * 0.5f;
 					rect.h -= textHeight * 0.5f;
 
-					Gwen::Color m_colDarker			= Gwen::Color(   0,  50,  60, 50 );
-					Gwen::Color m_colLighter		= Gwen::Color( 255, 255, 255, 150 );
+					Textures.GroupBox.Draw( GetRender(), rect, Gwen::Colors::White, true, false );
 
-					GetRender()->SetDrawColor( m_colLighter );
+					rect.x += textStart + textWidth - 4;
+					rect.w -= textStart + textWidth - 4;
 
-						GetRender()->DrawFilledRect( Gwen::Rect( rect.x+1, rect.y+1, textStart-3, 1 ) );
-						GetRender()->DrawFilledRect( Gwen::Rect( rect.x+1+textStart+textWidth, rect.y+1, rect.w-textStart+textWidth-2, 1 ) );
-						GetRender()->DrawFilledRect( Gwen::Rect( rect.x+1, (rect.y + rect.h)-1, rect.x+rect.w-2, 1 ) );
-
-						GetRender()->DrawFilledRect( Gwen::Rect( rect.x+1, rect.y+1, 1, rect.h ) );
-						GetRender()->DrawFilledRect( Gwen::Rect( (rect.x + rect.w)-2, rect.y+1, 1, rect.h-1 ) );
-
-					GetRender()->SetDrawColor( m_colDarker );
-
-						GetRender()->DrawFilledRect( Gwen::Rect( rect.x+1, rect.y, textStart-3, 1 ) );
-						GetRender()->DrawFilledRect( Gwen::Rect( rect.x+1+textStart+textWidth, rect.y, rect.w-textStart-textWidth-2, 1 ) );
-						GetRender()->DrawFilledRect( Gwen::Rect( rect.x+1, (rect.y + rect.h)-1, rect.x+rect.w-2, 1 ) );
-						
-						GetRender()->DrawFilledRect( Gwen::Rect( rect.x, rect.y+1, 1, rect.h-1 ) );
-						GetRender()->DrawFilledRect( Gwen::Rect( (rect.x + rect.w)-1, rect.y+1, 1, rect.h-1 ) );			
+					Textures.GroupBox.Draw( GetRender(), rect, Gwen::Colors::White, false, true, false, false, false, false, false, false, false );
 				}
 
 				virtual void DrawTextBox( Gwen::Controls::Base* control )
@@ -615,6 +634,11 @@ namespace Gwen
 				virtual void DrawTabTitleBar( Gwen::Controls::Base* control )
 				{
 					Textures.Tab.HeaderBar.Draw( GetRender(), control->GetRenderBounds() );
+				}
+
+				virtual void DrawGenericPanel( Controls::Base* control )
+				{
+					Textures.Panel.Normal.Draw( GetRender(), control->GetRenderBounds() );
 				}
 
 				virtual void DrawWindow( Gwen::Controls::Base* control, int topHeight, bool inFocus )
@@ -678,13 +702,17 @@ namespace Gwen
 					{
 						Textures.ProgressBar.Back.Draw( GetRender(), rect );
 						rect.w *= progress;
-						Textures.ProgressBar.Front.Draw( GetRender(), rect );
+
+						if ( rect.w > 0 )
+							Textures.ProgressBar.Front.Draw( GetRender(), rect );
 					}
 					else
 					{
 						Textures.ProgressBar.Back.Draw( GetRender(), rect );
-						rect.y += rect.h * (1-progress);
-						rect.h *= progress;
+
+						int inv_progress = rect.h * (1-progress);
+						rect.y += inv_progress;
+						rect.h -= inv_progress;
 						Textures.ProgressBar.Front.Draw( GetRender(), rect );
 					}
 				}
@@ -921,17 +949,47 @@ namespace Gwen
 
 				virtual void DrawWindowCloseButton( Gwen::Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled )
 				{
-					if ( bDisabled )
-						return Textures.Window.Close_Disabled.Draw( GetRender(), control->GetRenderBounds() );
+					Gwen::Rect r = Gwen::Rect( control->GetRenderBounds().x, control->GetRenderBounds().y, 31, 31 );
 
-					if ( bDepressed )
-						return Textures.Window.Close_Down.Draw( GetRender(), control->GetRenderBounds() );
+					if ( bDisabled )	return Textures.Window.Close.Draw( GetRender(), r, Gwen::Color( 255, 255, 255, 50 ) );
+					if ( bDepressed )	return Textures.Window.Close_Down.Draw( GetRender(), r );
+					if ( bHovered )		return Textures.Window.Close_Hover.Draw( GetRender(), r );
 
-					if ( bHovered )
-						return Textures.Window.Close_Hover.Draw( GetRender(), control->GetRenderBounds() );
-
-					Textures.Window.Close.Draw( GetRender(), control->GetRenderBounds() );
+					Textures.Window.Close.Draw( GetRender(), r );
 				}
+
+				virtual void DrawWindowMaximizeButton( Gwen::Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled, bool bMaximized )
+				{
+					Gwen::Rect r = Gwen::Rect( control->GetRenderBounds().x, control->GetRenderBounds().y, 31, 31 );
+
+					if ( !bMaximized )
+					{
+						if ( bDisabled )	return Textures.Window.Maxi.Draw( GetRender(), r, Gwen::Color( 255, 255, 255, 50 ) );
+						if ( bDepressed )	return Textures.Window.Maxi_Down.Draw( GetRender(), r );
+						if ( bHovered )		return Textures.Window.Maxi_Hover.Draw( GetRender(), r );
+
+						return Textures.Window.Maxi.Draw( GetRender(), r );
+					}
+
+					if ( bDisabled )	return Textures.Window.Restore.Draw( GetRender(), r, Gwen::Color( 255, 255, 255, 50 ) );
+					if ( bDepressed )	return Textures.Window.Restore_Down.Draw( GetRender(), r );
+					if ( bHovered )		return Textures.Window.Restore_Hover.Draw( GetRender(), r );
+
+					return Textures.Window.Restore.Draw( GetRender(), r );
+
+				}
+
+				virtual void DrawWindowMinimizeButton( Gwen::Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled )
+				{
+					Gwen::Rect r = Gwen::Rect( control->GetRenderBounds().x, control->GetRenderBounds().y, 31, 31 );
+
+					if ( bDisabled )	return Textures.Window.Mini.Draw( GetRender(), r, Gwen::Color( 255, 255, 255, 100 ) );
+					if ( bDepressed )	return Textures.Window.Mini_Down.Draw( GetRender(), r );
+					if ( bHovered )		return Textures.Window.Mini_Hover.Draw( GetRender(), r);
+
+					Textures.Window.Mini.Draw( GetRender(), r );
+				}
+				
 
 				virtual void DrawSlideButton( Gwen::Controls::Base* control, bool bDepressed, bool bHorizontal )
 				{

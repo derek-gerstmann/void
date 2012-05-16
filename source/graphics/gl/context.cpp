@@ -183,6 +183,13 @@ ConvertGLEnumToString(
 
 }
 
+static GLuint
+ConvertObjectIdToGL(
+    vd::u32 value)
+{
+    return (GLuint)(value);
+}
+
 static GLenum 
 ConvertBufferTargetToGL(
 	Buffer::TargetType::Value value)
@@ -262,12 +269,12 @@ ConvertBufferAttributeToGL(
 
 static GLenum
 ConvertInternalAlphaFormatToGL(
-    Graphics::ChannelFormat::Order::Value format,
-    Graphics::ScalarTypeId::Value value)
+    Graphics::ChannelLayout::Value channel_layout,
+    Graphics::ScalarTypeId::Value channel_datatype)
 {
-    vdGlobalAssert(format == Graphics::ChannelFormat::Order::Alpha);
+    vdGlobalAssert(channel_layout == Graphics::ChannelLayout::Alpha);
 
-    switch(value)
+    switch(channel_datatype)
     {
         case Graphics::ScalarTypeId::I8:     return GL_ALPHA8I_EXT;
         case Graphics::ScalarTypeId::U8:     return GL_ALPHA8UI_EXT;
@@ -280,7 +287,7 @@ ConvertInternalAlphaFormatToGL(
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ScalarTypeId::ToString(value));
+                Graphics::ScalarTypeId::ToString(channel_datatype));
 
             return GL_INVALID_ENUM; 
         }
@@ -290,12 +297,12 @@ ConvertInternalAlphaFormatToGL(
 
 static GLenum
 ConvertInternalLuminanceFormatToGL(
-    Graphics::ChannelFormat::Order::Value format,
-    Graphics::ScalarTypeId::Value value)
+    Graphics::ChannelLayout::Value channel_layout,
+    Graphics::ScalarTypeId::Value channel_datatype)
 {
-    vdGlobalAssert(format == Graphics::ChannelFormat::Order::Luminance);
+    vdGlobalAssert(channel_layout == Graphics::ChannelLayout::Luminance);
     
-    switch(value)
+    switch(channel_datatype)
     {
         case Graphics::ScalarTypeId::I8:     return GL_LUMINANCE8I_EXT; 
         case Graphics::ScalarTypeId::U8:     return GL_LUMINANCE8UI_EXT; 
@@ -308,7 +315,7 @@ ConvertInternalLuminanceFormatToGL(
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ScalarTypeId::ToString(value));
+                Graphics::ScalarTypeId::ToString(channel_datatype));
 
             return GL_INVALID_ENUM; 
         }
@@ -318,12 +325,12 @@ ConvertInternalLuminanceFormatToGL(
 
 static GLenum
 ConvertInternalLuminanceAlphaFormatToGL(
-    Graphics::ChannelFormat::Order::Value format,
-    Graphics::ScalarTypeId::Value value)
+    Graphics::ChannelLayout::Value channel_layout,
+    Graphics::ScalarTypeId::Value channel_datatype)
 {
-    vdGlobalAssert(format == Graphics::ChannelFormat::Order::LuminanceAlpha);
+    vdGlobalAssert(channel_layout == Graphics::ChannelLayout::LuminanceAlpha);
     
-    switch(value)
+    switch(channel_datatype)
     {
         case Graphics::ScalarTypeId::I8:     return GL_LUMINANCE_ALPHA8I_EXT;
         case Graphics::ScalarTypeId::U8:     return GL_LUMINANCE_ALPHA8UI_EXT;
@@ -336,7 +343,7 @@ ConvertInternalLuminanceAlphaFormatToGL(
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ScalarTypeId::ToString(value));
+                Graphics::ScalarTypeId::ToString(channel_datatype));
 
             return GL_INVALID_ENUM; 
         }
@@ -346,12 +353,12 @@ ConvertInternalLuminanceAlphaFormatToGL(
 
 static GLenum
 ConvertInternalIntensityFormatToGL(
-    Graphics::ChannelFormat::Order::Value format,
-    Graphics::ScalarTypeId::Value value)
+    Graphics::ChannelLayout::Value channel_layout,
+    Graphics::ScalarTypeId::Value channel_datatype)
 {
-    vdGlobalAssert(format == Graphics::ChannelFormat::Order::Intensity);
+    vdGlobalAssert(channel_layout == Graphics::ChannelLayout::Intensity);
     
-    switch(value)
+    switch(channel_datatype)
     {
         case Graphics::ScalarTypeId::I8:     return GL_INTENSITY8I_EXT;  
         case Graphics::ScalarTypeId::U8:     return GL_INTENSITY8UI_EXT;  
@@ -364,7 +371,7 @@ ConvertInternalIntensityFormatToGL(
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ScalarTypeId::ToString(value));
+                Graphics::ScalarTypeId::ToString(channel_datatype));
 
             return GL_INVALID_ENUM; 
         }
@@ -374,12 +381,12 @@ ConvertInternalIntensityFormatToGL(
 
 static GLenum
 ConvertInternalRFormatToGL(
-    Graphics::ChannelFormat::Order::Value format,
-    Graphics::ScalarTypeId::Value value)
+    Graphics::ChannelLayout::Value channel_layout,
+    Graphics::ScalarTypeId::Value channel_datatype)
 {
-    vdGlobalAssert(format == Graphics::ChannelFormat::Order::R);
+    vdGlobalAssert(channel_layout == Graphics::ChannelLayout::R);
     
-    switch(value)
+    switch(channel_datatype)
     {
         case Graphics::ScalarTypeId::I8:     return GL_R8I; 
         case Graphics::ScalarTypeId::U8:     return GL_R8UI; 
@@ -392,7 +399,7 @@ ConvertInternalRFormatToGL(
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ScalarTypeId::ToString(value));
+                Graphics::ScalarTypeId::ToString(channel_datatype));
 
             return GL_INVALID_ENUM; 
         }
@@ -402,12 +409,12 @@ ConvertInternalRFormatToGL(
 
 static GLenum
 ConvertInternalRGFormatToGL(
-    Graphics::ChannelFormat::Order::Value format,
-    Graphics::ScalarTypeId::Value value)
+    Graphics::ChannelLayout::Value channel_layout,
+    Graphics::ScalarTypeId::Value channel_datatype)
 {
-    vdGlobalAssert(format == Graphics::ChannelFormat::Order::RG);
+    vdGlobalAssert(channel_layout == Graphics::ChannelLayout::RG);
     
-    switch(value)
+    switch(channel_datatype)
     {
         case Graphics::ScalarTypeId::I8:     return GL_RG8I; 
         case Graphics::ScalarTypeId::U8:     return GL_RG8UI; 
@@ -420,7 +427,7 @@ ConvertInternalRGFormatToGL(
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ScalarTypeId::ToString(value));
+                Graphics::ScalarTypeId::ToString(channel_datatype));
 
             return GL_INVALID_ENUM; 
         }
@@ -430,12 +437,12 @@ ConvertInternalRGFormatToGL(
 
 static GLenum
 ConvertInternalRGBFormatToGL(
-    Graphics::ChannelFormat::Order::Value format,
-    Graphics::ScalarTypeId::Value value)
+    Graphics::ChannelLayout::Value channel_layout,
+    Graphics::ScalarTypeId::Value channel_datatype)
 {
-    vdGlobalAssert(format == Graphics::ChannelFormat::Order::RGB);
+    vdGlobalAssert(channel_layout == Graphics::ChannelLayout::RGB);
     
-    switch(value)
+    switch(channel_datatype)
     {
         case Graphics::ScalarTypeId::I8:     return GL_RGB8I; 
         case Graphics::ScalarTypeId::U8:     return GL_RGB8UI;
@@ -448,7 +455,7 @@ ConvertInternalRGBFormatToGL(
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ScalarTypeId::ToString(value));
+                Graphics::ScalarTypeId::ToString(channel_datatype));
 
             return GL_INVALID_ENUM; 
         }
@@ -458,12 +465,12 @@ ConvertInternalRGBFormatToGL(
 
 static GLenum
 ConvertInternalRGBAFormatToGL(
-    Graphics::ChannelFormat::Order::Value format,
-    Graphics::ScalarTypeId::Value value)
+    Graphics::ChannelLayout::Value channel_layout,
+    Graphics::ScalarTypeId::Value channel_datatype)
 {
-    vdGlobalAssert(format == Graphics::ChannelFormat::Order::RGBA);
+    vdGlobalAssert(channel_layout == Graphics::ChannelLayout::RGBA);
     
-    switch(value)
+    switch(channel_datatype)
     {
         case Graphics::ScalarTypeId::I8:     return GL_RGBA8I; 
         case Graphics::ScalarTypeId::U8:     return GL_RGBA8UI;
@@ -476,7 +483,7 @@ ConvertInternalRGBAFormatToGL(
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ScalarTypeId::ToString(value));
+                Graphics::ScalarTypeId::ToString(channel_datatype));
 
             return GL_INVALID_ENUM; 
         }
@@ -487,12 +494,12 @@ ConvertInternalRGBAFormatToGL(
 
 static GLenum
 ConvertInternalDepthFormatToGL(
-    Graphics::ChannelFormat::Order::Value format,
-    Graphics::ScalarTypeId::Value value)
+    Graphics::ChannelLayout::Value channel_layout,
+    Graphics::ScalarTypeId::Value channel_datatype)
 {
-    vdGlobalAssert(format == Graphics::ChannelFormat::Order::Depth);
+    vdGlobalAssert(channel_layout == Graphics::ChannelLayout::Depth);
     
-    switch(value)
+    switch(channel_datatype)
     {
         case Graphics::ScalarTypeId::I16:   return GL_DEPTH_COMPONENT16;
         case Graphics::ScalarTypeId::U16:   return GL_DEPTH_COMPONENT16;
@@ -502,7 +509,7 @@ ConvertInternalDepthFormatToGL(
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ScalarTypeId::ToString(value));
+                Graphics::ScalarTypeId::ToString(channel_datatype));
 
             return GL_INVALID_ENUM; 
         }
@@ -511,25 +518,25 @@ ConvertInternalDepthFormatToGL(
 }
 
 static GLenum
-ConvertInternalChannelFormatToGL(
-    Graphics::ChannelFormat::Order::Value format,
-    Graphics::ScalarTypeId::Value datatype)
+ConvertInternalChannelLayoutToGL(
+    Graphics::ChannelLayout::Value channel_layout,
+    Graphics::ScalarTypeId::Value channel_datatype)
 {
-    switch(format)
+    switch(channel_layout)
     {
-        case Graphics::ChannelFormat::Order::Alpha:                { return ConvertInternalAlphaFormatToGL(format, datatype); }
-        case Graphics::ChannelFormat::Order::Intensity:            { return ConvertInternalIntensityFormatToGL(format, datatype); }
-        case Graphics::ChannelFormat::Order::Luminance:            { return ConvertInternalLuminanceFormatToGL(format, datatype); }
-        case Graphics::ChannelFormat::Order::LuminanceAlpha:       { return ConvertInternalLuminanceAlphaFormatToGL(format, datatype); }
-        case Graphics::ChannelFormat::Order::Depth:                { return ConvertInternalDepthFormatToGL(format, datatype); }
-        case Graphics::ChannelFormat::Order::R:                    { return ConvertInternalRFormatToGL(format, datatype); }
-        case Graphics::ChannelFormat::Order::RG:                   { return ConvertInternalRGFormatToGL(format, datatype); }
-        case Graphics::ChannelFormat::Order::RGB:                  { return ConvertInternalRGBFormatToGL(format, datatype); }
-        case Graphics::ChannelFormat::Order::RGBA:                 { return ConvertInternalRGBAFormatToGL(format, datatype); }
+        case Graphics::ChannelLayout::Alpha:                { return ConvertInternalAlphaFormatToGL(channel_layout, channel_datatype); }
+        case Graphics::ChannelLayout::Intensity:            { return ConvertInternalIntensityFormatToGL(channel_layout, channel_datatype); }
+        case Graphics::ChannelLayout::Luminance:            { return ConvertInternalLuminanceFormatToGL(channel_layout, channel_datatype); }
+        case Graphics::ChannelLayout::LuminanceAlpha:       { return ConvertInternalLuminanceAlphaFormatToGL(channel_layout, channel_datatype); }
+        case Graphics::ChannelLayout::Depth:                { return ConvertInternalDepthFormatToGL(channel_layout, channel_datatype); }
+        case Graphics::ChannelLayout::R:                    { return ConvertInternalRFormatToGL(channel_layout, channel_datatype); }
+        case Graphics::ChannelLayout::RG:                   { return ConvertInternalRGFormatToGL(channel_layout, channel_datatype); }
+        case Graphics::ChannelLayout::RGB:                  { return ConvertInternalRGBFormatToGL(channel_layout, channel_datatype); }
+        case Graphics::ChannelLayout::RGBA:                 { return ConvertInternalRGBAFormatToGL(channel_layout, channel_datatype); }
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ChannelFormat::Order::ToString(format));
+                Graphics::ChannelLayout::ToString(channel_layout));
 
             return GL_INVALID_ENUM; 
         }
@@ -538,24 +545,49 @@ ConvertInternalChannelFormatToGL(
 }
 
 static GLenum
-ConvertBaseChannelFormatToGL(
-    Graphics::ChannelFormat::Order::Value value)
+ConvertDepthFormatToGL(
+    Graphics::DepthFormat::Value channel_layout,
+    Graphics::ScalarTypeId::Value channel_datatype)
+{
+    vdGlobalAssert(Graphics::DepthFormat::IsValid(channel_layout) == true);
+    
+    switch(channel_datatype)
+    {
+        case Graphics::ScalarTypeId::I16:   return GL_DEPTH_COMPONENT16;
+        case Graphics::ScalarTypeId::U16:   return GL_DEPTH_COMPONENT16;
+        case Graphics::ScalarTypeId::I32:   return GL_DEPTH_COMPONENT32;
+        case Graphics::ScalarTypeId::U32:   return GL_DEPTH_COMPONENT32;
+        case Graphics::ScalarTypeId::F32:   return GL_DEPTH_COMPONENT32F;
+        default:
+        {
+            vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
+                Graphics::ScalarTypeId::ToString(channel_datatype));
+
+            return GL_INVALID_ENUM; 
+        }
+    };
+    return GL_INVALID_ENUM;
+}
+
+static GLenum
+ConvertBaseChannelLayoutToGL(
+    Graphics::ChannelLayout::Value value)
 {
     switch(value)
     {
-        case Graphics::ChannelFormat::Order::R:                    { return GL_R; }
-        case Graphics::ChannelFormat::Order::RG:                   { return GL_RG; }
-        case Graphics::ChannelFormat::Order::RGB:                  { return GL_RGB; }
-        case Graphics::ChannelFormat::Order::RGBA:                 { return GL_RGBA; }
-        case Graphics::ChannelFormat::Order::Alpha:                { return GL_ALPHA; }
-        case Graphics::ChannelFormat::Order::Depth:                { return GL_DEPTH_COMPONENT; }
-        case Graphics::ChannelFormat::Order::Intensity:            { return GL_INTENSITY; }
-        case Graphics::ChannelFormat::Order::Luminance:            { return GL_LUMINANCE; }
-        case Graphics::ChannelFormat::Order::LuminanceAlpha:       { return GL_LUMINANCE_ALPHA; }
+        case Graphics::ChannelLayout::R:                    { return GL_R; }
+        case Graphics::ChannelLayout::RG:                   { return GL_RG; }
+        case Graphics::ChannelLayout::RGB:                  { return GL_RGB; }
+        case Graphics::ChannelLayout::RGBA:                 { return GL_RGBA; }
+        case Graphics::ChannelLayout::Alpha:                { return GL_ALPHA; }
+        case Graphics::ChannelLayout::Depth:                { return GL_DEPTH_COMPONENT; }
+        case Graphics::ChannelLayout::Intensity:            { return GL_INTENSITY; }
+        case Graphics::ChannelLayout::Luminance:            { return GL_LUMINANCE; }
+        case Graphics::ChannelLayout::LuminanceAlpha:       { return GL_LUMINANCE_ALPHA; }
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ChannelFormat::Order::ToString(value));
+                Graphics::ChannelLayout::ToString(value));
 
             return GL_INVALID_ENUM; 
         }
@@ -565,9 +597,9 @@ ConvertBaseChannelFormatToGL(
 
 static GLenum
 ConvertScalarTypeIdToGL(
-    Graphics::ScalarTypeId::Value value)
+    Graphics::ScalarTypeId::Value datatype)
 {
-    switch(value)
+    switch(datatype)
     {
         case Graphics::ScalarTypeId::U8:                    { return GL_UNSIGNED_BYTE; }
         case Graphics::ScalarTypeId::U16:                   { return GL_UNSIGNED_SHORT; }
@@ -582,7 +614,7 @@ ConvertScalarTypeIdToGL(
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ScalarTypeId::ToString(value));
+                Graphics::ScalarTypeId::ToString(datatype));
 
             return GL_INVALID_ENUM; 
         }
@@ -618,9 +650,9 @@ ConvertBufferTypeIdToGL(
 }
 
 static GLenum
-ConvertBufferAccessUsageModeToGL(
+ConvertBufferAccessUpdateModeToGL(
 	Buffer::AccessMode::Value access,
-	Buffer::UsageMode::Value usage)
+	Buffer::UpdateMode::Value update)
 {
 /*
 	STREAM
@@ -641,9 +673,9 @@ ConvertBufferAccessUsageModeToGL(
 	COPY
 	The data store contents are modified by reading data from the GL, and used as the source for GL drawing and image specification commands.
 */
-	switch(usage)
+	switch(update)
 	{
-		case Buffer::UsageMode::Static:
+		case Buffer::UpdateMode::Static:
 		{
 			switch(access)
 			{
@@ -653,14 +685,14 @@ ConvertBufferAccessUsageModeToGL(
 				case Buffer::AccessMode::Invalid:
 				default:
 				{
-					vdLogGlobalError("Invalid buffer usage '%s' and access '%s' modes specified for conversion!", 
-						Buffer::UsageMode::ToString(usage), Buffer::AccessMode::ToString(access));
+					vdLogGlobalError("Invalid buffer update '%s' and access '%s' modes specified for conversion!", 
+						Buffer::UpdateMode::ToString(update), Buffer::AccessMode::ToString(access));
 		
 					return GL_INVALID_ENUM;	
 				}
 			};
 		}
-		case Buffer::UsageMode::Stream:
+		case Buffer::UpdateMode::Stream:
 		{
 			switch(access)
 			{
@@ -670,14 +702,14 @@ ConvertBufferAccessUsageModeToGL(
 				case Buffer::AccessMode::Invalid:
 				default:
 				{
-					vdLogGlobalError("Invalid buffer usage '%s' and access '%s' modes specified for conversion!", 
-						Buffer::UsageMode::ToString(usage), Buffer::AccessMode::ToString(access));
+					vdLogGlobalError("Invalid buffer update '%s' and access '%s' modes specified for conversion!", 
+						Buffer::UpdateMode::ToString(update), Buffer::AccessMode::ToString(access));
 		
 					return GL_INVALID_ENUM;	
 				}
 			};
 		}
-		case Buffer::UsageMode::Dynamic:
+		case Buffer::UpdateMode::Dynamic:
 		{
 			switch(access)
 			{
@@ -687,18 +719,18 @@ ConvertBufferAccessUsageModeToGL(
 				case Buffer::AccessMode::Invalid:
 				default:
 				{
-					vdLogGlobalError("Invalid buffer usage '%s' and access '%s' modes specified for conversion!", 
-						Buffer::UsageMode::ToString(usage), Buffer::AccessMode::ToString(access));
+					vdLogGlobalError("Invalid buffer update '%s' and access '%s' modes specified for conversion!", 
+						Buffer::UpdateMode::ToString(update), Buffer::AccessMode::ToString(access));
 		
 					return GL_INVALID_ENUM;	
 				}
 			};
 		}
-		case Buffer::UsageMode::Invalid:
+		case Buffer::UpdateMode::Invalid:
         default:
         {
-            vdLogGlobalError("Invalid buffer usage '%s' and access '%s' modes specified for conversion!", 
-                Buffer::UsageMode::ToString(usage), Buffer::AccessMode::ToString(access));
+            vdLogGlobalError("Invalid buffer update '%s' and access '%s' modes specified for conversion!", 
+                Buffer::UpdateMode::ToString(update), Buffer::AccessMode::ToString(access));
 
             return GL_INVALID_ENUM; 
         }
@@ -772,7 +804,14 @@ Context::Context(
 
 Context::~Context()
 {
-//    Destroy();
+    Destroy();
+}
+
+vd::status
+Context::Setup()
+{
+    glHint(GL_CLIP_VOLUME_CLIPPING_HINT_EXT, GL_FASTEST);
+    return Status::Code::Success;
 }
 
 vd::status
@@ -781,28 +820,28 @@ Context::Destroy()
     for(size_t i = 0; i < m_Buffers.size(); i++)
     {
         Buffer* b = m_Buffers[i];
-        if(b != NULL) Release(b);
+        if(b != NULL) Destroy(b);
         m_Buffers[i] = NULL;
     }
 
     for(size_t i = 0; i < m_Geometry.size(); i++)
     {
         Geometry* geo = m_Geometry[i];
-        if(geo != NULL) Release(geo);
+        if(geo != NULL) Destroy(geo);
         m_Geometry[i] = NULL;
     }
 
     for(size_t i = 0; i < m_Framebuffers.size(); i++)
     {
         Framebuffer* fb = m_Framebuffers[i];
-        if(fb != NULL) Release(fb);
+        if(fb != NULL) Destroy(fb);
         m_Framebuffers[i] = NULL;
     }
 
     for(size_t i = 0; i < m_Shaders.size(); i++)
     {
         Shader* s = m_Shaders[i];
-        if(s != NULL) Release(s);
+        if(s != NULL) Destroy(s);
         m_Shaders[i] = NULL;
     }
 
@@ -814,11 +853,22 @@ Context::Destroy()
     return Status::Code::Success;
 }
 
+// ================================================================================================ //
+
 vd::status 
-Context::Clear(vd::f32 r, vd::f32 g, vd::f32 b, vd::f32 a)
+Context::Clear(
+    Graphics::Viewport viewport, 
+    vd::f32 r, vd::f32 g, vd::f32 b, vd::f32 a,
+    bool clear_color, bool clear_depth)
 {
+    glViewport(viewport.X, viewport.Y, viewport.Width, viewport.Height);
     glClearColor(r, g, b, a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    GLuint clear_flags = GL_COLOR_BUFFER_BIT;
+    if(clear_depth) clear_flags |= GL_DEPTH_BUFFER_BIT;
+
+    glClear(clear_flags);
+
     return Status::Code::Success;
 }
 
@@ -933,12 +983,14 @@ Context::RenderToScreen(
     glMatrixMode( GL_MODELVIEW );
 }
 
+// ==================================================================================================== //
+
 Buffer*
 Context::CreateBuffer(
 	Buffer::TargetType::Value target, 
 	Buffer::AttributeType::Value attrib,
 	Buffer::AccessMode::Value access,
-	Buffer::UsageMode::Value usage,
+	Buffer::UpdateMode::Value update,
 	Buffer::TypeId::Value datatype,	
 	vd::u8 components, vd::u32 count, 
     const void* ptr)
@@ -954,12 +1006,12 @@ Context::CreateBuffer(
 	}
 	
     GLenum gl_target = ConvertBufferTargetToGL(target);
-    GLenum gl_usage = ConvertBufferAccessUsageModeToGL(access, usage);
+    GLenum gl_update = ConvertBufferAccessUpdateModeToGL(access, update);
     GLenum gl_datatype = ConvertBufferTypeIdToGL(datatype);
     size_t gl_bytes = GetSizeOfTypeIdFromGL(gl_datatype) * components * count;
 
     glBindBuffer(gl_target, gl_id);
-    glBufferData(gl_target, gl_bytes, ptr, gl_usage);
+    glBufferData(gl_target, gl_bytes, ptr, gl_update);
     glBindBuffer(gl_target, 0);
 
     vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error after creating buffer!");
@@ -970,8 +1022,8 @@ Context::CreateBuffer(
     data.Id = gl_id;
     data.Target = target;
     data.Attribute = attrib;
-    data.Access = access;
-    data.Usage = usage;
+    data.AccessMode = access;
+    data.UpdateMode = update;
     data.DataType = datatype;
     data.Components = components;
     data.Count = count;
@@ -988,26 +1040,86 @@ Context::CreateBuffer(
 }
 
 vd::status
-Context::Release(
-	Buffer* buffer)
+Context::Acquire(
+    Buffer* buffer)
 {
     vdLogOpenGLErrors("Start");
-
     vdAssert(buffer != NULL);
+
+    vdLogOpenGLErrors("End");
+    return Status::Code::Success;
+}
+
+vd::status
+Context::Release(
+    Buffer* buffer)
+{
+    vdAssert(buffer != NULL);
+    vdLogOpenGLErrors("Start");
+
     Unbind(buffer);
+
+    const Buffer::Data* data = buffer->GetPtr();
+    vdAssert(data != NULL);
+
+    if(data->Id)
+    {
+        GLuint gl_id = ConvertObjectIdToGL(data->Id);
+        glDeleteBuffers(1, &gl_id);
+    }
+
+    if(data->Index < m_Buffers.size())
+        m_Buffers[data->Index] = NULL;
+
+    vdLogOpenGLErrors("End");
+    return Status::Code::Success;
+}
+
+vd::status
+Context::Retain(
+    Buffer* buffer)
+{
+    vdLogOpenGLErrors("Start");
+    vdAssert(buffer != NULL);
+
+    const Buffer::Data* data = buffer->GetPtr();
+    vdAssert(data != NULL);
+
+    bool managed = false;
+
+    for(vd::i32 i = 0; i < (vd::i32)m_Buffers.size(); i++)
+    {
+        if(m_Buffers[i] == NULL)
+            continue;
+
+        if(m_Buffers[i]->GetPtr()->Id == data->Id)
+            managed = true;
+    }
+
+    if(managed == false)
+    {
+        Buffer::Data clone;
+        Core::Memory::CopyBytes(&clone, &data, sizeof(clone));
+        clone.Index = m_Buffers.size();
+        m_Buffers.push_back(buffer);
+    }
+
+    vdLogOpenGLErrors("End");
+    return Status::Code::Success;
+}
+
+
+vd::status
+Context::Destroy(
+	Buffer* buffer)
+{
+    vdAssert(buffer != NULL);
+    vdLogOpenGLErrors("Start");
     
-    const Buffer::Data& data = buffer->GetData();
-    vd::u32 index = data.Index;
-    GLuint gl_id = (GLuint)data.Id;
-
-    if(gl_id) glDeleteBuffers(1, &gl_id);
-
-    buffer->Destroy();
-    m_Buffers[index] = NULL;
+    Release(buffer);
     VD_DELETE(buffer);
 
     vdLogOpenGLErrors("End");
-
     return Status::Code::Success;
 }
 
@@ -1020,12 +1132,13 @@ Context::Map(
 
     vdAssert(buffer != NULL);
     const Buffer::Data& data = buffer->GetData();
-    GLuint gl_id = (GLuint)data.Id;
+    GLuint gl_id = ConvertObjectIdToGL(data.Id);
     if(gl_id < 1) return NULL;
 
 	GLenum gl_access = ConvertBufferAccessModeToGL(access);
     GLenum gl_target = ConvertBufferTargetToGL(data.Target);
 
+    buffer->Bind();
     buffer->SetState(Buffer::StateId::Mapped);
 
     glBindBuffer(gl_target, gl_id);
@@ -1050,6 +1163,8 @@ Context::Unmap(
 
     glUnmapBuffer(gl_target);
     glBindBuffer(gl_target, 0);
+
+    buffer->Unbind();
     buffer->SetState(Buffer::StateId::Allocated);
 
     vdLogOpenGLErrors("End");
@@ -1064,18 +1179,24 @@ Context::Bind(
     vdLogOpenGLErrors("Start");
 
     vdAssert(buffer != NULL);
-    const Buffer::Data& data = buffer->GetData();
-    GLuint gl_id = (GLuint)data.Id;
-    if(gl_id < 1) return Status::Code::Reject;
+    if(buffer->IsActive() == true)
+        return Status::Code::Reject;
 
+    const Buffer::Data& data = buffer->GetData();
+
+    GLuint gl_id = ConvertObjectIdToGL(data.Id);
     GLenum gl_target = ConvertBufferTargetToGL(data.Target);
     GLenum gl_attrib = ConvertBufferAttributeToGL(data.Attribute);
 	GLenum gl_datatype = ConvertBufferTypeIdToGL(data.DataType);
 	GLuint gl_components = (GLuint)data.Components;
 	GLuint gl_stride = 0;
 	const GLvoid* gl_addr = 0;
-                               	
+
+    if(gl_id < 1) return Status::Code::Reject;
+    
+    buffer->Bind();                           	
     buffer->SetState(Buffer::StateId::Bound);
+
     glBindBuffer(gl_target, gl_id);
 	switch(gl_attrib)
 	{
@@ -1120,6 +1241,7 @@ Context::Submit(
     Geometry::PrimitiveType::Value primitives, 
     vd::u32 offset, vd::u32 count)
 {
+    vdAssert(buffer != NULL);
     vdLogOpenGLErrors("Start");
 
     vdAssert(buffer != NULL);
@@ -1136,14 +1258,17 @@ vd::status
 Context::Unbind(
 	Buffer* buffer)
 {
-    vdLogOpenGLErrors("Start");
-
     vdAssert(buffer != NULL);
+    vdLogOpenGLErrors("Start");
+    
+    if(buffer->IsActive() == false)
+        return Status::Code::Reject;
+
     if(buffer->GetState() != Buffer::StateId::Bound)
         return Status::Code::Reject;
 
     const Buffer::Data& data = buffer->GetData();
-    GLuint gl_id = (GLuint)data.Id;
+    GLuint gl_id = ConvertObjectIdToGL(data.Id);
     GLenum gl_target = ConvertBufferTargetToGL(data.Target);
     GLenum gl_attrib = ConvertBufferAttributeToGL(data.Attribute);
 
@@ -1177,7 +1302,22 @@ Context::Unbind(
 	};
     
     glBindBuffer(gl_target, 0);
+
+    buffer->Unbind();
     buffer->SetState(Buffer::StateId::Allocated);
+
+    vdLogOpenGLErrors("End");
+    return Status::Code::Success;
+}
+
+// ======================================================================================================= //
+
+vd::status
+Context::Acquire(
+    Geometry* geo)
+{
+    vdLogOpenGLErrors("Start");
+    vdAssert(geo != NULL);
 
     vdLogOpenGLErrors("End");
     return Status::Code::Success;
@@ -1185,9 +1325,12 @@ Context::Unbind(
 
 vd::status
 Context::Release(
-	Geometry* geo)
+    Geometry* geo)
 {
     vdLogOpenGLErrors("Start");
+    vdAssert(geo != NULL);
+
+    Unbind(geo);
 
     const Geometry::Data& data = geo->GetData();
     for(vd::u32 i = Geometry::AttributeSlot::StartIndex; i < Geometry::AttributeSlot::Count; i++)
@@ -1203,13 +1346,58 @@ Context::Release(
         Release(buffer);
     }
 
-    m_Geometry[data.Index] = NULL;
+    vdLogOpenGLErrors("End");
+    return Status::Code::Success;
+}
+
+vd::status
+Context::Retain(
+    Geometry* geo)
+{
+    vdLogOpenGLErrors("Start");
+    vdAssert(geo != NULL);
+
+    const Geometry::Data* data = geo->GetPtr();
+    vdAssert(data != NULL);
+
+    bool managed = false;
+
+    for(vd::i32 i = 0; i < (vd::i32)m_Geometry.size(); i++)
+    {
+        if(m_Geometry[i] == NULL)
+            continue;
+
+        if(m_Geometry[i]->GetPtr()->Id == data->Id)
+            managed = true;
+    }
+
+    if(managed == false)
+    {
+        Geometry::Data clone;
+        Core::Memory::CopyBytes(&clone, &data, sizeof(clone));
+        clone.Index = m_Geometry.size();
+        m_Geometry.push_back(geo);
+    }
+
+    vdLogOpenGLErrors("End");
+    return Status::Code::Success;
+}
+
+vd::status
+Context::Destroy(
+	Geometry* geo)
+{
+    vdAssert(geo != NULL);
+    vdLogOpenGLErrors("Start");
+
+    Release(geo);
     VD_DELETE(geo);
 
     vdLogOpenGLErrors("End");
-
     return Status::Code::Success;	
 }
+
+// ======================================================================================================= //
 
 Geometry*
 Context::CreatePointList(
@@ -1224,12 +1412,13 @@ Context::CreatePointList(
     data.PrimitiveType = GL_POINTS;
     data.PrimitiveCount = count;
     data.Index = m_Geometry.size();
+    data.Id = data.Index;
 
     Buffer* position_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::Position,
         Buffer::AccessMode::ReadOnly,
-        Buffer::UsageMode::Static,
+        Buffer::UpdateMode::Static,
         Buffer::TypeId::F32,
         components, data.PrimitiveCount, positions
     );
@@ -1264,12 +1453,13 @@ Context::CreatePoint(
     data.PrimitiveCount = 1;
     data.PrimitiveType = GL_POINTS;
     data.Index = m_Geometry.size();
+    data.Id = data.Index;
     
     Buffer* position_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::Position,
         Buffer::AccessMode::ReadOnly,
-        Buffer::UsageMode::Static,
+        Buffer::UpdateMode::Static,
         Buffer::TypeId::F32,
         4, data.PrimitiveCount, positions
     );
@@ -1278,7 +1468,7 @@ Context::CreatePoint(
         Buffer::TargetType::IndexBuffer, 
         Buffer::AttributeType::Index,
         Buffer::AccessMode::ReadOnly,
-        Buffer::UsageMode::Static,
+        Buffer::UpdateMode::Static,
         Buffer::TypeId::U32,
         1, data.IndexCount, faces
     );
@@ -1321,16 +1511,17 @@ Context::CreateQuad(
 
     Geometry::Data data;
     Core::Memory::SetBytes(&data, 0, sizeof(data));
-    data.Index = m_Geometry.size();
     data.IndexCount = 6;
     data.PrimitiveCount = 4;
     data.PrimitiveType = GL_TRIANGLES;
+    data.Index = m_Geometry.size();
+    data.Id = data.Index;
 
     Buffer* position_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::Position,
         Buffer::AccessMode::ReadOnly,
-        Buffer::UsageMode::Static,
+        Buffer::UpdateMode::Static,
         Buffer::TypeId::F32,
         2, data.PrimitiveCount, positions
     );
@@ -1339,7 +1530,7 @@ Context::CreateQuad(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::TexCoord,
         Buffer::AccessMode::ReadOnly,
-        Buffer::UsageMode::Static,
+        Buffer::UpdateMode::Static,
         Buffer::TypeId::F32,
         2, data.PrimitiveCount, texcoords
     );
@@ -1348,7 +1539,7 @@ Context::CreateQuad(
         Buffer::TargetType::IndexBuffer, 
         Buffer::AttributeType::Index,
         Buffer::AccessMode::ReadOnly,
-        Buffer::UsageMode::Static,
+        Buffer::UpdateMode::Static,
         Buffer::TypeId::U32,
         1, data.IndexCount, faces
     );
@@ -1390,10 +1581,11 @@ Context::CreateWireGrid(
     Geometry::Data data;
     Core::Memory::SetBytes(&data, 0, sizeof(data));
 
-    data.Index = m_Geometry.size();
     data.IndexCount = vertex_count;
     data.PrimitiveCount = vertex_count;
     data.PrimitiveType = GL_LINES;
+    data.Index = m_Geometry.size();
+    data.Id = data.Index;
 
 	vd::f32* positions = VD_NEW_ARRAY(vd::f32, vertex_count * 4);
 	vd::f32* p = positions;
@@ -1436,7 +1628,7 @@ Context::CreateWireGrid(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::Position,
         Buffer::AccessMode::ReadOnly,
-        Buffer::UsageMode::Static,
+        Buffer::UpdateMode::Static,
         Buffer::TypeId::F32,
         4, data.PrimitiveCount, positions
     );
@@ -1476,10 +1668,11 @@ Context::CreateGrid(
     Geometry::Data data;
     Core::Memory::SetBytes(&data, 0, sizeof(data));
 
-    data.Index = m_Geometry.size();
     data.IndexCount = index_count;
     data.PrimitiveCount = vertex_count;
     data.PrimitiveType = GL_QUAD_STRIP;
+    data.Index = m_Geometry.size();
+    data.Id = data.Index;
 
     vd::u64 pi = 0;
 	vd::f32* positions = VD_NEW_ARRAY(vd::f32, 4 * vertex_count);
@@ -1511,7 +1704,7 @@ Context::CreateGrid(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::Position,
         Buffer::AccessMode::ReadOnly,
-        Buffer::UsageMode::Static,
+        Buffer::UpdateMode::Static,
         Buffer::TypeId::F32,
         4, data.PrimitiveCount, positions
     );
@@ -1536,7 +1729,7 @@ Context::CreateGrid(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::TexCoord,
         Buffer::AccessMode::ReadOnly,
-        Buffer::UsageMode::Static,
+        Buffer::UpdateMode::Static,
         Buffer::TypeId::F32,
         2, data.PrimitiveCount, texcoords
     );
@@ -1569,7 +1762,7 @@ Context::CreateGrid(
         Buffer::TargetType::IndexBuffer, 
         Buffer::AttributeType::Index,
         Buffer::AccessMode::ReadOnly,
-        Buffer::UsageMode::Static,
+        Buffer::UpdateMode::Static,
         Buffer::TypeId::U32,
         1, data.IndexCount, faces
     );
@@ -1619,6 +1812,8 @@ Context::Bind(
         Bind(attrib, buffer, slot);
     }
 
+    geo->Bind();
+
     vdLogOpenGLErrors("End");
 
     return Status::Code::Success;
@@ -1627,6 +1822,7 @@ Context::Bind(
 vd::status 
 Context::Submit(
     Geometry* geo,
+    Shader::Pass::Value pass,
     vd::u32 start, 
     vd::u32 end, 
     vd::u32 stride)
@@ -1635,9 +1831,21 @@ Context::Submit(
 
     const Geometry::Data& data = geo->GetData();
 
+    Shader* shader = NULL;
+    if(Shader::Pass::IsValid(pass))
+    {
+        vd::u32 pass_index = Shader::Pass::ToInteger(pass);
+        vd::u32 shader_index = data.Shaders[pass_index];
+        if(shader_index < m_Shaders.size())
+            shader = m_Shaders[shader_index];
+    }
+
+    if(shader != NULL)
+        shader->Bind();
+
     vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error prior to render geometry.");
     vd::u32 attrib = Geometry::AttributeSlot::ToInteger(Geometry::AttributeSlot::Index);
-    if(data.Buffers[attrib] < VD_U32_MAX)
+    if(data.Buffers[attrib] < VD_INVALID_INDEX)
     {
         vd::u32 index = data.Buffers[attrib];
         if(m_Buffers.size() < index)
@@ -1663,6 +1871,9 @@ Context::Submit(
         glDrawArrays( data.PrimitiveType, 0, data.PrimitiveCount );
         vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error post submit draw arrays.");
     }
+
+    if(shader != NULL)
+        shader->Unbind();
 
     vdLogOpenGLErrors("End");
     return Status::Code::Success;
@@ -1696,6 +1907,8 @@ Context::Unbind(
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    geo->Unbind();
     
     vdLogOpenGLErrors("End");
     return Status::Code::Success;
@@ -1724,22 +1937,38 @@ Context::Detach(
 vd::status
 Context::Attach(
     Geometry* geo,
-    Shader* shader)
+    Shader* shader,
+    Shader::Pass::Value pass)
 {
+    bool attached = false;
     for(vd::u32 i = Geometry::AttributeSlot::StartIndex; i < Geometry::AttributeSlot::Count; i++)
     {
         Geometry::AttributeSlot::Value attrib = Graphics::Geometry::AttributeSlot::FromInteger(i);
         vd::u32 buffer = geo->GetBuffer(attrib);
-        if(buffer < VD_U32_MAX)
+        if(buffer < VD_INVALID_INDEX)
         {
             Core::Symbol name = Symbol::Register(Graphics::Geometry::AttributeSlot::ToString(attrib));
             vd::u32 slot = shader->GetAttributeSlot(name);
-            if(slot < VD_U32_MAX)
+            if(slot < VD_INVALID_INDEX)
             {
                 Attach(geo, attrib, buffer, slot);
+                geo->Attach(pass, shader->GetData().Index);
+                attached = true;
             }
+
+            if(attached == false)
+                vdLogWarning("Failed to attach Shader to Geometry -- '%s' attribute slot mismatch!", 
+                    Graphics::Geometry::AttributeSlot::ToString(attrib));
+            else
+                vdLogInfo("Attached Shader to Geometry -- '%s' attribute slot!", 
+                    Graphics::Geometry::AttributeSlot::ToString(attrib));
+
+            if(attached)
+                break;
         }
     }
+
+    vdAssertMsg(attached == true, "Failed to attach Shader to Geometry!");
     vdAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error attaching shader to geometry!");        
     return Status::Code::Success;
 }
@@ -1747,16 +1976,31 @@ Context::Attach(
 vd::status
 Context::Detach(
     Geometry* geo,
-    Shader* shader)
+    Shader* shader,
+    Shader::Pass::Value pass)
 {
+    bool located = false;
+
     for(vd::u32 i = Geometry::AttributeSlot::StartIndex; i < Geometry::AttributeSlot::Count; i++)
     {
         Graphics::Geometry::AttributeSlot::Value attrib = Graphics::Geometry::AttributeSlot::FromInteger(i);
         vd::u32 buffer = geo->GetBuffer(attrib);
-        if(buffer < VD_U32_MAX)
+        if(buffer < VD_INVALID_INDEX)
         {
             Detach(geo, attrib);
+            geo->Detach(pass);
+            located = true;
         }
+
+        if(located == false)
+            vdLogWarning("Failed to detach Shader from Geometry -- '%s' attribute slot mismatch!", 
+                Graphics::Geometry::AttributeSlot::ToString(attrib));
+        else
+            vdLogInfo("Attached Shader to Geometry -- '%s' attribute slot!", 
+                Graphics::Geometry::AttributeSlot::ToString(attrib));
+
+        if(located)
+            break;
     }
 
     vdAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error detaching shader from geometry!");        
@@ -1884,82 +2128,107 @@ Context::Unbind(
 
 // ============================================================================================== //
 
+
 Framebuffer* 
 Context::CreateFramebuffer(
-    vd::u32 width, vd::u32 height, 
-    Graphics::ChannelFormat::Order::Value format, 
-    Graphics::ScalarTypeId::Value scalar, 
-    bool depth)
+    Graphics::Viewport viewport,
+    Graphics::ChannelLayout::Value channel_layout,
+     Graphics::ScalarTypeId::Value channel_datatype,
+      Graphics::DepthFormat::Value depth_format,
+     Graphics::ScalarTypeId::Value depth_datatype)
 {
-    GLuint handle = 0;
-    GLuint renderbuffer = 0;
-    GLuint color_texture = 0;
-    GLuint depth_texture = 0;
+    GLuint gl_id = 0;
+    GLuint gl_renderbuffer = 0;
+    GLuint gl_color_texture = 0;
+    GLuint gl_depth_texture = 0;
+
+    GLuint width = viewport.Width;
+    GLuint height = viewport.Height;
 
     vdLogOpenGLErrors("Start");
 
-    glGenFramebuffers(1, &handle);
-    glBindFramebuffer(GL_FRAMEBUFFER, handle);
+    glGenFramebuffers(1, &gl_id);
+    glBindFramebuffer(GL_FRAMEBUFFER, gl_id);
 
     vdLogOpenGLErrors("Bind Framebuffer");
 
-    if(depth)
+    if(Graphics::DepthFormat::IsValid(depth_format) && 
+       depth_format != Graphics::DepthFormat::None)
     {
-        glGenTextures(1, &depth_texture);
-        glBindTexture(GL_TEXTURE_2D, depth_texture);
+        GLenum gl_depth_format = ConvertDepthFormatToGL(depth_format, depth_datatype);
+        GLenum gl_depth_datatype = ConvertScalarTypeIdToGL(depth_datatype);
+
+        glGenTextures(1, &gl_depth_texture);
+        glBindTexture(GL_TEXTURE_2D, gl_depth_texture);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, gl_depth_format, 
+                     width, height, 0, GL_DEPTH_COMPONENT, 
+                     gl_depth_datatype, 0);
+/*
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 
+                     width, height, 0, GL_DEPTH_COMPONENT, 
+                     GL_UNSIGNED_SHORT, 0);
+*/
         vdLogOpenGLErrors("Unable to create depth texture");   
     }
     
-    glGenTextures(1, &color_texture);
-    glBindTexture(GL_TEXTURE_2D, color_texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    GLenum gl_base = ConvertBaseChannelFormatToGL(format);
-    GLenum gl_type = ConvertScalarTypeIdToGL(scalar);
-    GLenum gl_internal = ConvertInternalChannelFormatToGL(format, scalar);
-
-    vdLogInfo("Creating framebuffer attachment: Internal[%s : 0x%X] Base[%s : 0x%X] Type[%s : 0x%X] for '%s' '%s' ",
-        ConvertGLEnumToString(gl_internal), gl_internal, 
-        ConvertGLEnumToString(gl_base), gl_base, 
-        ConvertGLEnumToString(gl_type), gl_type,
-        Graphics::ChannelFormat::Order::ToString(format), 
-        Graphics::ScalarTypeId::ToString(scalar));
-
-    glTexImage2D(GL_TEXTURE_2D, 0, gl_internal, width, height, 0, gl_base, gl_type, 0);
-    vdLogOpenGLErrors("Unable to create color texture");
-
-    glGenRenderbuffers(1, &renderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color_texture, 0);
-    vdLogOpenGLErrors("Unable to attach color texture to frame buffer");
-    if(depth_texture)
+    if(Graphics::ChannelLayout::IsValid(channel_layout) && 
+       channel_layout != Graphics::ChannelLayout::None)
     {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_texture, 0);
-        vdLogOpenGLErrors("Unable to attach depth texture to frame buffer");
+        glGenTextures(1, &gl_color_texture);
+        glBindTexture(GL_TEXTURE_2D, gl_color_texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        GLenum gl_base = ConvertBaseChannelLayoutToGL(channel_layout);
+        GLenum gl_type = ConvertScalarTypeIdToGL(channel_datatype);
+        GLenum gl_internal = ConvertInternalChannelLayoutToGL(channel_layout, channel_datatype);
+
+        vdLogInfo("Creating framebuffer attachment: Internal[%s : 0x%X] Base[%s : 0x%X] Type[%s : 0x%X] for '%s' '%s' ",
+            ConvertGLEnumToString(gl_internal), gl_internal, 
+            ConvertGLEnumToString(gl_base), gl_base, 
+            ConvertGLEnumToString(gl_type), gl_type,
+            Graphics::ChannelLayout::ToString(channel_layout), 
+            Graphics::ScalarTypeId::ToString(channel_datatype));
+
+        glTexImage2D(GL_TEXTURE_2D, 0, gl_internal, width, height, 0, gl_base, gl_type, 0);
+        vdLogOpenGLErrors("Unable to create color texture");
     }
-    vdAssertMsg(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER), "Unable to create framebuffer!\n");
-    glDisable(GL_TEXTURE_2D);
+
+    if(gl_color_texture > 0 || gl_depth_texture > 0)
+    {
+        glGenRenderbuffers(1, &gl_renderbuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, gl_renderbuffer);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_color_texture, 0);
+        vdLogOpenGLErrors("Unable to attach color texture to frame buffer");
+        if(gl_depth_texture)
+        {
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gl_depth_texture, 0);
+            vdLogOpenGLErrors("Unable to attach depth texture to frame buffer");
+        }
+        vdAssertMsg(GL_FRAMEBUFFER_COMPLETE == glCheckFramebufferStatus(GL_FRAMEBUFFER), "Unable to create framebuffer!\n");
+        glDisable(GL_TEXTURE_2D);
+    }
 
     Framebuffer::Data data;
     Core::Memory::SetBytes(&data, 0, sizeof(data));
 
-    data.Width = width;
-    data.Height = height;
-    data.Format = format;
-    data.DataType = scalar;
-    data.Framebuffer = handle;
-    data.Renderbuffer = renderbuffer;
-    data.ColorTexture = color_texture;
-    data.DepthTexture = depth_texture;
+    data.Viewport = viewport;
+    data.ChannelLayout = channel_layout;
+    data.ChannelDataType = channel_datatype;
+    data.DepthFormat = depth_format;
+    data.DepthDataType = depth_datatype;
+    data.Renderbuffer = gl_renderbuffer;
+    data.ColorTexture = gl_color_texture;
+    data.DepthTexture = gl_depth_texture;
     data.Index = m_Framebuffers.size();
+    data.Id = gl_id;
 
     Framebuffer* fb = VD_NEW(Framebuffer, this);
     fb->Setup(data);
@@ -1973,19 +2242,122 @@ Context::CreateFramebuffer(
     return fb;
 }
 
+
+vd::status
+Context::Acquire(
+    Framebuffer* fb)
+{
+    vdLogOpenGLErrors("Start");
+    vdAssert(fb != NULL);
+
+    vdLogOpenGLErrors("End");
+    return Status::Code::Success;
+}
+
+vd::status
+Context::Release(
+    Framebuffer* fb)
+{
+    vdLogOpenGLErrors("Start");
+    vdAssert(fb != NULL);
+
+    Unbind(fb);
+
+    const Framebuffer::Data* data = fb->GetPtr();
+    vdAssert(data != NULL);
+
+    GLuint gl_id = 0;
+    if(data->ColorTexture)
+    {
+        gl_id = ConvertObjectIdToGL(data->ColorTexture);
+        glDeleteTextures(1, &gl_id);
+    }
+
+    if(data->DepthTexture)
+    {
+        gl_id = ConvertObjectIdToGL(data->DepthTexture);
+        glDeleteTextures(1, &gl_id);
+    }
+
+    if(data->Id)
+    {
+        gl_id = ConvertObjectIdToGL(data->Id);
+        glDeleteFramebuffers(1, &gl_id);
+    }       
+
+    if(data->Index < m_Framebuffers.size())
+        m_Framebuffers[data->Index] = NULL;
+
+    vdLogOpenGLErrors("End");
+    return Status::Code::Success;
+}
+
+vd::status
+Context::Retain(
+    Framebuffer* fb)
+{
+    vdAssert(fb != NULL);
+    vdLogOpenGLErrors("Start");
+
+    const Framebuffer::Data* data = fb->GetPtr();
+    vdAssert(data != NULL);
+
+    bool managed = false;
+
+    for(vd::i32 i = 0; i < (vd::i32)m_Framebuffers.size(); i++)
+    {
+        if(m_Framebuffers[i] == NULL)
+            continue;
+
+        if(m_Framebuffers[i]->GetPtr()->Id == data->Id)
+            managed = true;
+    }
+
+    if(managed == false)
+    {
+        Framebuffer::Data clone;
+        Core::Memory::CopyBytes(&clone, &data, sizeof(clone));
+        clone.Index = m_Framebuffers.size();
+        m_Framebuffers.push_back(fb);
+    }
+
+    vdLogOpenGLErrors("End");
+    return Status::Code::Success;
+}
+
+vd::status 
+Context::Destroy(
+    Framebuffer* fb)
+{
+    vdLogOpenGLErrors("Start");
+    vdAssert(fb != NULL);
+    
+    Release(fb);
+    VD_DELETE(fb);
+
+    vdLogOpenGLErrors("End");
+    return Status::Code::Success;
+}
+
 vd::status 
 Context::Bind(
     Framebuffer* fb)
 {
+    vdAssert(fb != NULL);
     vdLogOpenGLErrors("Start");
 
-    vdAssert(fb != NULL);
-    if(fb->IsActive())
+    if(fb->IsActive() == true)
         return Status::Code::Reject;
 
-    fb->SetActive(true);
+    fb->Bind();
+
     const Framebuffer::Data& data = fb->GetData();
-    glBindFramebuffer(GL_FRAMEBUFFER, data.Framebuffer);
+
+    Viewport vp = data.Viewport;
+    GLuint gl_id = ConvertObjectIdToGL(data.Id);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, gl_id);
+    glViewport(vp.X, vp.Y, vp.Width, vp.Height);
 
     vdLogOpenGLErrors("End");
 
@@ -1996,53 +2368,16 @@ vd::status
 Context::Unbind(
     Framebuffer* fb)
 {
-    vdLogOpenGLErrors("Start");
-
     vdAssert(fb != NULL);
-    if(fb->IsActive() == false)
-        return Status::Code::Reject;
+    vdLogOpenGLErrors("Start");
 
     vdGlobalAssertMsg(GL_NO_ERROR == glGetError(), "Error prior to unbinding frame buffer!");
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    fb->SetActive(false);
-
-    vdLogOpenGLErrors("End");
-
-    return Status::Code::Success;
-}
-
-vd::status 
-Context::Release(
-    Framebuffer* fb)
-{
-    vdLogOpenGLErrors("Start");
-
-    vdAssert(fb != NULL);
-    Unbind(fb);
-
-    GLuint gl_id = 0;
-    const Framebuffer::Data& data = fb->GetData();
-    if(data.Framebuffer)
-    {
-        gl_id = (GLuint)data.Framebuffer;
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glDeleteFramebuffers(1, &gl_id);
-    }       
     
-    if(data.ColorTexture)
-    {
-        gl_id = (GLuint)data.ColorTexture;
-        glDeleteTextures(1, &gl_id);
-    }
+    if(fb->IsActive() == false)
+        return Status::Code::Reject;
 
-    if(data.DepthTexture)
-    {
-        gl_id = (GLuint)data.DepthTexture;
-        glDeleteTextures(1, &gl_id);
-    }
-
-    m_Framebuffers[data.Index] = NULL;
-    VD_DELETE(fb);
+    fb->Unbind();
 
     vdLogOpenGLErrors("End");
 
@@ -2054,13 +2389,26 @@ Context::Clear(
     Framebuffer* fb,
     vd::f32 r, vd::f32 g, vd::f32 b, vd::f32 a)
 {
+    vdAssert(fb != NULL);
     vdLogOpenGLErrors("Start");
 
-    const Framebuffer::Data& data = fb->GetData();
-    glViewport(0, 0, data.Width, data.Height);
-    glClearColor(r, g, b, a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if(fb->IsActive() == false)
+        return Status::Code::Reject;
 
+    int vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
+
+    const Framebuffer::Data& data = fb->GetData();
+    const Viewport fpvp = data.Viewport;
+
+    GLuint clear_flags = GL_COLOR_BUFFER_BIT;
+    if(data.DepthTexture) clear_flags |= GL_DEPTH_BUFFER_BIT;
+
+    glViewport(fpvp.X, fpvp.Y, fpvp.Width, fpvp.Height);
+    glClearColor(r, g, b, a);
+
+    glClear(clear_flags);
+    glViewport(vp[0], vp[1], vp[2], vp[3]);
     vdLogOpenGLErrors("End");
 
     return Status::Code::Success;
@@ -2069,7 +2417,7 @@ Context::Clear(
 // ============================================================================================== //
 
 Graphics::Shader*
-Context::CompileShaderFromFile(
+Context::CreateShaderFromFile(
     const vd::string& name, 
     const vd::string& vertex, 
     const vd::string& geometry, 
@@ -2077,7 +2425,12 @@ Context::CompileShaderFromFile(
 {
     vdLogOpenGLErrors("Start");
 
+    Graphics::Shader::Data data;
+    Memory::SetBytes(&data, 0, sizeof(data));
+    data.Index = m_Shaders.size();
+
     Graphics::Shader* shader = VD_NEW(Shader, this, name);
+    shader->Setup(data);
     shader->Load(vertex.c_str(), geometry.c_str(), fragment.c_str());
     m_Shaders.push_back(shader);
 
@@ -2086,13 +2439,89 @@ Context::CompileShaderFromFile(
     return shader;
 }
 
+Graphics::Shader*
+Context::CreateShaderFromSource(
+    const vd::string& name, 
+    const vd::string& vertex, 
+    const vd::string& geometry, 
+    const vd::string& fragment)
+{
+    vdLogOpenGLErrors("Start");
+
+    Graphics::Shader::Data data;
+    Memory::SetBytes(&data, 0, sizeof(data));
+    data.Index = m_Shaders.size();
+
+    Graphics::Shader* shader = VD_NEW(Shader, this, name);
+    shader->Setup(data);
+
+    shader->Compile(
+        vertex.size() ? vertex.c_str() : NULL,
+        geometry.size() ? geometry.c_str() : NULL, 
+        fragment.size() ? fragment.c_str() : NULL);
+
+    m_Shaders.push_back(shader);
+
+    vdLogOpenGLErrors("End");
+
+    return shader;
+}
+
+vd::status 
+Context::Acquire(
+    Shader* s)
+{
+    vdAssert(s != NULL);
+#if 0    
+    if(data->Index < m_Shaders.size())
+        m_Shaders[data->Index] = NULL;
+#endif    
+    return Status::Code::Success;
+}
+
 vd::status 
 Context::Release(
     Shader* s)
 {
     vdAssert(s != NULL);
-    // m_Shaders[data.Index] = NULL;
-    // VD_DELETE(fb);
+
+    Unbind(s);
+
+    const Shader::Data* data = s->GetPtr();
+    vdAssert(data != NULL);
+
+    if(data->Id)
+    {
+        GLuint gl_id = ConvertObjectIdToGL(data->Id);
+        glDeleteProgram(gl_id);
+    }
+    return Status::Code::Success;
+}
+
+vd::status 
+Context::Retain(
+    Shader* s)
+{
+    vdAssert(s != NULL);
+
+#if 0    
+    if(data->Index < m_Shaders.size())
+        m_Shaders[data->Index] = NULL;
+#endif    
+    return Status::Code::Success;
+}
+
+vd::status 
+Context::Destroy(
+    Shader* s)
+{
+    vdAssert(s != NULL);
+    vdLogOpenGLErrors("Start");
+
+    Release(s);
+    VD_DELETE(s);
+    
+    vdLogOpenGLErrors("End");
     return Status::Code::Success;
 }
 
@@ -2100,9 +2529,11 @@ vd::status
 Context::Bind(
     Shader* s)
 {
-    vdLogOpenGLErrors("Start");
     vdAssert(s != NULL);
+    vdLogOpenGLErrors("Start");
+
     s->Bind();
+
     vdLogOpenGLErrors("End");
     return Status::Code::Success;
 }
@@ -2111,9 +2542,11 @@ vd::status
 Context::Unbind(
     Shader* s)
 {
-    vdLogOpenGLErrors("Start");
     vdAssert(s != NULL);
+    vdLogOpenGLErrors("Start");
+
     s->Unbind();
+
     vdLogOpenGLErrors("End");
     return Status::Code::Success;
 }
@@ -2126,7 +2559,7 @@ Context::SetViewport(
 {
     vdLogOpenGLErrors("Start");
 
-    glViewport(vp.X, vp.Y, vp.Width, vp.Height);
+//    glViewport(vp.X, vp.Y, vp.Width, vp.Height);
     m_Viewport = vp;
 
     vdLogOpenGLErrors("End");
@@ -2151,12 +2584,12 @@ Context::BindOrthographicView()
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    glOrtho(0, vp.Width, vp.Height, 0, -1.0, 1.0);
+    glOrtho(-1.0, +1.0, +1.0, -1.0, -1.0, 1.0);
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
-    glTranslatef(0.375, 0.375, 0);
+//    glTranslatef(0.375, 0.375, 0);
 
     vdLogOpenGLErrors("End");
 

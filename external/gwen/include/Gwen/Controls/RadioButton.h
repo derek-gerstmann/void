@@ -49,7 +49,7 @@ namespace Gwen
 					m_Label->SetAlignment( Pos::CenterV | Pos::Left );
 					m_Label->SetText( "Radio Button" );
 					m_Label->Dock( Pos::Fill );
-					m_Label->onPress.Add( m_RadioButton, &CheckBox::ReceiveEventPress );
+					m_Label->onPress.Add( m_RadioButton, &CheckBox::OnPress );
 					m_Label->SetTabable( false );
 					m_Label->SetKeyboardInputEnabled( false );
 				}

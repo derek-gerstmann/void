@@ -36,7 +36,17 @@ VD_INTERFACE_GWEN_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-enum SkinColors
+namespace Skin {
+
+// ============================================================================================== //
+
+using Gwen::Skin::TexturedBase;
+using Gwen::Skin::Simple;
+using Gwen::Skin::Base;
+
+// ============================================================================================== //
+
+enum Shade
 {
     BackgroundColor,
     BackgroundColorDark,
@@ -89,28 +99,33 @@ enum SkinColors
     WindowActiveColor,
     WindowBorderColor,
     WindowColor,
-    SkinColorCount
+    ShadeCount
 };
 
-class Skin : public Skins::Simple
+// ============================================================================================== //
+
+class Default : public Skin::Simple
 {
 public:
-#define LU(x) (x), (x), (x)
-#define RD(x) 255, 0, 0, 255
-#define GN(x)   0, 255, 0, 255
-#define BL(x)   0, 0, 255, 255
+    
+    Gwen::Color m_Colors[ShadeCount];
 
-    Gwen::Color m_Colors[SkinColorCount];
-
-    Skin() : Skins::Simple()
+    Default( 
+        Renderer::Base* renderer 
+    ) :
+        Skin::Simple( renderer )
     {
+        #define LU(x) (x), (x), (x)
+        #define RD(x) 255, 0, 0, 255
+        #define GN(x)   0, 255, 0, 255
+        #define BL(x)   0, 0, 255, 255
+
         char alpha = 128;
         char light = 0.03f * alpha;
         char hover = 0.2f * alpha;
 
         hover = hover < 50 ? 50 : hover;
         light = light < 10 ? 10 : light;
-
 
         m_Colors[BorderColor]				= Gwen::Color(LU(28), alpha);
         m_Colors[BackgroundColor]			= Gwen::Color(LU(5), 0);
@@ -189,6 +204,11 @@ public:
 
         m_DefaultFont.facename	= L"Vera.ttf";
         m_DefaultFont.size		= 12;
+
+        #undef LU(x)
+        #undef RD(x)
+        #undef GN(x)
+        #undef BL(x)
     }
 
     virtual void Init(const Gwen::TextObject& TextureName)
@@ -1152,6 +1172,10 @@ public:
             GetRender()->DrawLinedRect(rect);
         }
 };
+
+// ============================================================================================== //
+
+}
 
 // ============================================================================================== //
 

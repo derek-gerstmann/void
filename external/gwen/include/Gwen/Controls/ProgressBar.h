@@ -33,9 +33,15 @@ namespace Gwen
 
 				virtual void SetAutoLabel( bool b ){ m_bAutoLabel = b; }
 
+				virtual float GetCycleSpeed();
+				virtual void SetCycleSpeed( float f );
+
+				virtual void CycleThink( float fDelta );
+
 			protected:
 
 				float m_fProgress;
+				float m_fCycleSpeed;
 
 				bool m_bHorizontal;
 				bool m_bAutoLabel;

@@ -25,6 +25,10 @@ namespace Gwen
 				virtual void RenderFocus( Gwen::Skin::Base* /*skin*/){};
 				virtual void Layout( Skin::Base* skin );
 
+				#ifndef GWEN_NO_ANIMATION
+				virtual void UpdateCaretColor();
+				#endif
+
 				virtual bool OnChar( Gwen::UnicodeChar c );
 
 				virtual void InsertText( const Gwen::UnicodeString& str );
@@ -67,6 +71,9 @@ namespace Gwen
 
 				virtual bool NeedsInputChars(){ return true; }
 
+				virtual void MoveCaretToEnd();
+				virtual void MoveCaretToStart();
+
 				Event::Caller	onTextChanged;
 				Event::Caller	onReturnPressed;
 
@@ -79,11 +86,13 @@ namespace Gwen
 
 				int m_iCursorPos;
 				int m_iCursorEnd;
-
+				int m_iCursorLine;
+				
 				Gwen::Rect m_rectSelectionBounds;
 				Gwen::Rect m_rectCaretBounds;
 
-				float	m_fLastInputTime;
+				float m_fNextCaretColorChange;
+				Gwen::Color	m_CaretColor;
 		};
 
 		class GWEN_EXPORT TextBoxNumeric : public TextBox
@@ -98,6 +107,26 @@ namespace Gwen
 
 				virtual bool IsTextAllowed( const Gwen::UnicodeString& str, int iPos );
 			
+		};
+
+		class GWEN_EXPORT TextBoxMultiline : public TextBox
+		{
+			public:
+
+				GWEN_CONTROL( TextBoxMultiline, TextBox );
+
+				virtual bool OnKeyReturn( bool bDown );
+				virtual void MakeCaratVisible();
+
+				virtual bool OnKeyHome( bool bDown );
+				virtual bool OnKeyEnd( bool bDown );
+				virtual bool OnKeyUp( bool bDown );
+				virtual bool OnKeyDown( bool bDown );
+
+				virtual int GetCurrentLine();
+
+			protected:
+
 		};
 	}
 }

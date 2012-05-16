@@ -39,15 +39,15 @@ VD_INTERFACE_GWEN_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-class MainMenu : public Gwen::Controls::Base
+class MainMenu : public Controls::Base
 {
 public:
-	VD_UI_CONTROL( MainMenu, Widget );
+	VD_UI_CONTROL( MainMenu, Base );
 
 private:
-	void OnOpenFile( Gwen::Controls::Base* );
-	void OnSaveFile( Gwen::Controls::Base* );
-	void OnQuit( Gwen::Controls::Base* );
+	void OnOpenFile( Controls::Base* );
+	void OnSaveFile( Controls::Base* );
+	void OnQuit( Controls::Base* );
 
 	MenuStrip*	m_MenuStrip;
 };
@@ -56,15 +56,15 @@ private:
 
 class CloseButton;
 
-class WindowControl : public Gwen::Controls::ResizableControl
+class WindowControl : public Controls::ResizableControl
 {
 public:
 
 	VD_UI_CONTROL( WindowControl, ResizableControl );
 
 	virtual ~WindowControl();
-	virtual void Render( Gwen::Skin::Base* skin );
-	virtual void RenderUnder( Gwen::Skin::Base* skin );
+	virtual void Render( Skin::Base* skin );
+	virtual void RenderUnder( Skin::Base* skin );
 
 	virtual void SetTitle( UnicodeString title );
 	virtual void SetTitle( String title ){ SetTitle( Gwen::Utility::StringToUnicode( title ) ); }
@@ -85,18 +85,18 @@ public:
 protected:
 
 	Internal::Dragger* m_TitleBar;
-	Gwen::Controls::Label* m_Title;
+	Controls::Label* m_Title;
 	CloseButton* m_CloseButton;
 	bool m_bDeleteOnClose;
 
 	Internal::Modal* m_Modal;
 };
 
-class CloseButton : public Gwen::Controls::Button
+class CloseButton : public Controls::Button
 {
 	VD_UI_CONTROL( CloseButton, Button );
 
-	virtual void Render( Gwen::Skin::Base* skin )
+	virtual void Render( Skin::Base* skin )
 	{
 		skin->DrawWindowCloseButton( this, 
 			IsDepressed() && IsHovered(), 
@@ -111,7 +111,7 @@ class CloseButton : public Gwen::Controls::Button
 
 // ============================================================================================== //
 
-class PlayerControl : public Gwen::Controls::WindowControl
+class PlayerControl : public Controls::WindowControl
 {
 public:
 
@@ -138,14 +138,14 @@ public:
 
 private:
 
-	void OnCategorySelect( Gwen::Controls::Base* pBase, Gwen::Controls::Base* pControl );
+	void OnCategorySelect( Controls::Base* pBase, Controls::Base* pControl );
 
-	MainMenu*					m_MenuStrip;
-	Gwen::Controls::TabControl*	m_TabControl;
-	Gwen::Controls::ListBox*	m_TextOutput;
-	Gwen::Controls::StatusBar*	m_StatusBar;
-	Gwen::Controls::TabButton* 	m_TabButton;
-	Gwen::Controls::Base* 		m_ActiveControl;
+	MainMenu*				m_MenuStrip;
+	Controls::TabControl*	m_TabControl;
+	Controls::ListBox*		m_TextOutput;
+	Controls::StatusBar*	m_StatusBar;
+	Controls::TabButton* 	m_TabButton;
+	Controls::Base* 		m_ActiveControl;
 };
 
 // ============================================================================================== //

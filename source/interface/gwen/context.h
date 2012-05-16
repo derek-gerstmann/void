@@ -49,8 +49,14 @@ public:
 	virtual ~Context(){ Destroy(); }
 	virtual vd::status Destroy();
 
-	Canvas* GetCanvas(void);
-	vd::status Initialize(vd::i32 width, vd::i32 height);
+    Renderer::Base* GetRenderer(void);
+	Canvas::Base* GetCanvas(void);
+    Skin::Base* GetSkin(void);
+
+    vd::status Setup(void);
+	vd::status Reset(Skin::Base* skin = NULL);
+    vd::status Resize(int w, int h);
+    vd::status ChangeSkin(Skin::Base* skin);
     vd::status OnShutdown(const Event&);
     vd::status OnUpdate(const Event& event);
     vd::status OnKeyEvent(const Event & event);
@@ -63,6 +69,7 @@ public:
     vd::status OnDisplay(const Event & event);    
     vd::status Render(void);
 
+
 	VD_DECLARE_OBJECT(Context);
 
 private:
@@ -71,10 +78,10 @@ private:
 
     vd::i32             m_Width;
     vd::i32             m_Height;
-	Skin* 	            m_Skin;
-	Input* 	            m_Input;
-	Canvas*             m_Canvas;
-    Renderer*           m_Renderer; 
+    Skin::Base*         m_Skin;
+	Input::Base* 	    m_Input;
+	Canvas::Base*       m_Canvas;
+    Renderer::Base*     m_Renderer; 
     Graphics::Context*  m_Graphics;
 };
 

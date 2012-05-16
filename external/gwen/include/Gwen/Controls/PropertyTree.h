@@ -45,17 +45,8 @@ namespace Gwen
 
 				}
 
-				Properties* Add( const UnicodeString& text )
-				{
-					TreeNode* node = new PropertyTreeNode( this );
-						node->SetText( text );
-						node->Dock( Pos::Top );
-
-					Properties* props = new Properties( node );
-						props->Dock( Pos::Top );
-
-					return props;
-				}
+				Properties* Add( const TextObject& text );
+				Properties* Find( const TextObject& text );
 		};
 
 	}

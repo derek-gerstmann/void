@@ -32,8 +32,8 @@ VD_GRAPHICS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-vd::u32 Geometry::InvalidBuffer = VD_U32_MAX;
-vd::u32 Geometry::InvalidSlot = VD_U32_MAX;
+vd::u32 Geometry::InvalidBuffer = VD_INVALID_INDEX;
+vd::u32 Geometry::InvalidSlot = VD_INVALID_INDEX;
 
 // ============================================================================================== //
 
@@ -54,15 +54,39 @@ void
 Geometry::Reset()
 {
     Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
-    Core::Memory::SetBytes(&(m_Data.Buffers), Geometry::InvalidBuffer, sizeof(m_Data.Buffers));
-    Core::Memory::SetBytes(&(m_Data.Bindings), Geometry::InvalidSlot, sizeof(m_Data.Bindings));
+    Core::Memory::SetBytes(m_Data.Shaders,  VD_INVALID_INDEX, sizeof(m_Data.Shaders));
+    Core::Memory::SetBytes(m_Data.Buffers,  VD_INVALID_INDEX, sizeof(m_Data.Buffers));
+    Core::Memory::SetBytes(m_Data.Bindings, VD_INVALID_INDEX, sizeof(m_Data.Bindings));
 }
 
 void
 Geometry::Setup(
     const Geometry::Data& data)
 {
+    if(&m_Data == &data)
+        return;
+
+    Destroy();
     Core::Memory::CopyBytes(&m_Data, &data, sizeof(m_Data));
+}
+
+vd::status 
+Geometry::Acquire()
+{
+    return Status::Code::Success;
+}
+
+vd::status 
+Geometry::Release()
+{
+    m_Data.Index = VD_INVALID_INDEX;
+    return Status::Code::Success;
+}
+
+vd::status 
+Geometry::Retain()
+{
+    return Status::Code::Success;
 }
 
 vd::status 
@@ -72,6 +96,7 @@ Geometry::Destroy()
         m_Context->Release(this);
 
     Reset();
+    m_Data.Index = VD_INVALID_INDEX;    
     return Status::Code::Success;
 }
 
@@ -79,6 +104,12 @@ const Geometry::Data&
 Geometry::GetData() const
 {
     return m_Data;
+}
+
+const Geometry::Data*
+Geometry::GetPtr() const
+{
+    return &m_Data;
 }
 
 vd::status 
@@ -94,6 +125,16 @@ Geometry::Attach(
 }
 
 vd::status 
+Geometry::Attach(
+    Shader::Pass::Value pass,
+    vd::u32 shader)
+{
+    vd::u32 index = Shader::Pass::ToInteger(pass);
+    m_Data.Shaders[index] = shader;
+    return Status::Code::Success;
+}
+
+vd::status 
 Geometry::Detach(
     AttributeSlot::Value attrib)
 {
@@ -103,16 +144,19 @@ Geometry::Detach(
     return Status::Code::Success;
 }
 
-void
-Geometry::SetActive(bool b)
+vd::status 
+Geometry::Detach(
+    Shader::Pass::Value pass)
 {
-    m_Data.IsActive = b;
+    vd::u32 index = Shader::Pass::ToInteger(pass);
+    m_Data.Shaders[index] = Geometry::InvalidSlot;
+    return Status::Code::Success;
 }
 
 bool 
 Geometry::IsActive()
 {
-    return m_Data.IsActive;
+    return m_Data.Usage > 0;
 }
 
 bool
@@ -133,6 +177,19 @@ Geometry::IsBufferUsed(AttributeSlot::Value attrib)
         return true;
     }
     return false;    
+}
+
+void
+Geometry::Bind()
+{
+    m_Data.Usage++;
+}
+
+void
+Geometry::Unbind()
+{
+    vdAssert(m_Data.Usage > 0);
+    m_Data.Usage--;
 }
 
 vd::u32 

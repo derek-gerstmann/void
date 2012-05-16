@@ -22,21 +22,21 @@ namespace Gwen
 	{
 		namespace Symbol
 		{
-			const unsigned char None = 0;
-			const unsigned char ArrowRight = 1;
-			const unsigned char Check = 2;
-			const unsigned char Dot = 3;
+			static const unsigned char None				= 0;
+			static const unsigned char ArrowRight		= 1;
+			static const unsigned char Check			= 2;
+			static const unsigned char Dot				= 3;
 		}
 
 		class GWEN_EXPORT Base
 		{
 			public:
 
-				Base()
+				Base( Gwen::Renderer::Base* renderer = NULL )
 				{
 					m_DefaultFont.facename = L"Arial";
 					m_DefaultFont.size = 10.0f;
-					m_Render = NULL;
+					m_Render = renderer;
 				}
 
 				virtual ~Base()
@@ -52,6 +52,8 @@ namespace Gwen
 					m_Render->FreeFont( fnt );
 				}
 				
+				virtual void DrawGenericPanel( Controls::Base* control ) = 0;
+
 				virtual void DrawButton( Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled ) = 0;
 				virtual void DrawTabButton( Controls::Base* control, bool bActive, int dir ) = 0;
 				virtual void DrawTabControl( Controls::Base* control ) = 0;
@@ -70,6 +72,9 @@ namespace Gwen
 
 				virtual void DrawWindow( Controls::Base* control, int topHeight, bool inFocus ) = 0;
 				virtual void DrawWindowCloseButton( Gwen::Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled ) = 0;
+				virtual void DrawWindowMaximizeButton( Gwen::Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled, bool bMaximized ) = 0;
+				virtual void DrawWindowMinimizeButton( Gwen::Controls::Base* control, bool bDepressed, bool bHovered, bool bDisabled ) = 0;
+				
 
 				virtual void DrawHighlight( Controls::Base* control ) = 0;
 				virtual void DrawStatusBar( Controls::Base* control ) = 0;
@@ -125,14 +130,14 @@ namespace Gwen
 
 				struct
 				{
-					struct
+					struct Window_t
 					{
 						Gwen::Color TitleActive;
 						Gwen::Color TitleInactive;
 
 					} Window;
 
-					struct
+					struct Label_t
 					{
 						Gwen::Color Default;
 						Gwen::Color Bright;
@@ -141,7 +146,7 @@ namespace Gwen
 
 					} Label;
 
-					struct
+					struct Tree_t
 					{
 						Gwen::Color Lines;
 						Gwen::Color Normal;
@@ -150,7 +155,7 @@ namespace Gwen
 
 					} Tree;
 
-					struct
+					struct Properties_t
 					{
 						Gwen::Color Line_Normal;
 						Gwen::Color Line_Selected;
@@ -166,7 +171,7 @@ namespace Gwen
 
 					} Properties;
 
-					struct
+					struct Button_t
 					{
 						Gwen::Color Normal;
 						Gwen::Color Hover;
@@ -175,9 +180,9 @@ namespace Gwen
 
 					} Button;
 
-					struct
+					struct Tab_t
 					{
-						struct
+						struct Active_t
 						{
 							Gwen::Color Normal;
 							Gwen::Color Hover;
@@ -185,7 +190,7 @@ namespace Gwen
 							Gwen::Color Disabled;
 						} Active;
 
-						struct
+						struct Inactive_t
 						{
 							Gwen::Color Normal;
 							Gwen::Color Hover;
@@ -195,12 +200,12 @@ namespace Gwen
 
 					} Tab;
 
-					struct
+					struct Category_t
 					{
 						Gwen::Color Header;
 						Gwen::Color Header_Closed;
 
-						struct
+						struct Line_t
 						{
 							Gwen::Color Text;
 							Gwen::Color Text_Hover;
@@ -210,7 +215,7 @@ namespace Gwen
 							Gwen::Color Button_Selected;
 						} Line;
 
-						struct
+						struct LineAlt_t
 						{
 							Gwen::Color Text;
 							Gwen::Color Text_Hover;

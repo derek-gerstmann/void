@@ -8,13 +8,20 @@
 #ifndef GWEN_CONTROLS_BASE_H
 #define GWEN_CONTROLS_BASE_H
 
+#include <list>
+#include <map>
+#include <algorithm>
+
 #include "Gwen/Exports.h"
 #include "Gwen/Structures.h"
 #include "Gwen/BaseRender.h"
 #include "Gwen/Events.h"
 #include "Gwen/Utility.h"
-#include <list>
-#include <map>
+#include "Gwen/TextObject.h"
+#include "Gwen/Skin.h"
+#include "Gwen/ControlList.h"
+#include "Gwen/UserData.h"
+
 
 namespace Gwen 
 {
@@ -53,10 +60,13 @@ namespace Gwen
 
 				typedef std::map<Gwen::UnicodeString, Gwen::Event::Caller*> AccelMap;
 
-				Base( Base* pParent );
+				Base( Base* pParent, const Gwen::String& Name = "" );
 				virtual ~Base();
 
+				virtual const char* GetTypeName(){ return "Base"; }
+
 				virtual void DelayedDelete();
+				virtual void PreDelete( Gwen::Skin::Base* skin ){};
 
 				virtual void SetParent( Controls::Base* pParent );
 				virtual Controls::Base* GetParent() const { return m_Parent; }
@@ -70,7 +80,9 @@ namespace Gwen
 				virtual Gwen::Point ChildrenSize();
 				virtual Controls::Base* FindChildByName( const Gwen::String& name, bool bRecursive = false );
 
-				virtual void SetName(Gwen::String name) { m_Name = name; }
+				template <typename T> T* FindChild( const Gwen::String& name, bool bRecursive = false );
+
+				virtual void SetName( const Gwen::String& name) { m_Name = name; }
 				virtual const Gwen::String& GetName() { return m_Name; }
 
 				virtual void Think(){}
@@ -90,7 +102,7 @@ namespace Gwen
 				virtual void BringToFront( void );
 				virtual void BringNextToControl( Controls::Base* pChild, bool bBehind );
 
-				virtual Gwen::Point LocalPosToCanvas( const Gwen::Point& in );
+				virtual Gwen::Point LocalPosToCanvas( const Gwen::Point& in = Point( 0, 0 ) );
 				virtual Gwen::Point CanvasPosToLocal( const Gwen::Point& in );
 
 				virtual void Dock( int iDock );
@@ -110,9 +122,13 @@ namespace Gwen
 				virtual const Padding& GetPadding() const { return m_Padding; }
 
 				virtual void SetPos( int x, int y );
+				virtual void SetPos( const Point& p ){ return SetPos( p.x, p.y ); }
+				virtual Point GetPos(){ return Point( X(), Y() ); }
 				virtual void SetWidth( int w ) { SetSize( w, Height()); }
 				virtual void SetHeight( int h ) { SetSize( Width(), h); }
 				virtual bool SetSize( int w, int h );
+				virtual bool SetSize( const Point& p );
+				virtual Point GetSize(){ return Point( Width(), Height() ); }
 				virtual bool SetBounds( int x, int y, int w, int h );
 				virtual bool SetBounds( const Gwen::Rect& bounds );
 
@@ -125,7 +141,7 @@ namespace Gwen
 
 				virtual const Gwen::Rect& GetBounds() const { return m_Bounds; }
 
-				virtual Controls::Base* GetControlAt( int x, int y );
+				virtual Controls::Base* GetControlAt( int x, int y, bool bOnlyIfMouseEnabled = true );
 
 
 
@@ -171,7 +187,7 @@ namespace Gwen
 
 			public:	
 
-				virtual void SetHidden( bool hidden ) { if ( m_bHidden == hidden ) return; m_bHidden = hidden; Invalidate(); }
+				virtual void SetHidden( bool hidden ) { if ( m_bHidden == hidden ) return; m_bHidden = hidden; Invalidate(); Redraw(); }
 				virtual bool Hidden() const; // Returns true only if this control is hidden
 				virtual bool Visible() const; // Returns false if this control or its parents are hidden
 				virtual void Hide(){ SetHidden( true ); }
@@ -245,7 +261,7 @@ namespace Gwen
 				virtual void Blur();
 
 				//Other
-				virtual void SetDisabled( bool active ) { m_bDisabled = active; }
+				virtual void SetDisabled( bool active ) { if ( m_bDisabled == active ) return; m_bDisabled = active; Redraw(); }
 				virtual bool IsDisabled(){ return m_bDisabled; }
 	
 				virtual void Redraw(){ UpdateColours(); m_bCacheTextureDirty = true; if ( m_Parent ) m_Parent->Redraw(); }
@@ -279,20 +295,23 @@ namespace Gwen
 				virtual bool HandleAccelerator( Gwen::UnicodeString& accelerator );
 				
 				template <typename T>
-				void AddAccelerator( Gwen::UnicodeString accelerator, T func, Gwen::Event::Handler* handler = NULL )
+				void AddAccelerator( const TextObject& accelerator, T func, Gwen::Event::Handler* handler = NULL )
 				{
 					if ( handler == NULL )
 						handler = this;
+
 					Gwen::Event::Caller* caller = new Gwen::Event::Caller();
 					caller->Add( handler, func );
 
-					Gwen::Utility::Strings::ToUpper( accelerator );
-					Gwen::Utility::Strings::Strip( accelerator, L" " );
+					Gwen::UnicodeString str = accelerator.GetUnicode();
 
-					m_Accelerators[ accelerator ] = caller;
+					Gwen::Utility::Strings::ToUpper( str );
+					Gwen::Utility::Strings::Strip( str, L" " );
+
+					m_Accelerators[ str ] = caller;
 				}
 
-				void AddAccelerator( Gwen::UnicodeString accelerator )
+				void AddAccelerator( const TextObject& accelerator )
 				{
 					AddAccelerator( accelerator, &Base::DefaultAccel, this );
 				}
@@ -318,6 +337,7 @@ namespace Gwen
 				//  become children of that instead of us - allowing us to move
 				//  them all around by moving that panel (useful for scrolling etc)
 				Base* m_InnerPanel;
+				virtual Base* Inner(){ return m_InnerPanel; }
 
 				// This is the panel's actual parent - most likely the logical 
 				//  parent's InnerPanel (if it has one). You should rarely need this.
@@ -329,6 +349,7 @@ namespace Gwen
 
 				Gwen::Rect		m_Bounds;
 				Gwen::Rect		m_RenderBounds;
+
 				Padding		m_Padding;
 				Margin		m_Margin;
 
@@ -394,19 +415,6 @@ namespace Gwen
 
 
 			//
-			// This is to be used by the client implementation
-			// NOT HOOKS ETC.
-			//
-			public:
-
-				void* GetUserData(){ return m_pUserData; }
-				void SetUserData( void* pData ){ m_pUserData = pData; }
-
-			private:
-
-				void* m_pUserData;
-
-			//
 			// Useful anim shortcuts
 			//
 			public:
@@ -434,6 +442,31 @@ namespace Gwen
 				{
 					return NULL;
 				}
+
+
+			public:
+
+				void DoNotIncludeInSize(){ m_bIncludeInSize = false; }
+				bool ShouldIncludeInSize(){ return m_bIncludeInSize; }
+
+			protected:
+
+				bool	m_bIncludeInSize;
+
+			public:
+
+				virtual TextObject GetChildValue( const Gwen::String& strName );
+				virtual TextObject GetValue();
+				virtual void SetValue( const TextObject& strValue );
+				virtual void DoAction(){};
+				virtual void SetAction( Event::Handler* pObject, Handler::FunctionWithInformation pFunction, const Gwen::Event::Packet& packet ){};
+
+				virtual int GetNamedChildren( Gwen::ControlList& list, const Gwen::String& strName, bool bDeep = true );
+				virtual Gwen::ControlList GetNamedChildren( const Gwen::String& strName, bool bDeep = true );
+
+			public:
+
+				UserDataStorage	UserData;
 				
 		};
 
@@ -478,6 +511,13 @@ T* gwen_cast( Gwen::Controls::Base* p )
 	return static_cast<T*>(pReturn);
 }
 
+
+template <typename T> 
+T* Gwen::Controls::Base::FindChild( const Gwen::String& name, bool bRecursive )
+{
+	return gwen_cast<T>( FindChildByName( name, bRecursive ) );
+}
+
 #define GWEN_DYNAMIC( ThisName, BaseName )									\
 																			\
 	static const char* GetIdentifier()										\
@@ -493,19 +533,24 @@ T* gwen_cast( Gwen::Controls::Base* p )
 		return BaseClass::DynamicCast( Variable);							\
 	}
 
+#define GWEN_CLASS( ThisName, BaseName )\
+		typedef BaseName BaseClass;\
+		typedef ThisName ThisClass;\
+
 // To be placed in the controls .h definition.
 #define GWEN_CONTROL( ThisName, BaseName )\
 	public:\
-	typedef BaseName BaseClass;\
-	typedef ThisName ThisClass;\
+	GWEN_CLASS( ThisName, BaseName )\
 	GWEN_DYNAMIC( ThisName, BaseName )\
-	ThisName( Gwen::Controls::Base* pParent )
+	virtual const char* GetTypeName(){ return #ThisName; }\
+	virtual const char* GetBaseTypeName(){ return BaseClass::GetTypeName(); }\
+	ThisName( Gwen::Controls::Base* pParent, const Gwen::String& pName = "" )
 
 #define GWEN_CONTROL_INLINE( ThisName, BaseName )\
-	GWEN_CONTROL( ThisName, BaseName ) : BaseClass( pParent )
+	GWEN_CONTROL( ThisName, BaseName ) : BaseClass( pParent, pName )
 
 #define GWEN_CONTROL_CONSTRUCTOR( ThisName )\
-	ThisName::ThisName( Gwen::Controls::Base* pParent ) : BaseClass( pParent )
+	ThisName::ThisName( Gwen::Controls::Base* pParent, const Gwen::String& pName ) : BaseClass( pParent, pName )
 
 
 

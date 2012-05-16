@@ -16,16 +16,27 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		/*
 
-		TODO!
+		class ToolBarButton : public Gwen::Controls::Button
+		{
+			GWEN_CONTROL_INLINE( ToolBarButton, Gwen::Controls::Button )
+			{
+				SetSize( 20, 20 );
+				Dock( Pos::Left );
+			}
 
-		*/
+			virtual bool ShouldDrawBackground()
+			{ 
+				return IsHovered(); 
+			}
+
+		};
 
 		class ToolBarStrip : public Base
 		{
 			GWEN_CONTROL_INLINE( ToolBarStrip, Base )
 			{
+				SetSize( 25, 25 );
 				SetPadding( Padding( 2, 2, 2, 2 ) );
 			}
 
@@ -34,17 +45,18 @@ namespace Gwen
 				skin->DrawMenuStrip( this );
 			}
 
-			virtual void RenderUnder( Skin::Base* skin )
+			virtual ToolBarButton* Add( const TextObject& Text, const TextObject& Icon )
 			{
+				ToolBarButton* pButton = new ToolBarButton( this );
+				pButton->SetToolTip( Text );
+				pButton->SetImage( Icon );
 
-			}
-
-			virtual void Layout( Skin::Base* skin )
-			{
-
+				return pButton;
 			}
 
 		};
+
+		
 	}
 
 }

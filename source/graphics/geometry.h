@@ -29,6 +29,7 @@
 
 #include "graphics/graphics.h"
 #include "graphics/buffer.h"
+#include "graphics/shader.h"
 
 // ============================================================================================== //
 
@@ -90,12 +91,13 @@ public:
 
 	struct Data 
 	{
-		bool            IsActive;
+        vd::u32         Id;
 		vd::u32         Index;
+        vd::u32         Usage;
         vd::u32         IndexCount;
         vd::u32         PrimitiveType;
 		vd::u32         PrimitiveCount;
-        vd::u32         ShaderId;
+        vd::u32         Shaders[Shader::Pass::Count];
 		vd::u32         Bindings[AttributeSlot::Count];
         vd::u32         Buffers[AttributeSlot::Count];
 	};
@@ -108,16 +110,26 @@ public:
     Geometry(Context* context);
     virtual ~Geometry();
     
+    virtual vd::status Acquire();
+    virtual vd::status Release();
+    virtual vd::status Retain();
     virtual vd::status Destroy();
+
     void Reset();
     void Setup(const Data& data);
+    void Bind(void);
+    void Unbind(void);
+    
     const Data& GetData() const;
+    const Data* GetPtr() const;
 
     void SetActive(bool v);
     bool IsActive(void);
 
+    vd::status Attach(Shader::Pass::Value pass, vd::u32 shader);
     vd::status Attach(AttributeSlot::Value attrib, vd::u32 buffer, vd::u32 slot=InvalidSlot);
     vd::status Detach(AttributeSlot::Value attrib);
+    vd::status Detach(Shader::Pass::Value pass);
 
     bool IsAttributeUsed(AttributeSlot::Value attrib);
     bool IsBufferUsed(AttributeSlot::Value attrib);

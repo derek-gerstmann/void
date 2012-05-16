@@ -48,18 +48,18 @@ namespace Gwen
 				virtual int GetNotchCount() { return m_iNumNotches; }
 
 				virtual void SetRange( float fMin, float fMax );
-				virtual float GetValue();
-				virtual void SetValue( float val, bool forceUpdate = true );
+				virtual float GetFloatValue();
+				virtual void SetFloatValue( float val, bool forceUpdate = true );
 
 				virtual float CalculateValue();
 				virtual void OnMoved( Controls::Base * control );
 
 				virtual void OnMouseClickLeft( int /*x*/, int /*y*/, bool /*bDown*/ ){};
 
-				virtual bool OnKeyRight( bool bDown )	{	if ( bDown ) SetValue( GetValue() + 1, true ); return true; }
-				virtual bool OnKeyLeft( bool bDown )	{	if ( bDown ) SetValue( GetValue() - 1, true ); return true; }
-				virtual bool OnKeyUp( bool bDown )		{	if ( bDown ) SetValue( GetValue() + 1, true ); return true; }
-				virtual bool OnKeyDown( bool bDown )	{	if ( bDown ) SetValue( GetValue() - 1, true ); return true; }
+				virtual bool OnKeyRight( bool bDown )	{	if ( bDown ) SetFloatValue( GetFloatValue() + 1, true ); return true; }
+				virtual bool OnKeyLeft( bool bDown )	{	if ( bDown ) SetFloatValue( GetFloatValue() - 1, true ); return true; }
+				virtual bool OnKeyUp( bool bDown )		{	if ( bDown ) SetFloatValue( GetFloatValue() + 1, true ); return true; }
+				virtual bool OnKeyDown( bool bDown )	{	if ( bDown ) SetFloatValue( GetFloatValue() - 1, true ); return true; }
 
 				virtual void RenderFocus( Gwen::Skin::Base* skin);
 				

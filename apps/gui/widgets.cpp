@@ -30,16 +30,14 @@ VD_INTERFACE_GWEN_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-CloseButton::CloseButton(
-	Gwen::Controls::Base* parent) : Gwen::Controls::Button(parent)
+VD_UI_CONTROL_CONSTRUCTOR(CloseButton)
 {
 	
 }
 
 // ============================================================================================== //
 
-WindowControl::WindowControl(
-	Gwen::Controls::Base* parent) : Gwen::Controls::ResizableControl(parent)
+VD_UI_CONTROL_CONSTRUCTOR(WindowControl)
 {
 	m_Modal = NULL;
 	m_bDeleteOnClose = false;
@@ -51,14 +49,14 @@ WindowControl::WindowControl(
 	m_TitleBar->SetTarget( this );
 	m_TitleBar->Dock( Pos::Top );
 
-	m_Title = VD_NEW(Gwen::Controls::Label, m_TitleBar );
+	m_Title = VD_NEW(Controls::Label, m_TitleBar );
 	m_Title->SetAlignment( Pos::Left | Pos::CenterV );
 	m_Title->SetText( "Window" );
 	m_Title->Dock( Pos::Fill );
 	m_Title->SetPadding( Padding( 8, 0, 0, 0 ) );
 	m_Title->SetTextColor( GetSkin()->Colors.Window.TitleInactive );
 
-	m_CloseButton = VD_NEW(CloseButton, m_TitleBar );
+	m_CloseButton = VD_NEW( CloseButton, m_TitleBar );
 	m_CloseButton->SetText( "" );
 	m_CloseButton->SetMargin( Margin( 6, 6, 6, 6 ) );
 	m_CloseButton->SetSize( 12, 12 );
@@ -69,7 +67,7 @@ WindowControl::WindowControl(
 	m_CloseButton->SetWindow( this );
 
 	//Create a blank content control, dock it to the top - Should this be a ScrollControl?
-	m_InnerPanel = VD_NEW(Gwen::Controls::Base, this );
+	m_InnerPanel = VD_NEW(Controls::Base, this );
 	m_InnerPanel->Dock( Pos::Fill );
 
 	GetResizer( 8 )->Hide();
@@ -79,7 +77,7 @@ WindowControl::WindowControl(
 	SetTabable( false );
 	Focus();
 
-	SetMinimumSize( Gwen::Point( 100, 40 ) );
+	SetMinimumSize( Point( 100, 40 ) );
 	SetClampMovement( true );
 	SetKeyboardInputEnabled( false );
 }
@@ -131,7 +129,8 @@ bool WindowControl::IsOnTop()
 
 }
 
-void WindowControl::Render( Skin::Base* skin )
+void WindowControl::Render( 
+	Skin::Base* skin )
 {
 	bool bHasFocus = IsOnTop();
 
@@ -149,7 +148,8 @@ void WindowControl::RenderUnder( Skin::Base* skin )
 	skin->DrawShadow( this );
 }
 
-void WindowControl::SetTitle(Gwen::UnicodeString title)
+void WindowControl::SetTitle(
+	Gwen::UnicodeString title)
 {
 	m_Title->SetText( title );
 }
@@ -173,7 +173,8 @@ void WindowControl::Touch()
 	BringToFront();
 }
 
-void WindowControl::CloseButtonPressed( Gwen::Controls::Base* /*pFromPanel*/ )
+void WindowControl::CloseButtonPressed( 
+	Controls::Base* /*pFromPanel*/ )
 {
 	DestroyModal();
 
@@ -184,15 +185,15 @@ void WindowControl::CloseButtonPressed( Gwen::Controls::Base* /*pFromPanel*/ )
 }
 
 
-void WindowControl::RenderFocus( Gwen::Skin::Base* /*skin*/ )
+void WindowControl::RenderFocus( 
+	Skin::Base* /*skin*/ )
 {
 
 }
 
 // ============================================================================================== //
 
-MainMenu::MainMenu(
-	Gwen::Controls::Base* parent) : Gwen::Controls::Base(parent)
+VD_UI_CONTROL_CONSTRUCTOR(MainMenu)
 {
 	m_MenuStrip = VD_NEW( MenuStrip, this );
 	SetSize( 1024, 768 );
@@ -205,27 +206,26 @@ MainMenu::MainMenu(
 }
 
 void MainMenu::OnOpenFile( 
-	Gwen::Controls::Base* )
+	Controls::Base* )
 {
 	
 }
 
 void MainMenu::OnSaveFile( 
-	Gwen::Controls::Base* )
+	Controls::Base* )
 {
 	
 }
 
 void MainMenu::OnQuit( 
-	Gwen::Controls::Base* )
+	Controls::Base* )
 {
 	
 }
 
 // ============================================================================================== //
 
-PlayerControl::PlayerControl(
-	Gwen::Controls::Base* parent) : Gwen::Controls::WindowControl(parent)
+VD_UI_CONTROL_CONSTRUCTOR(PlayerControl)
 {
 	Dock( Location::Fill );
 
@@ -253,8 +253,7 @@ PlayerControl::PlayerControl(
 
 // ============================================================================================== //
 
-MainControl::MainControl(
-	Gwen::Controls::Base* parent) : Gwen::Controls::DockBase(parent)
+VD_UI_CONTROL_CONSTRUCTOR(MainControl)
 {
 	m_TabButton = NULL;
 	m_ActiveControl = NULL;
@@ -265,14 +264,14 @@ MainControl::MainControl(
 	m_MenuStrip->Dock( Location::Top );
 	m_MenuStrip->SetHeight( 30 );
 
-	m_StatusBar = VD_NEW(Gwen::Controls::StatusBar, this );
+	m_StatusBar = VD_NEW(Controls::StatusBar, this );
 	m_StatusBar->Dock( Location::Bottom );
 
-	CollapsibleList* clist = VD_NEW(Gwen::Controls::CollapsibleList, this );
+	CollapsibleList* clist = VD_NEW(Controls::CollapsibleList, this );
 	GetLeft()->GetTabControl()->AddPage( "CollapsibleList", clist );
 	GetLeft()->SetWidth( 150 );
 	
-	m_TextOutput = VD_NEW(Gwen::Controls::ListBox, this );
+	m_TextOutput = VD_NEW(Controls::ListBox, this );
 	m_TabButton = GetBottom()->GetTabControl()->AddPage( "Output", m_TextOutput );
 	GetBottom()->SetHeight( 200 );
 
@@ -280,8 +279,8 @@ MainControl::MainControl(
 }
 
 void MainControl::OnCategorySelect( 
-	Gwen::Controls::Base* base, 
-	Gwen::Controls::Base* control )
+	Controls::Base* base, 
+	Controls::Base* control )
 {
 	(void)(base);
 

@@ -44,13 +44,17 @@ VD_INTERFACE_GWEN_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
+namespace Renderer {
+
+// ============================================================================================== //
+
 namespace DefaultFont 
 {
 	#include "arial-16.h"
 	static GLuint id = 0;
 }
 
-void Renderer::RenderDefaultFont( 
+void Base::RenderDefaultFont( 
 	Gwen::Point pos, 
 	const Gwen::UnicodeString& text )
 {
@@ -114,7 +118,7 @@ void Renderer::RenderDefaultFont(
 }
 
 Gwen::Point 
-Renderer::MeasureDefaultFont( 
+Base::MeasureDefaultFont( 
 	const Gwen::UnicodeString& text )
 {
 	int w = 0;
@@ -161,7 +165,7 @@ Renderer::MeasureDefaultFont(
 	return Gwen::Point( w, h );			
 }
 
-Renderer::Renderer(
+Base::Base(
 	Graphics::Context* context) :
 	Gwen::Renderer::Base(),
 	m_iVertNum(0),
@@ -171,12 +175,12 @@ Renderer::Renderer(
 
 }
 
-Renderer::~Renderer()
+Base::~Base()
 {
 	Destroy();
 }
 
-void Renderer::Destroy()
+void Base::Destroy()
 {
 	if(m_FontManager != NULL)
 		font_manager_delete(m_FontManager);
@@ -184,19 +188,19 @@ void Renderer::Destroy()
 
 }
 
-void Renderer::Begin()
+void Base::Begin()
 {
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 //	glAlphaFunc( GL_GREATER, 1.0f );	
 	glEnable ( GL_BLEND );
 }
 
-void Renderer::End()
+void Base::End()
 {
 	Flush();
 }
 
-void Renderer::Flush(
+void Base::Flush(
 	GLenum primitive)
 {
 	if ( m_iVertNum == 0 ) return;
@@ -220,7 +224,7 @@ void Renderer::Flush(
 	glFlush();
 }
 
-void Renderer::AddVert( 
+void Base::AddVert( 
 	float x, float y, float u, float v )
 {
 	if ( m_iVertNum >= MaxVerts-1 )
@@ -244,7 +248,7 @@ void Renderer::AddVert(
 
 /*
 void 
-Renderer::DrawShavedCornerRect( Gwen::Rect rect, bool slight )
+Base::DrawShavedCornerRect( Gwen::Rect rect, bool slight )
 {
 	float vec[7][2]= {{0.195, 0.02}, {0.383, 0.067}, {0.55, 0.169}, {0.707, 0.293},
 					  {0.831, 0.45}, {0.924, 0.617}, {0.98, 0.805}};
@@ -306,7 +310,7 @@ Renderer::DrawShavedCornerRect( Gwen::Rect rect, bool slight )
 }
 */
 
-void Renderer::DrawFilledRect( 
+void Base::DrawFilledRect( 
 	Gwen::Rect rect )
 {
 	SetActiveTexture( 0 );
@@ -322,19 +326,19 @@ void Renderer::DrawFilledRect(
 	AddVert( rect.x, rect.y + rect.h );
 }
 
-void Renderer::SetDrawColor(
+void Base::SetDrawColor(
 	Gwen::Color color)
 {
 	glColor4ubv( (GLubyte*)&color );
 	m_Color = color;
 }
 
-void Renderer::StartClip()
+void Base::StartClip()
 {
 	Flush();
 	Gwen::Rect rect = ClipRegion();
 
-	// Renderer's coords are from the bottom left
+	// Base's coords are from the bottom left
 	// so we need to translate them here.
 	{
 		GLint view[4];
@@ -346,14 +350,14 @@ void Renderer::StartClip()
 	glEnable( GL_SCISSOR_TEST );
 };
 
-void Renderer::EndClip()
+void Base::EndClip()
 {
 	Flush();
 	glDisable( GL_SCISSOR_TEST );
 	
 };
 
-void Renderer::SetActiveTexture( 
+void Base::SetActiveTexture( 
 	unsigned int id )
 {
 	GLuint bound;
@@ -371,7 +375,7 @@ void Renderer::SetActiveTexture(
 	}		
 }
 
-void Renderer::DrawTexturedRect( 
+void Base::DrawTexturedRect( 
 	Gwen::Texture* pTexture, 
 	Gwen::Rect rect, 
 	float s0, float t0, float s1, float t1 )
@@ -397,7 +401,7 @@ void Renderer::DrawTexturedRect(
 	AddVert( rect.x, rect.y + rect.h, 		s0, t1 );			
 }
 
-void Renderer::LoadTexture( 
+void Base::LoadTexture( 
 	Gwen::Texture* pTexture )
 {
 	Graphics::ImageFormat format;
@@ -446,7 +450,7 @@ void Renderer::LoadTexture(
 			return;
 	};
 
-	GLuint* pglTexture = new GLuint;
+	GLuint* pglTexture = VD_NEW(GLuint);
 	pTexture->data = pglTexture;
 	pTexture->width = format.Width;
 	pTexture->height = format.Height;
@@ -462,19 +466,19 @@ void Renderer::LoadTexture(
 
 }
 
-void Renderer::FreeTexture( 
+void Base::FreeTexture( 
 	Gwen::Texture* pTexture )
 {
 	GLuint* tex = (GLuint*)pTexture->data;
 	if ( !tex ) return;
 
 	glDeleteTextures( 1, tex );
-	delete tex;
+	VD_DELETE(tex);
 	pTexture->data = NULL;
 }
 
 Gwen::Color 
-Renderer::PixelColour( 
+Base::PixelColour( 
 	Gwen::Texture* pTexture, 
 	unsigned int x, unsigned int y, 
 	const Gwen::Color& col_default )
@@ -509,7 +513,7 @@ Renderer::PixelColour(
 	return c;
 }
 
-void Renderer::LoadFont( 
+void Base::LoadFont( 
 	Gwen::Font* pFont )
 {	
 	pFont->realsize = pFont->size * Scale();
@@ -530,7 +534,7 @@ void Renderer::LoadFont(
 	pFont->data = font;
 }
 
-void Renderer::FreeFont( 
+void Base::FreeFont( 
 	Gwen::Font* pFont )
 {
 	if ( !pFont->data ) return;
@@ -540,7 +544,7 @@ void Renderer::FreeFont(
 	pFont->data = NULL;
 }
 
-void Renderer::RenderText( 
+void Base::RenderText( 
 	Gwen::Font* pFont, Gwen::Point pos, 
 	const Gwen::UnicodeString& text )
 {
@@ -614,7 +618,7 @@ void Renderer::RenderText(
 	}
 }
 
-Gwen::Point Renderer::MeasureText( 
+Gwen::Point Base::MeasureText( 
 	Gwen::Font* pFont, 
 	const Gwen::UnicodeString& text )
 {
@@ -656,6 +660,10 @@ Gwen::Point Renderer::MeasureText(
 		pen.y += glyph->advance_y;// * scale;
 	}
 	return Gwen::Point( pen.x, pen.y );			
+}
+
+// ============================================================================================== //
+
 }
 
 // ============================================================================================== //

@@ -65,32 +65,71 @@ Context::Destroy()
 	return Status::Code::Success;
 }
 
-Canvas*
+Renderer::Base*
+Context::GetRenderer(void)
+{
+	return m_Renderer;	
+}
+
+Canvas::Base*
 Context::GetCanvas(void)
 {
 	return m_Canvas;	
 }
 
-vd::status 
-Context::Initialize(
-	vd::i32 width, vd::i32 height)
+Skin::Base*
+Context::GetSkin(void)
+{
+	return m_Skin;	
+}
+
+vd::status
+Context::Setup(void)
 {
 	Destroy();
+	m_Renderer = VD_NEW(Renderer::Base, m_Graphics);
+	if(m_Renderer == NULL) return Status::Code::OutOfMemory;
+	return Status::Code::Success;
+}
 
-	m_Renderer = VD_NEW(Renderer, m_Graphics);
-	
-	m_Skin = VD_NEW(Skin);
-	m_Skin->SetRender( m_Renderer );
-//	m_Skin->Init("DefaultSkin.png");
+vd::status
+Context::Reset(Skin::Base* skin)
+{
+	Input::Base* old_input = m_Input;
+	Canvas::Base* old_canvas = m_Canvas;
 
-	m_Canvas = VD_NEW(Canvas, m_Skin );
+	ChangeSkin(skin ? skin : VD_NEW(Skin::Default, m_Renderer));
+
+	m_Canvas = VD_NEW(Canvas::Base, GetSkin() );
 	m_Canvas->Initialize();
-	m_Canvas->SetSize( width, height - 24 );
+
 //	m_Canvas->SetDrawBackground( true );
 //	m_Canvas->SetBackgroundColor( Gwen::Color( 150, 170, 170, 255 ) );
 
-	m_Input = VD_NEW(Input);
+	m_Input = VD_NEW(Input::Base);
 	m_Input->Initialize( m_Canvas );
+
+	VD_SAFE_DELETE(old_canvas);
+	VD_SAFE_DELETE(old_input);
+	return Status::Code::Success;
+}
+
+vd::status 
+Context::Resize(
+	vd::i32 width, vd::i32 height)
+{
+	m_Canvas->SetSize( width, height - 24 );
+	return Status::Code::Success;
+}
+
+vd::status
+Context::ChangeSkin(
+	Skin::Base* skin)
+{
+	Skin::Base* old = m_Skin;
+	m_Skin = skin;
+	m_Skin->SetRender( GetRenderer() );
+	VD_SAFE_DELETE(old);
 	return Status::Code::Success;
 }
 

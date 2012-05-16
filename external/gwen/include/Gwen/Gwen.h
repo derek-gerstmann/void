@@ -28,6 +28,12 @@
 #ifndef GWEN_GWEN_H
 #define GWEN_GWEN_H
 
+#include <stdlib.h>
+#include <memory.h>
+#include <set>
+#include <list>
+#include <algorithm>
+
 #include "Gwen/Macros.h"
 #include "Gwen/Config.h"
 #include "Gwen/Exports.h"
@@ -36,7 +42,6 @@
 #include "Gwen/Controls/Base.h"
 #include "Gwen/Controls/Canvas.h"
 #include "Gwen/Align.h"
-#include "Gwen/TextObject.h"
 
 // Enable the hook system (se Hook.h)
 #define GWEN_HOOKSYSTEM
@@ -80,6 +85,15 @@ namespace Gwen
 	extern GWEN_EXPORT Controls::Base*	HoveredControl;
 	extern GWEN_EXPORT Controls::Base*	KeyboardFocus;
 	extern GWEN_EXPORT Controls::Base*	MouseFocus;
+
+	namespace Input
+	{
+		inline void Blur()
+		{
+			if ( KeyboardFocus )
+				KeyboardFocus->Blur();
+		}
+	}
 
 } //namespace Gwen
 

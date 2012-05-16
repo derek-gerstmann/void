@@ -23,3 +23,5 @@ pkg_cfg="--disable-shared --enable-static"
 
 build_pkg $pkg_name $pkg_base $pkg_file $pkg_url $pkg_opt $pkg_cflags $pkg_ldflags $pkg_cfg
 
+# setup the environment to support our own version of PKGCFG
+make_dir "$ext_dir/pkgcfg/lib/$os_name/pkgconfig"

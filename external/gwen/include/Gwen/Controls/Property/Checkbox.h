@@ -33,7 +33,7 @@ namespace Gwen
 						SetHeight( 18 );
 					}
 
-					virtual UnicodeString GetPropertyValue()
+					virtual TextObject GetPropertyValue()
 					{
 						return m_Checkbox->IsChecked() ? L"1" : L"0";
 					}

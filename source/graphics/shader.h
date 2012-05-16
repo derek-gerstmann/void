@@ -48,6 +48,39 @@ class Shader : public Object
 public:
 	static const vd::i32 InvalidSlot;
 	typedef Map< vd::uid, vd::i32 >::type BindingMap;
+
+    VD_DECLARE_ENUM(Pass,
+        None,
+        Debug,
+        Sorting,
+        Projection,
+        Visibility,
+        Culling,
+        Depth,
+        Shadow,
+        Lighting,
+        Displacement,
+        Geometry,
+        Normal,
+        ScreenSpace,
+        AmbientOcclusion,
+        DeferredLighting,
+        ToneMap,
+        PostProcess);
+
+    VD_DECLARE_ENUM(StateId,
+        Allocated,
+        Compiled,
+        Active,
+        Inactive);
+
+    struct Data 
+    {
+        vd::u32                 Id;
+        vd::u32                 Index;
+        vd::u32                 Usage;
+        StateId::Value          State;
+    };
 	
 public:
 
@@ -56,8 +89,17 @@ public:
     Shader(const vd::string& name);
     ~Shader();
 
+    virtual vd::status Acquire();
+    virtual vd::status Release();
     virtual vd::status Destroy();
 
+    void Reset();
+    void Setup(const Data& data);
+
+    const Data& GetData() const;
+    const Data* GetPtr() const;
+
+    bool IsActive(void);
     bool Bind(bool dirty=false);
     bool Unbind();
     
@@ -75,14 +117,13 @@ public:
 	bool SetUniform(const Core::Symbol name, const vd::m3f32& value);
 	bool SetUniform(const Core::Symbol name, const vd::m4f32& value);
 	
-	vd::i32 GetShaderId(){ return m_Handle; }
+	vd::i32 GetShaderId(){ return m_Data.Id; }
 	
 	vd::i32 GetUniformSlot(const Core::Symbol name);
 	vd::i32 GetSamplerSlot(const Core::Symbol name);
     vd::i32 GetAttributeSlot(const Core::Symbol name);
     
     bool IsValidUniform(const Core::Symbol name);
-    bool IsActive();
 
 	static const vd::symbol& GetTypeIdentifier(vd::i32 type);
 	static vd::i32 GetSamplerTextureTarget(vd::i32 type);
@@ -95,14 +136,6 @@ public:
 
     void SetName(const vd::string& name) {m_Name = name;}
 
-public:
-
-	static Shader* Create(
-        const vd::string& name, 
-        const vd::string& vp, 
-        const vd::string& gp, 
-        const vd::string& fp);
-	
 	VD_DECLARE_OBJECT(Shader);
 	
 protected:
@@ -124,17 +157,15 @@ private:
 
 	VD_DISABLE_COPY_CONSTRUCTORS(Shader);
     
-    vd::i32 m_Handle;
-	bool m_Active;
-
-	vd::string m_Name;
-	ParamSet m_Uniforms;
-	BindingMap m_UniformSlots;
-	BindingMap m_UniformTypes;
-	BindingMap m_SamplerSlots;
-	BindingMap m_SamplerBindings;
-    BindingMap m_AttributeSlots;
-    Graphics::Context* m_Graphics;
+    Shader::Data       m_Data;
+	vd::string         m_Name;
+	ParamSet           m_Uniforms;
+	BindingMap         m_UniformSlots;
+	BindingMap         m_UniformTypes;
+	BindingMap         m_SamplerSlots;
+	BindingMap         m_SamplerBindings;
+    BindingMap         m_AttributeSlots;
+    Context*           m_Context;
 };
 
 // ============================================================================================== //

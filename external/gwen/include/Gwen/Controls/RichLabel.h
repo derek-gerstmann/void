@@ -11,7 +11,6 @@
 #include "Gwen/BaseRender.h"
 #include "Gwen/Controls/Base.h"
 #include "Gwen/Controls/Text.h"
-#include "Gwen/TextObject.h"
 
 
 namespace Gwen 

@@ -29,7 +29,7 @@ namespace Gwen
 						m_TextBox->onTextChanged.Add( this, &BaseClass::OnPropertyValueChanged );
 					}
 
-					virtual UnicodeString GetPropertyValue()
+					virtual TextObject GetPropertyValue()
 					{
 						return m_TextBox->GetText();
 					}

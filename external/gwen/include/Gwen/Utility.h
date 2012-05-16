@@ -7,6 +7,7 @@
 #pragma once
 #ifndef GWEN_UTILITY_H
 #define GWEN_UTILITY_H
+
 #include <sstream>
 #include <vector>
 #include "Gwen/Structures.h"
@@ -58,6 +59,16 @@ namespace Gwen
 				widen(&strIn[0], &strIn[0]+strIn.length(), &temp[0]);
 
 			return temp; 
+		}
+
+		template<typename T> void Replace( T& str, const T& strFind, const T& strReplace )
+		{
+			size_t pos = 0;
+			while( (pos = str.find(strFind, pos) ) != T::npos )
+			{
+				str.replace( pos, strFind.length(), strReplace );
+				pos += strReplace.length();
+			}
 		}
 
 #ifdef _MSC_VER
@@ -125,6 +136,7 @@ namespace Gwen
 				GWEN_EXPORT bool Bool( const Gwen::String& str );
 				GWEN_EXPORT int Int( const Gwen::String& str );
 				GWEN_EXPORT float Float( const Gwen::String& str );
+				GWEN_EXPORT float Float( const Gwen::UnicodeString& str );
 				GWEN_EXPORT bool Floats( const Gwen::String& str, float* f, size_t iCount );
 			}
 		}

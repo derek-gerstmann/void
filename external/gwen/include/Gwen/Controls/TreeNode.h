@@ -25,11 +25,11 @@ namespace Gwen
 
 				GWEN_CONTROL( TreeNode, Base );
 
-				virtual TreeNode* AddNode( const UnicodeString& strLabel );
-				virtual TreeNode* AddNode( const String& strLabel );
+				virtual TreeNode* AddNode( const TextObject& strLabel );
 
-				virtual void SetText( const UnicodeString& text );
-				virtual void SetText( const String& text );
+				virtual void SetText( const TextObject& text );
+				virtual const TextObject& GetText();
+				virtual void SetImage( const TextObject& text );
 
 				virtual void Open();
 				virtual void Close();
@@ -47,9 +47,11 @@ namespace Gwen
 
 				virtual void SetSelectable( bool b ){ m_bSelectable = b; }
 				virtual bool IsSelected(){ return m_bSelected; }
-				virtual void SetSelected( bool b );
+				virtual void SetSelected( bool b, bool FireEvents = true );
 
 				virtual void DeselectAll();
+
+				virtual Controls::Base::List& GetChildNodes();
 
 				Event::Caller	onNamePress;
 				Event::Caller	onRightPress;

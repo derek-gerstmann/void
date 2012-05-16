@@ -10,6 +10,7 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/BaseRender.h"
 
+#include <gdiplus.h>
 
 /*
 
@@ -17,12 +18,6 @@
  re-rendering everything on redraw.
 
  Therefore its usage should be as a test - rather than production.
-
- // Note: For this to work you should be including
-
- #include <gdiplus.h>
-
- // Which we don't do in the header, for the sake of usability
 
 */
 
@@ -35,7 +30,7 @@ namespace Gwen
 		{
 			public:
 
-				GDIPlus( HWND pHWND );
+				GDIPlus( HWND pHWND = NULL );
 				~GDIPlus();
 
 				virtual void Begin();
@@ -58,6 +53,19 @@ namespace Gwen
 				void FreeTexture( Gwen::Texture* pTexture );
 				Gwen::Color PixelColour( Gwen::Texture* pTexture, unsigned int x, unsigned int y, const Gwen::Color& col_default );
 
+			public:
+
+				//
+				// Self Initialization
+				//
+
+				virtual bool InitializeContext( Gwen::WindowProvider* pWindow );
+				virtual bool ShutdownContext( Gwen::WindowProvider* pWindow );
+				virtual bool PresentContext( Gwen::WindowProvider* pWindow );
+				virtual bool ResizedContext( Gwen::WindowProvider* pWindow, int w, int h );
+				virtual bool BeginContext( Gwen::WindowProvider* pWindow );
+				virtual bool EndContext( Gwen::WindowProvider* pWindow );
+
 			protected:
 
 				int m_iWidth;
@@ -76,7 +84,7 @@ namespace Gwen
 		{
 			public:
 
-				GDIPlusBuffered( HWND pHWND );
+				GDIPlusBuffered( HWND pHWND = NULL );
 				~GDIPlusBuffered();
 
 				virtual void Begin();

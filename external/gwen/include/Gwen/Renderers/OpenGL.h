@@ -29,6 +29,8 @@ namespace Gwen
 				OpenGL();
 				~OpenGL();
 
+				virtual void Init();
+
 				virtual void Begin();
 				virtual void End();
 
@@ -54,6 +56,22 @@ namespace Gwen
 				Gwen::Color			m_Color;
 				int					m_iVertNum;
 				Vertex				m_Vertices[ MaxVerts ];
+
+
+			public:
+
+				//
+				// Self Initialization
+				//
+
+				virtual bool InitializeContext( Gwen::WindowProvider* pWindow );
+				virtual bool ShutdownContext( Gwen::WindowProvider* pWindow );
+				virtual bool PresentContext( Gwen::WindowProvider* pWindow );
+				virtual bool ResizedContext( Gwen::WindowProvider* pWindow, int w, int h );
+				virtual bool BeginContext( Gwen::WindowProvider* pWindow );
+				virtual bool EndContext( Gwen::WindowProvider* pWindow );
+
+				void*	m_pContext;
 		};
 
 	}

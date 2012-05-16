@@ -83,7 +83,10 @@ Demo::CreateWindow(int* argc, void** argv)
     m_Window->SetFrameRateLimit(60);
 
     m_Gui = VD_NEW(Interface::Gw::Context, m_Window->GetGraphics());
-    m_Gui->Initialize(m_Config.Window.Viewport.Width, m_Config.Window.Viewport.Height);
+
+    m_Gui->Setup();
+    m_Gui->Reset();
+    m_Gui->Resize(m_Config.Window.Viewport.Width, m_Config.Window.Viewport.Height);
 
     m_Controls = VD_NEW(Interface::Gw::WindowControl, m_Gui->GetCanvas());
 
@@ -249,7 +252,11 @@ Demo::HandleKeys()
 			case Keyboard::KeyCode::F:
 			{        	
                 bool enable = m_Config.Status.FullScreen ? false : true;
-                m_Window->SetFullScreen(enable);
+                if(enable)
+                    m_Window->EnterFullScreen();
+                else
+                    m_Window->ExitFullScreen();
+
 				m_Config.Status.FullScreen = enable;
 				m_Config.Controls.KeyDown[code] = false;
 				break;

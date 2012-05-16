@@ -51,12 +51,8 @@ namespace Gwen
 				template <typename T>
 				MenuItem* SetAction( Gwen::Event::Handler* pHandler, T fn )
 				{
-					if ( m_Accelerator )
-					{
-						AddAccelerator( m_Accelerator->GetText(), fn, pHandler );
-					}
-
-					onMenuItemSelected.Add( pHandler, static_cast<Handler::Function>(fn) );
+					if ( m_Accelerator ) AddAccelerator( m_Accelerator->GetText(), fn, pHandler );
+					onMenuItemSelected.Add( pHandler, fn );
 					return this;
 				}
 

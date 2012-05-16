@@ -68,7 +68,7 @@ public:
 		F32,
 		F64);
 
-	VD_DECLARE_ENUM(UsageMode,
+	VD_DECLARE_ENUM(UpdateMode,
 		Static,
 		Stream,
 		Dynamic);
@@ -91,6 +91,7 @@ public:
     {
         vd::u32                 Id;
         vd::u32                 Index;
+        vd::u32                 Usage;
         vd::u64                 Count;
         vd::u8                  Components;
         vd::u32                 Slot;
@@ -100,8 +101,8 @@ public:
         TargetType::Value       Target;
         AttributeType::Value    Attribute;
         TypeId::Value         	DataType;
-        UsageMode::Value        Usage;
-        AccessMode::Value       Access;
+        UpdateMode::Value       UpdateMode;
+        AccessMode::Value       AccessMode;
         StateId::Value          State;
         const void*             Ptr;
     };
@@ -111,13 +112,21 @@ public:
     Buffer(Context* context);
     virtual ~Buffer();
     
+    virtual vd::status Acquire();
+    virtual vd::status Release();
     virtual vd::status Destroy();
+
     void Reset();
     void Setup(const Data& data);
+    void Bind();
+    void Unbind();
+
     const Data& GetData() const;
+    const Data* GetPtr() const;
 
     void SetState(StateId::Value v);
     StateId::Value GetState(void) const;
+    bool IsActive(void) const;
 
 	VD_DECLARE_OBJECT(Buffer);
 

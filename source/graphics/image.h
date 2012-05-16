@@ -38,64 +38,72 @@ VD_GRAPHICS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
+VD_DECLARE_ENUM(DepthFormat,
+	None,
+	Log,
+	LogLinear,
+	Linear,
+	Custom);
+
+VD_DECLARE_ENUM(ChannelLayout,
+	None,
+	R,
+	RG,
+	RGB,
+	RGBA,
+	Alpha,
+	Depth,
+	Intensity,
+	Luminance,
+	LuminanceAlpha,
+	Custom);
+
 struct ChannelFormat
-{
-	VD_DECLARE_ENUM(Order,
-		R,
-		RG,
-		RGB,
-		RGBA,
-		Alpha,
-		Depth,
-		Intensity,
-		Luminance,
-		LuminanceAlpha,
-		Custom);
-		
-	vd::i32 Count;
-	Order::Value Order;
+{		
+	vd::i32 			 Count;
+	ChannelLayout::Value Layout;
 	
 	ChannelFormat() : 
 		Count(0), 
-		Order(ChannelFormat::Order::Invalid) 
+		Layout(ChannelLayout::Invalid) 
 	{
 		// EMPTY!
 	}
 	
 	ChannelFormat(
-		ChannelFormat::Order::Value order,
+		ChannelLayout::Value layout,
 		vd::i32 count = 0)
 	{
-		if(ChannelFormat::Order::Custom == order)
+		if(ChannelLayout::Custom == layout)
 		{
 			Count = count;
-			Order = order;
+			Layout = layout;
 		}
 		else
 		{
-			Count = GetChannelCountForOrder(order);
-			Order = order;
+			Count = GetChannelCountForLayout(layout);
+			Layout = layout;
 		}
 	}
 	
 	static vd::i32
-	GetChannelCountForOrder(
-		ChannelFormat::Order::Value order)
+	GetChannelCountForLayout(
+		ChannelLayout::Value layout)
 	{
-		switch (order)
+		switch (layout)
 		{
-			case ChannelFormat::Order::Alpha:
-			case ChannelFormat::Order::Intensity:
-			case ChannelFormat::Order::Luminance:
-			case ChannelFormat::Order::Depth:
-			case ChannelFormat::Order::R:
+			case ChannelLayout::Alpha:
+			case ChannelLayout::Intensity:
+			case ChannelLayout::Luminance:
+			case ChannelLayout::Depth:
+			case ChannelLayout::R:
 				return 1;
-			case ChannelFormat::Order::LuminanceAlpha:
-			case ChannelFormat::Order::RG:
+			case ChannelLayout::LuminanceAlpha:
+			case ChannelLayout::RG:
 				return 2;
-			case ChannelFormat::Order::RGB:
+			case ChannelLayout::RGB:
 				return 3;
-			case ChannelFormat::Order::RGBA:
+			case ChannelLayout::RGBA:
 				return 4;
 			default:
 				return 1;
@@ -139,12 +147,12 @@ struct TileFormat
 
 struct ImageFormat
 {
-	vd::i32 Width;
-	vd::i32 Height;
-	vd::i32 Depth;
-	TileFormat Tiles;
-	ChannelFormat Channels;
-	ColorSpaceFormat ColorSpace;
+	vd::i32 			Width;
+	vd::i32 			Height;
+	vd::i32 			Depth;
+	TileFormat 			Tiles;
+	ChannelFormat 		Channels;
+	ColorSpaceFormat	ColorSpace;
 	
 	ImageFormat() : 
 		Width(0), Height(0), Depth(0), 

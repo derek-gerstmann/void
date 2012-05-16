@@ -41,63 +41,71 @@ VD_INTERFACE_GWEN_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-class Renderer : public Render::Base
+namespace Renderer {
+
+// ============================================================================================== //
+
+class Base : public Render::Base
 {
-	public:
+public:
 
-		struct Vertex
-		{
-			float x, y, z;
-			float u, v;
-			unsigned char r, g, b, a;
-		};
+	struct Vertex
+	{
+		float x, y, z;
+		float u, v;
+		unsigned char r, g, b, a;
+	};
 
-		Renderer(Graphics::Context* context);
-		virtual ~Renderer();
+	Base(Graphics::Context* context);
+	virtual ~Base();
 
-		void Destroy();
-		virtual void Begin();
-		virtual void End();
+	void Destroy();
+	virtual void Begin();
+	virtual void End();
 
-		virtual void SetDrawColor( Gwen::Color color );
-		virtual void DrawFilledRect( Gwen::Rect rect );
+	virtual void SetDrawColor( Gwen::Color color );
+	virtual void DrawFilledRect( Gwen::Rect rect );
 
-		void StartClip();
-		void EndClip();
+	void StartClip();
+	void EndClip();
 
-		void DrawTexturedRect( Gwen::Texture* pTexture, Gwen::Rect pTargetRect, float u1=0.0f, float v1=0.0f, float u2=1.0f, float v2=1.0f );
-		void LoadTexture( Gwen::Texture* pTexture );
-		void FreeTexture( Gwen::Texture* pTexture );
-		Gwen::Color PixelColour( Gwen::Texture* pTexture, unsigned int x, unsigned int y, const Gwen::Color& col_default );
+	void DrawTexturedRect( Gwen::Texture* pTexture, Gwen::Rect pTargetRect, float u1=0.0f, float v1=0.0f, float u2=1.0f, float v2=1.0f );
+	void LoadTexture( Gwen::Texture* pTexture );
+	void FreeTexture( Gwen::Texture* pTexture );
+	Gwen::Color PixelColour( Gwen::Texture* pTexture, unsigned int x, unsigned int y, const Gwen::Color& col_default );
 
-		void LoadFont( Gwen::Font* font );
-		void FreeFont( Gwen::Font* pFont );
+	void LoadFont( Gwen::Font* font );
+	void FreeFont( Gwen::Font* pFont );
 
 //		virtual void DrawLinedRect( Gwen::Rect rect );
 //		virtual void DrawShavedCornerRect( Gwen::Rect rect, bool bSlight = false );
-		void RenderText( Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text );
-		Gwen::Point MeasureText( Gwen::Font* pFont, const Gwen::UnicodeString& text );
+	void RenderText( Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text );
+	Gwen::Point MeasureText( Gwen::Font* pFont, const Gwen::UnicodeString& text );
 
-	protected:
+protected:
 
-		void SetActiveTexture( unsigned int id );
-		void RenderDefaultFont(	Gwen::Point pos, const Gwen::UnicodeString& text );
-		Gwen::Point MeasureDefaultFont( const Gwen::UnicodeString& text );
+	void SetActiveTexture( unsigned int id );
+	void RenderDefaultFont(	Gwen::Point pos, const Gwen::UnicodeString& text );
+	Gwen::Point MeasureDefaultFont( const Gwen::UnicodeString& text );
 
-		void DrawBox(int mode, float minx, float miny, float maxx, float maxy, float rad);
+	void DrawBox(int mode, float minx, float miny, float maxx, float maxy, float rad);
 
-		static const int	MaxVerts = 1024;
+	static const int	MaxVerts = 1024;
 
-		void Flush(GLenum primitive=GL_TRIANGLES);
-		void AddVert( float x, float y, float u = 0.0f , float v = 0.0f );
+	void Flush(GLenum primitive=GL_TRIANGLES);
+	void AddVert( float x, float y, float u = 0.0f , float v = 0.0f );
 
-		Gwen::Color			m_Color;
-		int					m_iVertNum;
-		Vertex				m_Vertices[ MaxVerts ];
-		font_manager_t* 	m_FontManager;
-		Graphics::Context*	m_Graphics;
-		Graphics::Geometry* m_Geometry;
+	Gwen::Color			m_Color;
+	int					m_iVertNum;
+	Vertex				m_Vertices[ MaxVerts ];
+	font_manager_t* 	m_FontManager;
+	Graphics::Context*	m_Graphics;
+	Graphics::Geometry* m_Geometry;
 };
+
+// ============================================================================================== //
+
+}
 
 // ============================================================================================== //
 

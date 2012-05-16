@@ -312,6 +312,7 @@ vdGuiReshapeCallback(int width, int height)
 	event.Size.Width = width;
 	event.Size.Height = height;
 	event.Kind = Event::Type::Resize;
+
 	if(Global::ActiveWindow) 
 		Global::ActiveWindow->ProcessEvent( event );
 }
@@ -524,25 +525,6 @@ Window::Setup(
 	DisplayFrame();
 	PostRedisplay();
 }
-
-void
-Window::SetFullScreen(bool enable)
-{
-	ScopedMutex locker(&m_Mutex);
-
-	if(enable)
-	{
-		GLint vp[4];
-        glGetIntegerv(GL_VIEWPORT, vp);
-        m_Size[0] = vp[2];
-        m_Size[1] = vp[3];
-		glutFullScreen();
-	}
-	else
-	{
-		glutReshapeWindow(m_Size.x, m_Size.y);
-	}	
-}	
 
 void
 Window::SetActive(bool enable)
@@ -823,6 +805,30 @@ Window::Exit()
 	Global::IsExiting = true;
 	m_Exit = true;
 //	m_Mutex.Unlock();
+}
+
+void
+Window::EnterFullScreen()
+{
+	if(m_Handle == 0)
+		return;
+
+	GLint vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
+
+    m_Size[0] = vp[2];
+    m_Size[1] = vp[3];
+
+    glutFullScreen();
+}
+
+void
+Window::ExitFullScreen()
+{
+	if(m_Handle == 0)
+		return;
+
+    glutReshapeWindow(m_Size[0], m_Size[1]);
 }
 
 Graphics::Context*

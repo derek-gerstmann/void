@@ -38,8 +38,7 @@ namespace Gwen
 				{
 					if ( !texture ) return;
 
-					render->SetDrawColor( col );	
-
+					render->SetDrawColor( col );
 					render->DrawTexturedRect( texture, r, uv[0], uv[1],uv[2], uv[3]  );
 				}
 
@@ -116,7 +115,7 @@ namespace Gwen
 				//	rects[iNum].uv[1] += 1.0f / texture->width;
 				}
 
-				void Draw( Gwen::Renderer::Base* render, Gwen::Rect r, const Gwen::Color& col = Gwen::Colors::White )
+				void Draw( Gwen::Renderer::Base* render, Gwen::Rect r, const Gwen::Color& col = Gwen::Colors::White, bool b1 = true, bool b2 = true, bool b3 = true, bool b4 = true, bool b5 = true, bool b6 = true, bool b7 = true, bool b8 = true, bool b9 = true )
 				{
 					if ( !texture ) return;
 
@@ -130,17 +129,17 @@ namespace Gwen
 						return;
 					}						
 					 
-					DrawRect( render, 0, r.x, r.y, margin.left, margin.top );
-					DrawRect( render, 1, r.x + margin.left, r.y, r.w - margin.left - margin.right, margin.top );
-					DrawRect( render, 2, (r.x + r.w) - margin.right, r.y, margin.right, margin.top );
+					if ( b1 ) DrawRect( render, 0, r.x, r.y, margin.left, margin.top );
+					if ( b2 ) DrawRect( render, 1, r.x + margin.left, r.y, r.w - margin.left - margin.right, margin.top );
+					if ( b3 ) DrawRect( render, 2, (r.x + r.w) - margin.right, r.y, margin.right, margin.top );
 
-					DrawRect( render, 3, r.x, r.y+margin.top, margin.left, r.h - margin.top - margin.bottom );
-					DrawRect( render, 4, r.x + margin.left, r.y+margin.top, r.w - margin.left - margin.right, r.h - margin.top - margin.bottom );
-					DrawRect( render, 5, (r.x + r.w) - margin.right, r.y+margin.top, margin.right, r.h - margin.top - margin.bottom );
+					if ( b4 ) DrawRect( render, 3, r.x, r.y+margin.top, margin.left, r.h - margin.top - margin.bottom );
+					if ( b5 ) DrawRect( render, 4, r.x + margin.left, r.y+margin.top, r.w - margin.left - margin.right, r.h - margin.top - margin.bottom );
+					if ( b6 ) DrawRect( render, 5, (r.x + r.w) - margin.right, r.y+margin.top, margin.right, r.h - margin.top - margin.bottom );
 
-					DrawRect( render, 6, r.x, (r.y+r.h) - margin.bottom, margin.left, margin.bottom );
-					DrawRect( render, 7, r.x + margin.left, (r.y+r.h) - margin.bottom, r.w - margin.left - margin.right, margin.bottom );
-					DrawRect( render, 8, (r.x + r.w) - margin.right, (r.y+r.h) - margin.bottom, margin.right, margin.bottom );
+					if ( b7 ) DrawRect( render, 6, r.x, (r.y+r.h) - margin.bottom, margin.left, margin.bottom );
+					if ( b8 ) DrawRect( render, 7, r.x + margin.left, (r.y+r.h) - margin.bottom, r.w - margin.left - margin.right, margin.bottom );
+					if ( b9 ) DrawRect( render, 8, (r.x + r.w) - margin.right, (r.y+r.h) - margin.bottom, margin.right, margin.bottom );
 				}
 
 				void DrawRect( Gwen::Renderer::Base* render, int i, int x, int y, int w, int h )

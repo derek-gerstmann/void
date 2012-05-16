@@ -21,18 +21,23 @@ namespace Gwen
 			public:
 
 				GWEN_CONTROL( Label, Controls::Base );
+				virtual void PreDelete( Gwen::Skin::Base* skin );
 
 				virtual void SetText( const TextObject& str, bool bDoEvents = true );
 
-				virtual const UnicodeString& GetText() const { return m_Text->GetText(); }
+				virtual const TextObject& GetText() const { return m_Text->GetText(); }
 
 				virtual void Render( Skin::Base* /*skin*/ ){}
 
-				virtual void Layout( Skin::Base* skin );
+				virtual void PostLayout( Skin::Base* skin );
 
 				virtual void SizeToContents();
 
-				virtual void SetAlignment( int iAlign ){ m_iAlign = iAlign; Invalidate(); }
+				virtual void SetAlignment( int iAlign );
+				virtual int GetAlignment();
+				
+
+				virtual void SetFont( Gwen::UnicodeString strFacename, int iSize, bool bBold );
 
 				virtual void SetFont( Gwen::Font* pFont ){ m_Text->SetFont( pFont ); }
 				virtual Gwen::Font* GetFont(){ return m_Text->GetFont(); }
@@ -47,12 +52,10 @@ namespace Gwen
 				virtual int TextY() { return m_Text->Y(); }
 				virtual int TextLength() { return m_Text->Length(); }
 
-				Gwen::Point GetCharacterPosition( int iChar );
+				Gwen::Rect GetCharacterPosition( int iChar );
 
-				virtual void SetTextPadding( const Padding& padding ){ m_rTextPadding = padding; Invalidate(); InvalidateParent(); }
-				virtual const Padding& GetTextPadding(){ return m_rTextPadding; }
-
-				virtual Gwen::UnicodeString GetText() { return m_Text->GetText(); }
+				virtual void SetTextPadding( const Padding& padding ){ m_Text->SetPadding( padding ); Invalidate(); InvalidateParent(); }
+				virtual const Padding& GetTextPadding(){ return m_Text->GetPadding(); }
 
 				inline int Alignment() const { return m_iAlign; }
 
@@ -61,12 +64,20 @@ namespace Gwen
 				virtual void MakeColorDark(){ SetTextColor( GetSkin()->Colors.Label.Dark ); }
 				virtual void MakeColorHighlight(){ SetTextColor( GetSkin()->Colors.Label.Highlight ); }
 
+				virtual TextObject GetValue(){ return GetText(); }
+				virtual void SetValue( const TextObject& strValue ){ return SetText( strValue ); }
+
+				virtual bool Wrap(){ return m_Text->Wrap(); }
+				virtual void SetWrap( bool b ){ m_Text->SetWrap( b ); }
+
+				virtual void OnBoundsChanged( Gwen::Rect oldChildBounds );
+
 			protected:
 
 				virtual void OnTextChanged(){};
 
-				Padding m_rTextPadding;
-				ControlsInternal::Text*	m_Text;
+				Gwen::Font*					m_CreatedFont;
+				ControlsInternal::Text*		m_Text;
 				int m_iAlign;
 
 

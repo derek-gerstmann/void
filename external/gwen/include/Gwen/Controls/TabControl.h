@@ -30,11 +30,13 @@ namespace Gwen
 				virtual TabButton* AddPage( const TextObject strText, Controls::Base* pPage = NULL );
 
 				virtual void AddPage( TabButton* pButton );
+				virtual void RemovePage( TabButton* pButton );
 
 				virtual void OnTabPressed( Controls::Base* control );
 				virtual void OnLoseTab( TabButton* pButton );
 
 				virtual int TabCount( void );
+				virtual TabButton* GetTab( int iNum );
 				virtual TabButton* GetCurrentButton(){ return m_pCurrentButton; }
 				virtual TabStrip* GetTabStrip(){ return m_TabStrip; }
 

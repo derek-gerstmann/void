@@ -132,6 +132,65 @@ public:
 
         *(reinterpret_cast<EntryArray*>(to)) = *(reinterpret_cast<const EntryArray*>(fm));
     }
+
+    static const size_t SystemAlignment = 4;
+
+    template <class T>
+    static inline size_t AlignOf() { struct { char c; T t; } s; return sizeof(s) - sizeof(T); }
+
+    template <class Type, class Field>
+    static inline size_t FieldOffsetOf(Field (Type::*field))
+    {
+        Type *object = 0;
+        return uintptr_t(&(object->*field)) - uintptr_t(object);
+    }
+
+    static inline size_t AlignUp(size_t size, size_t alignment = SystemAlignment)
+    {
+        return ((size - 1) & ~(alignment - 1)) + alignment;
+    }
+
+    static inline void *AlignUp(void *p, size_t alignment = SystemAlignment)
+    {
+        return reinterpret_cast<void *>(AlignUp(uintptr_t(p), alignment));
+    }
+
+    static inline const void *AlignUp(const void *p, size_t alignment = SystemAlignment)
+    {
+        return reinterpret_cast<const void *>(AlignUp(uintptr_t(p), alignment));
+    }
+
+    template <class T>
+    static inline const T *Increment(const void *p, ptrdiff_t offset)
+    { return reinterpret_cast<const T *>(uintptr_t(p) + offset); }
+
+    template <class T>
+    static inline T *Increment(void *p, ptrdiff_t offset)
+    { return reinterpret_cast<T *>(uintptr_t(p) + offset); }
+
+    static inline const void *Increment(const void *p, ptrdiff_t offset)
+    { return Increment<const void>(p, offset); }
+
+    static inline void *Increment(void *p, ptrdiff_t offset)
+    { return Increment<void>(p, offset); }
+
+    template <class T>
+    static inline const T *Increment(const void *p, ptrdiff_t offset, size_t alignment)
+    { return Increment<const T>(AlignUp(p, alignment), offset); }
+
+    template <class T>
+    static inline T *Increment(void *p, ptrdiff_t offset, size_t alignment)
+    { return Increment<T>(AlignUp(p, alignment), offset); }
+
+    static inline const void *Increment(const void *p, ptrdiff_t offset, size_t alignment)
+    { return Increment<const void>(p, offset, alignment); }
+
+    static inline void *Increment(void *p, ptrdiff_t offset, size_t alignment)
+    { return Increment<void>(p, offset, alignment); }
+
+    static inline ptrdiff_t Difference(const void *p1, const void *p2)
+    { return uintptr_t(p1) - uintptr_t(p2); }
+
 };
 
 // ============================================================================================== //

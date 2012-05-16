@@ -16,6 +16,7 @@
 #include "Gwen/Controls/Label.h"
 #include "Gwen/Controls/ResizableControl.h"
 #include "Gwen/Controls/Modal.h"
+#include "Gwen/Controls/WindowButtons.h"
 #include "Gwen/Skin.h"
 
 
@@ -44,18 +45,21 @@ namespace Gwen
 
 				virtual void SetHidden(bool hidden);
 
-				void CloseButtonPressed( Gwen::Controls::Base* pFromPanel );
+				void CloseButtonPressed();
 				void RenderFocus( Gwen::Skin::Base* skin );
 				void SetDeleteOnClose( bool b ){ m_bDeleteOnClose = b; }
 
 				void MakeModal( bool bDrawBackground = true );
 				void DestroyModal();
 
+				Gwen::Event::Caller	onWindowClosed;
+
 			protected:
 
-				ControlsInternal::Dragger* m_TitleBar;
-				Label* m_Title;
-				CloseButton* m_CloseButton;
+				Gwen::ControlsInternal::Dragger*	m_TitleBar;
+				Gwen::Controls::Label*				m_Title;
+				Gwen::Controls::WindowCloseButton*	m_CloseButton;
+
 				bool m_bDeleteOnClose;
 
 				ControlsInternal::Modal* m_Modal;

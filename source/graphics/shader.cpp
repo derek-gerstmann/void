@@ -54,14 +54,12 @@ typedef Containers::Vector< vd::symbol >::type SymbolList;
 // ============================================================================================== //
 
 Shader::Shader(
-	Graphics::Context* context
-) :
-	Object(), 
-    m_Handle(0),
-    m_Active(false),
-    m_Graphics(context)
+    Context* ctx) :
+    Object(),
+    m_Context(ctx)
 {
-	// EMPTY!
+    Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
+    m_Data.Index = VD_INVALID_INDEX;
 }
 
 Shader::Shader(
@@ -69,24 +67,11 @@ Shader::Shader(
 	const vd::string& name)
 :
 	Object(), 
-	m_Handle(0),
-	m_Active(false),
 	m_Name(name),
-    m_Graphics(context)
+    m_Context(context)
 {
-
-}
-
-Shader::Shader(
-	const vd::string& name)
-:
-	Object(), 
-	m_Handle(0),
-	m_Active(false),
-	m_Name(name),
-    m_Graphics(NULL)
-{
-
+    Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
+    m_Data.Index = VD_INVALID_INDEX;
 }
 
 Shader::~Shader()
@@ -94,29 +79,80 @@ Shader::~Shader()
     Destroy();
 }
 
-vd::status
+void
+Shader::Reset()
+{
+    Destroy();
+    Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
+    m_Data.Index = VD_INVALID_INDEX;
+}
+
+void
+Shader::Setup(
+    const Shader::Data& data)
+{
+	if(&m_Data == &data)
+		return;
+
+    Destroy();
+    Core::Memory::CopyBytes(&m_Data, &data, sizeof(m_Data));
+}
+
+vd::status 
+Shader::Acquire()
+{
+	return Status::Code::Success;
+}
+
+vd::status 
+Shader::Release()
+{
+    m_Data.Index = VD_INVALID_INDEX;
+	return Status::Code::Success;
+}
+
+vd::status 
 Shader::Destroy()
 {
-	Unbind();
-    if(m_Handle)
-        glDeleteProgram(m_Handle);
-    m_Handle = 0;
-    return Status::Code::Success;
+	if(m_Context)
+		m_Context->Release(this);
+
+    Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
+    m_Data.Index = VD_INVALID_INDEX;
+	return Status::Code::Success;
+}
+
+const Shader::Data&
+Shader::GetData() const
+{
+    return m_Data;
+}
+
+const Shader::Data*
+Shader::GetPtr() const
+{
+    return &m_Data;
+}
+
+bool 
+Shader::IsActive()
+{
+    return m_Data.Usage > 0;
 }
 
 bool
 Shader::Bind(bool dirty)
 {
-	if(m_Active)
+	if(IsActive() == true)
 		return true;
 		
-	if(m_Handle)
+	if(m_Data.Id)
 	{
 		BindAttributes();
 		BindSamplers();
-		glUseProgram(m_Handle);   
+		glUseProgram(m_Data.Id);   
 		SubmitUniforms(dirty);
-		m_Active = true;
+		m_Data.Usage++;
 		return true;
 	}
 	return false;
@@ -125,44 +161,27 @@ Shader::Bind(bool dirty)
 bool 
 Shader::Unbind()
 {
-	if(m_Active)
-	{
-		UnbindSamplers();
-		UnbindAttributes();
-		glUseProgram(0);    	
-		m_Active = false;
-		return true;
-	}
-	return false;
-}
+	if(IsActive() == false)
+		return false;
 
-bool
-Shader::IsActive()
-{
-	return m_Active;
-}
-
-Shader*
-Shader::Create(
-	const vd::string& name,
-	const vd::string& vp, const vd::string& gp, const vd::string& fp)
-{
-	Shader* shader = VD_NEW(Shader, name);
-	shader->Load(
-		vp.size() ? vp.c_str() : NULL,
-		gp.size() ? gp.c_str() : NULL, 
-		fp.size() ? fp.c_str() : NULL);
-	return shader;
+	UnbindSamplers();
+	UnbindAttributes();
+	glUseProgram(0);    	
+	vdAssert(m_Data.Usage > 0);
+	m_Data.Usage--;
+	return true;
 }
 
 bool
 Shader::Compile(
-	const char* vp, const char* gp, const char* fp)
+	const char* vp, 
+	const char* gp, 
+	const char* fp)
 {    
     GLint status;
     GLchar msglog[1024] = {0};
     
-    m_Handle = glCreateProgram();
+    m_Data.Id = glCreateProgram();
 		  
 	const char* vsSource = vp;
 	GLuint vsHandle = glCreateShader(GL_VERTEX_SHADER);
@@ -172,9 +191,10 @@ Shader::Compile(
     glGetShaderInfoLog(vsHandle, sizeof(msglog), 0, msglog);
     if(status == GL_FALSE)  
     	vdLogError("Failed to compile vertex shader:\n%s\n--\n%s", vsSource, msglog);
+
 	vdAssert(status == GL_TRUE);
 	
-    glAttachShader(m_Handle, vsHandle);
+    glAttachShader(m_Data.Id, vsHandle);
 
     GLuint gsHandle;
     if (gp != NULL  && strlen(gp)) 
@@ -190,16 +210,16 @@ Shader::Compile(
 			vdLogError("Failed to compile geometry shader:\n%s\n--\n%s", gsSource, msglog);
 		vdAssert(status == GL_TRUE);
 	
-        glAttachShader(m_Handle, gsHandle);
+        glAttachShader(m_Data.Id, gsHandle);
 
 #if defined(VD_TARGET_OSX)
-        glProgramParameteri(m_Handle, GL_GEOMETRY_OUTPUT_TYPE, GL_TRIANGLE_STRIP);
-        glProgramParameteri(m_Handle, GL_GEOMETRY_INPUT_TYPE, GL_POINTS);
-        glProgramParameteri(m_Handle, GL_GEOMETRY_VERTICES_OUT, 24);
+        glProgramParameteri(m_Data.Id, GL_GEOMETRY_OUTPUT_TYPE, GL_TRIANGLE_STRIP);
+        glProgramParameteri(m_Data.Id, GL_GEOMETRY_INPUT_TYPE, GL_POINTS);
+        glProgramParameteri(m_Data.Id, GL_GEOMETRY_VERTICES_OUT, 24);
 #else
-        glProgramParameteriEXT(m_Handle, GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP);
-        glProgramParameteriEXT(m_Handle, GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS);
-        glProgramParameteriEXT(m_Handle, GL_GEOMETRY_VERTICES_OUT_EXT, 24);
+        glProgramParameteriEXT(m_Data.Id, GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP);
+        glProgramParameteriEXT(m_Data.Id, GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS);
+        glProgramParameteriEXT(m_Data.Id, GL_GEOMETRY_VERTICES_OUT_EXT, 24);
 #endif
     }
     
@@ -216,13 +236,13 @@ Shader::Compile(
 			vdLogError("Failed to compile fragment shader:\n%s\n--\n%s", fsSource, msglog);
 		vdAssert(status == GL_TRUE);
 
-        glAttachShader(m_Handle, fsHandle);
+        glAttachShader(m_Data.Id, fsHandle);
     }
 
-    glLinkProgram(m_Handle);
+    glLinkProgram(m_Data.Id);
     
-    glGetProgramiv(m_Handle, GL_LINK_STATUS, &status);
-    glGetProgramInfoLog(m_Handle, sizeof(msglog), 0, msglog);
+    glGetProgramiv(m_Data.Id, GL_LINK_STATUS, &status);
+    glGetProgramInfoLog(m_Data.Id, sizeof(msglog), 0, msglog);
 
     if (status == GL_FALSE) 
     {
@@ -230,6 +250,7 @@ Shader::Compile(
         vdLogWarning("%s", msglog);
         return false;
     }
+	vdLogInfo("Done compiling shader '%s'!", m_Name.c_str() ? m_Name.c_str() : "<UNKNOWN>");
     
     LocateUniforms();
     LocateAttributes();
@@ -238,12 +259,14 @@ Shader::Compile(
 
 bool
 Shader::Load(
-	const vd::string& vp, const vd::string& gp, const vd::string& fp)
+	const vd::string& vp, 
+	const vd::string& gp, 
+	const vd::string& fp)
 {
-	if(m_Graphics == NULL)
+	if(m_Context == NULL)
 		return false;
 
-	Runtime::Context* rt = m_Graphics->GetRuntime();
+	Runtime::Context* rt = m_Context->GetRuntime();
 	Core::FileSystem* fs = rt->GetFileSystem();
 
 	vd::string vs_file = vp.size() ? fs->FindInSearchPath(vp) : vp;
@@ -426,9 +449,9 @@ Shader::LocateUniforms()
 	GLint uniform_max_length;
 	int sampler_count = 0;
 
-	glUseProgram(m_Handle);
-	glGetProgramiv(m_Handle, GL_ACTIVE_UNIFORMS, &uniform_count);
-	glGetProgramiv(m_Handle, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniform_max_length);
+	glUseProgram(m_Data.Id);
+	glGetProgramiv(m_Data.Id, GL_ACTIVE_UNIFORMS, &uniform_count);
+	glGetProgramiv(m_Data.Id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniform_max_length);
 
 	if(uniform_count < 1 || uniform_max_length < 1)
 		return;
@@ -441,10 +464,10 @@ Shader::LocateUniforms()
 		GLint size = 0;
 		uniform_string[0] = '\0';
 		
-		glGetActiveUniform(m_Handle, i, uniform_max_length, &length, &size, &type, uniform_string);
+		glGetActiveUniform(m_Data.Id, i, uniform_max_length, &length, &size, &type, uniform_string);
 		if (type >= GL_SAMPLER_1D && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB)
 		{
-			GLint location = glGetUniformLocation(m_Handle, uniform_string);
+			GLint location = glGetUniformLocation(m_Data.Id, uniform_string);
 			if(location < 0)
 				continue;
 				
@@ -477,7 +500,7 @@ Shader::LocateUniforms()
 						length = (GLint) (bracket - uniform_string);
 					}
 
-					GLint location = glGetUniformLocation(m_Handle, uniform_string);
+					GLint location = glGetUniformLocation(m_Data.Id, uniform_string);
 					if(location < 0)
 						continue;
 
@@ -510,9 +533,9 @@ Shader::LocateAttributes()
 	GLint attrib_max_length;
 	int attrib_index = 0;
 
-	glUseProgram(m_Handle);
-	glGetProgramiv(m_Handle, GL_ACTIVE_ATTRIBUTES, &attrib_count);
-	glGetProgramiv(m_Handle, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &attrib_max_length);
+	glUseProgram(m_Data.Id);
+	glGetProgramiv(m_Data.Id, GL_ACTIVE_ATTRIBUTES, &attrib_count);
+	glGetProgramiv(m_Data.Id, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &attrib_max_length);
 
 	if(attrib_count < 1 || attrib_max_length < 1)
 		return;
@@ -525,7 +548,7 @@ Shader::LocateAttributes()
 		GLint size = 0;
 		attrib_string[0] = '\0';
 		
-		glGetActiveAttrib(m_Handle, i, attrib_max_length, &length, &size, &type, attrib_string);
+		glGetActiveAttrib(m_Data.Id, i, attrib_max_length, &length, &size, &type, attrib_string);
 		if (strncmp(attrib_string, "gl_", 3) != 0)
 		{
 			char *bracket = strchr(attrib_string, '[');
@@ -537,7 +560,7 @@ Shader::LocateAttributes()
 					length = (GLint) (bracket - attrib_string);
 				}
 
-				GLint location = glGetAttribLocation(m_Handle, attrib_string);
+				GLint location = glGetAttribLocation(m_Data.Id, attrib_string);
 				if(location < 0)
 					continue;
 
@@ -648,7 +671,7 @@ Shader::BindAttributes()
 			m_Name.c_str(), slot, Symbol::ToString(name), name.ToKey().ToString().c_str(), 
 			Geometry::AttributeSlot::ToString(attrib));
 
-	    glBindAttribLocation(m_Handle, slot, Symbol::ToString(name));
+	    glBindAttribLocation(m_Data.Id, slot, Symbol::ToString(name));
 	}
 */
 }
