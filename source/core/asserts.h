@@ -87,8 +87,13 @@ class CompileTimeCheck<false>
 #define vdAssertMsg(cond, fmt, ...) ((void) 0)
 #define vdGlobalAssert(cond) ((void) 0)
 #define vdGlobalAssertMsg(cond, fmt, ...) ((void) 0)
+
+#ifndef vdException
 #define vdException(cond, fmt, ...) ((void) 0)
+#endif
+#ifndef vdGlobalException
 #define vdGlobalException(cond, fmt, ...) ((void) 0)
+#endif
 
 // ============================================================================================== //
 
@@ -127,16 +132,20 @@ class CompileTimeCheck<false>
 	} while (0)
 	
 /// Scope specific exception with a custom error message
+#ifndef vdException
 #define vdException(exception, fmt, ...)  do { 														\
 		vdLogError("Exception '%s' caught in %s:%i!", #exception, __FILE__, __LINE__);				\
 		vdLogError(fmt, ## __VA_ARGS__); 															\
 	} while (0)
-	
+#endif
+
 /// Global exception with a custom error message
+#ifndef vdGlobalException
 #define vdGlobalException(exception, fmt, ...)  do {											    \
 		vdLogGlobalError("Exception '%s' caught in %s:%i!", #exception, __FILE__, __LINE__);		\
 		vdLogGlobalError(fmt, ## __VA_ARGS__); 														\
 	} while (0)
+#endif
 	
 #endif
 

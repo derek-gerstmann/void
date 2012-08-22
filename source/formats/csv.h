@@ -46,10 +46,10 @@ extern void
 CloseCsvFile(FILE *fh);
 
 extern int 
-IsCsvDelimiter( char c, const char* delims );
+IsCsvDelimiter( char c, const char* delims, size_t delim_count );
 
 extern size_t 
-ReadCsvWord(FILE* fp, const char* delims, char* buffer, size_t count);
+ReadCsvWord(FILE* fp, const char* delims, size_t delim_count, char* buffer, size_t count);
 
 extern float
 ReadCsvFloatColumn(FILE* fh, size_t* count);

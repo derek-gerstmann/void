@@ -1,0 +1,11 @@
+prefix=/Users/dg/Workspace/void/clean/void/external/build/exr/osx
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+OpenEXR_includedir=${prefix}/include/OpenEXR
+
+Name: OpenEXR
+Description: OpenEXR image library
+Version: 1.7.1
+Libs: -L${libdir} -L/Users/dg/Workspace/void/clean/void/external/build/exr/osx/lib -lIlmImf -lz -lImath -lHalf -lIex -lIlmThread -lpthread
+Cflags:  -I/Users/dg/Workspace/void/clean/void/external/build/exr/osx/include/OpenEXR -I${OpenEXR_includedir}

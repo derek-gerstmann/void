@@ -1,0 +1,62 @@
+	    SUMMARY OF THE HDF5 CONFIGURATION
+	    =================================
+
+General Information:
+-------------------
+		   HDF5 Version: 1.8.8
+		  Configured on: Thu Mar 15 13:45:40 WST 2012
+		  Configured by: dg@dg-mbp.local
+		 Configure mode: production
+		    Host system: i386-apple-darwin11.3.0
+	      Uname information: Darwin dg-mbp.local 11.3.0 Darwin Kernel Version 11.3.0: Thu Jan 12 18:47:41 PST 2012; root:xnu-1699.24.23~1/RELEASE_X86_64 x86_64
+		       Byte sex: little-endian
+		      Libraries: 
+	     Installation point: /Users/dg/Workspace/void/clean/void/external/build/hdf/osx
+
+Compiling Options:
+------------------
+               Compilation Mode: production
+                     C Compiler: /usr/bin/gcc ( (GCC) 4.2.1 (Based on Apple Inc. build 5658) (LLVM build 2335.15.00))
+                         CFLAGS: -I/Users/dg/Workspace/void/clean/void/external/zlib/include
+                      H5_CFLAGS: -std=c99 -pedantic -Wall -Wextra -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Winline -Wno-long-long -Wfloat-equal -Wmissing-format-attribute -Wmissing-noreturn -Wpacked -Wdisabled-optimization -Wformat=2 -Wunreachable-code -Wendif-labels -Wdeclaration-after-statement -Wold-style-definition -Winvalid-pch -Wvariadic-macros -Wnonnull -Winit-self -Wmissing-include-dirs -Wswitch-default -Wswitch-enum -Wunused-macros -Wunsafe-loop-optimizations -Wc++-compat -Wvolatile-register-var -Wstrict-overflow -O3 -fomit-frame-pointer -finline-functions
+                      AM_CFLAGS: 
+                       CPPFLAGS: -I/Users/dg/Workspace/void/clean/void/external/zlib/include
+                    H5_CPPFLAGS:   -DNDEBUG -UH5_DEBUG_API
+                    AM_CPPFLAGS: -I/Users/dg/Workspace/void/clean/void/external/build/szip/osx/include -I/Users/dg/Workspace/void/clean/void/external/build/zlib/osx/include 
+               Shared C Library: no
+               Static C Library: yes
+  Statically Linked Executables: no
+                        LDFLAGS: -L/Users/dg/Workspace/void/clean/void/external/zlib/lib/osx
+                     H5_LDFLAGS: 
+                     AM_LDFLAGS:  -L/Users/dg/Workspace/void/clean/void/external/build/zlib/osx/lib -L/Users/dg/Workspace/void/clean/void/external/build/szip/osx/lib
+ 	 	Extra libraries:  -lpthread -lsz -lz -lm 
+ 		       Archiver: ar
+ 		 	 Ranlib: ranlib
+ 	      Debugged Packages: 
+		    API Tracing: no
+
+Languages:
+----------
+                        Fortran: no
+
+                            C++: no
+
+Features:
+---------
+                  Parallel HDF5: no
+             High Level library: yes
+                   Threadsafety: yes
+            Default API Mapping: v18
+ With Deprecated Public Symbols: yes
+         I/O filters (external): deflate(zlib),szip(encoder)
+         I/O filters (internal): shuffle,fletcher32,nbit,scaleoffset
+                            MPE: no
+                     Direct VFD: no
+                        dmalloc: no
+Clear file buffers before write: yes
+           Using memory checker: no
+         Function Stack Tracing: no
+                           GPFS: no
+      Strict File Format Checks: no
+   Optimization Instrumentation: no
+       Large File Support (LFS): yes

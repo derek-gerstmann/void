@@ -30,10 +30,10 @@ typedef VD_RUNTIME_SCOPE::Demo Demo;
 
 // ============================================================================================== //
 
-int main(int argc, void ** argv)
+int main(int argc, char ** argv)
 {
     Demo app;
-    app.Initialize(&argc, argv);
+    app.Initialize(&argc, (void**)argv);
     app.Execute();
     return 0;
 }

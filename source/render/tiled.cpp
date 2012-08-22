@@ -52,7 +52,8 @@ TiledRenderer::TiledRenderer() :
 	m_CurrentRow(0),
 	m_CurrentColumn(0),
 	m_RowOrder(RowOrder::BottomToTop),
-	m_UsePerspective(true)
+	m_UsePerspective(true),
+    m_IsDone(true)
 {
 	Memory::SetBytes(&m_Tile, 0, sizeof(TileRegion));
 	Memory::SetBytes(&m_Image, 0, sizeof(ImageRegion));
@@ -66,6 +67,7 @@ TiledRenderer::TiledRenderer(
 	vd::i32 tile_width,
 	vd::i32 tile_height,
 	vd::i32 border,
+    vd::f32 reduce,
 	RowOrder::Value RowOrder
 ) :
 	Object(),
@@ -77,7 +79,8 @@ TiledRenderer::TiledRenderer(
 	m_CurrentRow(0),
 	m_CurrentColumn(0),
 	m_RowOrder(RowOrder),
-	m_UsePerspective(true)
+	m_UsePerspective(true),
+    m_IsDone(true)
 {
 	Memory::SetBytes(&m_Tile, 0, sizeof(TileRegion));
 	Memory::SetBytes(&m_Image, 0, sizeof(ImageRegion));
@@ -85,14 +88,15 @@ TiledRenderer::TiledRenderer(
 	Memory::SetBytes(m_SavedViewport, 0, sizeof(m_SavedViewport));
 
 	SetImageSize(img_width, img_height);
-	SetTileSize(tile_width, tile_height, border);
+	SetTileSize(tile_width, tile_height, border, reduce);
 }
 
 
 void TiledRenderer::SetTileSize(
 	vd::i32 width,
 	vd::i32 height,
-	vd::i32 border)
+	vd::i32 border,
+    vd::f32 reduce)
 {
 	vdAssert(border >= 0);
 	vdAssert(width >= 1);
@@ -100,11 +104,12 @@ void TiledRenderer::SetTileSize(
 	vdAssert(width >= 2 * border);
 	vdAssert(height >= 2 * border);
 
-	m_Tile.Border = border;
 	m_Tile.Width = width;
 	m_Tile.Height = height;
 	m_Tile.InnerWidth = width - 2 * border;
-	m_Tile.InnerHeight = height - 2 * border;;
+	m_Tile.InnerHeight = height - 2 * border;
+    m_Tile.Border = border;
+    m_Tile.Reduce = reduce;
 }
 
 void TiledRenderer::SetTileBufferData(
@@ -138,20 +143,21 @@ void TiledRenderer::SetImageBufferData(
 void
 TiledRenderer::SetupTiles()
 {
-    m_Columns = VD_CORE_SCOPE::DivideUp((m_Image.Width + m_Tile.InnerWidth - 1), m_Tile.InnerWidth);
-    m_Rows = VD_CORE_SCOPE::DivideUp((m_Image.Height + m_Tile.InnerHeight - 1), m_Tile.InnerHeight);
+    m_Columns = Core::DivideUp(m_Image.Width, m_Tile.InnerWidth);
+    m_Rows = Core::DivideUp(m_Image.Height, m_Tile.InnerHeight);
     m_CurrentTile = 0;
+    m_IsDone = false;
 
-	vdLogDebug("Tiled Config: %d x %d (%d x %d => %d x %d)", 
+	vdLogDebug("Tiled Config: %d x %d (%d x %d => %d x %d / %f)", 
 		m_Rows, m_Columns, m_Tile.Width, m_Tile.Height, 
-		m_Rows*m_Tile.Width, m_Columns*m_Tile.Height);
+		m_Rows*m_Tile.Width, m_Columns*m_Tile.Height, m_Tile.Reduce);
 	
     vdAssert(m_Columns >= 0);
     vdAssert(m_Rows >= 0);
 }
 
 void
-TiledRenderer::SetOrtho(
+TiledRenderer::SetOrthographic(
     vd::f32 left, vd::f32 right,
     vd::f32 bottom, vd::f32 top,
     vd::f32 zNear, vd::f32 zFar)
@@ -188,7 +194,8 @@ TiledRenderer::SetPerspective(
     vd::f32 zNear, vd::f32 zFar)
 {
     vd::f32 xmin, xmax, ymin, ymax;
-    ymax = zNear * tanf(fovy * VD_F32_PI / 360.0f);
+
+    ymax = zNear * Core::Tan(Core::Deg2Rad(fovy / vd::f32(Constants::Two)));
     ymin = -ymax;
     xmin = ymin * aspect;
     xmax = ymax * aspect;
@@ -245,6 +252,10 @@ TiledRenderer::BeginTile()
 
     m_CurrentTileWidth = tile_width;
     m_CurrentTileHeight = tile_height;
+
+    vdLogDebug("BeginTile[%d, %d] => [%d, %d]", 
+        m_CurrentColumn, m_CurrentRow, 
+        m_CurrentTileWidth, m_CurrentTileHeight);
 }
 
 void
@@ -255,21 +266,39 @@ TiledRenderer::Bind()
     glViewport(0, 0, m_CurrentTileWidth, m_CurrentTileHeight);
     glGetIntegerv(GL_MATRIX_MODE, &matrixMode);
     glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
     glLoadIdentity();
 
-    GLint tile_width = m_CurrentTileWidth;
-    GLint tile_height = m_CurrentTileHeight;
-    GLint border = m_Tile.Border;
+    vd::f32 tile_reduce = m_Tile.Reduce < 1.0f ? 1.0f : m_Tile.Reduce;
 
-    vd::f32 left = m_Frustum.Left + (m_Frustum.Right - m_Frustum.Left) * (m_CurrentColumn * m_Tile.InnerWidth - border) / m_Image.Width;
-    vd::f32 right = left + (m_Frustum.Right - m_Frustum.Left) * tile_width / m_Image.Width;
-    vd::f32 bottom = m_Frustum.Bottom + (m_Frustum.Top - m_Frustum.Bottom) * (m_CurrentRow * m_Tile.InnerHeight - border) / m_Image.Height;
-    vd::f32 top = bottom + (m_Frustum.Top - m_Frustum.Bottom) * tile_height / m_Image.Height;
+    GLint tile_x = m_CurrentColumn;
+    GLint tile_y = m_CurrentRow;
+    GLint img_width = m_Image.Width * tile_reduce;
+    GLint img_height = m_Image.Height * tile_reduce;
+    GLint inner_width = m_Tile.InnerWidth * tile_reduce;
+    GLint inner_height = m_Tile.InnerHeight * tile_reduce;
+    GLint tile_width = m_CurrentTileWidth * tile_reduce;
+    GLint tile_height = m_CurrentTileHeight * tile_reduce;
+    GLint tile_border = m_Tile.Border * tile_reduce;
+
+    vd::f32 left_plane = m_Frustum.Left;
+    vd::f32 right_plane = m_Frustum.Right;
+    vd::f32 top_plane = m_Frustum.Top;
+    vd::f32 bottom_plane = m_Frustum.Bottom;
+    vd::f32 frustum_width = right_plane - left_plane;
+    vd::f32 frustum_height = top_plane - bottom_plane;
+    vd::f32 frustum_near = m_Frustum.Near;
+    vd::f32 frustum_far = m_Frustum.Far;
+
+    vd::f32 tile_left = left_plane + (frustum_width) * (tile_x * inner_width - tile_border) / img_width;
+    vd::f32 tile_right = tile_left + (frustum_width) * tile_width / img_width;
+    vd::f32 tile_bottom = bottom_plane + (frustum_height) * (tile_y * inner_height - tile_border) / img_height;
+    vd::f32 tile_top = tile_bottom + (frustum_height) * tile_height / img_height;
 
     if(m_UsePerspective)
-        glFrustum(left, right, bottom, top, m_Frustum.Near, m_Frustum.Far);
+        glFrustum(tile_left, tile_right, tile_bottom, tile_top, frustum_near, frustum_far);
     else
-        glOrtho(left, right, bottom, top, m_Frustum.Near, m_Frustum.Far);
+        glOrtho(tile_left, tile_right, tile_bottom, tile_top, frustum_near, frustum_far);
 
     glMatrixMode(matrixMode);
 }
@@ -277,28 +306,47 @@ TiledRenderer::Bind()
 void
 TiledRenderer::Unbind()
 {    
-
+    GLint matrixMode;
+    glGetIntegerv(GL_MATRIX_MODE, &matrixMode);
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(matrixMode);
 }
 
-int
+bool
 TiledRenderer::EndTile()
 {
+    bool more = false;
     GLint old_row_length;
     GLint old_skip_rows;
     GLint old_skip_pixels; 
-    // GLint old_alignment;
+    GLint old_alignment;
 
     vdAssert(m_CurrentTile >= 0);
     glFlush();
 
     if(m_Tile.Buffer)
     {
+        m_Tile.Reduce = m_Tile.Reduce <= 1.0f ? 1.0f : m_Tile.Reduce;
+
+#if VD_USE_CONDENSED_TILE        
         GLint src_x = m_Tile.Border;
         GLint src_y = m_Tile.Border;
-        GLint src_width = m_Tile.InnerWidth;
-        GLint src_height = m_Tile.InnerHeight;
+        GLint src_width = (m_CurrentTileWidth - 2 * m_Tile.Border);
+        GLint src_height = (m_CurrentTileHeight - 2 * m_Tile.Border);
+//        GLint src_width = m_Tile.InnerWidth;
+//        GLint src_height = m_Tile.InnerHeight;
+#else
+        GLint src_x = 0;
+        GLint src_y = 0;
+        GLint src_width = m_CurrentTileWidth;
+        GLint src_height = m_CurrentTileHeight;
+#endif
+//        glGetIntegerv(GL_PACK_ALIGNMENT, &old_alignment);
+        glPixelStorei(GL_PACK_ALIGNMENT, 4);
         if(src_x < m_Image.Width && src_y < m_Image.Height)
 	        glReadPixels(src_x, src_y, src_width, src_height, m_Tile.Format, m_Tile.Type, m_Tile.Buffer);
+//        glPixelStorei(GL_PACK_ALIGNMENT, old_alignment);
     }
 
     if(m_Image.Buffer)
@@ -306,7 +354,7 @@ TiledRenderer::EndTile()
 		glGetIntegerv(GL_PACK_ROW_LENGTH, &old_row_length);
 		glGetIntegerv(GL_PACK_SKIP_ROWS, &old_skip_rows);
 		glGetIntegerv(GL_PACK_SKIP_PIXELS, &old_skip_pixels);
-		// glGetIntegerv(GL_PACK_ALIGNMENT, &old_alignment);
+		glGetIntegerv(GL_PACK_ALIGNMENT, &old_alignment);
 	
         GLint src_x = m_Tile.Border;
         GLint src_y = m_Tile.Border;
@@ -325,7 +373,7 @@ TiledRenderer::EndTile()
 		glPixelStorei(GL_PACK_ROW_LENGTH, old_row_length);
 		glPixelStorei(GL_PACK_SKIP_ROWS, old_skip_rows);
 		glPixelStorei(GL_PACK_SKIP_PIXELS, old_skip_pixels);
-		// glPixelStorei(GL_PACK_ALIGNMENT, old_alignment);
+		glPixelStorei(GL_PACK_ALIGNMENT, old_alignment);
     }
 
     m_CurrentTile++;
@@ -336,10 +384,14 @@ TiledRenderer::EndTile()
         glViewport(m_SavedViewport[0], m_SavedViewport[1], 
         		   m_SavedViewport[2], m_SavedViewport[3]);
 
-        return 0;
+        m_IsDone = true;
+        more = false;
+        return more;
     }
 
-    return 1;
+    m_IsDone = false;
+    more = true;
+    return more;
 }
 
 void

@@ -8,19 +8,22 @@ include_directories(
     ${VD_CORE_DIR}
 )
 
-add_executable( VdSymEx 
+add_executable( vdsymex 
     ${VD_TOOLS_SYMEX_SRC} 
     ${VD_CORE_HASHING_SRC} 
 )
 
-target_link_libraries( VdSymEx 
+target_link_libraries( vdsymex 
     VdExternal 
 )
 
-add_dependencies( VdSymEx 
-    ${VD_ALL_SRC} ${VD_ALL_INC} 
-    ${VD_ALL_OPT_SRC} ${VD_ALL_OPT_INC} 
-    ${VD_PLATFORM_SRC} ${VD_TOOLS_SYMEX_SRC})
+add_dependencies( vdsymex 
+    ${VD_ALL_SRC} 
+    ${VD_ALL_INC} 
+    ${VD_ALL_OPT_SRC} 
+    ${VD_ALL_OPT_INC} 
+    ${VD_PLATFORM_SRC} 
+    ${VD_TOOLS_SYMEX_SRC})
     
 add_custom_target( VdExtractSymbols ALL DEPENDS 
     ${VD_ALL_SRC} ${VD_ALL_INC} 

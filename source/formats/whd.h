@@ -51,82 +51,50 @@ VD_IMPORT(Containers, LruCache);
 
 // ============================================================================================== //
 
-struct HiDistMetaData
+namespace HiDist {
+
+// ============================================================================================== //
+
+class Dataset;
+
+// ============================================================================================== //
+
+struct MetaData
 {
-    int GalaxyCount[6];                  
-    double Mass[6];               
-    double Time;                            
-    double Redshift;                        
-    int HasStarFormation;                   
-    int HasFeedback;                    
-    int GalaxyCountTotal[6];    
-    int HasCooling;                     
-    int FileCountPerSnapshot;              
+    int GalaxyCount;                  
     double BoxSize;                         
-    double Omega0;                          
-    double OmegaLambda;                     
-    double HubbleParam;                     
-    int HasStellarAge;                      
-    int HasMetals;                          
-    unsigned int GalaxyCountTotalHighWord[6];  
-    int  HasEntropyInsteadofU;              
-    char Fill[56];                          //!< Fills to 256 Bytes 
+
+    MetaData() : GalaxyCount(0), BoxSize(0.0) {}
 };
 
-// vdStaticAssert((sizeof(HiDistMetaData) == 256), InvalidGS2HeaderSize);
+// vdStaticAssert((sizeof(MetaData) == 256), InvalidGS2HeaderSize);
 
 // ============================================================================================== //
 
-typedef float* HiDistGalaxyData[16]; // 16 columns of 32-bit float data per HiDist dat file
+typedef float* GalaxyData[24]; // 16 columns of 32-bit float data per data file
 
-struct HiDistScalarStatistic
-{
-    float Minimum;
-    float Maximum;
-    float Mean;
-    float Variance;
-    float TotalSum;
-    float SumSqr;
-    size_t Count;
-};
+// ============================================================================================== //
 
-struct HiDistRangeData
+struct Statistic
 {
-    void*  Base;
-    void*  StartRange;
-    void*  EndRange;
-    size_t Offset;
-    size_t TotalBytes;      
-};
-
-struct HiDistBlockRangeData
-{
-    HiDistRangeData Id;
-    HiDistRangeData Type;
-    HiDistRangeData Position;
-    HiDistRangeData Velocity;
-    HiDistRangeData Mass;
-    HiDistRangeData Density;
-    HiDistRangeData InternalEnergy;
-    HiDistRangeData Temp;
-    HiDistRangeData Ne;
-    HiDistRangeData SmoothingLength;
-    HiDistRangeData Potential;
-    HiDistRangeData Acceleration;
-    HiDistRangeData DtEntropy;
-    HiDistRangeData TimeStep;
+    float Minimum[3];
+    float Maximum[3];
+    float Mean[3];
+    float Variance[3];
+    float TotalSum[3];
+    float SumSqr[3];
+    size_t Count[3];
+    int    Components;
 };
 
 // ============================================================================================== //
 
-class HiDistDataset;
-
-class HiDistData : public Object
+class Data : public Object
 {
 public:
 
     // Order *must* match block order in dat file (eg v2)
-    typedef struct GalaxyType
+    struct GalaxyType
     {
         enum Value 
         {
@@ -175,8 +143,8 @@ public:
     };
 
 
-    // Order *must* match block order in dat file (for HiDist)
-    typedef struct Block
+    // Order *must* match block order in dat file (for )
+    struct Block
     {
 
         // ## Total Mass [Msol]  
@@ -316,8 +284,8 @@ public:
     
 public:
         
-    HiDistData(HiDistDataset* dataset);    
-    virtual ~HiDistData();
+    Data(Dataset* dataset);    
+    virtual ~Data();
 
     vd::status
     Load(
@@ -406,11 +374,11 @@ public:
     void
     Reorder(void);
     
-    const HiDistMetaData& GetMetaData() const;
+    const MetaData& GetMetaData() const;
 
-    HiDistScalarStatistic& GetScalarStatistic(Block::Value v);
+    Statistic& GetStatistic(Block::Value v);
 
-    void SetScalarStatistic(Block::Value v, const HiDistScalarStatistic& stats);
+    void SetStatistic(Block::Value v, const Statistic& stats);
 
     vd::u64
     GetTotalGalaxyCount() const;
@@ -436,37 +404,34 @@ public:
     vd::string
     GetFilename(const vd::string& prefix, vd::i32 index, vd::i32 padding);
     
-    VD_DECLARE_OBJECT(HiDistData);
+    VD_DECLARE_OBJECT(Data);
     
 private:
 
-    VD_DISABLE_COPY_CONSTRUCTORS(HiDistData);
+    VD_DISABLE_COPY_CONSTRUCTORS(Data);
 
-    HiDistDataset*         m_DataSet;
-    HiDistMetaData         m_MetaData;
-    HiDistGalaxyData       m_GalaxyData;
-    HiDistScalarStatistic  m_StatisticsData[Block::Count];
-    vd::u64                m_TotalGalaxyCount;
-    vd::u64                m_FilteredGalaxyCount;
-    vd::u64                m_GasGalaxyCount;
-    vd::u32                m_FileIndex;
-    AtomicCounter          m_IsLoaded;
+    Dataset*         m_DataSet;
+    MetaData         m_MetaData;
+    GalaxyData       m_GalaxyData;
+    Statistic        m_StatisticsData[Block::Count];
+    vd::u64          m_TotalGalaxyCount;
+    vd::u64          m_FilteredGalaxyCount;
+    vd::u32          m_FileIndex;
+    AtomicCounter    m_IsLoaded;
 };
 
 // ============================================================================================== //
 
-class HiDistDataset;
+class WorkQueue;
 
-// ============================================================================================== //
-
-class HiDistWorkItem : public WorkItem
+class WorkItem : public Core::WorkItem
 {
-    friend class HiDistWorkQueue;
+    friend class HiDist::WorkQueue;
     
 public:
 
-    explicit HiDistWorkItem(
-        HiDistData* data,
+    explicit WorkItem(
+        HiDist::Data* data,
         const vd::string& prefix,
         vd::i32 index,
         vd::i32 splits,
@@ -475,7 +440,7 @@ public:
         vd::i32* types,
         vd::i32* stats
     ) :
-        WorkItem(),
+        Core::WorkItem(),
         m_Data(data),
         m_FilePrefix(prefix),
         m_FileIndex(index),
@@ -488,20 +453,21 @@ public:
         // EMPTY!
     }
 
+    void OnRun(void);
     bool IsReady(void) { return m_IsReady.Get() > 0; }
-    HiDistData* GetHiDist(void) { return m_Data; }
+    HiDist::Data* Get(void) { return m_Data; }
     const vd::string& GetFilePrefix(void) const { return m_FilePrefix; }
     vd::i32 GetFileIndex(void) const { return m_FileIndex; }
     vd::i32 GetFileNumberPadding(void) const { return m_FileNumberPadding; }
     vd::i32 GetFileSplits(void) const { return m_FileSplits; }
 
-    VD_DECLARE_OBJECT(HiDistWorkItem);
+    VD_DECLARE_OBJECT(WorkItem);
     
 private:
 
-    VD_DISABLE_COPY_CONSTRUCTORS(HiDistWorkItem);
+    VD_DISABLE_COPY_CONSTRUCTORS(WorkItem);
     
-    HiDistData* m_Data; 
+    HiDist::Data* m_Data; 
     vd::string m_FilePrefix;    
     vd::i32 m_FileIndex;
     vd::i32 m_FileSplits;
@@ -514,28 +480,28 @@ private:
 
 // ============================================================================================== //
 
-class HiDistWorkQueue : public WorkQueue
+class WorkQueue : public Core::WorkQueue
 {
 public:
 
-    HiDistWorkQueue() : WorkQueue() {} 
-    virtual ~HiDistWorkQueue() { Destroy(); } 
+    WorkQueue() : Core::WorkQueue() {} 
+    virtual ~WorkQueue() { Destroy(); } 
 
-    virtual void OnRun(WorkItem* item);
+    virtual void OnRun(HiDist::WorkItem* item);
 
-    VD_DECLARE_OBJECT(HiDistWorkQueue);
+    VD_DECLARE_OBJECT(WorkQueue);
 
 private:
 
-    VD_DISABLE_COPY_CONSTRUCTORS(HiDistWorkQueue);
+    VD_DISABLE_COPY_CONSTRUCTORS(WorkQueue);
 
 };
 
 // ============================================================================================== //
 
-struct HiDistResidentSizeFn 
+struct ResidentSizeFn 
 {
-    unsigned long operator()( const HiDistData* x ) 
+    unsigned long operator()( const HiDist::Data* x ) 
     {
         if(x != NULL)
             return x->GetResidentMemorySize(); 
@@ -543,14 +509,14 @@ struct HiDistResidentSizeFn
     }
 };
 
-class HiDistDataset : public Object
+class Dataset : public Core::Object
 {
 public:
-    typedef LruCache< vd::i32, HiDistWorkItem* > WorkItemCache;
-    typedef LruCache< vd::i32, HiDistData*, HiDistResidentSizeFn > DataCache;
+    typedef Containers::LruCache< vd::i32, HiDist::WorkItem* >             WorkItemCache;
+    typedef Containers::LruCache< vd::i32, HiDist::Data*, ResidentSizeFn > DataCache;
 
-    HiDistDataset(Runtime::Context* runtime);    
-    virtual ~HiDistDataset();
+    Dataset(Runtime::Context* runtime);    
+    virtual ~Dataset();
     
     vd::status
     Destroy();
@@ -562,13 +528,13 @@ public:
     Close();
     
     static vd::string
-    GetFilenameForHiDist(const vd::string& prefix, vd::i32 index, vd::i32 padding);
+    GetFilenameFor(const vd::string& prefix, vd::i32 index, vd::i32 padding);
 
     bool Request(vd::i32 index);
 
-    void SetBlockRequest(HiDistData::Block::Value v, vd::i32 enable = 1);
-    void SetTypeRequest(HiDistData::GalaxyType::Value v, vd::i32 enable = 1);
-    void SetStatisticRequest(HiDistData::Block::Value v, vd::i32 enable = 1); 
+    void SetBlockRequest(Data::Block::Value v, vd::i32 enable = 1);
+    void SetTypeRequest(Data::GalaxyType::Value v, vd::i32 enable = 1);
+    void SetStatisticRequest(Data::Block::Value v, vd::i32 enable = 1); 
 
     vd::i32 GetFileCount() const { return m_FileCount; }
     vd::string GetFilePrefix() const { return m_FilePrefix; }
@@ -582,39 +548,39 @@ public:
     bool IsPending(vd::i32 index);
     bool IsReady(vd::i32 index);
     bool IsValidIndex(vd::i32 index) { return (index >= m_StartFileIndex && index <= m_EndFileIndex); }
-    bool IsValidBlock(HiDistData::Block::Value v) const { return HiDistData::Block::IsValid(v); }
-    bool IsValidGalaxyType(HiDistData::GalaxyType::Value v) const { return HiDistData::GalaxyType::IsValid(v); }
-    void Retain(vd::i32 index, HiDistData* dat);
+    bool IsValidBlock(Data::Block::Value v) const { return Data::Block::IsValid(v); }
+    bool IsValidGalaxyType(Data::GalaxyType::Value v) const { return Data::GalaxyType::IsValid(v); }
+    void Retain(vd::i32 index, HiDist::Data* data);
 
-    HiDistData*
+    HiDist::Data*
     Retrieve(const vd::i32& index);
     
-    HiDistWorkItem* GetPendingWorkItem(vd::i32 index);
+    HiDist::WorkItem* GetPendingWorkItem(vd::i32 index);
     Runtime::Context* GetRuntime() { return m_Runtime; }
     
-    VD_DECLARE_OBJECT(HiDistDataset);
+    VD_DECLARE_OBJECT(Dataset);
     
 private:
 
-    VD_DISABLE_COPY_CONSTRUCTORS(HiDistDataset);
+    VD_DISABLE_COPY_CONSTRUCTORS(Dataset);
 
-    HiDistData* 
+    Data* 
     OnFetch(const vd::i32& index);
     
     void 
-    OnEvict(HiDistData* dat);
+    OnEvict(Data* dat);
 
-    HiDistWorkItem*
+    WorkItem*
     OnSubmit(const vd::i32& index);
     
     void 
-    OnComplete(HiDistWorkItem* work);
+    OnComplete(WorkItem* work);
 
-    void Store(vd::i32 index, HiDistData* dat);
+    void Store(vd::i32 index, Data* dat);
     void Release(vd::i32 index);
     void Evict();
     
-    void RetainWorkItem(vd::i32 index, HiDistWorkItem* task);  
+    void RetainWorkItem(vd::i32 index, WorkItem* task);  
     void ReleaseWorkItem(vd::i32 index);
 
     bool m_IsOpen;
@@ -634,10 +600,14 @@ private:
     vd::i32            m_CacheSize;
     DataCache          m_DataCache;
     WorkItemCache      m_WorkCache;
-    HiDistWorkQueue    m_WorkQueue;
+    WorkQueue          m_WorkQueue;
     Mutex              m_Mutex; 
     Runtime::Context*  m_Runtime;
 };
+
+// ============================================================================================== //
+
+} // end namespace: HiDist
 
 // ============================================================================================== //
 

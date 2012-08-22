@@ -1,0 +1,10 @@
+prefix=/Users/dg/Workspace/void/clean/void/external/build/glew/osx
+exec_prefix=/Users/dg/Workspace/void/clean/void/external/build/glew/osx/bin
+libdir=/Users/dg/Workspace/void/clean/void/external/build/glew/osx/lib
+includedir=/Users/dg/Workspace/void/clean/void/external/build/glew/osx/include/GL
+
+Name: glew
+Description: The OpenGL Extension Wrangler library
+Version: 1.7.0
+Cflags: -I${includedir} 
+Libs: -L${libdir} -lGLEW

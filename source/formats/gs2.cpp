@@ -44,7 +44,15 @@
 
 // ============================================================================================== //
 
+#define VD_DEBUG_GS2 (1)
+
+// ============================================================================================== //
+
 VD_FORMATS_NAMESPACE_BEGIN();
+
+// ============================================================================================== //
+
+namespace Gadget {
 
 // ============================================================================================== //
 
@@ -54,13 +62,13 @@ VD_IMPORT(Core, Process);
 
 // ============================================================================================== //
 
-class GadgetInputThread : public Thread
+class InputThread : public Thread
 {
 
 };
 
-GadgetSnapshot::GadgetSnapshot(
-	GadgetDataset* dataset) :
+Snapshot::Snapshot(
+	Dataset* dataset) :
 	Core::Object(),
 	m_DataSet(dataset),
 	m_TotalParticleCount(0),
@@ -73,140 +81,209 @@ GadgetSnapshot::GadgetSnapshot(
     Memory::SetBytes(&m_StatisticsData,	0, sizeof(m_StatisticsData));
 }
  
-GadgetSnapshot::~GadgetSnapshot()
+Snapshot::~Snapshot()
 {
 	Destroy();
 }
 
 size_t
-GadgetSnapshot::GetResidentMemorySize() const
+Snapshot::GetResidentMemorySize() const
 {
 	size_t bytes = 0;
-	for(vd::i32 i = 0; i < (int)Block::Count; i++)
+	for(SubBlockList::const_iterator it = m_SubBlockList.begin(); it != m_SubBlockList.end(); it++)
 	{
-		GadgetSnapshot::Block::Value block = GadgetSnapshot::Block::FromInteger(i);
-		const char* ptr = (char*)GetBlockDataPtr(block);
+		const void* ptr = GetSubBlockDataPtr(it->BlockType, it->StartIndex, it->EndIndex);
 		if(ptr != NULL)
 		{
-			bytes += GetBlockEntrySize(block) * GetFilteredParticleCount();
+			bytes += GetBlockEntrySize(it->BlockType) * GetFilteredParticleCount(it->StartIndex, it->EndIndex);
 		}
 	}
+	vdLogInfo("Snapshot resident memory size: %d MB", bytes / 1024 / 1024);
 	return bytes;
 }
 
+Statistic& 
+Snapshot::GetStatistic(Block::Value v) 
+{ 
+    return m_StatisticsData[Block::ToInteger(v)]; 
+}
+
+void 
+Snapshot::SetStatistic(Block::Value v, const Statistic& stats) 
+{
+    m_StatisticsData[Block::ToInteger(v)] = stats; 
+}
+
 vd::status 
-GadgetSnapshot::Destroy()
+Snapshot::Destroy()
 {
 	vdLogInfo("Destroying Snapshot '%d' ... ", m_FileIndex);
 	
-	for(vd::u32 i = 0; i < Block::Count; i++)
+	for(SubBlockList::const_iterator it = m_SubBlockList.begin(); it != m_SubBlockList.end(); it++)
 	{
-		GadgetSnapshot::Block::Value block = GadgetSnapshot::Block::FromInteger(i);
-		DestroyBlockData(block);
+		Block::Value block_type = it->BlockType;
+		size_t start_index = it->StartIndex;
+		size_t end_index = it->EndIndex;
+		DestroySubBlockData(block_type, start_index, end_index);
 	}
 
+	m_SubBlockList.clear();
 	return Status::Code::Success;
 }
 
-size_t
-GadgetSnapshot::GetBlockSize(
-	Block::Value block) const
+vd::u64
+Snapshot::GetFilteredParticleCount(
+	size_t start_index, size_t end_index) const
 {
-	return GetBlockEntrySize(block) * GetFilteredParticleCount();
+	size_t valid_start = 0;
+	size_t valid_end = m_FilteredParticleCount;
+
+	if(start_index > 0 && 
+	   start_index != VD_INVALID_INDEX && 
+	   start_index < m_FilteredParticleCount)
+	{
+		valid_start = start_index;
+	}
+
+	if(end_index > valid_start && 
+	   end_index != VD_INVALID_INDEX &&
+	   end_index < m_FilteredParticleCount)
+	{
+		valid_end = end_index;
+	}
+
+	if(valid_start >= valid_end)
+		return 0;
+		
+	return valid_end - valid_start;
 }
 
 size_t
-GadgetSnapshot::CreateBlockData(
-	Block::Value block)
+Snapshot::GetBlockSize(
+	Block::Value block) const
 {
-	char* ptr = (char*)GetBlockDataPtr(block);
-	size_t bytes = GetBlockEntrySize(block) * GetFilteredParticleCount();
+	return GetBlockEntrySize(block) * m_FilteredParticleCount;
+}
+
+size_t
+Snapshot::GetSubBlockDataSize(
+	Block::Value block_type,
+	size_t start_index,
+	size_t end_index) const
+{
+	size_t bytes = GetBlockEntrySize(block_type) * GetFilteredParticleCount(start_index, end_index);
+	return bytes;
+}
+
+size_t
+Snapshot::CreateSubBlockData(
+	Block::Value block_type, 
+	size_t start_index, 
+	size_t end_index)
+{
+	void* ptr = GetSubBlockDataPtr(block_type, start_index, end_index);
+	size_t count = GetFilteredParticleCount(start_index, end_index);
+	size_t bytes = GetBlockEntrySize(block_type) * count;
 	if(ptr == NULL)
 	{
-		ptr = VD_NEW_ARRAY(char, bytes);
-		if(ptr == NULL)
+		char* new_ptr = VD_NEW_ARRAY(char, bytes);
+		if(new_ptr == NULL)
 		{
 			vdLogError("Failed to allocate memory for snapshot block '%s' data!", 
-				GetBlockName(block));
+				GetBlockName(block_type));
 
 			return 0;
 		}
-		Memory::SetBytes(ptr, 0, bytes);
+		Memory::SetBytes(new_ptr, 0, bytes);
+		SetSubBlockDataPtr(new_ptr, bytes, block_type, start_index, end_index);
 	}
-	
-	SetBlockDataPtr(block, ptr);
 	return bytes;
 }
 
 void
-GadgetSnapshot::DestroyBlockData(
-	Block::Value block)
+Snapshot::DestroySubBlockData(
+	Block::Value block_type, 
+	size_t start_index, 
+	size_t end_index)
 {
-	char* ptr = (char*)GetBlockDataPtr(block);
+	char* ptr = (char*)GetSubBlockDataPtr(block_type, start_index, end_index);
 	if(ptr == NULL)
 		return;
 	
 	VD_SAFE_DELETE_ARRAY(ptr);
-	SetBlockDataPtr(block, NULL);
+	SetSubBlockDataPtr(NULL, 0, block_type, start_index, end_index);
 	return;
 }
 
 void*
-GadgetSnapshot::GetBlockDataPtr(
-	Block::Value block) const
-{		
-	switch (block)
+Snapshot::GetSubBlockDataPtr(
+	Block::Value block_type, 
+	size_t start_index, 
+	size_t end_index) const
+{
+	SubBlockList::const_iterator it;
+	for(it = m_SubBlockList.begin(); it != m_SubBlockList.end(); it++)
 	{
-		case Block::Position:			{ return m_ParticleData.Position; }
-		case Block::Velocity:			{ return m_ParticleData.Velocity; }
-		case Block::Acceleration:		{ return m_ParticleData.Acceleration; }
-		case Block::Id:					{ return m_ParticleData.Id; }
-		case Block::Type:				{ return m_ParticleData.Type; }
-		case Block::Mass:				{ return m_ParticleData.Mass; }
-		case Block::InternalEnergy:		{ return m_ParticleData.InternalEnergy; }
-		case Block::Density:			{ return m_ParticleData.Density; }
-		case Block::SmoothingLength:	{ return m_ParticleData.SmoothingLength; }
-		case Block::Potential:			{ return m_ParticleData.Potential; }
-		case Block::DtEntropy:			{ return m_ParticleData.DtEntropy; }
-		case Block::TimeStep:			{ return m_ParticleData.TimeStep; }
-		default:						{ return NULL; }
+		if(it->BlockType == block_type &&
+		   it->StartIndex == start_index &&
+		   it->EndIndex == end_index )
+		{
+			return it->Ptr;
+		}
 	}
 	return NULL;
 }
 
 void
-GadgetSnapshot::SetBlockDataPtr(
-	Block::Value block, void* ptr) 
+Snapshot::SetSubBlockDataPtr(
+	void* ptr, size_t bytes, 
+	Block::Value block_type, 
+	size_t start_index, 
+	size_t end_index)
 {
-	switch (block)
+	void* old_ptr = GetSubBlockDataPtr(block_type, start_index, end_index);
+
+	size_t slot = 0;
+	bool found = false;
+	SubBlockList::iterator it;
+	for(it = m_SubBlockList.begin(); it != m_SubBlockList.end(); it++)
 	{
-		case Block::Position:			{ m_ParticleData.Position = (float*)ptr; break; }
-		case Block::Velocity:			{ m_ParticleData.Velocity = (float*)ptr; break; }
-		case Block::Acceleration:		{ m_ParticleData.Acceleration = (float*)ptr; break;	}
-		case Block::Id:					{ m_ParticleData.Id = (int*)ptr; break; }
-		case Block::Type:				{ m_ParticleData.Type = (int*)ptr; break; }
-		case Block::Mass:				{ m_ParticleData.Mass = (float*)ptr; break;	}
-		case Block::InternalEnergy:		{ m_ParticleData.InternalEnergy = (float*)ptr; break; }
-		case Block::Density:			{ m_ParticleData.Density = (float*)ptr; break; }
-		case Block::SmoothingLength:	{ m_ParticleData.SmoothingLength = (float*)ptr; break; }
-		case Block::Potential:			{ m_ParticleData.Potential = (float*)ptr; break; }
-		case Block::DtEntropy:			{ m_ParticleData.DtEntropy = (float*)ptr; break; }
-		case Block::TimeStep:			{ m_ParticleData.TimeStep = (float*)ptr; break; }
-		default:						
-			return;
+		slot++;
+		if(it->BlockType == block_type &&
+		   it->StartIndex == start_index &&
+		   it->EndIndex == end_index )
+		{
+			found = true;
+			it->Ptr = ptr;
+			break;
+		}
+	}
+
+	if(found == false)
+	{
+		slot = m_SubBlockList.size();
+		SubBlockIndex sbi(ptr, block_type, start_index, end_index);
+		m_SubBlockList.push_back(sbi);
+	}
+
+	if(old_ptr) 
+	{
+		char* byte_array = (char*)old_ptr;
+		VD_DELETE_ARRAY(byte_array);
 	}
 	return;
 }
 
 size_t
-GadgetSnapshot::ReadTypeData(
-	FILE* fd, size_t offset)
+Snapshot::ReadTypeData(
+	FILE* fd, 
+	size_t start_index, 
+	size_t end_index)
 {
 	Block::Value block = Block::Type;
 	
-	void* ptr = GetBlockDataPtr(block);
-	if(ptr == NULL)
-		CreateBlockData(block);
+	void* ptr = GetSubBlockDataPtr(block, start_index, end_index);
+	if(ptr == NULL) CreateSubBlockData(block, start_index, end_index);
 
 	vd::i32 pt = 0;
 	vd::i64 pc = 0;
@@ -221,24 +298,24 @@ GadgetSnapshot::ReadTypeData(
 }
 
 size_t
-GadgetSnapshot::GetBlockSeparatorSize(void) const
+Snapshot::GetBlockSeparatorSize(void) const
 {
 	return size_t(sizeof(char) * 4); //	32-bit
 }
 
 vd::i32
-GadgetSnapshot::SkipToNextBlock(
+Snapshot::SkipToNextBlock(
 	FILE* fh)
 {
     vd::i32 dummy = 1;
     int result = fseek(fh, sizeof(dummy), SEEK_CUR);
 //    size_t bytes = fread(&dummy, sizeof(dummy), 1, fh);
     vdAssert(result == 0);
-	return dummy;
+	return result ? dummy : 0;
 }
 
 size_t
-GadgetSnapshot::FindBlockByName(
+Snapshot::FindBlockByName(
 	FILE* fd, const char* label)
 {
 	size_t rd = 0;
@@ -275,14 +352,14 @@ GadgetSnapshot::FindBlockByName(
 }
 
 size_t
-GadgetSnapshot::FindBlock(
+Snapshot::FindBlock(
 	FILE* fd, Block::Value block)
 {
 	return FindBlockByName(fd, GetBlockLabel(block));
 }
 
 const char*
-GadgetSnapshot::GetBlockLabel(
+Snapshot::GetBlockLabel(
 	Block::Value block)  const
 {
 	switch (block)
@@ -305,7 +382,7 @@ GadgetSnapshot::GetBlockLabel(
 }
 
 const char*
-GadgetSnapshot::GetBlockName(
+Snapshot::GetBlockName(
 	Block::Value block)  const
 {
 	switch (block)
@@ -329,7 +406,7 @@ GadgetSnapshot::GetBlockName(
 }
 
 size_t
-GadgetSnapshot::GetBlockEntrySize(
+Snapshot::GetBlockEntrySize(
 	Block::Value block)  const
 {
 	switch (block)
@@ -357,7 +434,7 @@ GadgetSnapshot::GetBlockEntrySize(
 }
 
 vd::i32
-GadgetSnapshot::GetBlockVectorLength(
+Snapshot::GetBlockVectorLength(
 	Block::Value block) const
 {
 	switch (block)
@@ -384,7 +461,7 @@ GadgetSnapshot::GetBlockVectorLength(
 }
 
 const char*
-GadgetSnapshot::GetBlockSizeTypeSuffix(
+Snapshot::GetBlockSizeTypeSuffix(
 	Block::Value block) const
 {
 	switch (block)
@@ -411,7 +488,7 @@ GadgetSnapshot::GetBlockSizeTypeSuffix(
 }
 
 bool
-GadgetSnapshot::IsBlockEntryIntegerValue(
+Snapshot::IsBlockEntryIntegerValue(
 	Block::Value block) const
 {
 	switch (block)
@@ -438,86 +515,100 @@ GadgetSnapshot::IsBlockEntryIntegerValue(
 }
 
 size_t
-GadgetSnapshot::ReadBlockData(
+Snapshot::ReadSubBlockData(
 	FILE* fd, 
 	Block::Value block,
-	size_t offset,
+	size_t start_index,
+	size_t end_index,
 	vd::i32* types)
 {
 	size_t rd = 0;
 	size_t dx = 0;
-	void* ptr = GetBlockDataPtr(block);
+	void* ptr = GetSubBlockDataPtr(block, start_index, end_index);
 	if(ptr == NULL)
 	{
-		CreateBlockData(block);
-		ptr = GetBlockDataPtr(block);
+		CreateSubBlockData(block, start_index, end_index);
+		ptr = GetSubBlockDataPtr(block, start_index, end_index);
 	}
 
 #if defined(VD_DEBUG_GS2)
-	vdLogInfo("Reading block [%d = %s] (raw %d)...", Block::ToInteger(block), Block::ToString(block), (vd::i32)block);
+	vdLogInfo("Reading block [%d = %s] (raw %d)...", 
+		Block::ToInteger(block), 
+		Block::ToString(block), 
+		(vd::i32)block);
 #endif
 
 	SkipToNextBlock(fd);
 	for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
 	{
 		size_t load = (types && types[k]) ? 1 : 0;
-		size_t bytes = load * GetBlockEntrySize(block) * m_MetaData.ParticleCountTotal[k];
-		if(bytes < 1)
+		size_t end = m_MetaData.ParticleCountTotal[k];
+		if(end_index && end_index <= end)
+			end = end_index;
+
+		size_t start_range = load * GetBlockEntrySize(block) * start_index;
+		size_t end_range = load * GetBlockEntrySize(block) * end_index;
+		if(end_range < 1)
 			continue;
 
 		ptr = Memory::Increment(ptr, dx);
 
-		if(types == NULL)
-			rd += fread(ptr, bytes, 1, fd);
-		else if(types[k] > 0)
-			rd += fread(ptr, bytes, 1, fd);
-		else
-			rd += fseek(fd, bytes, SEEK_CUR);
+		if(start_index)
+			rd += fseek(fd, start_range, SEEK_CUR);
 
-		dx += bytes;
+		if(types == NULL)
+			rd += fread(ptr, end_range, 1, fd);
+		else if(types[k] > 0)
+			rd += fread(ptr, end_range, 1, fd);
+		else
+			rd += fseek(fd, end_range, SEEK_CUR);
+
+		dx += end_range;
 	}	
 	SkipToNextBlock(fd);	
 	return rd;
 }
 
 size_t
-GadgetSnapshot::ReadPositionData(
-	FILE* fd, size_t offset, vd::i32* types)
+Snapshot::ReadPositionData(
+	FILE* fd, 
+	size_t start_index,
+	size_t end_index,
+	vd::i32* types)
 {
-	return ReadBlockData(fd, Block::Position, offset, types);
+	return ReadSubBlockData(fd, Block::Position, start_index, end_index, types);
 }
 
 size_t
-GadgetSnapshot::ReadVelocityData(
-	FILE* fd, size_t offset, vd::i32* types)
+Snapshot::ReadVelocityData(
+	FILE* fd, 
+	size_t start_index,
+	size_t end_index,
+	vd::i32* types)
 {
-	return ReadBlockData(fd, Block::Velocity, offset, types);
+	return ReadSubBlockData(fd, Block::Velocity, start_index, end_index, types);
 }
 
 size_t
-GadgetSnapshot::ReadIdentifierData(
-	FILE* fd, size_t offset, vd::i32* types)
+Snapshot::ReadIdentifierData(
+	FILE* fd, 
+	size_t start_index,
+	size_t end_index,
+	vd::i32* types)
 {
-	return ReadBlockData(fd, Block::Id, offset, types);
+	return ReadSubBlockData(fd, Block::Id, start_index, end_index, types);
 }
 
 size_t
-GadgetSnapshot::ReadMassData(
-	FILE* fd, size_t offset, vd::i32* types)
+Snapshot::ReadMassData(
+	FILE* fd, 
+	size_t start_index,
+	size_t end_index,
+	vd::i32* types)
 {
 	size_t rd = 0;
+	vd::i64 pc = start_index;
 	vd::i64 per_particle_mass = 0;
-
-	Block::Value block = Block::Mass;
-
-	void* ptr = GetBlockDataPtr(block);
-	if(ptr == NULL)
-	{
-		CreateBlockData(block);
-		ptr = GetBlockDataPtr(block);
-	}
-		
-	vd::i64 pc = 0;
 	for(vd::i32 pt = 0; pt < (vd::i32)ParticleType::Count; pt++)
 	{
 		if(m_MetaData.Mass[pt] <= 0.0f)
@@ -526,106 +617,106 @@ GadgetSnapshot::ReadMassData(
 		}
 		else
 		{
-			for(vd::i64 pn = 0; pn < (vd::i64)m_MetaData.ParticleCount[pt]; pn++)
+			for(vd::i64 pn = start_index; pn < (vd::i64)end_index && pn < (vd::i64)m_MetaData.ParticleCount[pt]; pn++)
 			{
 				m_ParticleData.Mass[pc++] = m_MetaData.Mass[pt];
 			}
 		}
 	}
 	
+	Block::Value block = Block::Mass;		
 	if(per_particle_mass > 0)
 	{
-		size_t dx = 0;
-
 #if defined(VD_DEBUG_GS2)
-		vdLogInfo("Reading block [%d = %s] (raw %d)...", Block::ToInteger(block), Block::ToString(block), (vd::i32)block);
+		vdLogInfo("Reading block [%d = %s] (raw %d)...", 
+			Block::ToInteger(block), 
+			Block::ToString(block), 
+			(vd::i32)block);
 #endif
-
-		SkipToNextBlock(fd);
-		for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
-		{
-			size_t load = (types && types[k]) ? 1 : 0;
-			size_t bytes = load * GetBlockEntrySize(block) * m_MetaData.ParticleCountTotal[k];
-			if(bytes < 1)
-				continue;
-
-			ptr = Memory::Increment(ptr, dx);
-			
-			if(types == NULL)
-				rd += fread(ptr, bytes, 1, fd);
-			else if(types[k] > 0)
-				rd += fread(ptr, bytes, 1, fd);
-			else
-				rd += fseek(fd, bytes, SEEK_CUR);
-
-			dx += bytes;
-		}	
-		SkipToNextBlock(fd);	
+		rd = ReadSubBlockData(fd, block, start_index, end_index, types);
 		return rd;
 	}
 
-	return pc;
+	return rd;
 }
 
 size_t
-GadgetSnapshot::ReadInternalEnergyData(
-	FILE* fd, size_t offset, vd::i32* types)
+Snapshot::ReadInternalEnergyData(
+	FILE* fd, 
+	size_t start_index,
+	size_t end_index, 
+	vd::i32* types)
 {
-	return ReadBlockData(fd, Block::InternalEnergy, offset, types);
+	return ReadSubBlockData(fd, Block::InternalEnergy, start_index, end_index, types);
 }
 
 size_t
-GadgetSnapshot::ReadDensityData(
-	FILE* fd, size_t offset, vd::i32* types)
+Snapshot::ReadDensityData(
+	FILE* fd, 
+	size_t start_index,
+	size_t end_index, 
+	vd::i32* types)
 {
-//	if(m_MetaData.ParticleCount[ParticleType::Gas] < 1)
-//		return 0;
-	
-	return ReadBlockData(fd, Block::Density, offset, types);
+	return ReadSubBlockData(fd, Block::Density, start_index, end_index, types);
 }
 
 size_t
-GadgetSnapshot::ReadSmoothingLengthData(
-	FILE* fd, size_t offset, vd::i32* types)
+Snapshot::ReadSmoothingLengthData(
+	FILE* fd, 
+	size_t start_index,
+	size_t end_index, 
+	vd::i32* types)
 {
-//	if(m_MetaData.ParticleCount[ParticleType::Gas] < 1)
-//		return 0;
-	
-	return ReadBlockData(fd, Block::SmoothingLength, offset, types);
+	return ReadSubBlockData(fd, Block::SmoothingLength, start_index, end_index, types);
 }
 
 size_t
-GadgetSnapshot::ReadPotentialData(
-	FILE* fd, size_t offset, vd::i32* types)
+Snapshot::ReadPotentialData(
+	FILE* fd, 
+	size_t start_index,
+	size_t end_index, 
+	vd::i32* types)
 {
-	return ReadBlockData(fd, Block::Potential, offset, types);
+	return ReadSubBlockData(fd, Block::Potential, start_index, end_index, types);
 }
 
 size_t
-GadgetSnapshot::ReadAcceleration(
-	FILE* fd, size_t offset, vd::i32* types)
+Snapshot::ReadAcceleration(
+	FILE* fd, 
+	size_t start_index,
+	size_t end_index, 
+	vd::i32* types)
 {
-	return ReadBlockData(fd, Block::Acceleration, offset, types);
+	return ReadSubBlockData(fd, Block::Acceleration, start_index, end_index, types);
 }
 
 size_t
-GadgetSnapshot::ReadRateOfChangeOfEntropyData(
-	FILE* fd, size_t offset, vd::i32* types)
+Snapshot::ReadRateOfChangeOfEntropyData(
+	FILE* fd, 
+	size_t start_index,
+	size_t end_index, 
+	vd::i32* types)
 {
-	return ReadBlockData(fd, Block::DtEntropy, offset, types);
+	return ReadSubBlockData(fd, Block::DtEntropy, start_index, end_index, types);
 }
 
 size_t
-GadgetSnapshot::ReadTimeStepData(
-	FILE* fd, size_t offset, vd::i32* types)
+Snapshot::ReadTimeStepData(
+	FILE* fd, 
+	size_t start_index,
+	size_t end_index, 
+	vd::i32* types)
 {
+	return ReadSubBlockData(fd, Block::TimeStep, start_index, end_index, types);
+
+/*
 	Block::Value block = Block::TimeStep;
 
-	void* ptr = GetBlockDataPtr(block);
+	void* ptr = GetSubBlockDataPtr(block, start_index, end_index);
 	if(ptr == NULL)
 	{
-		CreateBlockData(block);
-		ptr = GetBlockDataPtr(block);
+		CreateSubBlockData(block, start_index, end_index);
+		ptr = GetSubBlockDataPtr(block, start_index, end_index);
 	}
 
 	vd::u64 pc = 0;
@@ -665,20 +756,23 @@ GadgetSnapshot::ReadTimeStepData(
 	}	
 	SkipToNextBlock(fd);	
 	return rd;
+*/
 }
 
 size_t
-GadgetSnapshot::SkipBlock(
-	FILE* fd, Block::Value block, size_t start)
+Snapshot::SkipSubBlock(
+	FILE* fd, 
+	Block::Value block, 
+	size_t start_index,
+	size_t end_index)
 {
 	size_t offset = 0;
-//	offset += GetBlockSeparatorSize();
 	SkipToNextBlock(fd);
 	for(vd::i32 pt = 0; pt < (vd::i32)ParticleType::Count; pt++)
 	{
 		offset += GetBlockEntrySize(block) * m_MetaData.ParticleCount[pt];
 	}
-	fseek(fd,offset,SEEK_CUR);
+	fseek(fd, offset, SEEK_CUR);
 	SkipToNextBlock(fd);
 
 //	offset += GetBlockSeparatorSize();
@@ -686,33 +780,37 @@ GadgetSnapshot::SkipBlock(
 }
 
 size_t
-GadgetSnapshot::ReadBlock(
-	FILE* fd, Block::Value block, size_t offset, vd::i32* types)
+Snapshot::ReadSubBlock(
+	FILE* fd, 
+	Block::Value block, 
+	size_t start_index,
+	size_t end_index, 
+	vd::i32* types)
 {
 	switch (block)
 	{
 		case Block::Position:		
-			return ReadPositionData(fd, offset, types);
+			return ReadPositionData(fd, start_index, end_index, types);
 		case Block::Velocity:				
-			return ReadVelocityData(fd, offset, types);
+			return ReadVelocityData(fd, start_index, end_index, types);
 		case Block::Id:
-			return ReadIdentifierData(fd, offset, types);
+			return ReadIdentifierData(fd, start_index, end_index, types);
 		case Block::Mass:
-			return ReadMassData(fd, offset, types);
+			return ReadMassData(fd, start_index, end_index, types);
 		case Block::InternalEnergy:				
-			return ReadInternalEnergyData(fd, offset, types);
+			return ReadInternalEnergyData(fd, start_index, end_index, types);
 		case Block::Density:				
-			return ReadDensityData(fd, offset, types);
+			return ReadDensityData(fd, start_index, end_index, types);
 		case Block::SmoothingLength:			
-			return ReadSmoothingLengthData(fd, offset, types);
+			return ReadSmoothingLengthData(fd, start_index, end_index, types);
 		case Block::Potential:				
-			return ReadPotentialData(fd, offset, types);
+			return ReadPotentialData(fd, start_index, end_index, types);
 		case Block::Acceleration:			
-			return ReadAcceleration(fd, offset, types);
+			return ReadAcceleration(fd, start_index, end_index, types);
 		case Block::DtEntropy:			
-			return ReadRateOfChangeOfEntropyData(fd, offset, types);
+			return ReadRateOfChangeOfEntropyData(fd, start_index, end_index, types);
 		case Block::TimeStep:			
-			return ReadTimeStepData(fd, offset, types);
+			return ReadTimeStepData(fd, start_index, end_index, types);
 		default:						
 			return 0;
 	}
@@ -720,7 +818,7 @@ GadgetSnapshot::ReadBlock(
 }
 
 vd::f32
-GadgetSnapshot::Periodic(
+Snapshot::Periodic(
 	vd::f32 x, vd::f32 l2)
 {
     if(x > +l2)
@@ -731,7 +829,7 @@ GadgetSnapshot::Periodic(
 }
 
 void
-GadgetSnapshot::SwapFloatDataAt(
+Snapshot::SwapFloatDataAt(
     float* ptr, int isrc, int idst)
 {
     float t;
@@ -749,7 +847,7 @@ GadgetSnapshot::SwapFloatDataAt(
 }
 
 void
-GadgetSnapshot::SwapIntDataAt(
+Snapshot::SwapIntDataAt(
     int* ptr, int isrc, int idst)
 {
     int t;
@@ -767,7 +865,7 @@ GadgetSnapshot::SwapIntDataAt(
 }
 
 void
-GadgetSnapshot::SwapFloat3DataAt(
+Snapshot::SwapFloat3DataAt(
     float* ptr, int isrc, int idst)
 {
     float t[3];
@@ -785,7 +883,7 @@ GadgetSnapshot::SwapFloat3DataAt(
 }
 
 void
-GadgetSnapshot::SwapParticleAt(
+Snapshot::SwapParticleAt(
     int isrc, int idst)
 {
 	if(m_ParticleData.Position) 			SwapFloat3DataAt(m_ParticleData.Position, isrc, idst);
@@ -802,8 +900,9 @@ GadgetSnapshot::SwapParticleAt(
 }
 
 size_t 
-GadgetSnapshot::ReadHeader(
-	FILE* fd, vd::i32 splits)
+Snapshot::ReadHeader(
+	FILE* fd, vd::i32 splits, 
+	vd::i32* req_types)
 {
 	SkipToNextBlock(fd);
 	size_t rd = fread(&(m_MetaData), sizeof(m_MetaData), 1, fd);
@@ -819,13 +918,33 @@ GadgetSnapshot::ReadHeader(
 	for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
 		m_TotalParticleCount += m_MetaData.ParticleCountTotal[k];
 
-	m_FilteredParticleCount = m_TotalParticleCount;
+	bool filter_types = false;
+	for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
+	{
+		if(req_types && req_types[k] > 0)
+			filter_types = true;
+	}
+
+	if(filter_types)
+	{
+		for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
+		{
+			if(req_types && req_types[k] > 0)
+				m_FilteredParticleCount += m_MetaData.ParticleCountTotal[k];
+		}
+	}
+	else
+	{
+		m_FilteredParticleCount += m_TotalParticleCount;
+	}
+
 	m_GasParticleCount += m_MetaData.ParticleCountTotal[0];
 	return rd;
 }
 
 void
-GadgetSnapshot::ComputeTempFromInternalEnergy()
+Snapshot::ComputeTempFromInternalEnergy(
+	size_t start_index, size_t end_index)
 {
     // physical constants in cgs units
 //    static const vd::f64 GravityCGS = 6.672e-8;
@@ -851,16 +970,16 @@ GadgetSnapshot::ComputeTempFromInternalEnergy()
 	if(!m_ParticleData.InternalEnergy)
 		return;
 
-	GadgetSnapshot::Block::Value block = GadgetSnapshot::Block::Temperature;
-	void* ptr = GetBlockDataPtr(block);
+	Snapshot::Block::Value block = Snapshot::Block::Temperature;
+	void* ptr = GetSubBlockDataPtr(block, start_index, end_index);
 	if(ptr == NULL)
-		CreateBlockData(block);
+		CreateSubBlockData(block, start_index, end_index);
 		
-	ptr = GetBlockDataPtr(block);		
+	ptr = GetSubBlockDataPtr(block, start_index, end_index);
 	if(ptr == NULL)
 		return;
 
-    for(vd::i64 i = 0; i < (vd::i64)GetFilteredParticleCount(); i++)
+    for(vd::i64 i = 0; i < (vd::i64)GetFilteredParticleCount(start_index, end_index); i++)
     {
         if(m_ParticleData.Type[i] == ParticleType::Gas)
         {
@@ -877,7 +996,7 @@ GadgetSnapshot::ComputeTempFromInternalEnergy()
 }
 
 vd::string
-GadgetSnapshot::GetFilename(
+Snapshot::GetFilename(
 	const vd::string& prefix, 
 	vd::i32 index,
 	vd::i32 padding)
@@ -885,37 +1004,13 @@ GadgetSnapshot::GetFilename(
 	return m_DataSet->GetFilenameForSnapshot(prefix, index, padding);
 }
 
-void
-GadgetSnapshot::ProcessParticleTypesRequest(
-	vd::i32* req_types)
-{
-	bool filter_types = false;
-	for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
-	{
-		if(req_types && req_types[k] > 0)
-			filter_types = true;
-	}
-
-	if(filter_types)
-	{
-		m_FilteredParticleCount = 0;
-		for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
-		{
-			if(req_types && req_types[k] > 0)
-				m_FilteredParticleCount += m_MetaData.ParticleCountTotal[k];
-		}
-	}
-	else
-	{
-		m_FilteredParticleCount = m_TotalParticleCount;
-	}
-}
-
 vd::status
-GadgetSnapshot::Load(
+Snapshot::Load(
 	const vd::string& prefix, 
 	vd::i32 index,
-	vd::i32 splits,
+	vd::i32 start_index,
+	vd::i32 end_index,
+	vd::i32 split_count,
 	vd::i32 padding,
 	vd::i32* req_data,
 	vd::i32* req_types)
@@ -925,16 +1020,41 @@ GadgetSnapshot::Load(
 	vd::i32 pc = 1;
 	vd::i32 total_pc = pc;
 
-    vd::string filename = m_DataSet->GetFilenameForSnapshot(prefix, index, padding);
-    for(vd::i32 i = 0; i < splits; i++)
+    for(vd::i32 i = 0; i < split_count; i++)
     {
-    	if(splits > 1)
-    		filename += vd::string(".") + Core::Convert::ToString(i, 0, 0);
+	    vd::string filename = m_DataSet->GetFilenameForSnapshot(prefix, index, padding);
+    	if(split_count > 1) filename += vd::string(".") + Core::Convert::ToString(i, 0, 0);
 
 	    FILE* fd = fopen(filename.c_str(), "r");	    
 	    if(fd == NULL)
         {
-            vdLogWarning("Failed to open Gadget snapshot file '%s'!", filename.c_str());
+            vdLogWarning("Failed to open snapshot file '%s'!", filename.c_str());
+			return Status::Code::ReadError;
+        }
+
+#if defined(VD_DEBUG_GS2)
+        vdLogDebug("Reading snapshot '%s' ...", filename.c_str());
+#endif
+        m_SplitStartIndex = m_TotalParticleCount;
+
+		if(!ReadHeader(fd, split_count, req_types))
+		{
+            vdLogWarning("Failed to open snapshot file '%s'!", filename.c_str());
+			return Status::Code::ReadError;
+        }
+
+        m_SplitEndIndex = m_TotalParticleCount;
+	}
+
+    for(vd::i32 i = 0; i < split_count; i++)
+    {
+	    vd::string filename = m_DataSet->GetFilenameForSnapshot(prefix, index, padding);
+    	if(split_count > 1) filename += vd::string(".") + Core::Convert::ToString(i, 0, 0);
+
+	    FILE* fd = fopen(filename.c_str(), "r");	    
+	    if(fd == NULL)
+        {
+            vdLogWarning("Failed to open snapshot file '%s'!", filename.c_str());
 			return Status::Code::ReadError;
         }
 
@@ -942,17 +1062,16 @@ GadgetSnapshot::Load(
         vdLogDebug("Reading snapshot '%s' ...", filename.c_str());
 #endif
 
-		if(!ReadHeader(fd, splits))
+		if(!ReadHeader(fd, split_count, req_types))
 		{
-            vdLogWarning("Failed to open Gadget snapshot file '%s'!", filename.c_str());
+            vdLogWarning("Failed to open snapshot file '%s'!", filename.c_str());
 			return Status::Code::ReadError;
         }
 
 #if defined(VD_DEBUG_GS2)
 	    vdLogInfo("Reading block 'ParticleType' from '%s'!", filename.c_str());
 #endif
-		ReadTypeData(fd, pc);
-		ProcessParticleTypesRequest(req_types);
+		ReadTypeData(fd, start_index, end_index);
 
 	#if defined(VD_DEBUG_GS2)
 		    vdLogInfo("Loading '%d' / '%d' particles!", 
@@ -961,19 +1080,19 @@ GadgetSnapshot::Load(
 
 		for(vd::u32 n = 0; n < Block::Count; n++)
 		{
-			GadgetSnapshot::Block::Value block = GadgetSnapshot::Block::FromInteger(n);
+			Snapshot::Block::Value block = Snapshot::Block::FromInteger(n);
 			if(req_data[n] > 0)
 			{
 #if defined(VD_DEBUG_GS2)
 	            vdLogInfo("Reading block '%s' from '%s'!", 
-	            	GadgetSnapshot::Block::ToString(block), 
+	            	Snapshot::Block::ToString(block), 
 	            	filename.c_str());
 #endif
-				ReadBlock(fd, block, pc, req_types);
+				ReadSubBlock(fd, block, start_index, end_index, req_types);
  			}
 			else
             {
-				SkipBlock(fd, block, pc);
+				SkipSubBlock(fd, block, start_index, end_index);
 
             }
         }
@@ -983,29 +1102,15 @@ GadgetSnapshot::Load(
     }
 
     // Compute derived quantity for Temperature from Internal Energy if it wasn't in the file
-    if(req_data[GadgetSnapshot::Block::Temperature] == VD_TRUE && 
-    	GetBlockDataPtr(GadgetSnapshot::Block::Temperature) == NULL)
+    if(req_data[Snapshot::Block::Temperature] == VD_TRUE && 
+    	GetSubBlockDataPtr(Snapshot::Block::Temperature, start_index, end_index) == NULL)
     {
-    	ComputeTempFromInternalEnergy();
+    	ComputeTempFromInternalEnergy(start_index, end_index);
     }
 
 #if defined(VD_DEBUG_GS2)
     vdLogInfo("Loaded '%d'/'%d' particles!", m_FilteredParticleCount, m_TotalParticleCount);
-    vdLogInfo("Filtering by type for '%s'!", filename.c_str());
-#endif
-
-#if defined(VD_DEBUG_GS2)
-#if 0
-    m_FilteredParticleCount = 0;
-	for(vd::i64 i = 0; i < (vd::i64)m_TotalParticleCount; i++)
-    {
-        if(req_types[m_ParticleData.Type[i]] > 0)
-        {
-		     m_FilteredParticleCount++;
-	    }
-	}
-    vdLogInfo("Validating '%d'/'%d' particles!", m_FilteredParticleCount, m_TotalParticleCount);
-#endif
+//    vdLogInfo("Filtering by type for '%s'!", filename.c_str());
 #endif
 
     m_FileIndex = index;
@@ -1013,18 +1118,19 @@ GadgetSnapshot::Load(
 }
 
 void 
-GadgetSnapshot::Reorder()
+Snapshot::Reorder()
 {
+/*	
     vd::i64 idst;
-    for(vd::i64 i = 0; i < (vd::i64)GetFilteredParticleCount(); i++)
+    for(vd::i64 i = 0; i < (vd::i64)GetFilteredParticleCount(start_index, end_index); i++)
     	m_ParticleData.Id[i]--;
         	
-    for(vd::i64 i = 0; i < (vd::i64)GetFilteredParticleCount(); i++)
+    for(vd::i64 i = 0; i < (vd::i64)GetFilteredParticleCount(start_index, end_index); i++)
     {
         if(m_ParticleData.Id[i] != i)
         {
             idst = m_ParticleData.Id[i];
-            if(idst > (vd::i64)GetFilteredParticleCount())
+            if(idst > (vd::i64)GetFilteredParticleCount(start_index, end_index))
                 continue;
 
             do
@@ -1039,13 +1145,14 @@ GadgetSnapshot::Reorder()
         }
     }
     
-    for(vd::i64 i = 0; i < (vd::i64)GetFilteredParticleCount(); i++)
+    for(vd::i64 i = 0; i < (vd::i64)GetFilteredParticleCount(start_index, end_index); i++)
     	m_ParticleData.Id[i]++;
+*/
 }
 
 // ============================================================================================== //
 
-GadgetDataset::GadgetDataset(
+Dataset::Dataset(
 	Runtime::Context* runtime) :
 	Core::Object(),
 	m_IsOpen(false),
@@ -1063,13 +1170,13 @@ GadgetDataset::GadgetDataset(
 	Memory::SetBytes(m_RequestedStatistics, 0, sizeof(m_RequestedStatistics));
 }
 
-GadgetDataset::~GadgetDataset() 
+Dataset::~Dataset() 
 { 
 	Destroy();
 }
 
 vd::status
-GadgetDataset::Destroy(void)
+Dataset::Destroy(void)
 {
 	Close();
 	m_DataCache.Destroy();
@@ -1077,10 +1184,10 @@ GadgetDataset::Destroy(void)
 }
 
 vd::status 
-GadgetDataset::Open(
+Dataset::Open(
 	const vd::string& prefix, 
-	vd::i32 count, 
-	vd::i32 splits)
+	vd::i32 file_count, 
+	vd::i32 split_count)
 {
 	m_Mutex.Lock();
 
@@ -1092,7 +1199,7 @@ GadgetDataset::Open(
 	vd::string digits = prefix.substr(length - m_FileNumberPadding, length);
 	m_FilePrefix = prefix.substr(0, length - m_FileNumberPadding);
 	m_StartFileIndex = atoi(digits.c_str());
-	if(count < 1)
+	if(file_count < 1)
 	{
 		int missed = 0;
 		Core::FileSystem* fs = m_Runtime->GetFileSystem();
@@ -1113,23 +1220,23 @@ GadgetDataset::Open(
 	}
 	else
 	{
-		m_EndFileIndex = m_StartFileIndex + count;
+		m_EndFileIndex = m_StartFileIndex + file_count;
 	}
 
-	m_FileSplits = splits;
+	m_FileSplits = split_count;
 	m_IsOpen = true;
 	
 	vdLogInfo("Opening dataset '%s' from '%d-%d' with padded index '%d' ...",
 		m_FilePrefix.c_str(), m_StartFileIndex, m_EndFileIndex, m_FileNumberPadding);
 	
 	m_DataCache.Setup(2 * Constants::MemorySize::GB, 
-		VD_BIND_MEMBER_FUNCTION(this, &GadgetDataset::OnFetch), 
-		VD_BIND_MEMBER_FUNCTION(this, &GadgetDataset::OnEvict)
+		VD_BIND_MEMBER_FUNCTION(this, &Dataset::OnFetch), 
+		VD_BIND_MEMBER_FUNCTION(this, &Dataset::OnEvict)
 	);
 
 	m_WorkCache.Setup(m_EndFileIndex - m_StartFileIndex + 1, 
-		VD_BIND_MEMBER_FUNCTION(this, &GadgetDataset::OnSubmit), 
-		VD_BIND_MEMBER_FUNCTION(this, &GadgetDataset::OnComplete)
+		VD_BIND_MEMBER_FUNCTION(this, &Dataset::OnSubmit), 
+		VD_BIND_MEMBER_FUNCTION(this, &Dataset::OnComplete)
 	);
 	
 	m_WorkQueue.Start(1);	
@@ -1140,7 +1247,7 @@ GadgetDataset::Open(
 }
 	
 vd::string
-GadgetDataset::GetFilenameForSnapshot(
+Dataset::GetFilenameForSnapshot(
     const vd::string& prefix, vd::i32 index, vd::i32 padding)
 {
 	char digits[1024] = {0};
@@ -1164,7 +1271,7 @@ GadgetDataset::GetFilenameForSnapshot(
 }
 	
 vd::status 
-GadgetDataset::Close()
+Dataset::Close()
 {
 	if(m_IsOpen)
 	{
@@ -1176,80 +1283,102 @@ GadgetDataset::Close()
 }
 
 bool
-GadgetDataset::IsReady(vd::i32 index)
+Dataset::IsReady(
+	DataRequest request)
 {
-	return IsResident(index);
+	return IsResident(request);
 }
 
 bool
-GadgetDataset::IsPending(vd::i32 index)
+Dataset::IsPending(
+	DataRequest request)
 {
-	return m_WorkCache.IsResident(index);
+	return m_WorkCache.IsResident(request);
 }
 
 bool
-GadgetDataset::IsResident(vd::i32 index)
+Dataset::IsResident(
+	DataRequest request)
 {
-	return m_DataCache.IsResident(index);
+	return m_DataCache.IsResident(request);
 }
 
-GadgetWorkItem*
-GadgetDataset::GetPendingWorkItem(vd::i32 index)
+WorkItem*
+Dataset::GetPendingWorkItem(
+	DataRequest request)
 {
-	GadgetWorkItem* work = NULL;
+	WorkItem* work = NULL;
 	return work;
 }
 
-GadgetSnapshot*
-GadgetDataset::Retrieve(
-	const vd::i32& index)
+Snapshot*
+Dataset::Retrieve(
+	DataRequest request)
 {
-	if(IsValidIndex(index) == false)
-		return false;
+	if(IsValidRequest(request) == false)
+		return NULL;
 	
-	GadgetSnapshot* data = NULL;
-	bool hit = m_DataCache.Fetch(index, data);
+	Snapshot* data = NULL;
+	bool hit = m_DataCache.Fetch(request, data);
 	hit = hit && data && data->IsResident();
+
+	vdLogInfo("Fetching snapshot data '%d' %s [%d -> %d]...", 
+		request.SnapshotIndex,
+		Snapshot::Block::ToString(request.BlockType),
+		request.StartIndex,
+		request.EndIndex);
+
 //	vdLogInfo("Fetching snapshot: Index[%d] Hit[%s] ...", index, hit ? "true" : "false");
 	return hit ? data : NULL;
 }
   
 bool
-GadgetDataset::Request(
-	vd::i32 index)
+Dataset::Request(
+	DataRequest request)
 {
-	if(IsValidIndex(index) == false)
+	if(IsValidRequest(request) == false)
 		return false;
 
-	bool hit = m_DataCache.Load(index);
+	bool hit = m_DataCache.Load(request);
 
 #if defined(VD_DEBUG_GS2)
-	vdLogInfo("Requesting snapshot: Index[%d] Hit[%s] ...", index, hit ? "true" : "false");
+	vdLogInfo("Requesting snapshot data '%d' %s [%d -> %d]...", 
+		request.SnapshotIndex,
+		Snapshot::Block::ToString(request.BlockType),
+		request.StartIndex,
+		request.EndIndex);
 #endif
 
 	return hit;
 }
 
-GadgetSnapshot*
-GadgetDataset::OnFetch(
-	const vd::i32& index)
+Snapshot*
+Dataset::OnFetch(
+	const DataRequest& request)
 {
-	if(IsValidIndex(index) == false)
+	if(IsValidRequest(request) == false)
 		return NULL;
 		
 #if defined(VD_DEBUG_GS2)
-	vdLogInfo("Miss on snapshot '%d' ...", index);
+	vdLogInfo("Miss for snapshot '%d' %s [%d -> %d]...", 
+		request.SnapshotIndex,
+		Snapshot::Block::ToString(request.BlockType),
+		request.StartIndex,
+		request.EndIndex);
 #endif
 
-	GadgetSnapshot* snapshot = NULL; 
-	GadgetWorkItem* work = NULL;
+	Snapshot* snapshot = NULL; 
+	WorkItem* work = NULL;
 
-	bool hit = m_WorkCache.Fetch(index, work);
+	bool hit = m_WorkCache.Fetch(request, work);
 	if(hit && work && work->IsReady())
 	{
 #if defined(VD_DEBUG_GS2)
-		vdLogInfo("OnFetch snapshot: Index [%d] Ptr[%p] ...", 
-			index, work);
+		vdLogInfo("OnFetch() for snapshot '%d' %s [%d -> %d]...", 
+			request.SnapshotIndex,
+			Snapshot::Block::ToString(request.BlockType),
+			request.StartIndex,
+			request.EndIndex);
 #endif
 		snapshot = work->GetSnapshot();
 	}
@@ -1258,8 +1387,8 @@ GadgetDataset::OnFetch(
 }
 
 void 
-GadgetDataset::OnEvict(
-	GadgetSnapshot* snapshot)
+Dataset::OnEvict(
+	Snapshot* snapshot)
 {
 	if(snapshot != NULL)
 		vdLogInfo("Evicting snapshot '%d' ...", snapshot->GetFileIndex());
@@ -1267,25 +1396,30 @@ GadgetDataset::OnEvict(
 	VD_DELETE(snapshot);
 }
 
-GadgetWorkItem*
-GadgetDataset::OnSubmit(
-	const vd::i32& index)
+WorkItem*
+Dataset::OnSubmit(
+	const DataRequest& request)
 {
-	if(IsValidIndex(index) == false)
+	if(IsValidRequest(request) == false)
 		return NULL;
 		
 #if defined(VD_DEBUG_GS2)
-	vdLogInfo("Adding load request for snapshot '%d' ...", index);
+	vdLogInfo("Adding load request for snapshot '%d' %s [%d -> %d]...", 
+		request.SnapshotIndex,
+		Snapshot::Block::ToString(request.BlockType),
+		request.StartIndex,
+		request.EndIndex);
 #endif
 
-	GadgetSnapshot* snapshot = VD_NEW(GadgetSnapshot, this);
+	Snapshot* snapshot = VD_NEW(Snapshot, this);
 
 	snapshot->SetResident(false);
 
-	GadgetWorkItem* work = VD_NEW(GadgetWorkItem, 
+	WorkItem* work = VD_NEW(WorkItem, 
+		request,
 		snapshot, 
 		m_FilePrefix, 
-		index, 
+		request.SnapshotIndex, 
 		m_FileSplits, 
 		m_FileNumberPadding, 
 		m_RequestedBlocks, 
@@ -1293,13 +1427,13 @@ GadgetDataset::OnSubmit(
 		m_RequestedStatistics);															  
 
 	m_WorkQueue.Submit(work);
-	m_DataCache.Insert(index, snapshot);
+	m_DataCache.Insert(request, snapshot);
 	return work;
 }
 
 void 
-GadgetDataset::OnComplete(
-	GadgetWorkItem* work)
+Dataset::OnComplete(
+	WorkItem* work)
 {
 #if defined(VD_DEBUG_GS2)
 	if(work != NULL)
@@ -1310,74 +1444,120 @@ GadgetDataset::OnComplete(
 }
 
 void
-GadgetDataset::Release(vd::i32 index)
+Dataset::Release(
+	DataRequest request)
 {
-	m_WorkCache.Remove(index);
-	m_DataCache.Remove(index);
+	m_WorkCache.Remove(request);
+	m_DataCache.Remove(request);
 }
 
 void 
-GadgetDataset::Retain(vd::i32 index, GadgetSnapshot* snapshot)
+Dataset::Retain(
+	DataRequest request, Snapshot* snapshot)
 {
-	m_DataCache.Touch(index);
+	m_DataCache.Touch(request);
 }
 
-void GadgetDataset::SetBlockRequest(GadgetSnapshot::Block::Value v, vd::i32 enable) 
-	{ m_RequestedBlocks[GadgetSnapshot::Block::ToInteger(v)] = enable; }
-
-void GadgetDataset::SetTypeRequest(GadgetSnapshot::ParticleType::Value v, vd::i32 enable) 
-	{ m_RequestedTypes[GadgetSnapshot::ParticleType::ToInteger(v)] = enable; }
-
-void GadgetDataset::SetStatisticRequest(GadgetSnapshot::Block::Value v, vd::i32 enable) 
-    { m_RequestedStatistics[GadgetSnapshot::Block::ToInteger(v)] = enable; }
-
-vd::i32 GadgetDataset::GetFileCount() const 
-{ return m_FileCount; }
-
-vd::string GadgetDataset::GetFilePrefix() const 
-{ return m_FilePrefix; }
-
-vd::i32 GadgetDataset::GetStartFileIndex() const 
-{ return m_StartFileIndex; }
-
-vd::i32 GadgetDataset::GetEndFileIndex() const 
-{ return m_EndFileIndex; }
-
-vd::i32 GadgetDataset::GetCurrentFileIndex() const 
-{ return m_CurrentFileIndex; }
-
-void GadgetDataset::SetCurrentFileIndex(vd::i32 index) 
-{ m_CurrentFileIndex = index; }
-
-bool GadgetDataset::IsOpen() const 
-{ return m_IsOpen; }
-
-bool GadgetDataset::IsValidIndex(vd::i32 index) 
-{ return (index >= m_StartFileIndex && index <= m_EndFileIndex); }
-
-bool GadgetDataset::IsValidBlock(GadgetSnapshot::Block::Value v) const 
-{ return v != GadgetSnapshot::Block::LastValue; }
-
-bool GadgetDataset::IsValidParticleType(GadgetSnapshot::ParticleType::Value v) const 
+void Dataset::SetBlockRequest(
+	Snapshot::Block::Value v, vd::i32 enable) 
 { 
-	return v != GadgetSnapshot::ParticleType::LastValue; 
+	m_RequestedBlocks[Snapshot::Block::ToInteger(v)] = enable; 
+}
+
+void Dataset::SetTypeRequest(
+	Snapshot::ParticleType::Value v, vd::i32 enable) 
+{ 
+	m_RequestedTypes[Snapshot::ParticleType::ToInteger(v)] = enable; 
+}
+
+void Dataset::SetStatisticRequest(Snapshot::Block::Value v, vd::i32 enable) 
+{ 
+	m_RequestedStatistics[Snapshot::Block::ToInteger(v)] = enable; 
+}
+
+vd::i32 Dataset::GetFileCount() const 
+{ 
+	return m_FileCount; 
+}
+
+vd::string Dataset::GetFilePrefix() const 
+{ 
+	return m_FilePrefix; 
+}
+
+vd::i32 Dataset::GetStartFileIndex() const 
+{ 
+	return m_StartFileIndex; 
+}
+
+vd::i32 Dataset::GetEndFileIndex() const 
+{ 
+	return m_EndFileIndex; 
+}
+
+vd::i32 Dataset::GetCurrentFileIndex() const 
+{ 
+	return m_CurrentFileIndex; 
+}
+
+void Dataset::SetCurrentFileIndex(vd::i32 index) 
+{ 
+	m_CurrentFileIndex = index; 
+}
+
+bool Dataset::IsOpen() const 
+{ 
+	return m_IsOpen; 
+}
+
+bool Dataset::IsValidIndex(
+	vd::i32 index) const
+{ 
+	return (index >= m_StartFileIndex && index <= m_EndFileIndex); 
+}
+
+bool Dataset::IsValidBlock(
+	Snapshot::Block::Value v) const 
+{ 
+	return v != Snapshot::Block::LastValue; 
+}
+
+bool Dataset::IsValidParticleType(
+	Snapshot::ParticleType::Value v) const 
+{ 
+	return v != Snapshot::ParticleType::LastValue; 
+}
+
+bool Dataset::IsValidRequest(
+	DataRequest request) const
+{
+	if(IsValidIndex(request.SnapshotIndex) == false)
+		return false;
+
+	if(IsValidBlock(request.BlockType) == false)
+		return false;
+
+	if(request.StartIndex >= request.EndIndex)
+		return false;
+
+	return true;
 }
 
 void
-GadgetDataset::Evict()
+Dataset::Evict()
 {
 
 }
 
 void
-GadgetWorkQueue::OnRun(
+WorkQueue::OnRun(
 	WorkItem* item)
 {
-	GadgetWorkItem* work = (GadgetWorkItem*)item;
+	WorkItem* work = (WorkItem*)item;
     if(work == NULL)
         return;
 
-    GadgetSnapshot* snapshot = work->m_Snapshot;
+    Snapshot* snapshot = work->m_Snapshot;
 
 #if defined(VD_DEBUG_GS2)
 	vd::f64 t0 = Process::GetTimeInSeconds();
@@ -1392,30 +1572,36 @@ GadgetWorkQueue::OnRun(
 		return;
 	}	
 	
-	snapshot->Load(work->m_FilePrefix, work->m_FileIndex, 
-				   work->m_FileSplits, work->m_FileNumberPadding, 
-				   work->m_Blocks, work->m_Types);
+	snapshot->Load(
+		work->m_FilePrefix, 
+		work->m_FileIndex, 
+		work->m_Request.StartIndex,
+		work->m_Request.EndIndex,
+		work->m_FileSplits, 
+		work->m_FileNumberPadding, 
+		work->m_Blocks, 
+		work->m_Types);
 
 	vd::string filename = snapshot->GetFilename(work->m_FilePrefix, 
 												work->m_FileIndex, 
 												work->m_FileNumberPadding);
 
 #if defined(VD_DEBUG_GS2)
-	GadgetMetaData m = snapshot->GetMetaData();
+	MetaData m = snapshot->GetMetaData();
 	vd::f64 t1 = Process::GetTimeInSeconds();
 	vdLogInfo("Loaded '%s' in '%f' sec.", filename.c_str(), t1 - t0);
 	vdLogInfo("-- '%s' = [%s=%d %s=%d %s=%d %s=%d %s=%d %s=%d]", "ParticleCount", 
-		GadgetSnapshot::ParticleType::ToString(0),
+		Snapshot::ParticleType::ToString(0),
 		m.ParticleCount[0], 
-		GadgetSnapshot::ParticleType::ToString(1),
+		Snapshot::ParticleType::ToString(1),
 		m.ParticleCount[1],
-		GadgetSnapshot::ParticleType::ToString(2),
+		Snapshot::ParticleType::ToString(2),
 		m.ParticleCount[2], 
-		GadgetSnapshot::ParticleType::ToString(3),
+		Snapshot::ParticleType::ToString(3),
 		m.ParticleCount[3], 
-		GadgetSnapshot::ParticleType::ToString(4),
+		Snapshot::ParticleType::ToString(4),
 		m.ParticleCount[4], 
-		GadgetSnapshot::ParticleType::ToString(5),
+		Snapshot::ParticleType::ToString(5),
 		m.ParticleCount[5]);
 	vdLogInfo("-- '%s' = [%d %d %d %d %d %d]", "ParticleCountTotal", 
 		m.ParticleCountTotal[0], m.ParticleCountTotal[1], m.ParticleCountTotal[2], 
@@ -1436,18 +1622,20 @@ GadgetWorkQueue::OnRun(
 	vdLogInfo("-- '%s' = %f", "HubbleParam", m.HubbleParam);
 #endif
 	
-	for(vd::i32 i = 0; i < (vd::i32)GadgetSnapshot::Block::Count; i++)
+	size_t start_index = work->m_Request.StartIndex;
+	size_t end_index = work->m_Request.EndIndex;
+	for(vd::i32 i = 0; i < (vd::i32)Snapshot::Block::Count; i++)
 	{
-		GadgetSnapshot::Block::Value block = GadgetSnapshot::Block::FromInteger(i);
+		Snapshot::Block::Value block = Snapshot::Block::FromInteger(i);
 		if(work->m_Stats[i] < 1)
 			continue;
 
 		vd::f64 t0 = Process::GetTimeInSeconds();
-		GadgetStatistic& s = snapshot->GetStatistic(block);
+		Statistic& s = snapshot->GetStatistic(block);
 		s.Components = snapshot->GetBlockVectorLength(block);
 		if(snapshot->IsBlockEntryIntegerValue(block))
 		{
-			int* src = (int*)snapshot->GetBlockDataPtr(block);
+			int* src = (int*)snapshot->GetSubBlockDataPtr(block, start_index, end_index);
 			if(src == NULL)
 				continue;
 
@@ -1457,8 +1645,8 @@ GadgetWorkQueue::OnRun(
 				s.Maximum[vc] = -VD_F32_MAX;
 			}
 
-			float* dst = (float*)snapshot->GetBlockDataPtr(block);
-			for(vd::u64 n = 0; n < snapshot->GetFilteredParticleCount(); n++)
+			float* dst = (float*)snapshot->GetSubBlockDataPtr(block, start_index, end_index);
+			for(vd::u64 n = 0; n < snapshot->GetFilteredParticleCount(start_index, end_index); n++)
 			{
 				for(vd::i8 vc = 0; vc < s.Components; vc++)
 				{
@@ -1487,7 +1675,7 @@ GadgetWorkQueue::OnRun(
 		}
 		else
 		{
-			float* src = (float*)snapshot->GetBlockDataPtr(block);
+			float* src = (float*)snapshot->GetSubBlockDataPtr(block, start_index, end_index);
 			if(src == NULL)
 				continue;
 
@@ -1497,7 +1685,7 @@ GadgetWorkQueue::OnRun(
 				s.Maximum[vc] = -VD_F32_MAX;
 			}
 
-			for(vd::u64 n = 0; n < snapshot->GetFilteredParticleCount(); n++)
+			for(vd::u64 n = 0; n < snapshot->GetFilteredParticleCount(start_index, end_index); n++)
 			{
 				for(vd::i8 vc = 0; vc < s.Components; vc++)
 				{
@@ -1526,7 +1714,7 @@ GadgetWorkQueue::OnRun(
 
 		vd::f64 t1 = Process::GetTimeInSeconds();
 		vdLogInfo("Computed stats for '%s' in '%f' sec:",
-			GadgetSnapshot::Block::ToString(i), t1 - t0);
+			Snapshot::Block::ToString(i), t1 - t0);
 
 		for(vd::i8 vc = 0; vc < s.Components; vc++)
 		{
@@ -1541,10 +1729,14 @@ GadgetWorkQueue::OnRun(
 
 // ============================================================================================== //
 
-VD_IMPLEMENT_OBJECT(GadgetSnapshot, vd_sym(GadgetSnapshot), vd_sym(Object));
-VD_IMPLEMENT_OBJECT(GadgetDataset, vd_sym(GadgetDataset), vd_sym(Object));
-VD_IMPLEMENT_OBJECT(GadgetWorkQueue, vd_sym(GadgetWorkQueue), vd_sym(WorkQueue));
-VD_IMPLEMENT_OBJECT(GadgetWorkItem, vd_sym(GadgetWorkItem), vd_sym(WorkItem));
+VD_IMPLEMENT_OBJECT(Snapshot, vd_sym(GadgetSnapshot), vd_sym(Object));
+VD_IMPLEMENT_OBJECT(Dataset, vd_sym(GadgetDataset), vd_sym(Object));
+VD_IMPLEMENT_OBJECT(WorkQueue, vd_sym(GadgetWorkQueue), vd_sym(WorkQueue));
+VD_IMPLEMENT_OBJECT(WorkItem, vd_sym(GadgetWorkItem), vd_sym(WorkItem));
+
+// ============================================================================================== //
+
+} // end namespace: Gadget
 
 // ============================================================================================== //
 

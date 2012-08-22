@@ -50,14 +50,14 @@ Texture::Load2D(
 	if(open != Status::Code::Success)
 	{
 		vdLogGlobalWarning("Error: Failed to load texture from image file '%s'\n", filename.c_str());	
-		return false;
+		return NULL;
 	}
 
     vd::status read = input.Read(pixels);
     if(read != Status::Code::Success)
 	{
 		vdLogGlobalWarning("Error: Failed to load texture from image file '%s'\n", filename.c_str());	
-		return false;
+		return NULL;
 	}
 
 	input.Close();
@@ -119,13 +119,13 @@ Texture::LoadCubeMap(
 	if(input.Open(filenames[0], format) != Status::Code::Success)
 	{
 		vdLogGlobalWarning("Error: Failed to load texture from image file '%s'\n", filenames[0].c_str());	
-		return false;
+		return NULL;
 	}
 	
 	if(input.Read(pixels) != Status::Code::Success)
 	{
 		vdLogGlobalWarning("Error: Failed to load texture from image file '%s'\n", filenames[0].c_str());	
-		return false;
+		return NULL;
 	}
 
 	GLenum internal = GL_RGBA;
@@ -188,13 +188,13 @@ Texture::LoadCubeMap(
 			if(input.Open(filenames[i], format) != Status::Code::Success)
 			{
 				vdLogGlobalWarning("Error: Failed to load texture from image file '%s'\n", filenames[i].c_str());	
-				return false;
+				return NULL;
 			}
 			
 			if(input.Read(pixels) != Status::Code::Success)
 			{
 				vdLogGlobalWarning("Error: Failed to load texture from image file '%s'\n", filenames[i].c_str());	
-				return false;
+				return NULL;
 			}
 			rgba = (vd::u8*)pixels.Data;
 		}

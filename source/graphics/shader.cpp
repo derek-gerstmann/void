@@ -179,51 +179,35 @@ Shader::Compile(
 	const char* fp)
 {    
     GLint status;
-    GLchar msglog[1024] = {0};
+    GLchar msglog[4096] = {0};
+
+	vdLogInfo("Compiling shader '%s' [VP:%s GP:%s FP:%s]!", 
+		m_Name.c_str() ? m_Name.c_str() : "<UNKNOWN>",
+		vp ? "true" : "false",
+		gp ? "true" : "false",
+		fp ? "true" : "false");
     
     m_Data.Id = glCreateProgram();
 		  
+    status = GL_FALSE;
+	GLuint vsHandle = 0;
 	const char* vsSource = vp;
-	GLuint vsHandle = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vsHandle, 1, &vsSource, 0);
-    glCompileShader(vsHandle);
-    glGetShaderiv(vsHandle, GL_COMPILE_STATUS, &status);
-    glGetShaderInfoLog(vsHandle, sizeof(msglog), 0, msglog);
-    if(status == GL_FALSE)  
-    	vdLogError("Failed to compile vertex shader:\n%s\n--\n%s", vsSource, msglog);
+	if(vp != NULL && strlen(vp))
+	{
+		vsHandle = glCreateShader(GL_VERTEX_SHADER);
+	    glShaderSource(vsHandle, 1, &vsSource, 0);
+	    glCompileShader(vsHandle);
+	    glGetShaderiv(vsHandle, GL_COMPILE_STATUS, &status);
+	    glGetShaderInfoLog(vsHandle, sizeof(msglog), 0, msglog);
+	    if(status == GL_FALSE)  
+	    	vdLogError("Failed to compile vertex shader:\n%s\n--\n%s", vsSource, msglog);
 
-	vdAssert(status == GL_TRUE);
-	
-    glAttachShader(m_Data.Id, vsHandle);
-
-    GLuint gsHandle;
-    if (gp != NULL  && strlen(gp)) 
-    {
-		const char* gsSource = gp;
-        gsHandle = glCreateShader(GL_GEOMETRY_SHADER);
-        glShaderSource(gsHandle, 1, &gsSource, 0);
-        glCompileShader(gsHandle);
-		glGetShaderiv(gsHandle, GL_COMPILE_STATUS, &status);
-		glGetShaderInfoLog(gsHandle, sizeof(msglog), 0, msglog);
-
-		if(status == GL_FALSE)  
-			vdLogError("Failed to compile geometry shader:\n%s\n--\n%s", gsSource, msglog);
 		vdAssert(status == GL_TRUE);
-	
-        glAttachShader(m_Data.Id, gsHandle);
+	    glAttachShader(m_Data.Id, vsHandle);
+	}
 
-#if defined(VD_TARGET_OSX)
-        glProgramParameteri(m_Data.Id, GL_GEOMETRY_OUTPUT_TYPE, GL_TRIANGLE_STRIP);
-        glProgramParameteri(m_Data.Id, GL_GEOMETRY_INPUT_TYPE, GL_POINTS);
-        glProgramParameteri(m_Data.Id, GL_GEOMETRY_VERTICES_OUT, 24);
-#else
-        glProgramParameteriEXT(m_Data.Id, GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP);
-        glProgramParameteriEXT(m_Data.Id, GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS);
-        glProgramParameteriEXT(m_Data.Id, GL_GEOMETRY_VERTICES_OUT_EXT, 24);
-#endif
-    }
-    
-    GLuint fsHandle;
+    status = GL_FALSE;
+    GLuint fsHandle = 0;
     if (fp != NULL && strlen(fp)) 
     {
 		const char* fsSource = fp;
@@ -239,10 +223,43 @@ Shader::Compile(
         glAttachShader(m_Data.Id, fsHandle);
     }
 
-    glLinkProgram(m_Data.Id);
+    status = GL_FALSE;
+    GLuint gsHandle = 0;
+    if (gp != NULL  && strlen(gp)) 
+    {
+		const char* gsSource = gp;
+        gsHandle = glCreateShader(GL_GEOMETRY_SHADER);
+        glShaderSource(gsHandle, 1, &gsSource, 0);
+        glCompileShader(gsHandle);
+		glGetShaderiv(gsHandle, GL_COMPILE_STATUS, &status);
+		glGetShaderInfoLog(gsHandle, sizeof(msglog), 0, msglog);
+
+		if(status == GL_FALSE)  
+			vdLogError("Failed to compile geometry shader:\n%s\n--\n%s", gsSource, msglog);
+
+/*
+#if defined(VD_TARGET_OSX)
+        glProgramParameteri(m_Data.Id, GL_GEOMETRY_OUTPUT_TYPE, GL_TRIANGLE_STRIP);
+        glProgramParameteri(m_Data.Id, GL_GEOMETRY_INPUT_TYPE, GL_POINTS);
+        glProgramParameteri(m_Data.Id, GL_GEOMETRY_VERTICES_OUT, 24);
+#else
+        glProgramParameteriEXT(m_Data.Id, GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP);
+        glProgramParameteriEXT(m_Data.Id, GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS);
+        glProgramParameteriEXT(m_Data.Id, GL_GEOMETRY_VERTICES_OUT_EXT, 24);
+#endif
+*/
+		vdAssert(status == GL_TRUE);
+        glAttachShader(m_Data.Id, gsHandle);
+    }
     
-    glGetProgramiv(m_Data.Id, GL_LINK_STATUS, &status);
-    glGetProgramInfoLog(m_Data.Id, sizeof(msglog), 0, msglog);
+
+    status = GL_FALSE;
+    if(vsHandle > 0 || gsHandle > 0 || fsHandle > 0)
+    {
+	    glLinkProgram(m_Data.Id);    
+	    glGetProgramiv(m_Data.Id, GL_LINK_STATUS, &status);
+	    glGetProgramInfoLog(m_Data.Id, sizeof(msglog), 0, msglog);
+	}
 
     if (status == GL_FALSE) 
     {
@@ -284,30 +301,22 @@ Shader::Load(
 	if(vs_file.size())
 	{
 		bool loaded = Core::FileAccess::Load (vs_file, false, vs_bytes, vs_src);
+		vdAssert(loaded);
 		if(loaded)
 		{
 //			vs_file = vd::string("// #line 1 \"") + vd::string(vs_key) + vd::string("\"\n") + vd::string(vs_src);
 			vs_file = vd::string(vs_src);
-			VD_SAFE_DELETE_ARRAY(vs_src);
-		}
-		else
-		{
-			vs_file = vd::string("");
 		}
 	}
 
 	if(gs_file.size())
 	{
 		bool loaded = Core::FileAccess::Load (gs_file, false, gs_bytes, gs_src);
+		vdAssert(loaded);
 		if(loaded)
 		{
 //			gs_file = vd::string("// #line 1 \"") + vd::string(gs_key) + vd::string("\"\n") + 
 			gs_file = vd::string(gs_src);
-			VD_SAFE_DELETE_ARRAY(gs_src);
-		}
-		else
-		{
-			gs_file = vd::string("");
 		}
 	}
 
@@ -318,13 +327,7 @@ Shader::Load(
 		{
 //			fs_file = vd::string("// #line 1 \"") + vd::string(fs_key) + vd::string("\"\n") + vd::string(fs_src);
 			fs_file = vd::string(fs_src);
-			VD_SAFE_DELETE_ARRAY(fs_src);
 		}
-		else
-		{
-			fs_file = vd::string("");
-		}
-
 	}
 
 	bool success = Compile(
@@ -332,6 +335,9 @@ Shader::Load(
 		gs_file.size() ? gs_file.c_str() : NULL, 
 		fs_file.size() ? fs_file.c_str() : NULL);
 
+	VD_SAFE_DELETE_ARRAY(vs_src);
+	VD_SAFE_DELETE_ARRAY(gs_src);
+	VD_SAFE_DELETE_ARRAY(fs_src);
 	return success;
 }
 

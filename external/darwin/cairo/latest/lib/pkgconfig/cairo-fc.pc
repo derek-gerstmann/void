@@ -1,0 +1,12 @@
+prefix=/Users/dg/Workspace/void/clean/void/external/build/cairo/osx
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: cairo-fc
+Description: Fontconfig font backend for cairo graphics library
+Version: 1.12.0
+
+Requires: cairo fontconfig >= 2.2.95
+Libs:  
+Cflags: -I${includedir}/cairo 

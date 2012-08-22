@@ -39,6 +39,7 @@
 #include "core/workqueue.h"
 #include "runtime/runtime.h"
 #include "runtime/context.h"
+#include "containers/containers.h"
 #include "containers/cache.h"
 
 // ============================================================================================== //
@@ -52,12 +53,19 @@ VD_IMPORT(Core, WorkItem);
 VD_IMPORT(Core, WorkQueue);
 VD_IMPORT(Core, AtomicCounter);
 VD_IMPORT(Containers, LruCache);
+VD_IMPORT(Containers, Map);
 
 // ============================================================================================== //
 
-class GadgetDataset;
+namespace Gadget {
 
-struct GadgetMetaData
+// ============================================================================================== //
+
+class Dataset;
+
+// ============================================================================================== //
+
+struct MetaData
 {
 	int ParticleCount[6];                  
 	double Mass[6];               
@@ -79,11 +87,11 @@ struct GadgetMetaData
 	char Fill[56];	               			//!< Fills to 256 Bytes 
 };
 
-// vdStaticAssert((sizeof(GadgetMetaData) == 256), InvalidGS2HeaderSize);
+// vdStaticAssert((sizeof(MetaData) == 256), InvalidGS2HeaderSize);
 
 // ============================================================================================== //
 
-struct GadgetParticleData
+struct ParticleData
 {
 	int* Id;
     int* Type;
@@ -101,7 +109,7 @@ struct GadgetParticleData
     float* TimeStep;
 };
 
-struct GadgetStatistic
+struct Statistic
 {
     float Minimum[3];
     float Maximum[3];
@@ -113,36 +121,15 @@ struct GadgetStatistic
     int    Components;
 };
 
-struct GadgetRangeData
+struct ParticleRange
 {
-	void*  Base;
-	void*  StartRange;
-	void*  EndRange;
-	size_t Offset;
-	size_t TotalBytes;		
-};
-
-struct GadgetBlockRangeData
-{
-	GadgetRangeData Id;
-    GadgetRangeData Type;
-    GadgetRangeData Position;
-    GadgetRangeData Velocity;
-    GadgetRangeData Mass;
-    GadgetRangeData Density;
-    GadgetRangeData InternalEnergy;
-    GadgetRangeData Temp;
-    GadgetRangeData Ne;
-    GadgetRangeData SmoothingLength;
-    GadgetRangeData Potential;
-    GadgetRangeData Acceleration;
-    GadgetRangeData DtEntropy;
-    GadgetRangeData TimeStep;
+	size_t StartIndex;
+	size_t EndIndex;		
 };
 
 // ============================================================================================== //
 
-class GadgetSnapshot : public Object
+class Snapshot : public Object
 {
 public:
 
@@ -173,7 +160,7 @@ public:
             case ParticleType::Star:      return "Star";
             case ParticleType::Boundary:  return "Boundary";
             case ParticleType::LastValue: return "LastValue"; 
-            default:        return "<INVALID>";
+            default:                      return "<INVALID>";
             }
             return "<INVALID>";
         }
@@ -206,10 +193,16 @@ public:
             case ParticleType::Bulge:     return 3;
             case ParticleType::Star:      return 4;
             case ParticleType::Boundary:  return 5;
-            case ParticleType::LastValue: return Count;
-            default:        return Count; 
+            case ParticleType::LastValue: return ParticleType::Count;
+            default:                      return ParticleType::Count; 
             }
             return Count;
+        }
+
+        static bool IsValid(
+            ParticleType::Value value)             
+        {
+            return ToInteger(value) < ParticleType::Count;
         }
     };
 
@@ -315,10 +308,16 @@ public:
             case TimeStep:          return 10;
             case Temperature:       return 11;
             case Type:              return 12;
-            case LastValue:         return Count;
-            default:                return Count; 
+            case LastValue:         return Block::Count;
+            default:                return Block::Count; 
             }
             return Count;
+        }
+
+        static bool IsValid(
+            Block::Value value)             
+        {
+            return ToInteger(value) < Block::Count;
         }
     };
 
@@ -328,13 +327,15 @@ public:
 	
 public:
 		
-    GadgetSnapshot(GadgetDataset* dataset);    
-    virtual ~GadgetSnapshot();
+    Snapshot(Dataset* dataset);    
+    virtual ~Snapshot();
 
 	vd::status
 	Load(
-		const vd::string& prefix, 
-		vd::i32 index,
+		const vd::string& file_prefix, 
+		vd::i32 snapshot_index,
+        vd::i32 start_index=0,
+        vd::i32 end_index=0,
 		vd::i32 splits=1,
 		vd::i32 padding=4,
 		vd::i32* req_data=0,
@@ -345,24 +346,34 @@ public:
 	
 	vd::status 
 	Close();
-	
-	size_t
-	CreateBlockData(Block::Value block);
-	
-	void 
-	DestroyBlockData(Block::Value block);
-	
-	void*	
-	GetBlockDataPtr(Block::Value block) const;
 
-	void 
-	SetBlockDataPtr(Block::Value block, void* ptr);
+    // --
 
+    size_t
+    CreateSubBlockData(Block::Value block, size_t start_index, size_t end_index);
+    
+    void 
+    DestroySubBlockData(Block::Value block, size_t start_index, size_t end_index);
+
+    size_t   
+    GetSubBlockDataSize(Block::Value block, size_t start_index, size_t end_index) const;
+    
+    void*   
+    GetSubBlockDataPtr(Block::Value block, size_t start_index, size_t end_index) const;
+
+    void 
+    SetSubBlockDataPtr(void* ptr, size_t bytes, Block::Value block, size_t start_index, size_t end_index);
+
+    size_t
+    GetSubBlockParticleCount(Block::Value block, size_t start_index, size_t end_index) const;
+
+    // --	
+	
 	size_t 
-	ReadHeader(FILE* fd, vd::i32 splits);
+	ReadHeader(FILE* fd, vd::i32 splits, vd::i32* req_types);
 	
 	size_t
-	ReadTypeData(FILE* fd, size_t offset);
+	ReadTypeData(FILE* fd, size_t start_index, size_t end_index);
 	
 	size_t
 	GetBlockSeparatorSize(void) const;
@@ -398,46 +409,46 @@ public:
 	IsBlockEntryIntegerValue(Block::Value block) const;
 
 	size_t 
-	ReadBlockData(FILE* fd, Block::Value block, size_t offset, vd::i32* types);
+	ReadSubBlockData(FILE* fd, Block::Value block, size_t start_index, size_t end_index, vd::i32* types);
 	
 	size_t 
-	ReadPositionData(FILE* fd, size_t offset, vd::i32* types);
+	ReadPositionData(FILE* fd, size_t start_index, size_t end_index, vd::i32* types);
 
 	size_t
-	ReadVelocityData(FILE* fd, size_t offset, vd::i32* types);
+	ReadVelocityData(FILE* fd, size_t start_index, size_t end_index, vd::i32* types);
 
 	size_t
-	ReadIdentifierData(FILE* fd, size_t offset, vd::i32* types);
+	ReadIdentifierData(FILE* fd, size_t start_index, size_t end_index, vd::i32* types);
 
 	size_t
-	ReadMassData(FILE* fd, size_t offset, vd::i32* types);
+	ReadMassData(FILE* fd, size_t start_index, size_t end_index, vd::i32* types);
 
 	size_t
-	ReadInternalEnergyData(FILE* fd, size_t offset, vd::i32* types);
+	ReadInternalEnergyData(FILE* fd, size_t start_index, size_t end_index, vd::i32* types);
 
 	size_t
-	ReadDensityData(FILE* fd, size_t offset, vd::i32* types);
+	ReadDensityData(FILE* fd, size_t start_index, size_t end_index, vd::i32* types);
 
 	size_t
-	ReadSmoothingLengthData(FILE* fd, size_t offset, vd::i32* types);
+	ReadSmoothingLengthData(FILE* fd, size_t start_index, size_t end_index, vd::i32* types);
 
 	size_t
-	ReadPotentialData(FILE* fd, size_t offset, vd::i32* types);
+	ReadPotentialData(FILE* fd, size_t start_index, size_t end_index, vd::i32* types);
 
 	size_t
-	ReadAcceleration(FILE* fd, size_t offset, vd::i32* types);
+	ReadAcceleration(FILE* fd, size_t start_index, size_t end_index, vd::i32* types);
 
 	size_t
-	ReadRateOfChangeOfEntropyData(FILE* fd, size_t offset, vd::i32* types);
+	ReadRateOfChangeOfEntropyData(FILE* fd, size_t start_index, size_t end_index, vd::i32* types);
 
 	size_t
-	ReadTimeStepData(FILE* fd, size_t offset, vd::i32* types);
+	ReadTimeStepData(FILE* fd, size_t start_index, size_t end_index, vd::i32* types);
 
 	size_t
-	SkipBlock(FILE* fd, Block::Value block, size_t start);
+	SkipSubBlock(FILE* fd, Block::Value block, size_t start_index, size_t end_index);
 	
 	size_t
-	ReadBlock(FILE* fd, Block::Value block, size_t offset, vd::i32* types);
+	ReadSubBlock(FILE* fd, Block::Value block, size_t start_index, size_t end_index, vd::i32* types);
 
 	vd::f32
 	Periodic(vd::f32 x, vd::f32 l2);
@@ -455,28 +466,22 @@ public:
 	SwapParticleAt(int isrc, int idst);
     
     void
-    ComputeTempFromInternalEnergy(void);
+    ComputeTempFromInternalEnergy(size_t start_index, size_t end_index);
 
     void
     Reorder(void);
     
-    const GadgetMetaData& GetMetaData() const { return m_MetaData; }
+    const MetaData& GetMetaData() const { return m_MetaData; }
 
-    GadgetStatistic& GetStatistic(Block::Value v) 
-    { 
-        return m_StatisticsData[Block::ToInteger(v)]; 
-    }
+    Statistic& GetStatistic(Block::Value v);
 
-    void SetStatistic(Block::Value v, const GadgetStatistic& stats) 
-    {
-        m_StatisticsData[Block::ToInteger(v)] = stats; 
-    }
+    void SetStatistic(Block::Value v, const Statistic& stats);
 
 	vd::u64
 	GetTotalParticleCount() const { return m_TotalParticleCount; }
 
     vd::u64
-    GetFilteredParticleCount() const { return m_FilteredParticleCount; }
+    GetFilteredParticleCount(size_t start_index, size_t end_index) const; 
 
 	vd::u64
 	GetParticleCountForType(ParticleType::Value v) const 
@@ -493,9 +498,6 @@ public:
     size_t
     GetResidentMemorySize() const;
 
-    void
-    ProcessParticleTypesRequest(vd::i32* req_types);
-    
     bool
     IsResident() { return m_IsLoaded.Get() > 0 ? true : false; }
     
@@ -505,72 +507,182 @@ public:
     vd::string
     GetFilename(const vd::string& prefix, vd::i32 index, vd::i32 padding);
     
-    VD_DECLARE_OBJECT(GadgetSnapshot);
+    VD_DECLARE_OBJECT(Snapshot);
 	
 private:
 
-	VD_DISABLE_COPY_CONSTRUCTORS(GadgetSnapshot);
+    struct SubBlockIndex 
+    {
+        void*        Ptr;
+        Block::Value BlockType;
+        size_t       StartIndex;
+        size_t       EndIndex;
 
-    GadgetDataset*          m_DataSet;
-	GadgetMetaData 			m_MetaData;
-	GadgetParticleData 		m_ParticleData;
-    GadgetStatistic         m_StatisticsData[Block::Count];
-	vd::u64 				m_TotalParticleCount;
-	vd::u64 				m_FilteredParticleCount;
-	vd::u64 				m_GasParticleCount;
-    vd::u32 				m_FileIndex;
-    AtomicCounter 			m_IsLoaded;
+        SubBlockIndex(
+            void* ptr = NULL,
+            Block::Value block_type = Block::LastValue,
+            size_t start_index = VD_INVALID_INDEX,
+            size_t end_index = VD_INVALID_INDEX
+        ) :
+            Ptr(ptr),
+            BlockType(block_type),
+            StartIndex(start_index),
+            EndIndex(end_index)
+        {
+            // EMPTY!
+        }
+
+        SubBlockIndex(const SubBlockIndex& other)
+        {
+            this->Ptr = other.Ptr;
+            this->BlockType = other.BlockType;
+            this->StartIndex = other.StartIndex;
+            this->EndIndex = other.EndIndex;
+        }
+
+        bool operator==(const SubBlockIndex& other)
+        {
+            return this->Ptr == other.Ptr &&
+                   this->BlockType == other.BlockType &&
+                   this->StartIndex == other.StartIndex &&
+                   this->EndIndex == other.EndIndex;
+        }
+
+        SubBlockIndex& operator=(const SubBlockIndex& other)
+        {
+            *this = SubBlockIndex(other);
+            return *this;
+        }
+    };
+
+    typedef Containers::Vector<SubBlockIndex>::type             SubBlockList;
+
+	VD_DISABLE_COPY_CONSTRUCTORS(Snapshot);
+
+    Dataset*            m_DataSet;
+	MetaData 		    m_MetaData;
+	ParticleData 		m_ParticleData;
+    SubBlockList        m_SubBlockList;
+    Statistic           m_StatisticsData[Block::Count];
+    vd::u64             m_SplitStartIndex;
+    vd::u64             m_SplitEndIndex;
+	vd::u64 			m_TotalParticleCount;
+	vd::u64 			m_FilteredParticleCount;
+	vd::u64 			m_GasParticleCount;
+    vd::u32 			m_FileIndex;
+    AtomicCounter 		m_IsLoaded;
+};
+
+typedef Snapshot Data;
+// ============================================================================================== //
+
+class Dataset;
+
+// ============================================================================================== //
+
+struct ResidentSizeFn 
+{
+    unsigned long operator()( const Snapshot* x ) 
+    {
+        if(x != NULL)
+            return x->GetResidentMemorySize() / 1024 / 1024; 
+        return 1; 
+    }
 };
 
 // ============================================================================================== //
 
-class GadgetDataset;
+struct DataRequest
+{
+    vd::i32                             SnapshotIndex;
+    Snapshot::Block::Value              BlockType;
+    size_t                              StartIndex;
+    size_t                              EndIndex;
+
+    DataRequest() :
+        SnapshotIndex(VD_INVALID_INDEX),
+        BlockType(Snapshot::Block::LastValue),
+        StartIndex(VD_INVALID_INDEX),
+        EndIndex(VD_INVALID_INDEX)
+    {
+        // EMPTY!
+    }
+
+    void Reset() 
+    {
+        this->SnapshotIndex = VD_INVALID_INDEX;
+        this->BlockType = Snapshot::Block::LastValue;
+        this->StartIndex = VD_INVALID_INDEX;
+        this->EndIndex = VD_INVALID_INDEX;
+    }
+
+    bool operator==(const DataRequest& other)
+    {
+        return (this->SnapshotIndex == other.SnapshotIndex &&
+                this->BlockType == other.BlockType && 
+                this->StartIndex == other.StartIndex &&
+                this->EndIndex == other.EndIndex);
+    }
+};
+
+VD_FORCE_INLINE
+bool operator<(const DataRequest& x, const DataRequest& y)
+{
+    return x.SnapshotIndex < y.SnapshotIndex &&
+           x.BlockType < y.BlockType &&
+           x.StartIndex < y.StartIndex;
+}
 
 // ============================================================================================== //
 
-class GadgetWorkItem : public WorkItem
+class WorkQueue;
+
+class WorkItem : public Core::WorkItem
 {
-	friend class GadgetWorkQueue;
+	friend class Gadget::WorkQueue;
 	
 public:
 
-	explicit GadgetWorkItem(
-		GadgetSnapshot* snapshot,
-        const vd::string& prefix,
-		vd::i32 index,
-		vd::i32 splits,
-		vd::i32 padding,
-		vd::i32* blocks,
-		vd::i32* types,
-        vd::i32* stats
+	explicit WorkItem(
+        DataRequest request,
+		Snapshot* snapshot,
+        const vd::string& file_prefix,
+		vd::i32 file_index,
+		vd::i32 split_count,
+		vd::i32 file_num_pad,
+		vd::i32* block_request,
+		vd::i32* type_request,
+        vd::i32* stat_request
 	) :
-		WorkItem(),
+		Core::WorkItem(),
 		m_Snapshot(snapshot),
-		m_FilePrefix(prefix),
-        m_FileIndex(index),
-		m_FileSplits(splits),
-		m_FileNumberPadding(padding),
-		m_Blocks(blocks),
-		m_Types(types),
-        m_Stats(stats)
+		m_FilePrefix(file_prefix),
+        m_FileIndex(file_index),
+		m_FileSplits(split_count),
+		m_FileNumberPadding(file_num_pad),
+		m_Blocks(block_request),
+		m_Types(type_request),
+        m_Stats(stat_request)
 	{ 
 		// EMPTY!
 	}
 
 	bool IsReady(void) { return m_IsReady.Get() > 0; }
-	GadgetSnapshot* GetSnapshot(void) { return m_Snapshot; }
+    DataRequest GetDataRequest(void) { return m_Request; }
+	Snapshot* GetSnapshot(void) { return m_Snapshot; }
 	const vd::string& GetFilePrefix(void) const { return m_FilePrefix; }
     vd::i32 GetFileIndex(void) const { return m_FileIndex; }
     vd::i32 GetFileNumberPadding(void) const { return m_FileNumberPadding; }
     vd::i32 GetFileSplits(void) const { return m_FileSplits; }
 
-	VD_DECLARE_OBJECT(GadgetWorkItem);
+	VD_DECLARE_OBJECT(WorkItem);
 	
 private:
 
-	VD_DISABLE_COPY_CONSTRUCTORS(GadgetWorkItem);
+	VD_DISABLE_COPY_CONSTRUCTORS(WorkItem);
 	
-	GadgetSnapshot* m_Snapshot;	
+    DataRequest m_Request;
+	Snapshot* m_Snapshot;	
 	vd::string m_FilePrefix;	
     vd::i32 m_FileIndex;
     vd::i32 m_FileSplits;
@@ -583,43 +695,33 @@ private:
 
 // ============================================================================================== //
 
-class GadgetWorkQueue : public WorkQueue
+class WorkQueue : public Core::WorkQueue
 {
 public:
 
-	GadgetWorkQueue() : WorkQueue() {} 
-	virtual ~GadgetWorkQueue() { Destroy(); } 
+	WorkQueue() : Core::WorkQueue() {} 
+	virtual ~WorkQueue() { Destroy(); } 
 
     virtual void OnRun(WorkItem* item);
 
-	VD_DECLARE_OBJECT(GadgetWorkQueue);
+	VD_DECLARE_OBJECT(WorkQueue);
 
 private:
 
-	VD_DISABLE_COPY_CONSTRUCTORS(GadgetWorkQueue);
+	VD_DISABLE_COPY_CONSTRUCTORS(WorkQueue);
 
 };
 
 // ============================================================================================== //
 
-struct GadgetResidentSizeFn 
-{
-    unsigned long operator()( const GadgetSnapshot* x ) 
-    {
-    	if(x != NULL)
-    		return x->GetResidentMemorySize() / 1024 / 1024; 
-	    return 1; 
-	}
-};
-
-class GadgetDataset : public Object
+class Dataset : public Object
 {
 public:
-	typedef LruCache< vd::i32, GadgetWorkItem* > WorkItemCache;
-	typedef LruCache< vd::i32, GadgetSnapshot*, GadgetResidentSizeFn > DataCache;
+	typedef LruCache< DataRequest, WorkItem* >                 WorkItemCache;
+	typedef LruCache< DataRequest, Snapshot*, ResidentSizeFn > DataCache;
 
-    GadgetDataset(Runtime::Context* runtime);    
-    virtual ~GadgetDataset();
+    Dataset(Runtime::Context* runtime);    
+    virtual ~Dataset();
 	
     virtual vd::status 
     Destroy();
@@ -633,57 +735,59 @@ public:
 	vd::string
 	GetFilenameForSnapshot(const vd::string& prefix, vd::i32 index, vd::i32 padding);
 
-	bool Request(vd::i32 index);
+    bool Request(DataRequest rq);
 
-	void SetBlockRequest(GadgetSnapshot::Block::Value v, vd::i32 enable = 1);
-	void SetTypeRequest(GadgetSnapshot::ParticleType::Value v, vd::i32 enable = 1); 
-    void SetStatisticRequest(GadgetSnapshot::Block::Value v, vd::i32 enable = 1);
+	void SetBlockRequest(Snapshot::Block::Value v, vd::i32 enable = 1);
+	void SetTypeRequest(Snapshot::ParticleType::Value v, vd::i32 enable = 1); 
+    void SetStatisticRequest(Snapshot::Block::Value v, vd::i32 enable = 1);
 	
     vd::i32 GetFileCount() const;
     vd::string GetFilePrefix() const;
     vd::i32 GetStartFileIndex() const;
     vd::i32 GetEndFileIndex() const;
     vd::i32 GetCurrentFileIndex() const;
-    
     void SetCurrentFileIndex(vd::i32 index);
-    bool IsOpen() const;
-    bool IsResident(vd::i32 index);
-	bool IsPending(vd::i32 index);
-	bool IsReady(vd::i32 index);
-	bool IsValidIndex(vd::i32 index);
-    bool IsValidBlock(GadgetSnapshot::Block::Value v) const;
-    bool IsValidParticleType(GadgetSnapshot::ParticleType::Value v) const;
-    void Retain(vd::i32 index, GadgetSnapshot* snapshot);
 
-    GadgetSnapshot*
-	Retrieve(const vd::i32& index);
+    bool IsOpen() const;
+    bool IsResident(DataRequest request);
+	bool IsPending(DataRequest request);
+	bool IsReady(DataRequest request);
+	bool IsValidIndex(vd::i32 index) const;
+    bool IsValidRequest(DataRequest req) const;
+    bool IsValidBlock(Snapshot::Block::Value v) const;
+    bool IsValidParticleType(Snapshot::ParticleType::Value v) const;
+    void Retain(DataRequest request, Snapshot* snapshot);
+
+    Snapshot*
+	Retrieve(DataRequest request);
     
-	GadgetWorkItem* GetPendingWorkItem(vd::i32 index);
+	WorkItem* 
+    GetPendingWorkItem(DataRequest request);
 	
-	VD_DECLARE_OBJECT(GadgetDataset);
+	VD_DECLARE_OBJECT(Dataset);
 	
 private:
 
-	VD_DISABLE_COPY_CONSTRUCTORS(GadgetDataset);
+	VD_DISABLE_COPY_CONSTRUCTORS(Dataset);
 
-	GadgetSnapshot* 
-	OnFetch(const vd::i32& index);
+	Snapshot* 
+	OnFetch(const DataRequest& index);
     
     void 
-    OnEvict(GadgetSnapshot* snapshot);
+    OnEvict(Snapshot* snapshot);
 
-	GadgetWorkItem*
-	OnSubmit(const vd::i32& index);
+	WorkItem*
+	OnSubmit(const DataRequest& request);
     
     void 
-    OnComplete(GadgetWorkItem* work);
+    OnComplete(WorkItem* work);
 
-    void Store(vd::i32 index, GadgetSnapshot* snapshot);
-    void Release(vd::i32 index);
+    void Store(DataRequest request, Snapshot* snapshot);
+    void Release(DataRequest request);
 	void Evict();
 	
-	void RetainWorkItem(vd::i32 index, GadgetWorkItem* task);  
-	void ReleaseWorkItem(vd::i32 index);
+	void RetainWorkItem(DataRequest request, WorkItem* task);  
+	void ReleaseWorkItem(DataRequest request);
 
 	bool m_IsOpen;
 	vd::string m_FilePrefix;
@@ -695,17 +799,21 @@ private:
 	vd::i32 m_EndFileIndex;
 	vd::i32 m_FileSplits;
 
-	vd::i32 m_RequestedTypes[GadgetSnapshot::ParticleType::Count];
-	vd::i32 m_RequestedBlocks[GadgetSnapshot::Block::Count];
-    vd::i32 m_RequestedStatistics[GadgetSnapshot::Block::Count];
+	vd::i32 m_RequestedTypes[Snapshot::ParticleType::Count];
+	vd::i32 m_RequestedBlocks[Snapshot::Block::Count];
+    vd::i32 m_RequestedStatistics[Snapshot::Block::Count];
 
 	vd::u64            m_CacheSize;
 	DataCache          m_DataCache;
 	WorkItemCache      m_WorkCache;
-	GadgetWorkQueue    m_WorkQueue;
+	WorkQueue          m_WorkQueue;
 	Mutex              m_Mutex;	
 	Runtime::Context*  m_Runtime;
 };
+
+// ============================================================================================== //
+
+} // end namespace: Gadget
 
 // ============================================================================================== //
 

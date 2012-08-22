@@ -41,6 +41,7 @@
 #include <set>
 
 #if defined(VD_USE_BOOST_CONTAINERS)
+  #include <boost/tuple/tuple.hpp>
   #include <boost/functional/hash.hpp>
   #include <boost/unordered_map.hpp>
   #include <boost/unordered_set.hpp>

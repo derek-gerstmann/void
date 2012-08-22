@@ -30,6 +30,49 @@
 #include <cstdio>
 #include <memory.h>
 
+#if 0
+    
+    // Blue values are -7 -> -10.
+    // Green are -10. - > -12.
+    // Red are -12. - > -14.
+    if(vc < 7.0)
+    {
+        base = vec4(1.0, 0.0, 0.0, 0.0);
+        alpha = 1.0;
+        luma = 0.0;
+    }
+    else if(vc >= 7.0 && vc < 10.0 )
+    { 
+        float db = (abs(vc) - 7.0) / 3.0;
+//        base = mix(dark, blue,  vec4(db, db, db, db));
+        base = blue;
+    }
+    else if(vc >= 10.0 && vc < 12.0 )
+    {  
+        float bg = (abs(vc) - 10.0) / 2.0;
+//        base = mix(blue, green, vec4(bg, bg, bg, bg));
+        base = green;
+    }
+    else if(vc >= 12.0 && vc < 14.0 )
+    {  
+        float gp = (abs(vc) - 12.0) / 2.0;
+//        base = mix(green, pink, vec4(gp, gp, gp, gp));
+        base = pink;
+    }
+    if(vc      >= 14.0 && vc <= 18.0 )
+    {
+        float pr = (abs(vc) - 14.0) / 3.0;
+//        base = mix(pink, red, vec4(pr, pr, pr, pr));
+        base = red;
+    }
+    else
+    {
+        base = vec4(0.0, 1.0, 0.0, 0.0);
+        alpha = 1.0;
+        luma = 0.0;
+    }
+#endif
+
 // ============================================================================================== //
 
 VD_RENDER_NAMESPACE_BEGIN();
@@ -43,12 +86,14 @@ attribute float ParticleDensity;
 attribute float ParticleColor;
 
 uniform float ParticleRadius;  
+uniform float SmoothingScale;
 uniform float MaxPointScale;   
 uniform float MinPointScale;   
 uniform float BoxSize;
 uniform float DensityScale;
 uniform float MotionTime;
 uniform float MotionSpeed;
+uniform float FieldOfView;
 uniform vec2 ScreenSize;
 uniform mat4 MotionTransform;
 uniform vec3 CameraPosition;  
@@ -65,10 +110,15 @@ varying vec4 vMotionPos;
 varying vec4 vVertex;
 varying vec4 vPosition;
 varying float vPointSize;
+varying float vMaxPointSize;
+varying float vMinPointSize;
 varying float vViewDistance;
 varying float vDistance;
 varying float vDensity;
-varying float vColor;
+varying vec4 vColor;
+
+const float MPBR_F32_HUGE = 987654321.0;
+const float MPBR_F32_EPSILON = 0.000000001;
 
 float LinearRemap(float x, 
     float a, float b,
@@ -99,87 +149,128 @@ vec2 screen_space(vec4 vertex)
 
 void main()
 {
-    float Epsilon = 0.001;
+    float Epsilon = 0.001; // 1.0 / length(ScreenSize);
 
-    vec4 move = vec4(MotionTransform * gl_Vertex);// - vec4(gl_ModelViewMatrix * gl_Vertex);
-    vec3 EyePosition = vec3(gl_ModelViewMatrix * vec4(gl_Vertex.xyz, 1.0));
-    vec4 VertexPosition = vec4(gl_ModelViewMatrix * gl_Vertex);
-    vec4 MotionPosition = vec4(gl_ModelViewMatrix * move);
+    mat4 ModelView = gl_ModelViewMatrix;
+
+    vec4 move = vec4(MotionTransform * gl_Vertex);
+    vec4 vertex = vec4(gl_Vertex);// - vec4(gl_ModelViewMatrix * gl_Vertex);
+    vec3 EyePosition = vec3(ModelView * vec4(gl_Vertex.xyz, 1.0));
+    vec4 VertexPosition = vec4(ModelView * gl_Vertex);
+    vec4 MotionPosition = vec4(MotionTransform * gl_Vertex);
 
     // z = log(z / zn) / log(zf / zn)
-    vec3 Extents = vec3(gl_ModelViewMatrix * vec4(BoxSize, BoxSize, BoxSize, 1.0));
+    vec3 Extents = vec3(ModelView * vec4(BoxSize, BoxSize, BoxSize, 1.0));
+    float minr = 0.001 * MinPointScale * ScreenSize.y / FieldOfView;
+    float maxr = 0.001 * MaxPointScale * ScreenSize.y / FieldOfView;
 
     float maxd = length(Extents);
-    float dist = length(EyePosition) / maxd;
-    float pscale = (MinPointScale) * Log10(ParticleDensity);
-
-    pscale = pscale < MinPointScale ? MinPointScale : pscale;
-    pscale = pscale > MaxPointScale ? MaxPointScale : pscale;
-
-//    vec4 p0 = VertexPosition;
-//    vec4 p1 = MotionPosition;
-
-    vec4 p0 = VertexPosition; // vec4(screen_space(VertexPosition), VertexPosition.z, 1.0);
-    vec4 p1 = MotionPosition; // vec4(screen_space(MotionPosition), MotionPosition.z, 1.0);
-    vec4 p1p0 = p1 - p0;
-    p1 = p0 + normalize(p1p0) * MotionSpeed * length(p1p0);
-
-    vec2 s0 = screen_space(project(gl_Vertex));
-    vec2 s1 = screen_space(project(move));
-
-    vec4 p = p1; // mix(p0, p1, 0.5);
-
-    float w = pscale * 0.5;
-    float h = w * 2.0;
+    float dist = length(CameraPosition - VertexPosition.xyz); // / maxd;
+    float pdensity = LinearRemap(Log10(ParticleDensity), Log10(DensityRange.x), Log10(DensityRange.y), 0.0, DensityScale);
+    float pcolor = ParticleColor; 
+    float alpha = 0.0;
+    float luma = 0.0;
     
-    vec4 u = gl_ModelViewMatrix * vec4(p1.xyz - p0.xyz, 1.0);
+    vec4 base  = vec4(luma, luma, luma, alpha);
+    vec4 red   = vec4( 120.0 / 255.0,   60.0 / 255.0,   75.0 / 255.0, 1.0 );
+    vec4 pink  = vec4( 150.0 / 255.0,  120.0 / 255.0,  150.0 / 255.0, 1.0 );
+    vec4 green = vec4(  23.0 / 255.0,  100.0 / 255.0,   66.0 / 255.0, 1.0 );
+    vec4 blue  = vec4( 105.0 / 255.0,  110.0 / 255.0,  150.0 / 255.0, 1.0 ); 
+    vec4 dark  = vec4(  32.0 / 255.0,   50.0 / 255.0,   70.0 / 255.0, 1.0 );
+    vec4 black = vec4(           0.0,            0.0,            0.0, 0.0 );
+
+   // Blue values are -7 -> -10.
+    // Green are -10. - > -12.
+    // Red are -12. - > -14.
+
+    if(pcolor < 7.0)
+    {
+        base = black;
+//        alpha = 0.0;
+//        VertexPosition = vec4(MPBR_F32_HUGE);
+//        MotionPosition = vec4(MPBR_F32_HUGE - MPBR_F32_EPSILON);
+    }
+    else if (pcolor < 10.0)
+    {
+        base = mix(dark, blue, (pcolor -  7.0) / 3.0);
+    }
+    else if (pcolor < 12.0)
+    {
+        base = mix(blue, green, (pcolor - 10.0) / 2.0);
+    }
+    else if (pcolor < 14.0) 
+    {
+        base = mix(green, pink, (pcolor - 12.0) / 2.0);
+    }
+    else if (pcolor <= 18.0)
+    {
+        base = mix(pink, red, (pcolor - 14.0) / 4.0);
+    }
+    else if (pcolor > 18.0)
+    {
+//        alpha = 0.0;
+        base = black;
+//        VertexPosition = vec4(MPBR_F32_HUGE);
+//        MotionPosition = vec4(MPBR_F32_HUGE - MPBR_F32_EPSILON);
+    }
+    
+    vec3 p0 = gl_Vertex.xyz;
+    vec3 p1 = vec3(MotionTransform * gl_Vertex);
+    vec3 p2 = vec3(ModelView * gl_Vertex);
+    p1 = p0 + normalize(p2 - p1) * MotionSpeed;
+    vec3 p = mix(p0, p1, MotionTime);
+
+    float angle = asin(1.0 / dist);
+    float pradius = 0.001 * ParticleRadius * angle * ScreenSize.y / FieldOfView;
+    float w = pradius * 2.0;
+    float h = w * 0.5;
+    
+    vec3 u = vec3(ModelView * vec4(p2 - p1, 1.0));
+    
+    vec2 s0 = screen_space(project(vec4(p0.xyz, 1.0)));
+    vec2 s1 = screen_space(project(vec4(p1.xyz, 1.0)));
 
     // Compute screen-space velocity:
-    u.z = 0.0;
-    u = normalize(u);
+    float t = 0.0;
+    float nz = abs(normalize(u).z);
+    if (nz > 1.0 - Epsilon)
+        t = (nz - (1.0 - Epsilon)) / Epsilon;
+    else if (dot(u,u) < Epsilon)
+        t = (Epsilon - dot(u,u)) / Epsilon;
 
     // Lerp the orientation vector if screen-space velocity is negligible:
-    float t = 0.0;
-    u = normalize(mix(u, vec4(1.0,0.0,0.0,0.0), t));
+    u.z = 0.0;
+    u = normalize(u);
+    u = normalize(mix(u, vec3(1.0, 0.0, 0.0), t));
     h = mix(h, w, t);
 
-    // Compute the change-of-basis matrix for the billboard:
-    vec3 v = vec3(-u.y, u.x, 0.0);
-    vec3 a = vec3(vec4(u.xyz, 1.0) * gl_ModelViewMatrix);
-    vec3 b = vec3(vec4(v.xyz, 1.0) * gl_ModelViewMatrix);
-    vec3 c = cross(a, b);
-    mat3 basis = mat3(a, b, c);
+    float pscale = (h * ScreenSize.y * pdensity) / dist * dist;
+    pscale = pscale > maxr ? maxr : pscale;
+    pscale = pscale < minr ? minr : pscale;
 
-    // Compute the four offset vectors:
-    vec3 N = basis * vec3(0.0,w,0.0);
-    vec3 S = basis * vec3(0.0,-w,0.0);
-    vec3 E = basis * vec3(-h,0.0,0.0);
-    vec3 W = basis * vec3(h,0.0,0.0);
+    vec2 s1s0 = (s1 - s0);
 
     vMotionDir = u.xyz;
-//    vMotionSize = p1.xy - p0.xy;
-//    vMotionSize.x = 1.0/length(u);
-//    h = length(u);// * MotionSpeed;
-    vMotionSize = s1 - s0; // vec2(h, w);
-//    vMotionPos = vec4(vMotionSize / dot(p1 - p0, p1 - p0), 0.0, 0.0);
-
-    vMotionPos = (gl_ModelViewProjectionMatrix * vec4(p.xyz+N+W,1.0)) - (gl_ModelViewProjectionMatrix * vec4(p.xyz+S+E,1.0));
+    vMotionSize = vec2(w, h);
+    vMotionPos = project(vec4(p.xyz, 1.0));// vec4(u.xyz, 1.0); // project(vec4(p.xyz, 1.0)); // (vec4(p.xyz+N+W,1.0)) - (vec4(p.xyz+S+E,1.0));
 
     vVertex = gl_Vertex;
-    vPosition = ftransform();
+    vPosition = vMotionPos;
     vViewDistance = maxd / length(CameraPosition.xyz - EyePosition.xyz) + 0.000001;
     vDistance = (pscale / dist / maxd);
-    vPointSize = max(ParticleRadius * (pscale / dist), 3.8);
+    vPointSize = max(pscale, 3.0);
+    vMinPointSize = minr;
+    vMaxPointSize = maxr;
     vIncident = normalize(-vec3(VertexPosition.xyz));
-    vDensity = ParticleDensity; // (LinearRemap(ParticleDensity, DensityRange.x, DensityRange.y, 0.0, 1.0));
-    vColor = ParticleColor;
+    vDensity = pdensity; // ParticleDensity; // (LinearRemap(ParticleDensity, DensityRange.x, DensityRange.y, 0.0, 1.0));
+    vColor = base; // ParticleColor;
     vEye = EyePosition;
     vModelPosition = VertexPosition.xy;
 
     gl_PointSize = vPointSize;
     gl_Position = vPosition;
     gl_TexCoord[0] = gl_MultiTexCoord0;
-    gl_FrontColor = gl_Color;
+    gl_FrontColor = gl_BackColor = base;
 }
 
 );
@@ -268,9 +359,11 @@ MotionPointBasedRenderer::FragmentShader = VD_PP_STRINGIZE(
 
 varying vec2 vModelPosition;
 varying float vDensity;
-varying float vColor;
+varying vec4 vColor;
 varying float vDistance;
 varying float vPointSize;
+varying float vMinPointSize;
+varying float vMaxPointSize;
 varying float vViewDistance;
 varying vec3 vIncident;
 varying vec3 vEye;
@@ -285,7 +378,9 @@ uniform float DensityScale;
 uniform float MotionSpeed;
 uniform float ExposureScale;
 uniform float IntensityScale;
+uniform float IntensityBias;
 uniform float AlphaScale;
+uniform float AlphaBias;
 uniform float WdC;
 
 float fast_exp(float value)
@@ -462,79 +557,41 @@ float ACos (float value)
 
 void main()
 {
-    vec3 normal;
-    float alpha = 1.0;
+    vec4 base = vColor;
+
     float luma = 1.0;
-    vec4 base = vec4(0.0, 0.0, 0.0, 0.0);
-    float vc = (vColor);
-
-    vec4 red =   vec4( 120.0 / 256.0,   60.0 / 256.0,   75.0 / 256.0, 0.0 );
-    vec4 pink =  vec4( 150.0 / 256.0,  120.0 / 256.0,  150.0 / 256.0, 0.0 );
-    vec4 green = vec4(  23.0 / 256.0,  100.0 / 256.0,   66.0 / 256.0, 0.0 );
-    vec4 blue =  vec4( 105.0 / 256.0,  110.0 / 256.0,  150.0 / 256.0, 0.0 ); 
-    vec4 dark =  vec4(  32.0 / 256.0,   50.0 / 256.0,   70.0 / 256.0, 0.0 );
-
+    
+    vec3 normal;
     normal.xy = (gl_TexCoord[0].xy) * vec2(2.0, -2.0) + vec2(-1.0, 1.0);
 
-    // Blue values are -7 -> -10.
-    // Green are -10. - > -12.
-    // Red are -12. - > -14.
-    if(vc      >= -17.0 && vc <= -14.0 )
-    {
-        float pr = (abs(vc) - 14.0) / 3.0;
-        base = mix(pink, red, vec4(pr, pr, pr, pr));
-    }
-    else if(vc >= -14.0 && vc <= -12.0 )
-    {  
-        float gp = (abs(vc) - 12.0) / 2.0;
-        base = mix(green, pink, vec4(gp, gp, gp, gp));
-    }
-    else if(vc >= -12.0 && vc <= -10.0 )
-    {  
-        float bg = (abs(vc) - 10.0) / 2.0;
-        base = mix(blue, green, vec4(bg, bg, bg, bg));
-    }
-    else if(vc >= -7.0 && vc <= -10.0 )
-    { 
-        float db = (abs(vc) - 7.0) / 3.0;
-        base = mix(dark, blue,  vec4(db, db, db, db));
-    }
-    else
-    {
-        discard;
-        base = vec4(0.0, 0.0, 0.0, 0.0);
-        alpha = 0.0;
-        luma = 0.0;
-    }
-
-    float h2 = SmoothingRadius*SmoothingRadius;
+    float h2 = SmoothingRadius * SmoothingRadius;
     float h = dot(normal.xy, normal.xy);
-    float d = clamp(h / vPointSize, 0.0, h * SmoothingRadius);
-    float a = Poly6Kernel(d * SmoothingScale, SmoothingRadius) * Log10(vDensity);
+    float d = clamp(h * SmoothingScale, 0.0, h2);
+//    float a = Poly6Kernel(d, SmoothingRadius) * (vDensity);
+    // float a = exp(-d) * Log10(vDensity);
 
-//    float damp = smoothstep(0.1, 1.0, 
-//    float damp = (IntensityScale * (BoxSize - vViewDistance)); 
-    vec2 ms = normalize(vMotionDir.xy); 
-    vec2 vm = normalize(vMotionDir.xy);
-    float hm = dot(vm.xy, vm.xy);
+    const float InnerScale = 0.4;
+    const float RadiusScale = 0.001;
+    const float TwoPi = 2.0 * 3.1415926535897932384626433832795;
+
+    float DoubleVariance = 2.0 * InnerScale * InnerScale;
+    float NormalizationConstant = 1.0 / pow(sqrt(TwoPi) * InnerScale, 3.0);
+    float InverseVariance = -1.0 / (2.0 * InnerScale * InnerScale);
+
+    float r2 = h;
+    float vps = (1.0 / vMaxPointSize);
+    float ips = (vPointSize / vMaxPointSize);
+    float aps = vPointSize;
+
+    float a = NormalizationConstant * exp(r2 * InverseVariance);
     float angle = Atan2(vMotionDir.y, vMotionDir.x);
-    float md = smoothstep(1.0, 0.8, length(vm));
-    float mi = gabor(a, abs(vMotionDir.x), abs(vMotionDir.y), 0.5, angle, normal.x, normal.y, SmoothingRadius);
-    float fade = mi; 
+    float mi = gabor(a, vMotionSize.x, vMotionSize.y, d, angle, normal.x, normal.y, 1.0 / ExposureScale);
 
-    // NOTE: Fade out from origin and camera distance:  too strong!  
-    // * smoothstep(0.1, 1.0, IntensityScale / BoxSize * vViewDistance); // mi;// 
+    float alpha = clamp((a / (ips * ips)) * AlphaScale + AlphaBias, 0.0, 1.0);
+    base *= (mi * IntensityScale); // / (ips * ips);
+    vec4 color = vec4(base.rgb, alpha);
 
-    alpha *= AlphaScale * fade;
-    base *= DensityScale;
-    base.r = pow(base.r, ExposureScale * 0.1); // (w * alpha);
-    base.g = pow(base.g, ExposureScale * 0.1); // (w * alpha);
-    base.b = pow(base.b, ExposureScale * 0.1); // (w * alpha);
-
-    vec4 color = base;
-    color.a = alpha < 0.0 ? 0.0 : alpha;
-
-    gl_FragColor = color;   
+    gl_FragColor = color;
     gl_FragDepth = vDistance;
 }
 
@@ -560,11 +617,12 @@ MotionPointBasedRenderer::MotionPointBasedRenderer() :
 	Object(),
     m_IsStale(false),
 	m_UseCustomProjection(true),
+    m_UseOrthographic(false),
     m_ParticleCount(0),
     m_CameraFov(60.0f),
     m_CameraFocalLength(1.0f),
-    m_ScreenWidth(0),
-    m_ScreenHeight(0),
+    m_ScreenWidth(1024),
+    m_ScreenHeight(1024),
     m_MinPointScale(1.0f),
     m_MaxPointScale(100.0f),
     m_PointSize(1.0f),
@@ -574,7 +632,9 @@ MotionPointBasedRenderer::MotionPointBasedRenderer() :
     m_DensityScale(1.0f),
     m_ExposureScale(1.0f),
     m_IntensityScale(1.0f),
+    m_IntensityBias(0.0f),
     m_AlphaScale(1.0f),
+    m_AlphaBias(0.01f),
     m_WdC(1.0f),
     m_BoxSize(2000.0f),
     m_VertexBufferId(0),
@@ -622,9 +682,8 @@ void MotionPointBasedRenderer::SetMinPointScale(
     m_MinPointScale = scale;
     m_MinPointScale = m_MinPointScale > m_MaxPointScale ? m_MaxPointScale - 1.0f : m_MinPointScale;
     m_MinPointScale = m_MinPointScale < 0.0 ? 0.0 : m_MinPointScale;
-    m_CameraFocalLength = (1.0f / Core::Tan(Core::Deg2Rad(m_CameraFov)) * 0.5f);
     vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
-    m_Shader.SetUniform(vd_sym(MinPointScale), m_MinPointScale * ps );
+    m_Shader.SetUniform(vd_sym(MinPointScale), m_MinPointScale );
 }
 
 void MotionPointBasedRenderer::SetMaxPointScale(
@@ -633,9 +692,8 @@ void MotionPointBasedRenderer::SetMaxPointScale(
 	m_MaxPointScale = scale;
     m_MaxPointScale = m_MaxPointScale < m_MinPointScale ? m_MinPointScale + 1.0f : m_MaxPointScale;
     m_MaxPointScale = m_MaxPointScale < 0.0 ? 0.0 : m_MaxPointScale;
-    m_CameraFocalLength = (1.0f / Core::Tan(Core::Deg2Rad(m_CameraFov)) * 0.5f);
     vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
-	m_Shader.SetUniform(vd_sym(MaxPointScale), m_MaxPointScale * ps );
+	m_Shader.SetUniform(vd_sym(MaxPointScale), m_MaxPointScale );
 }
 
 void MotionPointBasedRenderer::SetPointSize(
@@ -704,6 +762,13 @@ void MotionPointBasedRenderer::SetIntensityScale(
     m_Shader.SetUniform(vd_sym(IntensityScale), m_IntensityScale);  
 }
 
+void MotionPointBasedRenderer::SetIntensityBias(
+    vd::f32 size)             
+{ 
+    m_IntensityBias = size; 
+    m_Shader.SetUniform(vd_sym(IntensityBias), m_IntensityBias);  
+}
+
 void MotionPointBasedRenderer::SetAlphaScale(
     vd::f32 size)             
 { 
@@ -711,35 +776,52 @@ void MotionPointBasedRenderer::SetAlphaScale(
     m_Shader.SetUniform(vd_sym(AlphaScale), m_AlphaScale);  
 }
 
+void MotionPointBasedRenderer::SetAlphaBias(
+    vd::f32 size)             
+{ 
+    m_AlphaBias = size; 
+    m_Shader.SetUniform(vd_sym(AlphaBias), m_AlphaBias);  
+}
+
 void MotionPointBasedRenderer::SetParticleRadius(
     vd::f32 r)         	  
 { 
 	m_ParticleRadius = r; 
-	m_Shader.SetUniform(vd_sym(ParticleRadius), m_ParticleRadius);
+    vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
+    m_Shader.SetUniform(vd_sym(ParticleRadius), m_ParticleRadius);
 }
 
 void MotionPointBasedRenderer::SetCameraFov(
     vd::f32 fov)           	  
 { 
 	m_CameraFov = Core::Min(fov, 180.0f); 
-	m_CameraFocalLength = (1.0f / Core::Tan(Core::Deg2Rad(fov)) * 0.5f);
+    vd::f32 radians = Core::Deg2Rad(m_CameraFov / vd::f32(Constants::Two));
+    m_CameraFocalLength = vd::f32(Constants::One) / Core::Tan(radians);
+    m_Shader.SetUniform(vd_sym(FieldOfView), radians);
     SetMaxPointScale(m_MaxPointScale);
     SetMinPointScale(m_MinPointScale);
+    SetParticleRadius(m_ParticleRadius);
 }
 
 void MotionPointBasedRenderer::SetScreenSize(
     vd::u32 w, vd::u32 h)      
 { 
     m_ScreenWidth = w; m_ScreenHeight = h; 
+    SetMaxPointScale(m_MaxPointScale);
+    SetMinPointScale(m_MinPointScale);
+    SetParticleRadius(m_ParticleRadius);
     m_Shader.SetUniform(vd_sym(ScreenSize), vd::v2f32(w, h));
 }
 
-void MotionPointBasedRenderer::SetUseCustomProjection(bool v)			  
+void MotionPointBasedRenderer::SetUseCustomProjection(
+    bool v, bool ortho)			  
 { 
     m_UseCustomProjection = v; 
+    m_UseOrthographic = ortho;
 }
 
-void MotionPointBasedRenderer::SetCameraPosition(const vd::v3f32& v)	  
+void MotionPointBasedRenderer::SetCameraPosition(
+    vd::v3f32 v)	  
 { 
     m_CameraPosition = v; 
     m_Shader.SetUniform(vd_sym(CameraPosition), m_CameraPosition );
@@ -757,30 +839,35 @@ void MotionPointBasedRenderer::SetMotionTime(vd::f32 v)
     m_Shader.SetUniform(vd_sym(MotionTime), m_MotionTime);
 }
 
-void MotionPointBasedRenderer::SetMotionTransform(const vd::m4f32& v)      
+void MotionPointBasedRenderer::SetMotionTransform(
+    vd::m4f32 v)      
 { 
     m_MotionTransform = v; 
     m_Shader.SetUniform(vd_sym(MotionTransform), m_MotionTransform);
 }
 
-void MotionPointBasedRenderer::SetModelView(const vd::m4f32& v)      
+void MotionPointBasedRenderer::SetModelView(
+    vd::m4f32 v)      
 { 
     m_ModelView = v; 
     m_Shader.SetUniform(vd_sym(ModelView), m_ModelView);
 }
 
-void MotionPointBasedRenderer::SetProjection(const vd::m4f32& v)      
+void MotionPointBasedRenderer::SetProjection(
+    vd::m4f32 v)      
 { 
     m_Projection = v; 
     m_Shader.SetUniform(vd_sym(Projection), m_Projection);
 }
 
-void MotionPointBasedRenderer::SetCameraRotation(const vd::v3f32& v)	  
+void MotionPointBasedRenderer::SetCameraRotation(
+    vd::v3f32 v)	  
 {   
     m_CameraRotation = v; 
 }
 
-void MotionPointBasedRenderer::SetLightPosition(const vd::v3f32& v)	  
+void MotionPointBasedRenderer::SetLightPosition(
+    vd::v3f32 v)	  
 { 
     m_LightPosition = v; 
 }
@@ -789,7 +876,7 @@ void MotionPointBasedRenderer::SetSmoothingRadius(
 	vd::f32 v)
 {
 	m_SmoothingRadius = v;
-	m_WdC = CWd(m_SmoothingRadius*m_SmoothingRadius);
+	m_WdC = CWd(m_SmoothingRadius * m_SmoothingRadius);
 	m_Shader.SetUniform(vd_sym(SmoothingRadius), m_SmoothingRadius);
 	m_Shader.SetUniform(vd_sym(WdC), m_WdC);
 }
@@ -838,6 +925,7 @@ void MotionPointBasedRenderer::DrawPoints()
         }
         else 
         {
+            vdLogWarning("Failed to bind particle color attribute!");
             color_slot = 0;
         }
 //		glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_ColorBufferId);
@@ -933,10 +1021,49 @@ MotionPointBasedRenderer::EnableProjection()
 	if(m_UseCustomProjection)
 	{
         GLfloat gp[16];
+        GLint mode;
+        glGetIntegerv(GL_MATRIX_MODE, &mode);
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
-		gluPerspective(m_CameraFov, (float) m_ScreenWidth / (float) m_ScreenHeight, 0.001, 1000.0f);
+
+        vd:;f32 aspect = vd::f32(m_ScreenWidth) / vd::f32(m_ScreenHeight);
+        vd::f32 zmin = 0.001f;
+        vd::f32 zmax = 1000.0f;
+
+        vd::f32 ymax = zmin * Core::Tan(Core::Deg2Rad(m_CameraFov / vd::f32(Constants::Two)));
+        vd::f32 ymin = -ymax;
+        vd::f32 xmin = ymin * aspect;
+        vd::f32 xmax = ymax * aspect;
+
+        vd::f32 left_plane = xmin;
+        vd::f32 right_plane = xmax;
+        vd::f32 top_plane = ymax;
+        vd::f32 bottom_plane = ymin;
+
+        vd::f32 frustum_width = (right_plane - left_plane);
+        vd::f32 frustum_height = (top_plane - bottom_plane);
+        vd::f32 frustum_near = zmin;
+        vd::f32 frustum_far = zmax;
+
+        vd::f32 tile_left = left_plane;
+        vd::f32 tile_right = tile_left + (frustum_width);
+        vd::f32 tile_bottom = bottom_plane;
+        vd::f32 tile_top = tile_bottom + (frustum_height);
+
+        if(m_UseOrthographic)
+        {
+            glOrtho(
+                tile_left   * m_ScreenWidth * 0.5f, 
+                tile_right  * m_ScreenWidth * 0.5f, 
+                tile_bottom * aspect * m_ScreenHeight * 0.5f, 
+                tile_top    * aspect * m_ScreenHeight * 0.5f, 
+                frustum_near, frustum_far);
+        }
+        else
+        {
+            gluPerspective(m_CameraFov, aspect, zmin, zmax);
+        }
         glGetFloatv(GL_PROJECTION_MATRIX, gp);
 
         vd::m4f32 mp = vd::m4f32(
@@ -946,6 +1073,7 @@ MotionPointBasedRenderer::EnableProjection()
             gp[12], gp[13], gp[14], gp[15]);
 
         SetProjection(mp);
+        glMatrixMode(mode);
 	}
 	
 	glMatrixMode(GL_MODELVIEW);
@@ -954,6 +1082,7 @@ MotionPointBasedRenderer::EnableProjection()
 	glTranslatef(m_CameraPosition[0], m_CameraPosition[1], m_CameraPosition[2]);
 	glRotatef(m_CameraRotation[0], 1.0, 0.0, 0.0);
 	glRotatef(m_CameraRotation[1], 0.0, 1.0, 0.0);
+    glRotatef(m_CameraRotation[2], 0.0, 0.0, 1.0);
 
     GLfloat gn[16];
     glGetFloatv(GL_MODELVIEW_MATRIX, gn);
@@ -986,15 +1115,17 @@ MotionPointBasedRenderer::Setup(
     m_Shader.SetName("MBPBR");
     m_Shader.Compile(VertexShader, NULL, FragmentShader);
 	m_WdC = CWd(m_SmoothingRadius*m_SmoothingRadius);
-    m_CameraFocalLength = (1.0f / Core::Tan(Core::Deg2Rad(m_CameraFov)) * 0.5f);
-	vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
+    SetCameraFov(m_CameraFov);
+    vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
+    vd::f32 radians = Core::Deg2Rad(m_CameraFov / vd::f32(Constants::Two));
     m_Shader.SetUniform(vd_sym(CameraPosition), m_CameraPosition );
-    m_Shader.SetUniform(vd_sym(MinPointScale), m_MinPointScale * ps );
-	m_Shader.SetUniform(vd_sym(MaxPointScale), m_MaxPointScale * ps );
+    m_Shader.SetUniform(vd_sym(MinPointScale), m_MinPointScale );
+	m_Shader.SetUniform(vd_sym(MaxPointScale), m_MaxPointScale );
+    m_Shader.SetUniform(vd_sym(ParticleRadius), m_ParticleRadius );
+    m_Shader.SetUniform(vd_sym(FieldOfView), radians );
     m_Shader.SetUniform(vd_sym(MotionSpeed), m_MotionSpeed);
     m_Shader.SetUniform(vd_sym(MotionTime), m_MotionTime);
     m_Shader.SetUniform(vd_sym(MotionTransform), m_MotionTransform);
-	m_Shader.SetUniform(vd_sym(ParticleRadius), m_ParticleRadius);
 	m_Shader.SetUniform(vd_sym(SmoothingRadius), m_SmoothingRadius);
     m_Shader.SetUniform(vd_sym(SmoothingScale), m_SmoothingScale);  
     m_Shader.SetUniform(vd_sym(DensityScale), m_DensityScale);  
@@ -1002,7 +1133,9 @@ MotionPointBasedRenderer::Setup(
     m_Shader.SetUniform(vd_sym(ColorRange), m_ColorRange);
     m_Shader.SetUniform(vd_sym(ExposureScale), m_ExposureScale);  
     m_Shader.SetUniform(vd_sym(IntensityScale), m_IntensityScale);  
+    m_Shader.SetUniform(vd_sym(IntensityBias), m_IntensityBias);  
     m_Shader.SetUniform(vd_sym(AlphaScale), m_AlphaScale);  
+    m_Shader.SetUniform(vd_sym(AlphaBias), m_AlphaBias);  
     m_Shader.SetUniform(vd_sym(BoxSize), m_BoxSize);  
 	m_Shader.SetUniform(vd_sym(WdC), m_WdC);
     m_IsStale = true;

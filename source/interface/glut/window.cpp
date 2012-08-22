@@ -511,12 +511,12 @@ Window::Setup(
     m_Position = vd::v2i32(vp.X, vp.Y);
 	m_Size = vd::v2i32(vp.Width, vp.Height);
 
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_MULTISAMPLE);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);// | GLUT_MULTISAMPLE);
 	glutInitWindowPosition(vp.X, vp.Y);
 	glutInitWindowSize(vp.Width, vp.Height);
 	glutCreateWindow(m_Title.size() ? m_Title.c_str() : "Main Window");
 	glutReshapeWindow(vp.Width, vp.Height);
-	glEnable(GL_MULTISAMPLE);
+//	glEnable(GL_MULTISAMPLE);
 
 	m_Handle = glutGetWindow();
 	m_Graphics = VD_NEW(Graphics::OpenGL::Context, GetRuntime());
@@ -738,7 +738,7 @@ Window::FlushEvents(void)
 		const Event& event = (*evit);
 		vd::u32 kind = Event::Type::ToInteger(event.Kind);
 
-		vdLogInfo("Processing deferred event '%s' ... ", Event::Type::ToString(event.Kind));
+		vdLogDebug("Processing deferred event '%s' ... ", Event::Type::ToString(event.Kind));
 
 		EventChannel::iterator dhit;
 		for(dhit = m_DeferredHandlers[kind].begin(); dhit != m_DeferredHandlers[kind].end(); ++dhit)
@@ -747,7 +747,7 @@ Window::FlushEvents(void)
 			Status::Code::Value code = Status::Code::FromInteger(result);
 			if(code != Status::Code::Success)
 			{
-				vdLogInfo("Event handler for '%s' returned '%s' status!", 
+				vdLogDebug("Event handler for '%s' returned '%s' status!", 
 					Event::Type::ToString(event.Kind),  
 					Status::Code::ToString(code));  
 			}
@@ -831,6 +831,18 @@ Window::ExitFullScreen()
     glutReshapeWindow(m_Size[0], m_Size[1]);
 }
 
+void
+Window::Reshape(vd::i32 w, vd::i32 h)
+{
+	if(m_Handle == 0)
+		return;
+
+    m_Size[0] = w;
+    m_Size[1] = h;
+
+    glutReshapeWindow(w, h);
+}
+
 Graphics::Context*
 Window::GetGraphics()
 {
@@ -847,7 +859,7 @@ Window::GetConfig()
 	config.Width = m_Size.x;
 	config.Height = m_Size.y;
 	config.VerticalSync = 1;
-	config.MultiSampling = 16;
+	config.MultiSampling = 0;
 	config.FrameRateLimit = m_FrameRateLimit;
 	config.Borderless = 0;
 	return config;

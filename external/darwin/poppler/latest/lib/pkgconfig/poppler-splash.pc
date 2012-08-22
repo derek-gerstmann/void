@@ -1,0 +1,9 @@
+prefix=/Users/dg/Workspace/void/clean/void/external/build/poppler/osx
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: poppler-splash
+Description: Splash backend for Poppler PDF rendering library
+Version: 0.18.4
+Requires: poppler = 0.18.4

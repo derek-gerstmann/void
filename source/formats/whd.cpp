@@ -57,6 +57,10 @@ VD_IMPORT(Core, Process);
 
 // ============================================================================================== //
 
+namespace HiDist {
+
+// ============================================================================================== //
+
 unsigned int FileRead( 
     std::istream & is, 
     std::vector <char> & buff ) 
@@ -99,31 +103,162 @@ float ToRadians(float v)
     return v * (pi / one_eighty);
 }
 
+VD_DECLARE_ENUM(CosmoDistType,
+    AgeOfUniverseNow,
+    AgeOfUniverseThen,
+    ComovingHorizonOfUniverseNow,
+    ComovingHorizonOfUniverseThen,
+    ComovingDistanceOfSourceNow,
+    ComovingDistanceOfSourceThen,
+    AngularDiameterDistance,
+    LuminosityDistance,
+    LightTravelTimeDistance);
+
+template<int CD>
+struct CosmologicalDistance 
+{
+    static float Compute(float z)
+    {
+        /*
+            cosmodis - A Cosmological Distances Program - version 1.1
+            by Richard Powell - http://www.atlasoftheuniverse.com/
+
+            This is a simple piece of code to provide comoving, angular diameter,
+            luminosity, and light travel distances for any given redshift.  The
+            Hubble constant (H0), Omega_matter (OM) and Omega_lambda (OL) are defined
+            within the body of the program and can be adjusted to your favourite
+            values.
+
+            For a summary of the formulae used in this program, see:
+            David Hogg, Distance Measures in Cosmology, (2000), astro-ph/9905116.
+            http://arxiv.org/abs/astro-ph/9905116
+
+            This program is in the Public Domain.  There is no copyright.
+        */
+
+        double c = 299792.458;          // Speed of Light (C)
+
+        double H0 = 70;                // Hubble constant (km/s/Mpc) - adjust according to taste
+        double OM = 0.27;              // Omega(matter) - adjust according to taste
+        double OL = 0.73;              // Omega(lambda) - adjust according to taste
+        double OR = 0.42/(H0*H0);      // Omega(radiation) - this is the usual textbook value
+        long i;
+        long n=10000;                 // Number of steps in the integral
+        double OK = 1-OM-OR-OL;        // Omega(k) defined as 1-OM-OR-OL
+        double HD = 3.2616*c/H0/1000;  // Hubble distance (billions of light years).  See section 2 of Hogg
+        double a, adot;                // Scale Factor "a", and its derivative "adot"
+        double DC, DCC=0, DT, DTT=0, DA, DL, DM;
+        double age, size;              // The age and size of the universe
+
+        return HD * z;
+
+        for(i=n; i>=1; i--) {         // This loop is the numerical integration
+            a = (i-0.5)/n;              // Steadily decrease the scale factor
+                                        // Comoving formula (See section 4 of Hogg, but I've added a radiation term too):
+            adot = a*sqrt(OM*pow(1/a,3)+OK*pow(1/a,2)+OL+OR*pow(1/a,4));    // Note that "a" is equivalent to 1/(1+z)
+            DCC = DCC + 1/(a*adot)/n;   // Running total of the comoving distance
+            DTT = DTT + 1/adot/n;       // Running total of the light travel time (see section 10 of Hogg)
+            if (a>=1/(1+z)) {           // Collect DC and DT until the correct scale is reached
+              DC = DCC;                 // Comoving distance DC
+              DT = DTT;                 // Light travel time DT
+            }
+        }
+        
+        // Transverse comoving distance DM from section 5 of Hogg:
+        if (OK>0.0001) DM=(1/sqrt(OK))*sinh(sqrt(OK)*DC);
+        else if (OK<-0.0001) DM=(1/sqrt(fabs(OK)))*sin(sqrt(fabs(OK))*DC);
+        else DM=DC;
+
+        age = HD*DTT;                 // Age of the universe (billions of years)
+        size = HD*DCC;                // Comoving radius of the observable universe
+
+        DC = HD*DC;                   // Comoving distance
+        DA = HD*DM/(1+z);             // Angular diameter distance (section 6 of Hogg)
+        DL = HD*DM*(1+z);             // Luminosity distance (section 7 of Hogg)
+        DT = HD*DT;                   // Light travel distance
+
+        switch (CosmoDistType::FromInteger(CD))
+        {
+            case CosmoDistType::AgeOfUniverseNow:              { return age; }         // (Gyr) Giga Years 
+            case CosmoDistType::AgeOfUniverseThen:             { return age-DT; }      // (Gyr) Giga Years 
+            case CosmoDistType::ComovingHorizonOfUniverseNow:  { return size; }        // (Gly) Giga Light-Years 
+            case CosmoDistType::ComovingHorizonOfUniverseThen: { return size/(1+z); }  // (Gly) Giga Light-Years 
+            case CosmoDistType::ComovingDistanceOfSourceNow:   { return DC; }          // (Gly) Giga Light-Years 
+            case CosmoDistType::ComovingDistanceOfSourceThen:  { return DC/(1+z); }    // (Gly) Giga Light-Years
+            case CosmoDistType::AngularDiameterDistance:       { return DA; }          // (Gly) Giga Light-Years
+            case CosmoDistType::LuminosityDistance:            { return DL; }          // (Gly) Giga Light-Years
+            case CosmoDistType::LightTravelTimeDistance:       { return DT; }          // (Gly) Giga Light-Years
+            default:                                           { return DL; }
+        }
+        return DL;
+
+    #if 0
+          printf("-------------------------------------------------------------------\n");
+          printf("For Redshift %.3f, (Ho=%.1fkm/s/Mpc, Omega_M=%.2f, Omega_L=%.2f):\n",z,H0,OM,OL);
+          printf("-------------------------------------------------------------------\n");
+          printf("* Age of the universe now               = %.3f Gyr\n",age);
+          printf("* Age of the universe then              = %.6f Gyr\n",age-DT);
+          printf("* Comoving horizon of the universe now  = %.3f Gyr\n",size);
+          printf("* Comoving horizon of the universe then = %.3f Gyr\n",size/(1+z));
+          printf("* Comoving distance of the source now   = %.3f Gly\n",DC);
+          printf("* Comoving distance of the source then  = %.3f Gly\n",DC/(1+z));  // In a flat universe, this is equal to DA
+          printf("* Angular Diameter distance             = %.3f Gly\n",DA);
+          printf("* Luminosity distance                   = %.3f Gly\n",DL);
+          printf("* Light Travel Time Distance            = %.3f Gly\n",DT);
+          printf("-------------------------------------------------------------------\n");
+    #endif
+    }
+};
+
 float* EquatorialToCelestialCartesian(
     float* ra, float* dec, float* distance,
     size_t count)
 {
+//    static const double EarthRadiusKm  = 6367.0; //radius in km
+    static const double EarthRadiusGly = 6.7345338474424e-19; // radius in Gly
+
     float* pos = VD_NEW_ARRAY(float, count*3);
 
     for(size_t i = 0; i < count; i++)
     {
-        float rav = ra[i] + VD_F32_TINY_VAL;
-        float decv = dec[i] + VD_F32_TINY_VAL;
-        float distv = (distance[i] + VD_F32_TINY_VAL) * 1000.0f;
+        float rav = ra[i];// + VD_F32_TINY_VAL;
+        float decv = dec[i];// + VD_F32_TINY_VAL;
+        float distv = distance[i];// + VD_F32_TINY_VAL;
 
-        float vx = distv * Core::Cos(ToRadians(rav)) * Core::Cos(ToRadians(decv));
-        float vy = distv * Core::Sin(ToRadians(rav)) * Core::Cos(ToRadians(decv));
-        float vz = distv * Core::Sin(ToRadians(decv));
+        double theta = ToRadians(rav);
+        double phi = ToRadians(decv);
+
+        double d = EarthRadiusGly + CosmologicalDistance<CosmoDistType::LuminosityDistance>::Compute(distv);
+        d *= 0.306601352201;
+
+        float vx = d * Core::Cos(theta) * Core::Cos(phi);
+        float vy = d * Core::Sin(theta) * Core::Cos(phi);
+        float vz = d * Core::Sin(phi);
 
         pos[i * 3 + 0] = vx;
         pos[i * 3 + 1] = vy;
         pos[i * 3 + 2] = vz;
+
+#if 0
+        if((i % 1000) == 0)
+            printf("Coords: %d / %d [%f, %f @ %f => %f %f %f => %f Gpc]\n", 
+                (int)i, (int)count, 
+                rav, decv, distv,
+                vx, vy, vz, d);
+#endif                
     }
 
     return pos;
 }
 
-
+float LinearRemap(float x, 
+    float a, float b,
+    float c, float d)
+{
+    float xp = ((d - c) * (x - a) / (b - a)) + c;
+    return xp;
+}
+    
 float* SpecificStarFormationRate(
     float* xyz, float* sfr, float* mstar, size_t count)
 {
@@ -148,18 +283,18 @@ float* SpecificStarFormationRate(
            Core::IsWithinUlps(sfr[i], Constants::NegInf, 2) ||
            Core::IsWithinUlps(sfr[i], Constants::NaN, 2))
         {
-            v[i] = -16.201031f;
+            v[i] = -18.0f; // -16.201031f;
             bad_sfr++;
             bad = true;
         }
 
-        if(bad == false &&
+        if(bad == false && (
            Core::IsWithinUlps(mstar[i], Constants::Zero, 2) || 
            Core::IsWithinUlps(mstar[i], Constants::Infinity, 2) ||
            Core::IsWithinUlps(mstar[i], Constants::NegInf, 2) ||
-           Core::IsWithinUlps(mstar[i], Constants::NaN, 2))
+           Core::IsWithinUlps(mstar[i], Constants::NaN, 2)))
         {
-            v[i] = 0.0f;
+            v[i] = -18.0f;
             bad_mstar++;
             bad = true;
         }
@@ -168,10 +303,16 @@ float* SpecificStarFormationRate(
         {
             bad_ssfr++;
         }
-
-        if(bad == false)
+        else
+        {
+//            v[i] = Core::Log10(sfr[i] / mstar[i]);
             v[i] = Core::Log10(sfr[i] / mstar[i]);
+        }
+
+        v[i] = -v[i];
     }
+
+    // EG:    Min[-16.349771] Max[-8.277701]
 
     printf("BadSFR[%d => %f percent] BadMStar[%d => %f percent] BadSSFR[%d => %f percent]\n",
         (int)bad_sfr, bad_sfr/(float)count * 100.0, 
@@ -183,17 +324,12 @@ float* SpecificStarFormationRate(
 
     return v;
 }
-class HiDistInputThread : public Thread
-{
 
-};
-
-HiDistData::HiDistData(
-    HiDistDataset* dataset) :
+Data::Data(
+    Dataset* dataset) :
     Core::Object(),
     m_DataSet(dataset),
     m_TotalGalaxyCount(0),
-    m_GasGalaxyCount(0),
     m_FileIndex(0)
 {
     Memory::SetBytes(&m_MetaData,         0, sizeof(m_MetaData));
@@ -201,18 +337,18 @@ HiDistData::HiDistData(
     Memory::SetBytes(&m_StatisticsData,   0, sizeof(m_StatisticsData));
 }
  
-HiDistData::~HiDistData()
+Data::~Data()
 {
     Destroy();
 }
 
 vd::bytesize
-HiDistData::GetResidentMemorySize() const
+Data::GetResidentMemorySize() const
 {
     vd::bytesize bytes = 0;
     for(vd::u32 i = 0; i < Block::Count; i++)
     {
-        HiDistData::Block::Value block = HiDistData::Block::FromInteger(i);
+        Data::Block::Value block = Data::Block::FromInteger(i);
         const char* ptr = (char*)GetBlockDataPtr(block);
         if(ptr != NULL)
         {
@@ -223,13 +359,13 @@ HiDistData::GetResidentMemorySize() const
 }
 
 vd::status 
-HiDistData::Destroy()
+Data::Destroy()
 {
-    vdLogInfo("Destroying HiDist '%d' ... ", m_FileIndex);
+    vdLogInfo("Destroying  '%d' ... ", m_FileIndex);
     
     for(vd::u32 i = 0; i < Block::Count; i++)
     {
-        HiDistData::Block::Value block = HiDistData::Block::FromInteger(i);
+        Data::Block::Value block = Data::Block::FromInteger(i);
         DestroyBlockData(block);
     }
 
@@ -237,14 +373,14 @@ HiDistData::Destroy()
 }
 
 vd::bytesize
-HiDistData::GetBlockSize(
+Data::GetBlockSize(
     Block::Value block) const
 {
     return GetBlockEntrySize(block) * m_TotalGalaxyCount;
 }
 
 vd::bytesize
-HiDistData::CreateBlockData(
+Data::CreateBlockData(
     Block::Value block)
 {
     float* ptr = (float*)GetBlockDataPtr(block);
@@ -268,7 +404,7 @@ HiDistData::CreateBlockData(
 }
 
 void
-HiDistData::DestroyBlockData(
+Data::DestroyBlockData(
     Block::Value block)
 {
     char* ptr = (char*)GetBlockDataPtr(block);
@@ -281,7 +417,7 @@ HiDistData::DestroyBlockData(
 }
 
 void*
-HiDistData::GetBlockDataPtr(
+Data::GetBlockDataPtr(
     Block::Value block) const
 {       
     if(Block::IsValid(block))
@@ -291,7 +427,7 @@ HiDistData::GetBlockDataPtr(
 }
 
 void
-HiDistData::SetBlockDataPtr(
+Data::SetBlockDataPtr(
     Block::Value block, void* ptr) 
 {
     if(Block::IsValid(block))
@@ -299,48 +435,48 @@ HiDistData::SetBlockDataPtr(
 }
 
 vd::bytesize
-HiDistData::GetBlockSeparatorSize(void) const
+Data::GetBlockSeparatorSize(void) const
 {
     return 0;
 }
 
 vd::i32
-HiDistData::SkipToNextBlock(
+Data::SkipToNextBlock(
     FILE* fh)
 {
     return 0;
 }
 
 vd::bytesize
-HiDistData::FindBlockByName(
+Data::FindBlockByName(
     FILE* fd, const char* label)
 {
     return 0;
 }
 
 vd::bytesize
-HiDistData::FindBlock(
+Data::FindBlock(
     FILE* fd, Block::Value block)
 {
     return FindBlockByName(fd, GetBlockLabel(block));
 }
 
 const char*
-HiDistData::GetBlockLabel(
+Data::GetBlockLabel(
     Block::Value block)  const
 {
     return Block::ToString(block);
 }
 
 const char*
-HiDistData::GetBlockName(
+Data::GetBlockName(
     Block::Value block)  const
 {
     return Block::ToString(block);
 }
 
 vd::bytesize
-HiDistData::GetBlockEntrySize(
+Data::GetBlockEntrySize(
     Block::Value block)  const
 {
     if(Block::IsValid(block))
@@ -354,7 +490,7 @@ HiDistData::GetBlockEntrySize(
 }
 
 vd::i32
-HiDistData::GetBlockVectorLength(
+Data::GetBlockVectorLength(
     Block::Value block) const
 {
     if(Block::IsValid(block))
@@ -368,7 +504,7 @@ HiDistData::GetBlockVectorLength(
 }
 
 const char*
-HiDistData::GetBlockSizeTypeSuffix(
+Data::GetBlockSizeTypeSuffix(
     Block::Value block) const
 {
     if(Block::IsValid(block))
@@ -377,14 +513,14 @@ HiDistData::GetBlockSizeTypeSuffix(
 }
 
 bool
-HiDistData::IsBlockEntryIntegerValue(
+Data::IsBlockEntryIntegerValue(
     Block::Value block) const
 {
     return false;
 }
 
 vd::f32
-HiDistData::Periodic(
+Data::Periodic(
     vd::f32 x, vd::f32 l2)
 {
     if(x > +l2)
@@ -395,7 +531,7 @@ HiDistData::Periodic(
 }
 
 void
-HiDistData::SwapFloatDataAt(
+Data::SwapFloatDataAt(
     float* ptr, int isrc, int idst)
 {
     float t;
@@ -413,7 +549,7 @@ HiDistData::SwapFloatDataAt(
 }
 
 void
-HiDistData::SwapIntDataAt(
+Data::SwapIntDataAt(
     int* ptr, int isrc, int idst)
 {
     int t;
@@ -431,7 +567,7 @@ HiDistData::SwapIntDataAt(
 }
 
 void
-HiDistData::SwapFloat3DataAt(
+Data::SwapFloat3DataAt(
     float* ptr, int isrc, int idst)
 {
     float t[3];
@@ -449,7 +585,7 @@ HiDistData::SwapFloat3DataAt(
 }
 
 void
-HiDistData::SwapGalaxyAt(
+Data::SwapGalaxyAt(
     int isrc, int idst)
 {
     for(int i = 0; i < (int)Block::Count; i++)
@@ -463,7 +599,7 @@ HiDistData::SwapGalaxyAt(
 }
 
 vd::bytesize 
-HiDistData::ReadHeader(
+Data::ReadHeader(
     const char* filename, vd::i32 splits)
 {
     struct stat statbuf;
@@ -473,210 +609,215 @@ HiDistData::ReadHeader(
     if(splits <= 1)
     {
         m_TotalGalaxyCount = 0;
-        m_GasGalaxyCount = 0;
     }
 
     m_TotalGalaxyCount = GetLineCount(filename);
-    m_MetaData.GalaxyCount[0] = m_TotalGalaxyCount;
+    m_MetaData.GalaxyCount = m_TotalGalaxyCount;
     m_MetaData.BoxSize = 1000.0f;
-    m_GasGalaxyCount = 0;
     vdLogInfo("DataSet size: %llu (%d galaxies)", bytes, m_TotalGalaxyCount);
     return 1;
 }
 
 vd::string
-HiDistData::GetFilename(
+Data::GetFilename(
     const vd::string& prefix, 
     vd::i32 index,
     vd::i32 padding)
 {
-    return HiDistDataset::GetFilenameForHiDist(prefix, index, padding);
+    return Dataset::GetFilenameFor(prefix, index, padding);
 }
 
 vd::status
-HiDistData::Load(
+Data::Load(
     const vd::string& prefix, 
     vd::i32 index,
     vd::i32 splits,
     vd::i32 padding,
-    vd::i32* req_data,
-    vd::i32* req_types)
+    vd::i32* requested_data,
+    vd::i32* requsted_types)
 {
     vdAssert(prefix.size() > 1);    
 
     vd::i32 pc = 1;
     vd::i32 total_pc = pc;
 
-    int ssrs = HiDistData::Block::ToInteger(HiDistData::Block::SSRS);
-    int pos = HiDistData::Block::ToInteger(HiDistData::Block::Position);
-    if(req_data[pos] > 0)
+    vd::i32 req_data[Data::Block::Count] = {0};
+    if(requested_data != NULL)
     {
-        int ra = HiDistData::Block::ToInteger(HiDistData::Block::RA);
-        int dec = HiDistData::Block::ToInteger(HiDistData::Block::DEC);
-        int rs = HiDistData::Block::ToInteger(HiDistData::Block::Redshift);
-//        int rs = HiDistData::Block::ToInteger(HiDistData::Block::ObservedRedshift);
-
-        req_data[ra] = 1;
-        req_data[dec] = 1;
-        req_data[rs] = 1;
+        for(vd::u32 rdi = 0; rdi < Data::Block::Count; rdi++)
+        {
+            req_data[rdi] = requested_data[rdi];
+        }
     }
 
-    if(req_data[pos] > 0)
+    if(req_data[Data::Block::ToInteger(Data::Block::Position)] > 0)
     {
-        int sm = HiDistData::Block::ToInteger(HiDistData::Block::StellarMass);
-        int sfr = HiDistData::Block::ToInteger(HiDistData::Block::SFR);
+        req_data[Data::Block::ToInteger(Data::Block::RA)] = 1;
+        req_data[Data::Block::ToInteger(Data::Block::DEC)] = 1;
+        req_data[Data::Block::ToInteger(Data::Block::Redshift)] = 1;
+    }
 
-        req_data[sm] = 1;
-        req_data[sfr] = 1;
+    if(req_data[Data::Block::ToInteger(Data::Block::SSRS)] > 0)
+    {
+        req_data[Data::Block::ToInteger(Data::Block::StellarMass)] = 1;
+        req_data[Data::Block::ToInteger(Data::Block::SFR)] = 1;
     }
 
     m_IsLoaded.Set(0);
     m_FilteredGalaxyCount = 0;
-    splits = splits < 1 ? 1 : splits;
 
-    vd::string filename = HiDistDataset::GetFilenameForHiDist(prefix, index, padding);
-    for(vd::i32 i = 0; i < splits; i++)
+    vd::string filename = Dataset::GetFilenameFor(prefix, index, padding);
+    if(!ReadHeader(filename.c_str(), 0))
     {
-//        if(splits > 1)
-//            filename += vd::string(".") + Core::Convert::ToString(i, 0, 0);
+        vdLogWarning("Failed to open  datafile file '%s'!", filename.c_str());
+        return Status::Code::ReadError;
+    }
 
-        if(!ReadHeader(filename.c_str(), splits))
+    size_t field_count;
+    FILE* fd = OpenCsvFile(filename.c_str(), &field_count);        
+    if(fd == NULL)
+    {
+        vdLogWarning("Failed to open  datafile file '%s'!", filename.c_str());
+        return Status::Code::ReadError;
+    }
+
+    vdLogInfo("Reading datafile '%s' with '%d' fields ...", 
+        filename.c_str(), (int)field_count);
+
+    for(vd::u32 ln = 0; ln < Data::Block::Count; ln++)
+    {
+        Data::Block::Value block = Data::Block::FromInteger(ln);
+        if(block == Data::Block::Position)
+            continue;
+
+        if(block == Data::Block::SSRS)
+            continue;
+
+        if(req_data[ln] > 0)
         {
-            vdLogWarning("Failed to open HiDist datafile file '%s'!", filename.c_str());
-            return Status::Code::ReadError;
+            vdLogInfo("Creating Block for '%s' with '%d' entries ...", 
+                Data::Block::ToString(block), (int)GetTotalGalaxyCount());
+
+            CreateBlockData(block);
         }
     }
 
-    for(vd::i32 i = 0; i < splits; i++)
+    bool use_bin = false;
+    FILE* out_file = NULL;
+    std::string out_filename = filename + ".bin";
+
+#if 1
+    Core::FileSystem* fs = m_DataSet->GetRuntime()->GetFileSystem();
+    if(fs->Exists(out_filename) == true)
     {
-        if(splits > 1)
-            filename += vd::string(".") + Core::Convert::ToString(i, 0, 0);
+        use_bin = true;
+        vdLogInfo("Using '%s'", out_filename.c_str());
+        out_file = fopen(out_filename.c_str(), "rb");
+    }
+    else
+    {
+        vdLogInfo("Saving '%s'", out_filename.c_str());
+        out_file = fopen(out_filename.c_str(), "wb");
+    }
+#endif
 
-        size_t field_count;
-        FILE* fd = OpenCsvFile(filename.c_str(), &field_count);        
-        if(fd == NULL)
+    size_t valid = 0;
+    int misses = 0;
+    bool more = true;
+    while(more)
+    {
+        int hit = 0;
+        for(vd::u32 bn = 0; bn < Block::Count; bn++)
         {
-            vdLogWarning("Failed to open HiDist datafile file '%s'!", filename.c_str());
-            return Status::Code::ReadError;
-        }
-
-        vdLogDebug("Reading datafile '%s' ...", filename.c_str());
-
-        for(vd::u32 n = 0; n < Block::Count; n++)
-        {
-            HiDistData::Block::Value block = HiDistData::Block::FromInteger(n);
-            if(block == HiDistData::Block::Position)
+            Data::Block::Value block = Data::Block::FromInteger(bn);
+            if(block == Data::Block::Position)
                 continue;
 
-            if(block == HiDistData::Block::SSRS)
+            if(block == Data::Block::SSRS)
                 continue;
 
-            if(req_data[n] > 0)
+            float v;
+            bool miss = false;
+            size_t bytes = 0;
+            if(use_bin)
             {
-                CreateBlockData(block);
+                bytes = fread(&v, sizeof(float), 1, out_file);
+                if(bytes < 1) miss = true;
             }
-        }
-
-        if(i == 0)  
-            m_TotalGalaxyCount = 0;
-
-        bool use_bin = false;
-        FILE* out_file = NULL;
-        std::string out_filename = filename + ".bin";
-
-        Core::FileSystem* fs = m_DataSet->GetRuntime()->GetFileSystem();
-        if(fs->Exists(out_filename) == true)
-        {
-            use_bin = true;
-            vdLogInfo("Using '%s'", out_filename.c_str());
-            out_file = fopen(out_filename.c_str(), "rb");
-        }
-        else
-        {
-            vdLogInfo("Saving '%s'", out_filename.c_str());
-            out_file = fopen(out_filename.c_str(), "wb");
-        }
-
-        size_t index = 0;
-        size_t bytes = 1;
-        do {
-            for(vd::u32 n = 0; n < Block::Count && bytes > 0; n++)
+            else
             {
-                HiDistData::Block::Value block = HiDistData::Block::FromInteger(n);
-                if(block == HiDistData::Block::Position)
-                    continue;
+                v = ReadCsvFloatColumn(fd, &bytes);
+                if(bytes < 1) miss = true;
+                if(out_file) fwrite(&v, sizeof(float), 1, out_file);
+            }
 
-                if(block == HiDistData::Block::SSRS)
-                    continue;
+            if(miss == false && req_data[bn] > 0)
+            {
+                float* ptr = (float*)GetBlockDataPtr(block);
+                if(ptr) ptr[valid] = v;
+//                printf("Read[%d] '%s' : %f\n", (int)valid,  Data::Block::ToString(block), v);
+            }
 
-                float v;
-                if(use_bin)
-                {
-                    bytes = fread(&v, sizeof(float), 1, out_file);
-                }
-                else
-                {
-                    float v = ReadCsvFloatColumn(fd, &bytes);
-                    fwrite(&v, sizeof(float), 1, out_file);
-                }
+            if(miss)
+                hit = 0;
+            else
+                hit = 1;
 
-                if(req_data[n] > 0)
-                {
-                    float* ptr = (float*)GetBlockDataPtr(block);
-                    if(ptr) ptr[index] = v;
-                    // printf("Read[%d] '%s' : %f\n", (int)index,  HiDistData::Block::ToString(block), v);
-                }
-            }        
-            index++;
-        } while(bytes > 0);
+        }        
+        
+        if(misses > 100)
+            more = false;
 
-        m_TotalGalaxyCount += index;
-        CloseCsvFile(fd);
-        fclose(out_file);
-        total_pc += pc;
+        if(hit)
+            valid++;
+        else
+            misses++;
     }
+
+    CloseCsvFile(fd);
+    if(out_file) fclose(out_file);
+    total_pc += pc;
 
     m_FilteredGalaxyCount = m_TotalGalaxyCount;
     vdLogInfo("Loaded '%d'/'%d' galaxies!", m_FilteredGalaxyCount, m_TotalGalaxyCount);
 
     float* xyz = NULL;
-    pos = HiDistData::Block::ToInteger(HiDistData::Block::Position);
-    if(req_data[pos] >= 1)
+    if(req_data[Data::Block::ToInteger(Data::Block::Position)] >= 1)
     {
-        float* ra = (float*)GetBlockDataPtr(HiDistData::Block::RA);
-        float* dec = (float*)GetBlockDataPtr(HiDistData::Block::DEC);
-        float* redshift = (float*)GetBlockDataPtr(HiDistData::Block::Redshift);
-//        float* redshift = (float*)GetBlockDataPtr(HiDistData::Block::ObservedRedshift);
+        float* ra = (float*)GetBlockDataPtr(Data::Block::RA);
+        float* dec = (float*)GetBlockDataPtr(Data::Block::DEC);
+        float* redshift = (float*)GetBlockDataPtr(Data::Block::Redshift);
+//        float* redshift = (float*)GetBlockDataPtr(Data::Block::ObservedRedshift);
 
-        // printf("Computing EquatorialToCelestialCartesian for '%d' galaxies!\n", m_TotalGalaxyCount);
+        printf("Computing EquatorialToCelestialCartesian for '%d' galaxies!\n", (int)m_TotalGalaxyCount);
         if(ra != NULL && dec != NULL && redshift != NULL)
         {
             xyz = EquatorialToCelestialCartesian(ra, dec, redshift, m_TotalGalaxyCount);
-            SetBlockDataPtr(HiDistData::Block::Position, xyz);
+            SetBlockDataPtr(Data::Block::Position, xyz);
         }
     }
  
-    ssrs = HiDistData::Block::ToInteger(HiDistData::Block::SSRS);
-    if(req_data[ssrs] >= 1)
+    if(req_data[Data::Block::ToInteger(Data::Block::SSRS)] >= 1)
     {
-        float* sfr = (float*)GetBlockDataPtr(HiDistData::Block::SFR);
-        float* sm = (float*)GetBlockDataPtr(HiDistData::Block::StellarMass);
+        float* sfr = (float*)GetBlockDataPtr(Data::Block::SFR);
+        float* sm = (float*)GetBlockDataPtr(Data::Block::StellarMass);
 
-        // printf("Computing SSFR for '%d' galaxies!\n", m_TotalGalaxyCount);
+        printf("Computing SSFR for '%d' galaxies!\n", (int)m_TotalGalaxyCount);
         if(sfr != NULL && sm != NULL)
         {
             float* ssfr = SpecificStarFormationRate(xyz, sfr, sm, m_TotalGalaxyCount);
-            SetBlockDataPtr(HiDistData::Block::SSRS, ssfr);
+            SetBlockDataPtr(Data::Block::SSRS, ssfr);
         }
     }
 
+#if 0
     FILE* csv_file = NULL;
     std::string csv_filename = filename + ".csv";
     csv_file = fopen(csv_filename.c_str(), "w");
     printf("Exporting '%s' ...\n", csv_filename.c_str());
     for(vd::u32 n = 0; n < Block::Count && m_TotalGalaxyCount; n++)
     {
-        HiDistData::Block::Value block = HiDistData::Block::FromInteger(n);
+        Data::Block::Value block = Data::Block::FromInteger(n);
         float* ptr = (float*)GetBlockDataPtr(block);
         if(!ptr) continue;
         bool inner = (n != Block::Count - 1);
@@ -687,21 +828,22 @@ HiDistData::Load(
             {
                 bool vi = (v != vl - 1);
                 static const char* suffix[] = { "X", "Y", "Z", "W" };
-                fprintf(csv_file, "%s%s%s",  HiDistData::Block::ToString(block), suffix[v], vi ? ", " : (inner ? ", " : "\n"));
-                printf("%s%s%s",  HiDistData::Block::ToString(block), suffix[v], vi ? ", " : (inner ? ", " : "\n"));
+                fprintf(csv_file, "%s%s%s",  Data::Block::ToString(block), suffix[v], vi ? ", " : (inner ? ", " : "\n"));
+                printf("%s%s%s",  Data::Block::ToString(block), suffix[v], vi ? ", " : (inner ? ", " : "\n"));
             }
         }
         else
         {
-            fprintf(csv_file, "%s%s",  HiDistData::Block::ToString(block), inner ? ", " : "\n");
-            printf("%s%s",  HiDistData::Block::ToString(block), inner ? ", " : "\n");
+            fprintf(csv_file, "%s%s",  Data::Block::ToString(block), inner ? ", " : "\n");
+            printf("%s%s",  Data::Block::ToString(block), inner ? ", " : "\n");
         }
-    }        
+    }
+
     for(vd::u32 g = 0; g < m_TotalGalaxyCount; g++)
     {
         for(vd::u32 n = 0; n < Block::Count; n++)
         {
-            HiDistData::Block::Value block = HiDistData::Block::FromInteger(n);
+            Data::Block::Value block = Data::Block::FromInteger(n);
             float* ptr = (float*)GetBlockDataPtr(block);
             if(!ptr) continue;
 
@@ -723,77 +865,69 @@ HiDistData::Load(
         }        
     }
     fclose(csv_file);
-
-    // Compute derived quantity for Temperature from Internal Energy if it wasn't in the file
-//    if(req_data[HiDistData::Block::Temperature] == VD_TRUE && 
-//        GetBlockDataPtr(HiDistData::Block::Temperature) == NULL)
-//    {
-//        ComputeTempFromInternalEnergy();
-//    }
-
-
+#endif
 
     m_FileIndex = index;
     m_IsLoaded.Increment();
     return 1;
 }
 
-const HiDistMetaData& 
-HiDistData::GetMetaData() const 
+const MetaData& 
+Data::GetMetaData() const 
 { 
     return m_MetaData; 
 }
 
-HiDistScalarStatistic& 
-HiDistData::GetScalarStatistic(Block::Value v) 
+Statistic& 
+Data::GetStatistic(Block::Value v) 
 { 
     return m_StatisticsData[Block::ToInteger(v)]; 
 }
 
 void 
-HiDistData::SetScalarStatistic(Block::Value v, const HiDistScalarStatistic& stats) 
+Data::SetStatistic(Block::Value v, const Statistic& stats) 
 {
     m_StatisticsData[Block::ToInteger(v)] = stats; 
 }
 
 vd::u64
-HiDistData::GetTotalGalaxyCount() const 
+Data::GetTotalGalaxyCount() const 
 { 
     return m_TotalGalaxyCount; 
 }
 
 vd::u64
-HiDistData::GetFilteredGalaxyCount() const 
+Data::GetFilteredGalaxyCount() const 
 { 
     return m_FilteredGalaxyCount; 
 }
 
 vd::u64
-HiDistData::GetGalaxyCountForType(GalaxyType::Value v) const 
+Data::GetGalaxyCountForType(GalaxyType::Value) const 
 { 
-    return m_MetaData.GalaxyCount[GalaxyType::ToInteger(v)]; 
+    return m_MetaData.GalaxyCount; 
 }
 
 vd::f32
-HiDistData::GetBoundaryBoxSize() const 
+Data::GetBoundaryBoxSize() const 
 { 
     return m_MetaData.BoxSize; 
 }
     
 vd::u32
-HiDistData::GetFileIndex() const 
+Data::GetFileIndex() const 
 { 
     return m_FileIndex; 
 }
     
 bool
-HiDistData::IsLoaded() 
+Data::IsLoaded() 
 { 
     return m_IsLoaded.Get() > 0 ? true : false; 
 }
     
 void 
-HiDistData::Reorder()
+Data::Reorder()
 {
 /*
     vd::i64 idst;
@@ -827,7 +961,7 @@ HiDistData::Reorder()
 
 // ============================================================================================== //
 
-HiDistDataset::HiDistDataset(
+Dataset::Dataset(
     Runtime::Context* runtime) :
     Core::Object(),
     m_IsOpen(false),
@@ -840,16 +974,18 @@ HiDistDataset::HiDistDataset(
     m_CacheSize(2*1024*1024*1024),
     m_Runtime(runtime)
 {
-
+    Memory::SetBytes(m_RequestedBlocks, 0, sizeof(m_RequestedBlocks));
+    Memory::SetBytes(m_RequestedTypes, 0, sizeof(m_RequestedTypes));
+    Memory::SetBytes(m_RequestedStatistics, 0, sizeof(m_RequestedStatistics));
 }
 
-HiDistDataset::~HiDistDataset() 
+Dataset::~Dataset() 
 { 
     Destroy();
 }
 
 vd::status 
-HiDistDataset::Destroy(void)
+Dataset::Destroy(void)
 {
     vd::status result = Close();
     m_DataCache.Destroy();
@@ -857,74 +993,51 @@ HiDistDataset::Destroy(void)
 }
 
 void 
-HiDistDataset::SetBlockRequest(HiDistData::Block::Value v, vd::i32 enable) 
-    { m_RequestedBlocks[HiDistData::Block::ToInteger(v)] = enable; }
+Dataset::SetBlockRequest(Data::Block::Value v, vd::i32 enable) 
+    { m_RequestedBlocks[Data::Block::ToInteger(v)] = enable; }
 
 void 
-HiDistDataset::SetTypeRequest(HiDistData::GalaxyType::Value v, vd::i32 enable) 
-    { m_RequestedTypes[HiDistData::GalaxyType::ToInteger(v)] = enable; }
+Dataset::SetTypeRequest(Data::GalaxyType::Value v, vd::i32 enable) 
+    { m_RequestedTypes[Data::GalaxyType::ToInteger(v)] = enable; }
 
 void 
-HiDistDataset::SetStatisticRequest(HiDistData::Block::Value v, vd::i32 enable) 
-    { m_RequestedStatistics[HiDistData::Block::ToInteger(v)] = enable; }
+Dataset::SetStatisticRequest(Data::Block::Value v, vd::i32 enable) 
+    { m_RequestedStatistics[Data::Block::ToInteger(v)] = enable; }
 
 vd::status 
-HiDistDataset::Open(
+Dataset::Open(
     const vd::string& prefix, 
     vd::i32 count, 
     vd::i32 splits)
 {
     m_Mutex.Lock();
-    for(vd::u32 n = 0; n < HiDistData::Block::Count; n++)
-        m_RequestedBlocks[n] = 0;
+    Memory::SetBytes(m_RequestedBlocks, 0, sizeof(m_RequestedBlocks));
+    Memory::SetBytes(m_RequestedTypes, 0, sizeof(m_RequestedTypes));
+    Memory::SetBytes(m_RequestedStatistics, 0, sizeof(m_RequestedStatistics));
 
+    m_FilePrefix = prefix;
     m_FileNumberPadding = 0;
-    vd::i32 length = (vd::i32)prefix.size();
-    for(vd::i32 i = length-1; i >= 0 && isdigit(prefix[i]); --i)
-        m_FileNumberPadding++;
-        
-    vd::string digits = prefix.substr(length - m_FileNumberPadding, length);
-    m_FilePrefix = prefix.substr(0, length - m_FileNumberPadding);
-    m_StartFileIndex = atoi(digits.c_str());
-    if(count < 1)
-    {
-        int missed = 0;
-        Core::FileSystem* fs = m_Runtime->GetFileSystem();
-        int i = m_StartFileIndex;
-        while(missed < 10)
-        {
-            if(fs->Exists(GetFilenameForHiDist(m_FilePrefix, i, m_FileNumberPadding)) == true)
-            {
-                m_EndFileIndex = i;
-                missed = 0;
-            }
-            else
-            {
-                missed++;
-            }
-            i++;
-        }
-    }
-    else
-    {
-        m_EndFileIndex = m_StartFileIndex + count;
-    }
-
-    m_FileSplits = splits;
+    m_StartFileIndex = 0;
+    m_EndFileIndex = 1;
+    m_FileSplits = 1; // splits;
     m_IsOpen = true;
+
+    if(m_FilePrefix.find(".dat") == vd::string::npos)
+        m_FilePrefix += ".dat";
     
     vdLogInfo("Opening dataset '%s' from '%d-%d' with padded index '%d' ...",
         m_FilePrefix.c_str(), m_StartFileIndex, m_EndFileIndex, m_FileNumberPadding);
     
     m_DataCache.Setup(2 * Constants::MemorySize::GB, 
-        VD_BIND_MEMBER_FUNCTION(this, &HiDistDataset::OnFetch), 
-        VD_BIND_MEMBER_FUNCTION(this, &HiDistDataset::OnEvict)
+        VD_BIND_MEMBER_FUNCTION(this, &Dataset::OnFetch), 
+        VD_BIND_MEMBER_FUNCTION(this, &Dataset::OnEvict)
     );
 
-    m_WorkCache.Setup(m_EndFileIndex - m_StartFileIndex + 1, 
-        VD_BIND_MEMBER_FUNCTION(this, &HiDistDataset::OnSubmit), 
-        VD_BIND_MEMBER_FUNCTION(this, &HiDistDataset::OnComplete)
+    m_WorkCache.Setup(4, 
+        VD_BIND_MEMBER_FUNCTION(this, &Dataset::OnSubmit), 
+        VD_BIND_MEMBER_FUNCTION(this, &Dataset::OnComplete)
     );
+
     m_WorkQueue.Start(1);   
     m_CurrentFileIndex = m_StartFileIndex;
     m_Mutex.Unlock();
@@ -933,26 +1046,15 @@ HiDistDataset::Open(
 }
     
 vd::string
-HiDistDataset::GetFilenameForHiDist(
+Dataset::GetFilenameFor(
     const vd::string& prefix, vd::i32 index, vd::i32 padding)
 {
     vd::string result = prefix;
-    result += ".dat";
-/*
-    char digits[1024] = {0};
-    snprintf(digits, sizeof(digits), "%d", index);
-    vd::i32 digit_len = (vd::i32) std::strlen(digits);
-    
-    for(vd::i32 p = 0; p < padding - digit_len; p++)
-        result += vd::string("0");
-    
-    result += vd::string(digits);
-*/
     return result;
 }
     
 vd::status 
-HiDistDataset::Close()
+Dataset::Close()
 {
     if(m_IsOpen)
     {
@@ -964,43 +1066,43 @@ HiDistDataset::Close()
 }
 
 bool
-HiDistDataset::IsReady(vd::i32 index)
+Dataset::IsReady(vd::i32 index)
 {
     return IsResident(index);
 }
 
 bool
-HiDistDataset::IsPending(vd::i32 index)
+Dataset::IsPending(vd::i32 index)
 {
     return m_WorkCache.IsResident(index);
 }
 
 bool
-HiDistDataset::IsResident(vd::i32 index)
+Dataset::IsResident(vd::i32 index)
 {
     return m_DataCache.IsResident(index);
 }
 
-HiDistWorkItem*
-HiDistDataset::GetPendingWorkItem(vd::i32 index)
+WorkItem*
+Dataset::GetPendingWorkItem(vd::i32 index)
 {
-    HiDistWorkItem* work = NULL;
+    WorkItem* work = NULL;
     return work;
 }
 
-HiDistData*
-HiDistDataset::Retrieve(
+Data*
+Dataset::Retrieve(
     const vd::i32& index)
 {
-    HiDistData* data = NULL;
+    Data* data = NULL;
     bool hit = m_DataCache.Fetch(index, data);
     hit = hit && data && data->IsLoaded();
-//  vdLogInfo("Fetching datafile: Index[%d] Hit[%s] ...", index, hit ? "true" : "false");
+    vdLogInfo("Fetching datafile: Index[%d] Hit[%s] ...", index, hit ? "true" : "false");
     return hit ? data : NULL;
 }
   
 bool
-HiDistDataset::Request(
+Dataset::Request(
     vd::i32 index)
 {
     bool hit = m_DataCache.Load(index);
@@ -1008,59 +1110,65 @@ HiDistDataset::Request(
     return hit;
 }
 
-HiDistData*
-HiDistDataset::OnFetch(
+Data*
+Dataset::OnFetch(
     const vd::i32& index)
 {
     vdLogInfo("Miss on datafile '%d' ...", index);
 
-/*
-    HiDistData* datafile = VD_NEW(HiDistData);
-    datafile->Load(m_FilePrefix, 
+#if 1
+    Data* datafile = VD_NEW(Data, this);
+    WorkItem* work = VD_NEW(WorkItem, 
+        datafile, 
+        m_FilePrefix, 
         index, 
         m_FileSplits, 
         m_FileNumberPadding, 
         m_RequestedBlocks, 
-        m_RequestedTypes);
-*/
+        m_RequestedTypes,
+        m_RequestedStatistics); 
 
-    HiDistData* datafile = NULL; 
-    HiDistWorkItem* work = NULL;
+    work->OnRun();
+    VD_DELETE(work);
 
-    if(m_WorkCache.IsResident(index))
-        return NULL;
-
+    return datafile;
+#else
+    Data* datafile = NULL; 
+    WorkItem* work = NULL;
+    Thread::Yield();
     bool hit = m_WorkCache.Fetch(index, work);
+    Thread::Yield();
     if(hit && work && work->IsReady())
     {
         vdLogInfo("OnFetch datafile: Index [%d] Ptr[%p] ...", 
             index, work);
 
-        datafile = work->GetHiDist();
+        datafile = work->Get();
     }
 
     return datafile;
+#endif
 }
 
 void 
-HiDistDataset::OnEvict(
-    HiDistData* datafile)
+Dataset::OnEvict(
+    Data* datafile)
 {
     if(datafile != NULL)
         vdLogInfo("Evicting datafile '%d' ...", datafile->GetFileIndex());
     VD_SAFE_DELETE(datafile);
 }
 
-HiDistWorkItem*
-HiDistDataset::OnSubmit(
+WorkItem*
+Dataset::OnSubmit(
     const vd::i32& index)
 {
-    vdLogInfo("Adding load request for datafile '%d' ...", index);
-    HiDistWorkItem* work = NULL;
+    WorkItem* work = NULL;
     if(!IsPending(index))
     {
-        HiDistData* datafile = VD_NEW(HiDistData, this);
-        HiDistWorkItem* work = VD_NEW(HiDistWorkItem, 
+        vdLogInfo("Adding load request for datafile '%d' ...", index);
+        Formats::HiDist::Data* datafile = VD_NEW(Formats::HiDist::Data, this);
+        Formats::HiDist::WorkItem* work = VD_NEW(Formats::HiDist::WorkItem, 
             datafile, 
             m_FilePrefix, 
             index, 
@@ -1070,50 +1178,50 @@ HiDistDataset::OnSubmit(
             m_RequestedTypes,
             m_RequestedStatistics);                                                           
 
-        m_WorkQueue.Submit(work);
         m_DataCache.Insert(index, datafile);
+        m_WorkQueue.Submit(work);
+    }
+    else
+    {
+        vdLogInfo("Rejecting load request -- pending request exists for datafile '%d'", index);
     }
     return work;
 }
 
 void 
-HiDistDataset::OnComplete(
-    HiDistWorkItem* work)
+Dataset::OnComplete(
+    WorkItem* work)
 {
     if(work != NULL)
-        vdLogInfo("HiDist '%d' loaded!", work->GetFileIndex());
+        vdLogInfo(" '%d' loaded!", work->GetFileIndex());
     VD_SAFE_DELETE(work);
 }
 
 void
-HiDistDataset::Release(vd::i32 index)
+Dataset::Release(vd::i32 index)
 {
     m_WorkCache.Remove(index);
     m_DataCache.Remove(index);
 }
 
 void 
-HiDistDataset::Retain(vd::i32 index, HiDistData* datafile)
+Dataset::Retain(vd::i32 index, Data* datafile)
 {
     m_DataCache.Touch(index);
 }
 
 void
-HiDistDataset::Evict()
+Dataset::Evict()
 {
 
 }
 
 void
-HiDistWorkQueue::OnRun(
-    WorkItem* item)
+WorkItem::OnRun()
 {
-    HiDistWorkItem* work = (HiDistWorkItem*)item;
-    if(work == NULL)
-        return;
-
+    WorkItem* work = this;
     vd::f64 t0 = Process::GetTimeInSeconds();
-    HiDistData* datafile = work->m_Data;
+    Data* datafile = work->m_Data;
 
     vdLogInfo("[%d] %s Index[%d] Splits[%d] Padding[%d]", 
         (int)work->GetSlotId(), work->m_FilePrefix.c_str(), 
@@ -1133,97 +1241,132 @@ HiDistWorkQueue::OnRun(
                                                 work->m_FileIndex, 
                                                 work->m_FileNumberPadding);
 
-    HiDistMetaData m = datafile->GetMetaData();
+    MetaData m = datafile->GetMetaData();
     vd::f64 t1 = Process::GetTimeInSeconds();
     vdLogInfo("Loaded '%s' in '%f' sec.", filename.c_str(), t1 - t0);
 
-    for(vd::u32 i = 0; i < HiDistData::Block::Count; i++)
+    for(vd::i32 i = 0; i < (vd::i32)Data::Block::Count; i++)
     {
-        HiDistData::Block::Value block = HiDistData::Block::FromInteger(i);
+        Data::Block::Value block = Data::Block::FromInteger(i);
         if(work->m_Stats[i] < 1)
             continue;
 
-        if(datafile->GetBlockVectorLength(block) > 1)
-            continue;
-
         vd::f64 t0 = Process::GetTimeInSeconds();
-        HiDistScalarStatistic& s = datafile->GetScalarStatistic(block);
+        Statistic& s = datafile->GetStatistic(block);
+        s.Components = datafile->GetBlockVectorLength(block);
         if(datafile->IsBlockEntryIntegerValue(block))
         {
-            s.Minimum = +VD_F32_MAX;
-            s.Maximum = -VD_F32_MAX;
-
             int* src = (int*)datafile->GetBlockDataPtr(block);
             if(src == NULL)
                 continue;
 
+            for(vd::i8 vc = 0; vc < s.Components; vc++)
+            {
+                s.Minimum[vc] = +VD_F32_MAX;
+                s.Maximum[vc] = -VD_F32_MAX;
+            }
+
             float* dst = (float*)datafile->GetBlockDataPtr(block);
             for(vd::u64 n = 0; n < datafile->GetFilteredGalaxyCount(); n++)
             {
-                float value = src[n];
-                dst[n] = float(value);
+                for(vd::i8 vc = 0; vc < s.Components; vc++)
+                {
+                    float value = src[n * s.Components + vc];
+                    dst[n * s.Components + vc] = float(value);
 
-                s.TotalSum += value;
-                s.SumSqr += (value * value);
-                s.Count += 1.0f;
+                    s.TotalSum[vc] += value;
+                    s.SumSqr[vc] += (value * value);
+                    s.Count[vc] += 1.0f;
 
-                if (value < s.Minimum)
-                  s.Minimum = value;
+                    if (value < s.Minimum[vc])
+                      s.Minimum[vc] = value;
 
-                if (value > s.Maximum)
-                  s.Maximum = value;
+                    if (value > s.Maximum[vc])
+                      s.Maximum[vc] = value;
+                }
             }
-            float inverse = 1.0f / s.Count;
-            float first = s.SumSqr * inverse;
-            float second = s.TotalSum * inverse;
-            s.Variance = first - second * second;
+    
+            for(vd::i8 vc = 0; vc < s.Components; vc++)
+            {
+                float inverse = 1.0f / s.Count[vc];
+                float first = s.SumSqr[vc] * inverse;
+                float second = s.TotalSum[vc] * inverse;
+                s.Variance[vc] = first - second * second;
+            }
         }
         else
         {
-            s.Minimum = +VD_F32_MAX;
-            s.Maximum = -VD_F32_MAX;
-
             float* src = (float*)datafile->GetBlockDataPtr(block);
             if(src == NULL)
                 continue;
 
-            for(vd::u64 n = 0; n < datafile->GetFilteredGalaxyCount(); n++)
+            for(vd::i8 vc = 0; vc < s.Components; vc++)
             {
-                float value = src[n];
-
-                s.TotalSum += value;
-                s.SumSqr += (value * value);
-                s.Count += 1.0f;
-
-                if (value < s.Minimum)
-                  s.Minimum = value;
-
-                if (value > s.Maximum)
-                  s.Maximum = value;
+                s.Minimum[vc] = +VD_F32_MAX;
+                s.Maximum[vc] = -VD_F32_MAX;
             }
 
-            float inverse = 1.0f / s.Count;
-            float first = s.SumSqr * inverse;
-            float second = s.TotalSum * inverse;
-            s.Variance = first - second * second;
+            for(vd::u64 n = 0; n < datafile->GetFilteredGalaxyCount(); n++)
+            {
+                for(vd::i8 vc = 0; vc < s.Components; vc++)
+                {
+                    float value = src[n * s.Components + vc];
+
+                    s.TotalSum[vc] += value;
+                    s.SumSqr[vc] += (value * value);
+                    s.Count[vc] += 1.0f;
+
+                    if (value < s.Minimum[vc])
+                      s.Minimum[vc] = value;
+
+                    if (value > s.Maximum[vc])
+                      s.Maximum[vc] = value;
+                }
+            }
+    
+            for(vd::i8 vc = 0; vc < s.Components; vc++)
+            {
+                float inverse = 1.0f / s.Count[vc];
+                float first = s.SumSqr[vc] * inverse;
+                float second = s.TotalSum[vc] * inverse;
+                s.Variance[vc] = first - second * second;
+            }
         }
 
         vd::f64 t1 = Process::GetTimeInSeconds();
         vdLogInfo("Computed stats for '%s' in '%f' sec:",
-            HiDistData::Block::ToString(i), t1 - t0);
+            Data::Block::ToString(i), t1 - t0);
 
-        vdLogInfo("-- Min[%f] Max[%f] Mean[%f] Sum[%f] Var[%f]", 
-            s.Minimum, s.Maximum, s.TotalSum / s.Count, s.TotalSum, s.Variance);
+        for(vd::i8 vc = 0; vc < s.Components; vc++)
+        {
+            vdLogInfo("-- Min[%f] Max[%f] Sum[%f] Var[%f]", 
+                s.Minimum[vc], s.Maximum[vc], s.TotalSum[vc], s.Variance[vc]);
+        }
     }
 //  VD_DELETE(work);
 }
 
+void
+WorkQueue::OnRun(
+    WorkItem* item)
+{
+    Formats::HiDist::WorkItem* work = (WorkItem*)item;
+    if(work == NULL)
+        return;
+
+    work->OnRun();
+}
+
 // ============================================================================================== //
 
-VD_IMPLEMENT_OBJECT(HiDistData, vd_sym(HiDistData), vd_sym(Object));
-VD_IMPLEMENT_OBJECT(HiDistDataset, vd_sym(HiDistDataset), vd_sym(Object));
-VD_IMPLEMENT_OBJECT(HiDistWorkQueue, vd_sym(HiDistWorkQueue), vd_sym(WorkQueue));
-VD_IMPLEMENT_OBJECT(HiDistWorkItem, vd_sym(HiDistWorkItem), vd_sym(WorkItem));
+VD_IMPLEMENT_OBJECT(Data, vd_sym(HiDistData), vd_sym(Object));
+VD_IMPLEMENT_OBJECT(Dataset, vd_sym(HiDistDataset), vd_sym(Object));
+VD_IMPLEMENT_OBJECT(WorkQueue, vd_sym(HiDistWorkQueue), vd_sym(WorkQueue));
+VD_IMPLEMENT_OBJECT(WorkItem, vd_sym(HiDistWorkItem), vd_sym(WorkItem));
+
+// ============================================================================================== //
+
+} // end namespace: HiDist
 
 // ============================================================================================== //
 

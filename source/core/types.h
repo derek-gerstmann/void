@@ -199,7 +199,7 @@ struct TypeTraits
 
     static vd::TypeId::Value GetBaseTypeId() 
     {
-        return 0;
+        return vd::TypeId::Invalid;
     }
 
     static int GetByteSize() 

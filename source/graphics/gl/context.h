@@ -85,6 +85,8 @@ public:
 
     virtual Graphics::Geometry* CreateQuad();
     virtual Graphics::Geometry* CreateQuad(vd::f32 left, vd::f32 top, vd::f32 right, vd::f32 bottom, vd::f32 u0, vd::f32 u1, vd::f32 v0, vd::f32 v1 );
+    virtual Graphics::Geometry* CreateSphere(vd::v3f32 center, vd::f32 radius, vd::i32 stacks, vd::i32 slices);
+
     virtual Graphics::Geometry* CreateGrid(int xres, int yres, vd::f32 fX0, vd::f32 fX1, vd::f32 fY0, vd::f32 fY1, bool vertical);
     virtual Graphics::Geometry* CreateWireGrid(int xres, int yres, vd::f32 left, vd::f32 right, vd::f32 bottom, vd::f32 top);
     virtual Graphics::Geometry* CreatePointList(vd::f32* coordinates, vd::i32 components, vd::u64 count);

@@ -97,6 +97,7 @@ public:
     
     virtual void EnterFullScreen() = 0;
     virtual void ExitFullScreen() = 0;
+    virtual void Reshape(vd::i32 w, vd::i32 h) = 0;
 
     virtual void SetClearColor( const vd::v4f32& color )  = 0;
     virtual const vd::v4f32& GetClearColor() = 0;

@@ -34,13 +34,13 @@
 #define VD_NAMESPACE_ENTER 				namespace VD_FRAMEWORK_NAMESPACE { namespace VD_VERSION_NAMESPACE { namespace VD_NAMESPACE
 #define VD_NAMESPACE_EXIT 				} using namespace VD_VERSION_NAMESPACE; } 
 
-#define VD_NAMESPACE_BEGIN(x)			VD_NAMESPACE_ENTER { enum { }
-#define VD_NAMESPACE_END(x)				VD_NAMESPACE_EXIT } enum { }
+#define VD_NAMESPACE_BEGIN(x)			VD_NAMESPACE_ENTER { struct EnterVoidNamespace
+#define VD_NAMESPACE_END(x)				VD_NAMESPACE_EXIT } struct ExitVoidNamespace
 
 #define VD_USING_NAMESPACE(x)			using namespace VD_FRAMEWORK_SCOPE
 #define VD_IMPORT(M,C)                  using VD_NAMESPACE_SCOPE::M::C
 #define VD_IMPORT_MODULE(M)             using namespace VD_NAMESPACE_SCOPE
-#define VD_IMPORT_NAMESPACE(M)          using namespace VD_NAMESPACE_SCOPE::M
+#define VD_IMPORT_NAMESPACE(M,C)        using namespace VD_NAMESPACE_SCOPE::M::C
 #endif
 
 // ============================================================================================== //

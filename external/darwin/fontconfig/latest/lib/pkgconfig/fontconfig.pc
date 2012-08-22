@@ -1,0 +1,11 @@
+prefix=/Users/dg/Workspace/void/clean/void/external/build/fc/osx
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: Fontconfig
+Description: Font configuration and customization library
+Version: 2.8.0
+Libs: -L${libdir} -lfontconfig
+Libs.private:  -lexpat -L/usr/X11/lib -lfreetype -lz 
+Cflags: -I${includedir}

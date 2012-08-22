@@ -109,6 +109,7 @@ class Default : public Skin::Simple
 public:
     
     Gwen::Color m_Colors[ShadeCount];
+    char m_WindowAlpha;
 
     Default( 
         Renderer::Base* renderer 
@@ -117,19 +118,19 @@ public:
     {
         #define LU(x) (x), (x), (x)
         #define RD(x) 255, 0, 0, 255
-        #define GN(x)   0, 255, 0, 255
-        #define BL(x)   0, 0, 255, 255
+        #define GN(x) 0, 255, 0, 255
+        #define BL(x) 0, 0, 255, 255
 
         char alpha = 128;
-        char light = 0.03f * alpha;
-        char hover = 0.2f * alpha;
+        char light = 1.1f * alpha;
+        char hover = 0.1f * alpha;
 
         hover = hover < 50 ? 50 : hover;
         light = light < 10 ? 10 : light;
 
         m_Colors[BorderColor]				= Gwen::Color(LU(28), alpha);
         m_Colors[BackgroundColor]			= Gwen::Color(LU(5), 0);
-        m_Colors[BackgroundColorDark]		= Gwen::Color(LU(0), 0);
+        m_Colors[BackgroundColorDark]		= Gwen::Color(LU(32), light);
 
         m_Colors[BaseColor]					= Gwen::Color(LU(55), alpha);
         m_Colors[BaseFillColor]				= Gwen::Color(LU(46), alpha);
@@ -163,7 +164,7 @@ public:
         m_Colors[ToolTipBackgroundColor]	= Gwen::Color(46, 115, 215, alpha);
         m_Colors[ToolTipOutlineColor]		= Gwen::Color(46, 115, 215, alpha);
         m_Colors[ScrollButtonColor]			= Gwen::Color(0,   0,   0, light);
-        m_Colors[ModalColor] 				= Gwen::Color(25,  25,  25, alpha);
+        m_Colors[ModalColor] 				= Gwen::Color(LU(52), light);
         m_Colors[SelectedColor]				= Gwen::Color(46, 115, 215, hover);
         m_Colors[SelectedOutlineColor]		= Gwen::Color(46, 115, 215, alpha);
         m_Colors[HoverColor]				= Gwen::Color(46, 115, 215, hover);
@@ -174,7 +175,7 @@ public:
         m_Colors[MenuLightColor]			= Gwen::Color(LU(8), light);
         m_Colors[MenuColor]					= Gwen::Color(LU(4), hover);
         m_Colors[ProgressBarColor]			= Gwen::Color(46, 115, 215, hover);
-        m_Colors[WindowActiveColor]			= Gwen::Color(LU(16), alpha);
+        m_Colors[WindowActiveColor]			= Gwen::Color(LU(16), light);
         m_Colors[WindowColor]				= Gwen::Color(LU(32), alpha);
         m_Colors[WindowBorderColor]			= Gwen::Color(LU(15), alpha);
         m_Colors[TextBoxColor]				= Gwen::Color(LU(34), 255);
@@ -201,14 +202,15 @@ public:
 		m_colToolTipBorder			= m_Colors[HighlightOutlineColor];
 
 		m_colModal = Gwen::Color( 25, 25, 25, 150 );
+        m_WindowAlpha = 0;
 
-        m_DefaultFont.facename	= L"Vera.ttf";
-        m_DefaultFont.size		= 12;
+        m_DefaultFont.facename	= L"Asap-Regular.otf";
+        m_DefaultFont.size		= 14;
 
-        #undef LU(x)
-        #undef RD(x)
-        #undef GN(x)
-        #undef BL(x)
+        #undef LU
+        #undef RD
+        #undef GN
+        #undef BL
     }
 
     virtual void Init(const Gwen::TextObject& TextureName)
@@ -739,19 +741,19 @@ public:
             else
                 m_Render->SetDrawColor(m_Colors[WindowColor]);
 
-            int iBorderSize = 5;
+            int iBorderSize = 6;
             m_Render->DrawFilledRect(Gwen::Rect(rect.x + 1, rect.y + 1, rect.w - 2, topHeight - 1));
             m_Render->DrawFilledRect(Gwen::Rect(rect.x + 1, rect.y + topHeight - 1, iBorderSize, rect.h - 2 - topHeight));
             m_Render->DrawFilledRect(Gwen::Rect(rect.x + rect.w - iBorderSize, rect.y + topHeight - 1, iBorderSize, rect.h - 2 - topHeight));
             m_Render->DrawFilledRect(Gwen::Rect(rect.x + 1, rect.y + rect.h - iBorderSize, rect.w - 2, iBorderSize));
 
             // Main inner
-            m_Render->SetDrawColor(Gwen::Color(m_Colors[BaseDarkColor].r, m_Colors[BaseDarkColor].g, m_Colors[BaseDarkColor].b, 230));
-            m_Render->DrawFilledRect(Gwen::Rect(rect.x + iBorderSize + 1, rect.y + topHeight, rect.w - iBorderSize * 2 - 2, rect.h - topHeight - iBorderSize - 1));
+//            m_Render->SetDrawColor(Gwen::Color(m_Colors[BaseDarkColor].r, m_Colors[BaseDarkColor].g, m_Colors[BaseDarkColor].b, m_WindowAlpha));
+//            m_Render->DrawFilledRect(Gwen::Rect(rect.x + iBorderSize + 1, rect.y + topHeight, rect.w - iBorderSize * 2 - 2, rect.h - topHeight - iBorderSize - 1));
 
             // Light inner border
-            m_Render->SetDrawColor(m_Colors[WindowBorderColor]);
-            m_Render->DrawShavedCornerRect(Gwen::Rect(rect.x + 1, rect.y + 1, rect.w - 2, rect.h - 2));
+//            m_Render->SetDrawColor(Gwen::Color(m_Colors[WindowBorderColor].r, m_Colors[WindowBorderColor].g, m_Colors[WindowBorderColor].b, m_WindowAlpha));
+//            m_Render->DrawShavedCornerRect(Gwen::Rect(rect.x + 1, rect.y + 1, rect.w - 2, rect.h - 2));
 
             // Dark line between titlebar and main
             m_Render->SetDrawColor(m_Colors[BorderColor]);
@@ -761,8 +763,8 @@ public:
             m_Render->DrawLinedRect(Gwen::Rect(rect.x + iBorderSize, rect.y + topHeight - 1, rect.w - 10, rect.h - topHeight - (iBorderSize - 1)));
 
             // Dark outer border
-            m_Render->SetDrawColor(m_Colors[BorderColor]);
-            m_Render->DrawShavedCornerRect(Gwen::Rect(rect.x, rect.y, rect.w, rect.h));
+//            m_Render->SetDrawColor(m_Colors[BorderColor]);
+//            m_Render->DrawShavedCornerRect(Gwen::Rect(rect.x, rect.y, rect.w, rect.h));
         }
 
         virtual void DrawHighlight(Gwen::Controls::Base * control)
@@ -938,8 +940,8 @@ public:
         virtual void DrawBackground(Gwen::Controls::Base * control)
         {
             Gwen::Rect rect = control->GetRenderBounds();
-            m_Render->SetDrawColor(m_Colors[BackgroundColorDark]);
-            m_Render->DrawFilledRect(rect);
+//            m_Render->SetDrawColor(m_Colors[BackgroundColorDark]);
+//            m_Render->DrawShavedCornerRect(rect);
             m_Render->SetDrawColor(m_Colors[BaseDarkerColor]);
             m_Render->DrawLinedRect(rect);
         }
@@ -1079,7 +1081,6 @@ public:
             if(bSelected)
             {
                 m_Render->SetDrawColor(m_Colors[SelectedColor]);
-
                 m_Render->DrawFilledRect(Gwen::Rect(17, 0, iLabelWidth + 2, iLabelHeight - 1));
                 m_Render->SetDrawColor(m_Colors[SelectedOutlineColor]);
                 m_Render->DrawLinedRect(Gwen::Rect(17, 0, iLabelWidth + 2, iLabelHeight - 1));
@@ -1097,7 +1098,9 @@ public:
 
         virtual void DrawStatusBar(Gwen::Controls::Base * control)
         {
-            DrawBackground(control);
+            Gwen::Rect rect = control->GetRenderBounds();
+            m_Render->SetDrawColor(m_Colors[WindowActiveColor]);
+            m_Render->DrawShavedCornerRect(rect);
         }
 
         virtual void DrawPropertyRow(Gwen::Controls::Base * control, int iWidth, bool bBeingEdited)

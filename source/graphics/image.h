@@ -205,12 +205,23 @@ public:
 		Size = 0;
 		Channels = ChannelFormat();
 	}
-	
+
+	void Clear()
+	{
+		if(Data != NULL && Size > 0 && Channels.Count > 0)
+			Core::Memory::SetBytes(Data, 0, GetTotalSizeInBytes());
+	}	
+
 	vd::u64 GetBytesPerPixel()
 	{
 		return Channels.Count * sizeof(Type);
 	}
 	
+	vd::u64 GetTotalSizeInBytes()
+	{
+		return Size * Channels.Count * sizeof(Type);
+	}
+
 	VD_DISABLE_COPY_CONSTRUCTORS(PixelBuffer);
 };
 
@@ -322,6 +333,7 @@ public :
 	virtual ~ImageInput() { Destroy(); }
 	
     static ImageInput& GetInstance();    
+    static ImageInput* GetInstancePtr();    
     
     vd::status Open(const std::string& location, const ImageFormat& format);
     vd::status Close();
@@ -357,6 +369,7 @@ public :
 	ImageOutput() : Object() { } 
 	
     static ImageOutput& GetInstance();
+    static ImageOutput* GetInstancePtr();
     
     vd::status Open(const std::string& location, const ImageFormat& format);
     vd::status Close();
@@ -368,12 +381,30 @@ public :
     vd::status WriteScanLine(vd::i32 y, vd::i32 z, const PixelBuffer8u& pixels);
     vd::status WriteScanLine(vd::i32 y, vd::i32 z, const PixelBuffer32f& pixels);
     
-    vd::status WriteTile(vd::i32 x, vd::i32 y, vd::i32 z, const PixelBuffer8u& pixels, 
-    					 size_t offset = 0, size_t xstride=0, size_t ystride=0, size_t zstride=0);
+    vd::status WriteTile(
+    	vd::i32 x, vd::i32 y, vd::i32 z, 
+    	const PixelBuffer8u& pixels, size_t offset = 0, 
+    	size_t xstride=0, size_t ystride=0, size_t zstride=0);
 
-    vd::status WriteTile(vd::i32 x, vd::i32 y, vd::i32 z, const PixelBuffer32f& pixels, 
-    					 size_t offset = 0, size_t xstride=0, size_t ystride=0, size_t zstride=0);
+    vd::status WriteTile(
+    	vd::i32 x, vd::i32 y, vd::i32 z, 
+    	const PixelBuffer32f& pixels, size_t offset = 0, 
+    	size_t xstride=0, size_t ystride=0, size_t zstride=0);
     
+    vd::status WriteRectangle(
+    	vd::i32 x0, vd::i32 x1, 
+    	vd::i32 y0, vd::i32 y1,	
+    	vd::i32 z0, vd::i32 z1, 
+    	const PixelBuffer8u& pixels, size_t offset = 0, 
+    	size_t xstride=0, size_t ystride=0, size_t zstride=0);
+    
+    vd::status WriteRectangle(
+    	vd::i32 x0, vd::i32 x1, 
+    	vd::i32 y0, vd::i32 y1,	
+    	vd::i32 z0, vd::i32 z1, 
+    	const PixelBuffer32f& pixels, size_t offset = 0, 
+    	size_t xstride=0, size_t ystride=0, size_t zstride=0);
+
     const vd::string& GetLocation() const { return m_Location; }
 	const ImageFormat& GetFormat() const { return m_Format; }    
 	bool IsOpen() const { return m_IsOpen; }

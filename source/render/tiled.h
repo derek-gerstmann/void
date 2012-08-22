@@ -52,17 +52,18 @@ public:
         vd::i32 tile_width = 256,
         vd::i32 tile_heignt = 256,
         vd::i32 border = 0,
+        vd::f32 reduce = 0,
         RowOrder::Value RowOrder = RowOrder::BottomToTop);
     
     virtual ~TiledRenderer() { };
 
-    void SetTileSize(vd::i32 width, vd::i32 height, vd::i32 border = 0);
+    void SetTileSize(vd::i32 width, vd::i32 height, vd::i32 border = 0, vd::f32 reduce = 1.0f);
     void SetTileBufferData(vd::i32 format, vd::i32 type, void* buffer);
     void SetImageSize(vd::i32 width, vd::i32 height);
     void SetImageBufferData(vd::i32 format, vd::i32 type, void* buffer);
     void SetupTiles();
 
-    void SetOrtho(
+    void SetOrthographic(
         vd::f32 left, vd::f32 right,
         vd::f32 bottom, vd::f32 top,
         vd::f32 zNear, vd::f32 zFar);
@@ -77,7 +78,7 @@ public:
         vd::f32 zNear, vd::f32 zFar);
 
     void BeginTile();
-    int EndTile();
+    bool EndTile();
 
     void Bind();
     void Unbind();
@@ -110,7 +111,8 @@ public:
 	
 	vd::i32 GetColumnCount(void) const { return m_Columns; }
 	vd::i32 GetRowCount(void) const { return m_Rows; }
-	
+	bool IsDone(void) const { return m_IsDone; }
+
 	VD_DECLARE_OBJECT(TiledRenderer);
 	
 protected:
@@ -135,6 +137,7 @@ protected:
         vd::i32 Border;
         vd::i32 Format;
         vd::i32 Type;
+        vd::f32 Reduce;
         void* Buffer;
     };
 
@@ -158,6 +161,7 @@ protected:
     vd::i32 m_SavedViewport[4];
     RowOrder::Value m_RowOrder;
     bool m_UsePerspective;
+    bool m_IsDone;
 
     ImageRegion m_Image;
     TileRegion m_Tile;

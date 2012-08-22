@@ -1,10 +1,12 @@
 set( VD_EXT_DIR						${VD_ROOT_DIR}/external )
-set( VD_EXT_SYS_DIR                 ${VD_SYSTEM_ACRONYMN} )
-set( VD_EXT_SIMD_DIR				${VD_EXT_DIR}/simd )
-set( VD_EXT_ICONV_DIR				${VD_EXT_DIR}/iconv )
-set( VD_EXT_ICU_DIR					${VD_EXT_DIR}/ucu )
-set( VD_EXT_ZLIB_DIR				${VD_EXT_DIR}/zlib )
-set( VD_EXT_BOOST_DIR				${VD_EXT_DIR}/boost )
+set( VD_EXT_SRC_DIR                 ${VD_EXT_DIR}/source )
+set( VD_EXT_SYS_DIR                 ${VD_EXT_DIR}/${VD_SYSTEM_PLATFORM_NAME} )
+set( VD_EXT_SIMD_DIR				${VD_EXT_SYS_DIR}/simd/latest )
+set( VD_EXT_ICONV_DIR				${VD_EXT_SYS_DIR}/libiconv/latest )
+set( VD_EXT_ICU_DIR					${VD_EXT_SYS_DIR}/libicu/latest )
+set( VD_EXT_FLANN_DIR				${VD_EXT_SYS_DIR}/nanoflann/latest )
+set( VD_EXT_ZLIB_DIR				${VD_EXT_SYS_DIR}/zlib/latest )
+set( VD_EXT_BOOST_DIR				${VD_EXT_SYS_DIR}/boost/latest )
 
 if(VOID_LINK_SHARED_LIBS)
 set( VD_EXT_LIB_EXT					${VD_SHARED_LIB_EXT} )
@@ -17,46 +19,56 @@ include_directories(				${VD_EXT_ICONV_DIR}/include )
 include_directories(				${VD_EXT_ICU_DIR}/include )
 include_directories(				${VD_EXT_BOOST_DIR}/include )
 include_directories(				${VD_EXT_ZLIB_DIR}/include )
+include_directories(				${VD_EXT_FLANN_DIR}/include )
 
-file( GLOB VD_EXT_BOOST_LIB			${VD_EXT_BOOST_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
-file( GLOB VD_EXT_ZLIB_LIB			${VD_EXT_ZLIB_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+file( GLOB VD_EXT_BOOST_LIB			${VD_EXT_BOOST_DIR}/lib/*.${VD_EXT_LIB_EXT} )
+file( GLOB VD_EXT_ZLIB_LIB			${VD_EXT_ZLIB_DIR}/lib/*.${VD_EXT_LIB_EXT} )
 
 if(VOID_USE_HALF)
-	set( VD_EXT_HALF_DIR			${VD_EXT_DIR}/half )
+	set( VD_EXT_HALF_DIR			${VD_EXT_SRC_DIR}/half/latest )
 	file( GLOB VD_EXT_HALF_SRC		${VD_EXT_HALF_DIR}/src/*.cpp )
 	include_directories(			${VD_EXT_HALF_DIR}/include)
 endif()
 
 if(VOID_USE_ASMLIB)
-	set( VD_EXT_ALIB_DIR			${VD_EXT_DIR}/alib )
-	file( GLOB VD_EXT_ALIB_LIB		${VD_EXT_ALIB_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+	set( VD_EXT_ALIB_DIR			${VD_EXT_SYS_DIR}/alib/latest )
+	file( GLOB VD_EXT_ALIB_LIB		${VD_EXT_ALIB_DIR}/lib/*.${VD_EXT_LIB_EXT} )
 	include_directories(			${VD_EXT_ALIB_DIR}/include)
 endif()
 
 if(VOID_USE_OPENGL)
 	
-	find_package(OpenGL 			REQUIRED)
-	
-	set( VD_EXT_FC_DIR				${VD_EXT_DIR}/fc )
-	set( VD_EXT_FT_DIR				${VD_EXT_DIR}/ft )
-	set( VD_EXT_FTGL_DIR			${VD_EXT_DIR}/ftgl )
-	set( VD_EXT_GLEW_DIR			${VD_EXT_DIR}/glew )
-	set( VD_EXT_GLSW_DIR			${VD_EXT_DIR}/glsw )
+	set( VD_EXT_FC_DIR				${VD_EXT_SYS_DIR}/fontconfig/latest )
+	set( VD_EXT_FT_DIR				${VD_EXT_SYS_DIR}/freetype/latest )
+	set( VD_EXT_FTGL_DIR			${VD_EXT_SYS_DIR}/freetype-gl/latest )
+	set( VD_EXT_GLEW_DIR			${VD_EXT_SYS_DIR}/glew/latest )
 
-	file( GLOB VD_EXT_ICONV_LIB		${VD_EXT_ICONV_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
-	file( GLOB VD_EXT_ICU_LIB		${VD_EXT_ICU_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
-	file( GLOB VD_EXT_FC_LIB 	 	${VD_EXT_FC_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
-	file( GLOB VD_EXT_FT_LIB 	 	${VD_EXT_FT_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
-	file( GLOB VD_EXT_GLEW_LIB		${VD_EXT_GLEW_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_ICONV_LIB		${VD_EXT_ICONV_DIR}/lib/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_ICU_LIB		${VD_EXT_ICU_DIR}/lib/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_FC_LIB 	 	${VD_EXT_FC_DIR}/lib/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_FT_LIB 	 	${VD_EXT_FT_DIR}/lib/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_GLEW_LIB		${VD_EXT_GLEW_DIR}/lib/*.${VD_EXT_LIB_EXT} )
 	file( GLOB VD_EXT_FTGL_SRC 	 	${VD_EXT_FTGL_DIR}/src/*.c )
 	file( GLOB VD_EXT_GLSW_SRC 	 	${VD_EXT_GLSW_DIR}/src/*.c )
 
+	find_package(OpenGL 			REQUIRED)
+	find_library(OPENGL_LIBRARY 	OpenGL)
+
 	if(VD_SYSTEM_OSX)
-		include_directories(		/System/Library/Frameworks/OpenGL.framework/Headers)
+	    find_path(OPENGL_INCLUDE_DIR "OpenGL/gl.h" DOC "Include for OpenGL on OSX")
+		set (OPENGL_gl_LIBRARY "-framework OpenGL" CACHE STRING "OpenGL lib for OSX")
+		set (OPENGL_glu_LIBRARY "-framework AGL" CACHE STRING "AGL lib for OSX")	
+		set (OPENGL_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})	
+	    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink 
+	    	/System/Library/Frameworks/OpenGL.framework/Headers ${VD_EXT_SYS_DIR}/opengl/latest/include/OpenGL)
+	else()
+	    find_path(OPENGL_INCLUDE_DIR GL/gl.h DOC "Include for OpenGL")
+		set (OPENGL_LIBS ${OPENGL_LIBRARY})		
 	endif()
 
+	include_directories(${VD_EXT_SYS_DIR}/opengl/latest/include)
+
 	include_directories(
-		${OPENGL_INCLUDE_DIRS}
 		${VD_EXT_FC_DIR}/include
 		${VD_EXT_FT_DIR}/include
 		${VD_EXT_FT_DIR}/include/freetype2
@@ -67,80 +79,91 @@ if(VOID_USE_OPENGL)
 		${VD_EXT_GLSW_DIR}/src)
 
 	if(VOID_USE_GLUT)
-		if(VD_SYSTEM_LNX)
-			set( VD_EXT_GLUT_DIR 	${VD_EXT_DIR}/glut )
+		if(VD_SYSTEM_IS_LINUX)
+			set( VD_EXT_GLUT_DIR 	${VD_EXT_SYS_DIR}/freeglut/latest )
 			set( GLUT_INCLUDE_DIRS	${VD_EXT_GLUT_DIR}/include ${VD_EXT_GLUT_DIR}/include/GL )
-			file( GLOB GLUT_LIBRARY ${VD_EXT_GLUT_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+			file( GLOB GLUT_LIBRARY ${VD_EXT_GLUT_DIR}/lib/*.${VD_EXT_LIB_EXT} )
+		endif()
+		if(VD_SYSTEM_IS_OSX)
+			find_package(GLUT 		REQUIRED)
+			find_library(GLUT_LIBRARY Glut )
+			find_path(GLUT_INCLUDE_DIR Glut/glut.h)
+			set (GLUT_glut_LIBRARY "-framework Glut" CACHE STRING "Glut lib for OSX")
+			set (GLUT_LIBS ${GLUT_glut_LIBRARY})
+		    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink 
+		    	/System/Library/Frameworks/Glut.framework/Headers ${VD_EXT_SYS_DIR}/opengl/latest/include/GLUT)
 		else()
 			find_package(GLUT 		REQUIRED)
+			find_path(GLUT_INCLUDE_DIR GLUT/glut.h)
 		endif()
-		include_directories(		${GLUT_INCLUDE_DIRS} )
+
+		include_directories(${GLUT_INCLUDE_DIRS})
 	endif()
 		
 endif()
 
-set( VD_EXT_GTEST_DIR				${VD_EXT_DIR}/gtest )
+set( VD_EXT_GTEST_DIR				${VD_EXT_SYS_DIR}/gtest/latest )
 include_directories(				${VD_EXT_GTEST_DIR}/include )
 
 if(VOID_BUILD_TESTS)
-	file( GLOB VD_EXT_GTEST_LIB	 	${VD_EXT_GTEST_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_GTEST_LIB	 	${VD_EXT_GTEST_DIR}/lib/*.${VD_EXT_LIB_EXT} )
 endif()
 
 if(VOID_USE_GWEN)
-	set( VD_EXT_GWEN_DIR			${VD_EXT_DIR}/gwen )
-	file( GLOB VD_EXT_GWEN_LIB 	 	${VD_EXT_GWEN_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )	
+	set( VD_EXT_GWEN_DIR			${VD_EXT_SYS_DIR}/gwen/latest )
+	file( GLOB VD_EXT_GWEN_LIB 	 	${VD_EXT_GWEN_DIR}/lib/*.${VD_EXT_LIB_EXT} )	
 	include_directories(			${VD_EXT_GWEN_DIR}/include )
 endif()
 
 if(VOID_USE_JSON)
-	set( VD_EXT_JSON_DIR			${VD_EXT_DIR}/json )
+	set( VD_EXT_JSON_DIR			${VD_EXT_SYS_DIR}/json/latest )
 	file( GLOB VD_EXT_JSON_SRC		${VD_EXT_JSON_DIR}/src/*.cpp )
 	include_directories(			${VD_EXT_JSON_DIR}/src  ${VD_EXT_JSON_DIR}/include )
 	set( VD_EXT_SRC 				${VD_EXT_JSON_SRC} ${VD_EXT_SRC} )
 endif()
 
 if(VOID_USE_MPI)
-	set( VD_EXT_MPI_DIR				${VD_EXT_DIR}/mpi )
-	file( GLOB VD_EXT_MPI_LIB		${VD_EXT_MPI_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )	
+	set( VD_EXT_MPI_DIR				${VD_EXT_SYS_DIR}/openmpi/latest )
+	file( GLOB VD_EXT_MPI_LIB		${VD_EXT_MPI_DIR}/lib/*.${VD_EXT_LIB_EXT} )	
 	include_directories(    		${VD_EXT_MPI_DIR}/include )
 endif()
 	
 if(VOID_USE_MSGPACK)
-	set( VD_EXT_MSGPACK_DIR			${VD_EXT_DIR}/msgpack )
-	file( GLOB VD_EXT_MSGPACK_LIB	${VD_EXT_MSGPACK_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )	
+	set( VD_EXT_MSGPACK_DIR			${VD_EXT_SYS_DIR}/msgpack/latest )
+	file( GLOB VD_EXT_MSGPACK_LIB	${VD_EXT_MSGPACK_DIR}/lib/*.${VD_EXT_LIB_EXT} )	
 	include_directories(    		${VD_EXT_MSGPACK_DIR}/include )
 endif()
 
 if(VOID_USE_HDF5)
-	set( VD_EXT_SZIP_DIR			${VD_EXT_DIR}/szip )
-	file( GLOB VD_EXT_SZIP_LIB		${VD_EXT_SZIP_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )	
+	set( VD_EXT_SZIP_DIR			${VD_EXT_SYS_DIR}/szip/latest )
+	file( GLOB VD_EXT_SZIP_LIB		${VD_EXT_SZIP_DIR}/lib/*.${VD_EXT_LIB_EXT} )	
 	include_directories(    		${VD_EXT_SZIP_DIR}/include )
 
-	set( VD_EXT_HDF5_DIR			${VD_EXT_DIR}/hdf )
-	file( GLOB VD_EXT_HDF5_LIB		${VD_EXT_HDF5_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )	
+	set( VD_EXT_HDF5_DIR			${VD_EXT_SYS_DIR}/hdf5/latest )
+	file( GLOB VD_EXT_HDF5_LIB		${VD_EXT_HDF5_DIR}/lib/*.${VD_EXT_LIB_EXT} )	
 	include_directories(    		${VD_EXT_HDF5_DIR}/include )
 
 	if(VOID_USE_F3D)
-		set( VD_EXT_F3D_DIR			${VD_EXT_DIR}/f3d )
-		file( GLOB VD_EXT_F3D_LIB 	${VD_EXT_F3D_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+		set( VD_EXT_F3D_DIR			${VD_EXT_SYS_DIR}/field3d/latest )
+		file( GLOB VD_EXT_F3D_LIB 	${VD_EXT_F3D_DIR}/lib/*.${VD_EXT_LIB_EXT} )
 		include_directories(		${VD_EXT_F3D_DIR}/include ${VD_EXT_F3D_DIR}/include/Field3D )
 	endif()
 endif()
 
 if(VOID_USE_OIIO)
-	set( VD_EXT_OIIO_DIR			${VD_EXT_DIR}/oiio )
-	set( VD_EXT_PNG_DIR				${VD_EXT_DIR}/png )
-	set( VD_EXT_JPEG_DIR			${VD_EXT_DIR}/jpeg )
-	set( VD_EXT_TIFF_DIR			${VD_EXT_DIR}/tiff )
-	set( VD_EXT_JP2K_DIR			${VD_EXT_DIR}/jp2k )
-	set( VD_EXT_EXR_DIR				${VD_EXT_DIR}/exr )
+	set( VD_EXT_OIIO_DIR			${VD_EXT_SYS_DIR}/oiio/latest )
+	set( VD_EXT_PNG_DIR				${VD_EXT_SYS_DIR}/libpng/latest )
+	set( VD_EXT_JPEG_DIR			${VD_EXT_SYS_DIR}/libjpeg/latest )
+	set( VD_EXT_TIFF_DIR			${VD_EXT_SYS_DIR}/libtiff/latest )
+	set( VD_EXT_JP2K_DIR			${VD_EXT_SYS_DIR}/openjpeg/latest )
+	set( VD_EXT_EXR_DIR				${VD_EXT_SYS_DIR}/openexr/latest )
 
-	file( GLOB VD_EXT_OIIO_LIB		${VD_EXT_OIIO_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
-	file( GLOB VD_EXT_PNG_LIB		${VD_EXT_PNG_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
-	file( GLOB VD_EXT_EXR_LIB 	 	${VD_EXT_EXR_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
-	file( GLOB VD_EXT_JPEG_LIB 	 	${VD_EXT_JPEG_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
-	file( GLOB VD_EXT_JP2K_LIB 	 	${VD_EXT_JP2K_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
-	file( GLOB VD_EXT_TIFF_LIB 	 	${VD_EXT_TIFF_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_OIIO_LIB		${VD_EXT_OIIO_DIR}/lib/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_PNG_LIB		${VD_EXT_PNG_DIR}/lib/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_EXR_LIB 	 	${VD_EXT_EXR_DIR}/lib/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_JPEG_LIB 	 	${VD_EXT_JPEG_DIR}/lib/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_JP2K_LIB 	 	${VD_EXT_JP2K_DIR}/lib/*.${VD_EXT_LIB_EXT} )
+	file( GLOB VD_EXT_TIFF_LIB 	 	${VD_EXT_TIFF_DIR}/lib/*.${VD_EXT_LIB_EXT} )
 
 	include_directories(
 		${VD_EXT_OIIO_DIR}/include
@@ -155,50 +178,14 @@ if(VOID_USE_OIIO)
 endif()
 
 if(VOID_USE_SFML)
-	set( VD_EXT_SFML_DIR			${VD_EXT_DIR}/sfml )
-	file( GLOB VD_EXT_SFML_LIB 	 	${VD_EXT_SFML_DIR}/lib/${VD_EXT_SYS_DIR}/*-s.${VD_EXT_LIB_EXT} )
+	set( VD_EXT_SFML_DIR			${VD_EXT_SYS_DIR}/sfml/latest )
+	file( GLOB VD_EXT_SFML_LIB 	 	${VD_EXT_SFML_DIR}/lib/*-s.${VD_EXT_LIB_EXT} )
 	include_directories(			${VD_EXT_SFML_DIR}/include ${VD_EXT_SFML_DIR}/include/SFML )
-endif()
-
-if(VOID_USE_SKIA)
-
-	set( VD_EXT_SKIA_DIR			${VD_EXT_DIR}/skia )
-	file( GLOB VD_EXT_SKIA_LIB 		${VD_EXT_SKIA_DIR}/lib/${VD_EXT_SYS_DIR}/*.${VD_EXT_LIB_EXT} )
-	file( GLOB VD_EXT_SKIA_SRC 		${VD_EXT_SKIA_DIR}/src/${VD_EXT_SYS_DIR}/*.h ${VD_EXT_SKIA_DIR}/src/${VD_EXT_SYS_DIR}/*.cpp ${VD_EXT_SKIA_DIR}/src/${VD_EXT_SYS_DIR}/*.mm )	
-	
-	if(APPLE)
-		add_definitions(-DSK_BUILD_FOR_MAC=1)
-	endif()
-
-	include_directories(
-		${VD_EXT_SKIA_DIR}/include
-		${VD_EXT_SKIA_DIR}/include/animator
-		${VD_EXT_SKIA_DIR}/include/config
-		${VD_EXT_SKIA_DIR}/include/core
-		${VD_EXT_SKIA_DIR}/include/device
-		${VD_EXT_SKIA_DIR}/include/effects
-		${VD_EXT_SKIA_DIR}/include/gpu
-		${VD_EXT_SKIA_DIR}/include/images
-		${VD_EXT_SKIA_DIR}/include/pdf
-		${VD_EXT_SKIA_DIR}/include/pipe
-		${VD_EXT_SKIA_DIR}/include/ports
-		${VD_EXT_SKIA_DIR}/include/svg
-		${VD_EXT_SKIA_DIR}/include/text
-		${VD_EXT_SKIA_DIR}/include/utils
-		${VD_EXT_SKIA_DIR}/include/views
-		${VD_EXT_SKIA_DIR}/include/xml
-		${VD_EXT_SKIA_DIR}/include/utils/mac
-		${VD_EXT_SKIA_DIR}/include/utils/win
-		${VD_EXT_SKIA_DIR}/include/utils/unix
-		${VD_EXT_SKIA_DIR}/src/${VD_EXT_SYS_DIR} )
-		
 endif()
 
 set( VD_EXT_SRC
 	${VD_EXT_HALF_SRC}
-	${VD_EXT_SKIA_SRC} 
 	${VD_EXT_FTGL_SRC} 
-	${VD_EXT_GLSW_SRC}
 )
 
 set( VD_EXT_LIB 				    
@@ -225,6 +212,6 @@ set( VD_EXT_LIB
 	${VD_EXT_F3D_LIB}
 	${VD_EXT_TIFF_LIB}
 	${VD_EXT_OIIO_LIB}
-	${OPENGL_LIBRARIES} 	
-	${GLUT_LIBRARY}
+	${OPENGL_LIBS} 	
+	${GLUT_LIBS}
 )

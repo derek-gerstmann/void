@@ -60,8 +60,16 @@ namespace
 ImageInput& 
 ImageInput::GetInstance()
 {
+    static ImageInput* Instance = NULL;
+    if(Instance == NULL) Instance = GetInstancePtr();
+    return *Instance;
+}
+
+ImageInput* 
+ImageInput::GetInstancePtr()
+{
     static ImageInput Instance;
-    return Instance;
+    return &Instance;
 }
 
 vd::status
@@ -207,7 +215,7 @@ ImageInput::ReadTile(
 		return Status::Code::ReadError;
 	}
 
-	vdLogInfo("Loaded tile [%d,%d,%d] %d x %d (%d channels - 8-bit unsigned) from '%s'!", 
+	vdLogDebug("Loaded tile [%d,%d,%d] %d x %d (%d channels - 8-bit unsigned) from '%s'!", 
 		x,y,z, m_Format.Tiles.Width, m_Format.Height, m_Format.Channels.Count, m_Location.c_str());	
 
 	return Status::Code::Success;
@@ -235,7 +243,7 @@ ImageInput::ReadTile(
 		return Status::Code::ReadError;
 	}
 
-	vdLogInfo("Loaded tile [%d,%d,%d] %d x %d (%d channels - 8-bit unsigned) from '%s'!", 
+	vdLogDebug("Loaded tile [%d,%d,%d] %d x %d (%d channels - 8-bit unsigned) from '%s'!", 
 		x,y,z, m_Format.Tiles.Width, m_Format.Height, m_Format.Channels.Count, m_Location.c_str());	
 
 	return Status::Code::Success;
@@ -245,8 +253,16 @@ ImageInput::ReadTile(
 
 ImageOutput& ImageOutput::GetInstance()
 {
+    static ImageOutput* Instance = NULL;
+    if(Instance == NULL) Instance = GetInstancePtr();
+    return *Instance;
+}
+
+ImageOutput* 
+ImageOutput::GetInstancePtr()
+{
     static ImageOutput Instance;
-    return Instance;
+    return &Instance;
 }
 
 vd::status
@@ -428,8 +444,8 @@ ImageOutput::WriteTile(
 		return Status::Code::ReadError;
 	}
 
-	vdLogInfo("Saved tile [%d,%d,%d] %d x %d (%d channels - 8-bit unsigned) from '%s'!", 
-		x,y,z, m_Format.Tiles.Width, m_Format.Height, m_Format.Channels.Count, m_Location.c_str());	
+	vdLogDebug("Saved tile [%d,%d,%d] %d x %d (%d channels - 8-bit unsigned)!", 
+		x,y,z, m_Format.Tiles.Width, m_Format.Height, m_Format.Channels.Count);	
 
 	return Status::Code::Success;
 }
@@ -446,7 +462,7 @@ ImageOutput::WriteTile(
 	if(m_Format.Tiles.Width <= 0 || m_Format.Tiles.Height <= 0)
 	{
 		vdLogWarning("Failed to write tile to image -- invalid tile size used in image format!");
-		return Status::Code::ReadError;
+		return Status::Code::WriteError;
 	}
 /*	
 	if(!output->write_tile (x, y, z, OiioTypeDesc::FLOAT, ((char*)pixels.Data) + offset, 
@@ -457,11 +473,61 @@ ImageOutput::WriteTile(
 	if(!output->write_tile (x, y, z, OiioTypeDesc::FLOAT, ((char*)pixels.Data)))
 	{
 		vdLogWarning("Failed to save tile [%d,%d,%d] to image '%s'!", x, y, z, m_Location.c_str());
-		return Status::Code::ReadError;
+		return Status::Code::WriteError;
 	}
 
-	vdLogInfo("Saved tile [%d,%d,%d] %d x %d (%d channels - 32bit float) from '%s'!", 
-		x,y,z, m_Format.Tiles.Width, m_Format.Height, m_Format.Channels.Count, m_Location.c_str());	
+	vdLogDebug("Saved tile [%d,%d,%d] %d x %d (%d channels - 32bit float)!", 
+		x,y,z, m_Format.Tiles.Width, m_Format.Tiles.Height, m_Format.Channels.Count);	
+
+	return Status::Code::Success;
+}
+
+vd::status
+ImageOutput::WriteRectangle(
+	vd::i32 x0, vd::i32 x1,
+	vd::i32 y0, vd::i32 y1,
+	vd::i32 z0, vd::i32 z1,
+	const PixelBuffer8u& pixels, size_t offset,
+	size_t xstride, size_t ystride, size_t zstride)
+{
+	OiioImageOutput* output = reinterpret_cast<OiioImageOutput*>(m_Handle);
+	vdAssert(output != NULL);
+
+	if(!output->write_rectangle (x0, x1, y0, y1, z0, z1, 
+						 		 OiioTypeDesc::UINT8, ((char*)pixels.Data)))
+	{
+		vdLogWarning("Failed to write rectangular region [%d,%d,%d] -> [%d,%d,%d] to image '%s'!", 
+			x0, y0, z0, x1, y1, z1, m_Location.c_str());
+		return Status::Code::WriteError;
+	}
+
+	vdLogDebug("Saved rectangular region [%d,%d,%d] -> [%d,%d,%d] (%d channels - 32bit float)!", 
+		x0, y0, z0, x1, y1, z1, m_Format.Channels.Count);	
+
+	return Status::Code::Success;
+}
+
+vd::status
+ImageOutput::WriteRectangle(
+	vd::i32 x0, vd::i32 x1,
+	vd::i32 y0, vd::i32 y1,
+	vd::i32 z0, vd::i32 z1,
+	const PixelBuffer32f& pixels, size_t offset,
+	size_t xstride, size_t ystride, size_t zstride)
+{
+	OiioImageOutput* output = reinterpret_cast<OiioImageOutput*>(m_Handle);
+	vdAssert(output != NULL);
+
+	if(!output->write_rectangle (x0, x1, y0, y1, z0, z1, 
+						 		 OiioTypeDesc::FLOAT, ((char*)pixels.Data)))
+	{
+		vdLogWarning("Failed to write rectangular region [%d,%d,%d] -> [%d,%d,%d] to image '%s'!", 
+			x0, y0, z0, x1, y1, z1, m_Location.c_str());
+		return Status::Code::WriteError;
+	}
+
+	vdLogDebug("Saved rectangular region [%d,%d,%d] -> [%d,%d,%d] (%d channels - 32bit float)!", 
+		x0, y0, z0, x1, y1, z1, m_Format.Channels.Count);	
 
 	return Status::Code::Success;
 }

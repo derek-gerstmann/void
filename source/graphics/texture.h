@@ -46,6 +46,14 @@ class Texture
 {
 public:
 
+	VD_DECLARE_ENUM(CubeFace,
+		Front,
+		Back,
+		Left,
+		Right,
+		Top,
+		Bottom);
+
 	struct Properties
 	{
 		Symbol Name;
@@ -91,6 +99,23 @@ public:
     Create3D(
     	const Properties& properties,
         const void* pvData);   
+
+    static vd::v3f32 GetCubeFaceOrientation(
+    	CubeFace::Value face)
+    {
+    	switch(face)
+    	{
+    	case CubeFace::Front: 	{ return vd::v3f32(   0.0f,   0.0f,  0.0f); } // front }
+    	case CubeFace::Back: 	{ return vd::v3f32(   0.0f,+180.0f,  0.0f); } // back
+    	case CubeFace::Left: 	{ return vd::v3f32(   0.0f, -90.0f,  0.0f); } // left
+    	case CubeFace::Right: 	{ return vd::v3f32(   0.0f, +90.0f,  0.0f); } // right
+    	case CubeFace::Top: 	{ return vd::v3f32( +90.0f,   0.0f,  0.0f); } // top
+    	case CubeFace::Bottom: 	{ return vd::v3f32( -90.0f,   0.0f,  0.0f); } // bottom
+    	case CubeFace::Invalid:
+    	default:    			{ return vd::v3f32(   0.0f,   0.0f,  0.0f); }
+    	};
+		return vd::v3f32(0.0f, 0.0f, 0.0f);
+    }
 
 public:
 

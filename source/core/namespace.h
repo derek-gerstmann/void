@@ -34,8 +34,8 @@
 #define VD_CORE_NAMESPACE_ENTER         VD_NAMESPACE_ENTER { namespace VD_CORE_NAMESPACE 
 #define VD_CORE_NAMESPACE_EXIT          } VD_NAMESPACE_EXIT 
 
-#define VD_CORE_NAMESPACE_BEGIN(x)      VD_CORE_NAMESPACE_ENTER { enum { }
-#define VD_CORE_NAMESPACE_END(x)        VD_CORE_NAMESPACE_EXIT } enum { }
+#define VD_CORE_NAMESPACE_BEGIN(x)      VD_CORE_NAMESPACE_ENTER { struct EnterCoreNamespace
+#define VD_CORE_NAMESPACE_END(x)        VD_CORE_NAMESPACE_EXIT } struct ExitCoreNamespace
 
 #define VD_USING_CORE_NAMESPACE(x)      using namespace VD_CORE_SCOPE
 #define VD_USING_CORE                   using VD_CORE_SCOPE

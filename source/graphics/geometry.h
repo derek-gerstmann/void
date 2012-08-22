@@ -91,15 +91,15 @@ public:
 
 	struct Data 
 	{
-        vd::u32         Id;
-		vd::u32         Index;
-        vd::u32         Usage;
-        vd::u32         IndexCount;
-        vd::u32         PrimitiveType;
-		vd::u32         PrimitiveCount;
-        vd::u32         Shaders[Shader::Pass::Count];
-		vd::u32         Bindings[AttributeSlot::Count];
-        vd::u32         Buffers[AttributeSlot::Count];
+        vd::u32                     Id;
+		vd::u32                     Index;
+        vd::u32                     Usage;
+        vd::u32                     IndexCount;
+        Geometry::PrimitiveType     PrimitiveType;
+		vd::u32                     PrimitiveCount;
+        vd::u32                     Shaders[Shader::Pass::Count];
+		vd::u32                     Bindings[AttributeSlot::Count];
+        vd::u32                     Buffers[AttributeSlot::Count];
 	};
 
     static vd::u32 InvalidBuffer;

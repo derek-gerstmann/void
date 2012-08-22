@@ -958,8 +958,8 @@ Context::RenderToScreen(
 
     if(afData)
     {
-//        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, vp.Width, vp.Height, GL_RGBA, GL_FLOAT, afData);
-        vdLogInfo("Uploading texture data [%x] %p\n", uiTextureId, afData);
+        vdLogDebug("Uploading texture data [%x] %p\n", uiTextureId, afData);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, vp.Width, vp.Height, GL_RGBA, GL_FLOAT, afData);
     }
     
     glColor3f( 1.0f, 1.0f, 1.0f );
@@ -1225,6 +1225,9 @@ Context::Bind(
 			break;
 		}
 		case(GL_INDEX_ARRAY):
+        {
+            break;
+        }
 		case(GL_EDGE_FLAG_ARRAY):
 		default:
 			break;
@@ -1248,8 +1251,23 @@ Context::Submit(
     if(buffer->GetState() != Buffer::StateId::Bound)
         return Status::Code::Reject;
 
+    const Buffer::Data& data = buffer->GetData();
+
+    GLuint gl_id = ConvertObjectIdToGL(data.Id);
     GLenum gl_prim = ConvertGeometryPrimitiveTypeToGL(primitives);
-    glDrawArrays( gl_prim, offset, count );
+    GLenum gl_datatype = ConvertBufferTypeIdToGL(data.DataType);
+
+    if(data.Attribute == Buffer::AttributeType::Index)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_id);
+        glDrawElements(gl_prim, count, gl_datatype, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+    else
+    {
+        glDrawArrays( gl_prim, offset, count );
+    }
+
     vdLogOpenGLErrors("End");
     return Status::Code::Success;
 }
@@ -1296,6 +1314,9 @@ Context::Unbind(
 			break;
 		}
 		case(GL_INDEX_ARRAY):
+        {
+            break;
+        }
 		case(GL_EDGE_FLAG_ARRAY):
 		default:
 			break;
@@ -1409,7 +1430,7 @@ Context::CreatePointList(
     Core::Memory::SetBytes(&data, 0, sizeof(data));
 
     data.IndexCount = 0;
-    data.PrimitiveType = GL_POINTS;
+    data.PrimitiveType = Geometry::PrimitiveType::Points; // GL_POINTS;
     data.PrimitiveCount = count;
     data.Index = m_Geometry.size();
     data.Id = data.Index;
@@ -1451,7 +1472,7 @@ Context::CreatePoint(
     Geometry::Data data = geo->GetData();
     data.IndexCount = 1;
     data.PrimitiveCount = 1;
-    data.PrimitiveType = GL_POINTS;
+    data.PrimitiveType = Geometry::PrimitiveType::Points; // GL_POINTS;
     data.Index = m_Geometry.size();
     data.Id = data.Index;
     
@@ -1513,7 +1534,7 @@ Context::CreateQuad(
     Core::Memory::SetBytes(&data, 0, sizeof(data));
     data.IndexCount = 6;
     data.PrimitiveCount = 4;
-    data.PrimitiveType = GL_TRIANGLES;
+    data.PrimitiveType = Geometry::PrimitiveType::Triangles; // GL_TRIANGLES;
     data.Index = m_Geometry.size();
     data.Id = data.Index;
 
@@ -1567,6 +1588,188 @@ Context::CreateQuad()
 }
 
 Geometry*
+Context::CreateSphere(
+    vd::v3f32 center,
+    vd::f32 radius,
+    vd::i32 stacks, 
+    vd::i32 slices)
+{
+    std::vector<vd::f32> positions;
+    std::vector<vd::f32> normals;
+    std::vector<vd::f32> texcoords;
+    std::vector<vd::u32> indices;
+
+    size_t count = (stacks-2) * slices + 2;
+    positions.resize(count * 3);
+    normals.resize(count * 3);
+    texcoords.resize(count * 2);
+
+    vd::i32 i = 0;
+    vd::i32 j = 0;
+
+    vd::u64 vidx = 0;
+    vd::f32 mpi = Constants::Pi;
+    for (i = 1; i < (stacks-1); i++)
+    {
+        for (j = 0; j < slices; j++)
+        {
+            vd::f32 y = 1.0 - vd::f32(i) / vd::f32(stacks-1) * 2.0f;
+            vd::f32 r = Core::Sin( Core::ArcCos(y) ); 
+            vd::f32 x = r * Core::Sin(vd::f32(j) / vd::f32(slices) * mpi * 2.0f);            
+            vd::f32 z = r * Core::Cos(vd::f32(j) / vd::f32(slices) * mpi * 2.0f);
+
+            vd::f32 px = center.x + x * radius;
+            vd::f32 py = center.y + y * radius;
+            vd::f32 pz = center.z + z * radius;
+
+            vd::v3f32 nm(x,y,z);
+            vd::v3f32 n = Core::Normalise(nm);
+
+            vd::v2f32 tc((vd::f32)(i) / vd::f32(stacks-1), (vd::f32)(j) / vd::f32(slices));
+
+            vidx = (i-1)*slices+j;
+            positions[vidx * 3 + 0] = px;
+            positions[vidx * 3 + 1] = py;
+            positions[vidx * 3 + 2] = pz;
+
+            normals[vidx * 3 + 0] = n.x;
+            normals[vidx * 3 + 1] = n.y;
+            normals[vidx * 3 + 2] = n.z;
+            
+            texcoords[vidx * 2 + 0] = tc.x;
+            texcoords[vidx * 2 + 1] = tc.y;
+        }
+    }
+
+    vidx = (stacks-2)*slices;
+    positions[vidx * 3 + 0] = center.x + 0.0;
+    positions[vidx * 3 + 1] = center.y + 1.0 * radius;
+    positions[vidx * 3 + 2] = center.z + 0.0;
+
+    normals[vidx * 3 + 0] = 0.0f;
+    normals[vidx * 3 + 1] = 1.0f;
+    normals[vidx * 3 + 2] = 0.0f;
+
+    texcoords[vidx * 2 + 0] = 0.0;
+    texcoords[vidx * 2 + 1] = 0.0;
+
+    vidx = (stacks-2)*slices+1;
+    positions[vidx * 3 + 0] = center.x + 0.0;
+    positions[vidx * 3 + 1] = center.y - 1.0 * radius;
+    positions[vidx * 3 + 2] = center.z + 0.0;
+
+    normals[vidx * 3 + 0] = 0.0f;
+    normals[vidx * 3 + 1] = 1.0f;
+    normals[vidx * 3 + 2] = 0.0f;
+
+    texcoords[vidx * 2 + 0] = 1.0;
+    texcoords[vidx * 2 + 1] = 1.0;
+
+    for (i = 1; i < (stacks-2); i++)
+    {
+        for (j = 0; j < (slices-1); j++)
+        {
+            indices.push_back((i-1)*slices+j);
+            indices.push_back((i-1)*slices+j+1);
+            indices.push_back((i)*slices+j);
+
+            indices.push_back((i-1)*slices+j+1);
+            indices.push_back((i)*slices+j+1);
+            indices.push_back((i)*slices+j);
+        }
+
+        indices.push_back((i-1)*slices+slices-1);
+        indices.push_back((i-1)*slices);
+        indices.push_back((i)*slices+j);
+
+        indices.push_back((i)*slices);
+        indices.push_back((i-1)*slices);
+        indices.push_back((i)*slices+j);
+    }       
+
+    for (j = 0; j< (slices-1); j++)
+    {
+        indices.push_back(j);
+        indices.push_back(j+1);
+        indices.push_back((stacks-2)*slices);
+    }
+    indices.push_back(j);
+    indices.push_back(0);
+    indices.push_back((stacks-2)*slices);
+
+    for (j = 0; j< (slices-1); j++)
+    {
+        indices.push_back((stacks-3)*slices+j);
+        indices.push_back((stacks-3)*slices+j+1);
+        indices.push_back((stacks-2)*slices+1);
+    }
+    indices.push_back((stacks-3)*slices+j);
+    indices.push_back((stacks-3)*slices);
+    indices.push_back((stacks-2)*slices+1);
+
+    Geometry::Data data;
+    Core::Memory::SetBytes(&data, 0, sizeof(data));
+    data.IndexCount = indices.size();
+    data.PrimitiveCount = positions.size() / 3;
+    data.PrimitiveType = Geometry::PrimitiveType::Triangles; // GL_TRIANGLES;
+    data.Index = m_Geometry.size();
+    data.Id = data.Index;
+
+    Buffer* position_buffer = CreateBuffer(
+        Buffer::TargetType::ArrayBuffer, 
+        Buffer::AttributeType::Position,
+        Buffer::AccessMode::ReadOnly,
+        Buffer::UpdateMode::Static,
+        Buffer::TypeId::F32,
+        3, data.PrimitiveCount, &positions[0]
+    );
+
+    Buffer* normal_buffer = CreateBuffer(
+        Buffer::TargetType::ArrayBuffer, 
+        Buffer::AttributeType::Normal,
+        Buffer::AccessMode::ReadOnly,
+        Buffer::UpdateMode::Static,
+        Buffer::TypeId::F32,
+        3, data.PrimitiveCount, &normals[0]
+    );
+
+    Buffer* texcoord_buffer = CreateBuffer(
+        Buffer::TargetType::ArrayBuffer, 
+        Buffer::AttributeType::TexCoord,
+        Buffer::AccessMode::ReadOnly,
+        Buffer::UpdateMode::Static,
+        Buffer::TypeId::F32,
+        2, data.PrimitiveCount, &texcoords[0]
+    );
+
+    Buffer* index_buffer = CreateBuffer(
+        Buffer::TargetType::IndexBuffer, 
+        Buffer::AttributeType::Index,
+        Buffer::AccessMode::ReadOnly,
+        Buffer::UpdateMode::Static,
+        Buffer::TypeId::U32,
+        1, data.IndexCount, &indices[0]
+    );
+    
+    const Buffer::Data& pbd = position_buffer->GetData();
+    const Buffer::Data& nbd = normal_buffer->GetData();
+    const Buffer::Data& tbd = texcoord_buffer->GetData();
+    const Buffer::Data& ibd = index_buffer->GetData();
+
+    Geometry* geo = VD_NEW(Geometry, this);
+    geo->Setup(data);
+    geo->Attach(Geometry::AttributeSlot::Position, pbd.Index);
+    geo->Attach(Geometry::AttributeSlot::TexCoord, tbd.Index);
+    geo->Attach(Geometry::AttributeSlot::Normal, nbd.Index);
+    geo->Attach(Geometry::AttributeSlot::Index, ibd.Index);    
+    m_Geometry.push_back(geo);
+
+    vdLogGlobalDebug("Created Sphere: PrimitiveCount: %d IndexCount: %d\n", data.PrimitiveCount, data.IndexCount);
+    vdLogOpenGLErrors("End");
+    return geo;
+}
+
+Geometry*
 Context::CreateWireGrid(
 	int rows, int columns,
 	vd::f32 left, vd::f32 right,
@@ -1583,7 +1786,7 @@ Context::CreateWireGrid(
 
     data.IndexCount = vertex_count;
     data.PrimitiveCount = vertex_count;
-    data.PrimitiveType = GL_LINES;
+    data.PrimitiveType = Geometry::PrimitiveType::Lines; //GL_LINES;
     data.Index = m_Geometry.size();
     data.Id = data.Index;
 
@@ -1670,7 +1873,7 @@ Context::CreateGrid(
 
     data.IndexCount = index_count;
     data.PrimitiveCount = vertex_count;
-    data.PrimitiveType = GL_QUAD_STRIP;
+    data.PrimitiveType = Geometry::PrimitiveType::QuadStrip; //GL_QUAD_STRIP;
     data.Index = m_Geometry.size();
     data.Id = data.Index;
 
@@ -1844,9 +2047,9 @@ Context::Submit(
         shader->Bind();
 
     vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error prior to render geometry.");
-    vd::u32 attrib = Geometry::AttributeSlot::ToInteger(Geometry::AttributeSlot::Index);
-    if(data.Buffers[attrib] < VD_INVALID_INDEX)
+    if(geo->IsBufferUsed(Geometry::AttributeSlot::Index))
     {
+        vd::u32 attrib = Geometry::AttributeSlot::ToInteger(Geometry::AttributeSlot::Index);
         vd::u32 index = data.Buffers[attrib];
         if(m_Buffers.size() < index)
             return Status::Code::Reject;
@@ -1855,20 +2058,31 @@ Context::Submit(
         if(buffer == NULL)
             return Status::Code::Reject;
 
+
+        GLuint gl_id = ConvertObjectIdToGL(buffer->GetData().Id);
+        GLenum gl_prim = ConvertGeometryPrimitiveTypeToGL(data.PrimitiveType);
+        GLenum gl_datatype = ConvertBufferTypeIdToGL(buffer->GetData().DataType);
+
         vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error pre submit index buffer.");
-        Bind(buffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gl_id);
 
         vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error post submit index buffer.");
-        GLenum gl_datatype = ConvertBufferTypeIdToGL(buffer->GetData().DataType);
-        glDrawElements(data.PrimitiveType, data.IndexCount, gl_datatype, 0);
-        vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error during draw elements.");
+        glDrawElements(gl_prim, data.IndexCount, gl_datatype, 0);
 
-        Unbind(buffer);
+        vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error during draw elements.");
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+//        Bind(buffer);
+//        Submit(buffer, data.PrimitiveType, 0, data.IndexCount);
+//        Unbind(buffer);
+
+        vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error during draw elements.");
     }
     else
     {
         vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error pre submit draw arrays.");
-        glDrawArrays( data.PrimitiveType, 0, data.PrimitiveCount );
+        GLenum gl_prim = ConvertGeometryPrimitiveTypeToGL(data.PrimitiveType);
+        glDrawArrays( gl_prim, 0, data.PrimitiveCount );
         vdGlobalAssertMsg(glGetError() == GL_NO_ERROR, "OpenGL error post submit draw arrays.");
     }
 
@@ -1902,12 +2116,14 @@ Context::Unbind(
         if(buffer == NULL)
             return Status::Code::Reject;
         
-        Unbind(buffer);
         Unbind(attrib, buffer, slot);
+        Unbind(buffer);
     }
 
+    if(geo->IsBufferUsed(Geometry::AttributeSlot::Index))
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     geo->Unbind();
     
     vdLogOpenGLErrors("End");
@@ -1957,10 +2173,10 @@ Context::Attach(
             }
 
             if(attached == false)
-                vdLogWarning("Failed to attach Shader to Geometry -- '%s' attribute slot mismatch!", 
+                vdLogDebug("Failed to attach Shader to Geometry -- '%s' attribute slot mismatch!", 
                     Graphics::Geometry::AttributeSlot::ToString(attrib));
             else
-                vdLogInfo("Attached Shader to Geometry -- '%s' attribute slot!", 
+                vdLogDebug("Attached Shader to Geometry -- '%s' attribute slot!", 
                     Graphics::Geometry::AttributeSlot::ToString(attrib));
 
             if(attached)
@@ -1993,10 +2209,10 @@ Context::Detach(
         }
 
         if(located == false)
-            vdLogWarning("Failed to detach Shader from Geometry -- '%s' attribute slot mismatch!", 
+            vdLogDebug("Failed to detach Shader from Geometry -- '%s' attribute slot mismatch!", 
                 Graphics::Geometry::AttributeSlot::ToString(attrib));
         else
-            vdLogInfo("Attached Shader to Geometry -- '%s' attribute slot!", 
+            vdLogDebug("Attached Shader to Geometry -- '%s' attribute slot!", 
                 Graphics::Geometry::AttributeSlot::ToString(attrib));
 
         if(located)
@@ -2045,7 +2261,7 @@ Context::Bind(
             }  
             case Geometry::AttributeSlot::Normal:
             {
-                glNormalPointer( datatype, stride, ptr);
+                glNormalPointer( datatype, 0, ptr);
                 glEnableClientState( GL_NORMAL_ARRAY );
                 break;
             } 
@@ -2190,7 +2406,7 @@ Context::CreateFramebuffer(
         GLenum gl_type = ConvertScalarTypeIdToGL(channel_datatype);
         GLenum gl_internal = ConvertInternalChannelLayoutToGL(channel_layout, channel_datatype);
 
-        vdLogInfo("Creating framebuffer attachment: Internal[%s : 0x%X] Base[%s : 0x%X] Type[%s : 0x%X] for '%s' '%s' ",
+        vdLogDebug("Creating framebuffer attachment: Internal[%s : 0x%X] Base[%s : 0x%X] Type[%s : 0x%X] for '%s' '%s' ",
             ConvertGLEnumToString(gl_internal), gl_internal, 
             ConvertGLEnumToString(gl_base), gl_base, 
             ConvertGLEnumToString(gl_type), gl_type,

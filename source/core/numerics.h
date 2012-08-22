@@ -480,9 +480,21 @@ T Clamp(T x, T lower = T(Constants::Zero), T upper = T(Constants::One))
 }
 
 template <typename T> VD_FORCE_INLINE
+T ToRadians(T x)
+{
+    return x * T(1.74532925199432957692e-2f);
+}
+
+template <typename T> VD_FORCE_INLINE
 T Deg2Rad(T x)
 {
     return x * T(1.74532925199432957692e-2f);
+}
+
+template <typename T> VD_FORCE_INLINE
+T ToDegrees(T x)
+{
+    return x * T(5.72957795130823208768e1f);
 }
 
 template <typename T> VD_FORCE_INLINE

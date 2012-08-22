@@ -32,8 +32,8 @@
 #define VD_TEST_NAMESPACE_ENTER       VD_NAMESPACE_ENTER { namespace VD_TEST_NAMESPACE 
 #define VD_TEST_NAMESPACE_EXIT        } VD_NAMESPACE_EXIT 
 
-#define VD_TEST_NAMESPACE_BEGIN(x)    VD_TEST_NAMESPACE_ENTER { enum { }
-#define VD_TEST_NAMESPACE_END(x)      VD_TEST_NAMESPACE_EXIT } enum { }
+#define VD_TEST_NAMESPACE_BEGIN(x)    VD_TEST_NAMESPACE_ENTER { struct EnterTestNamespace
+#define VD_TEST_NAMESPACE_END(x)      VD_TEST_NAMESPACE_EXIT } struct ExitTestNamespace
 
 #define VD_USING_TESTING_NAMESPACE    using namespace VD_TEST_SCOPE;
 #define VD_USING_TESTING              using VD_TEST_SCOPE

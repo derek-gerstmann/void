@@ -246,7 +246,6 @@ void Base::AddVert(
 	m_iVertNum++;
 }
 
-/*
 void 
 Base::DrawShavedCornerRect( Gwen::Rect rect, bool slight )
 {
@@ -308,7 +307,6 @@ Base::DrawShavedCornerRect( Gwen::Rect rect, bool slight )
 	else
 		Flush(GL_POLYGON);
 }
-*/
 
 void Base::DrawFilledRect( 
 	Gwen::Rect rect )

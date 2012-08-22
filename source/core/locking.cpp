@@ -766,7 +766,7 @@ void SpinLock::Lock()
     
     vd::u32 wait_count = 0;
 
-    while(!__sync_bool_compare_and_swap(&m_Handle, 0, 1))
+    while(!__sync_bool_compare_and_swap(&m_Handle, (void*)0, (void*)1))
     {
         if(wait_count >= VD_THREAD_SPINLOCK_THRESHOLD)
         {
@@ -800,7 +800,7 @@ bool SpinLock::TryToLock()
 
 #elif defined(VD_USE_GCC_ATOMICS)
     
-    return __sync_bool_compare_and_swap(&m_Handle, 0, 1);
+    return __sync_bool_compare_and_swap(&m_Handle, (void*)0, (void*)1);
     
 #elif defined(VD_USE_POSIX)
     

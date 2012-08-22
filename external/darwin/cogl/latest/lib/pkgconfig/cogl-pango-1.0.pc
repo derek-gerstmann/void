@@ -1,0 +1,13 @@
+prefix=/Users/dg/Workspace/void/clean/void/external/build/cogl/osx
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+apiversion=1.0
+requires= gobject-2.0 gmodule-no-export-2.0 cogl-1.0
+
+Name: Cogl
+Description: An object oriented GL/GLES Abstraction/Utility Layer
+Version: 1.10.2
+Libs: -L${libdir} -lcogl-pango
+Cflags: -I${includedir}/cogl
+Requires: ${requires}

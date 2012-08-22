@@ -78,7 +78,7 @@ public:
 	void FreeFont( Gwen::Font* pFont );
 
 //		virtual void DrawLinedRect( Gwen::Rect rect );
-//		virtual void DrawShavedCornerRect( Gwen::Rect rect, bool bSlight = false );
+	virtual void DrawShavedCornerRect( Gwen::Rect rect, bool bSlight = false );
 	void RenderText( Gwen::Font* pFont, Gwen::Point pos, const Gwen::UnicodeString& text );
 	Gwen::Point MeasureText( Gwen::Font* pFont, const Gwen::UnicodeString& text );
 

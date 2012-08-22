@@ -47,10 +47,10 @@ struct VD_API StructName                                                        
     		switch (value)                                                                        \
     		{                                                                                     \
     	        VD_PP_PASS_ENUM_ARGS(VD_PP_EXPAND_ENUM_VALUE_TO_STRING,__VA_ARGS__)               \
-                case StructName::Invalid: return (vd::cstr)(VD_PP_STRINGIZE(StructName) "::Invalid"); \
-    		    default: return (vd::cstr)(VD_PP_STRINGIZE(StructName) "::Invalid");              \
+                case StructName::Invalid: return vd::cstr(VD_PP_STRINGIZE(StructName) "::Invalid"); \
+    		    default: return vd::cstr(VD_PP_STRINGIZE(StructName) "::Invalid");                \
             }                                                                                     \
-    		return (vd::cstr)(VD_PP_STRINGIZE(StructName) "::Invalid");                           \
+    		return vd::cstr(VD_PP_STRINGIZE(StructName) "::Invalid");                             \
     }                                                                                             \
     static vd::u32 ToInteger(const StructName::Value& value)                                      \
     {                                                                                             \
@@ -99,7 +99,7 @@ struct VD_API StructName                                                        
   case (n-1): return v;
 
 #define VD_PP_EXPAND_ENUM_VALUE_TO_STRING(v,n) \
-	case v: return VD_PP_STRINGIZE(v);
+	case v: return vd::cstr(VD_PP_STRINGIZE(v));
 
 // ============================================================================================== //
 

@@ -3,7 +3,12 @@ project( VdFramework )
 
 if(VOID_USE_EXTRACTED_SYMBOLS)
 
-    set( VD_SYMEX_FILELIST ${VD_ALL_SRC} ${VD_ALL_INC} ${VD_ALL_OPT_SRC} ${VD_ALL_OPT_INC} ${VD_PLATFORM_SRC} )
+    set( VD_SYMEX_FILELIST 
+            ${VD_ALL_SRC} 
+            ${VD_ALL_INC} 
+            ${VD_ALL_OPT_SRC} 
+            ${VD_ALL_OPT_INC} 
+            ${VD_PLATFORM_SRC} )
 
     file(MAKE_DIRECTORY ${VD_EXTRACTED_DIR} )
     

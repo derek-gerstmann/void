@@ -31,9 +31,7 @@ option(VOID_USE_GS2	 				"Include Gadget Snapshot 2 hydro-dynamics simulation da
 option(VOID_USE_FLASH 				"Include FLASH hydro-dynamics simulation data format support." ON)
 option(VOID_USE_OPENGL 				"Include OpenGL support." ON)
 option(VOID_USE_OIIO 				"Include OpenImageIO support." ON)
-if(VOID_USE_OPENGL)
 option(VOID_USE_GLUT		 		"Build the GLUT runtime library." ON)
-endif()
 
 if(VOID_BUILD_APPS)
 set(VOID_BUILD_FRAMEWORK            ON)
