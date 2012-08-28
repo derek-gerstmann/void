@@ -414,7 +414,7 @@ private:
 
 // ---------------------------------------------------------------------------------------------- //
 
-template <int alignment_, int endian_>
+template <int Align, int Endian>
 class ReadBufferInternal : public ReadBuffer::Internal
 {
 private:
@@ -457,7 +457,7 @@ public:
         std::string::size_type length;
         ReadNumber(length);
         val = std::string(m_data, length);
-        m_data += length + ((alignment_ - (length % alignment_)) % alignment_);
+        m_data += length + ((Align - (length % Align)) % Align);
     }
 
 
@@ -466,8 +466,8 @@ private:
     void ReadNumber(Number_& n)
     {
         Number_ in = *(Number_*)(m_data);
-        n = IntegerConvertor < Number_, endian_ != VD_BYTE_ORDER >::convert(in);
-        m_data += sizeof(Number_) + ((alignment_ - (sizeof(Number_) % alignment_)) % alignment_);
+        n = IntegerConvertor < Number_, Endian != VD_BYTE_ORDER >::convert(in);
+        m_data += sizeof(Number_) + ((Align - (sizeof(Number_) % Align)) % Align);
     }
 
     const char* m_data;
@@ -532,7 +532,7 @@ private:
 
 // ---------------------------------------------------------------------------------------------- //
 
-template <int alignment_, int endian_>
+template <int Align, int Endian>
 class WriteBufferInternal : public WriteBuffer::Internal
 {
 private:
@@ -570,22 +570,22 @@ public:
         std::string::size_type length = val.length();
         Append(length);
         AppendNoPadding(val.data(), length);
-        AppendNoPadding(Padding, (alignment_ - (length % alignment_)) % alignment_);
+        AppendNoPadding(Padding, (Align - (length % Align)) % Align);
     }
 
     virtual void Append(const char* data, long length)
     {
         AppendNoPadding(data, length);
-        AppendNoPadding(Padding, (alignment_ - (length % alignment_)) % alignment_);
+        AppendNoPadding(Padding, (Align - (length % Align)) % Align);
     }
 
 private:
     template <typename Number_>
     void AppendNumber(const Number_& n)
     {
-        Number_ out = IntegerConvertor < Number_, endian_ != VD_BYTE_ORDER >::convert(n);
+        Number_ out = IntegerConvertor < Number_, Endian != VD_BYTE_ORDER >::convert(n);
         AppendNoPadding((char*)(&out), sizeof(Number_));
-        AppendNoPadding(Padding, (alignment_ - (sizeof(Number_) % alignment_)) % alignment_);
+        AppendNoPadding(Padding, (Align - (sizeof(Number_) % Align)) % Align);
     }
 };
 
@@ -738,11 +738,11 @@ private:
 public:
     static Polymorphic& GetInstance();
 
-    bool IsPolymorphic(const std::string& className) const;
+    bool IsPolymorphic(const std::string& class_name) const;
 
     typedef void* (*DeserialiseFunction)(ReadBuffer&, int);
-    int RegisterDeserialise(const std::string& className, DeserialiseFunction func);
-    void* Deserialise(const std::string& className, ReadBuffer& buffer, int version) const;
+    int RegisterDeserialise(const std::string& class_name, DeserialiseFunction func);
+    void* Deserialise(const std::string& class_name, ReadBuffer& buffer, int version) const;
 
     typedef void* (*CastFunction)(void*);
     int RegisterCast(const std::string& from, const std::string& to, CastFunction func);
@@ -766,7 +766,7 @@ public:
 
     virtual void assign(const boost::shared_ptr<void>& ptr, const std::string& sharedName)
     {
-        std::string weakName = ElementType::staticClassName();
+        std::string weakName = ElementType::GetStaticName();
         void* p = ptr.get();
 
         if(Polymorphic::GetInstance().HasCast(sharedName, weakName))
@@ -795,16 +795,16 @@ public:
 
     bool IsRegistered(void* p) const;
     int Get(void* p) const;
-    int add(void* p);
+    int Register(void* p);
 
-    int resrveIndex(void* p);
+    int ReserveSlot(void* p);
     bool IsReserved(void* p);
     int GetReservedIndex(void* p);
-    void clearReserved(void* p);
+    void Unregister(void* p);
 
     bool IsRegistered(const int& i) const;
     boost::shared_ptr<void> Get(const int& i) const;
-    void add(const int& i, boost::shared_ptr<void> p, const std::string& className);
+    void Register(const int& i, boost::shared_ptr<void> p, const std::string& class_name);
     std::string GetPointerTypeName(const int& i) const;
 
     bool HasDelayedAssignment(const int& index) const;
@@ -894,31 +894,31 @@ void Deserialise(boost::shared_ptr<ElementType>& ptr, ReadBuffer& buffer, int ve
         return;
 
     boost::shared_ptr<void> voidPtr;
-    std::string staticClassName(ElementType::staticClassName());
+    std::string static_name(ElementType::GetStaticName());
 
     if(Repository::GetInstance().IsRegistered(index))
     {
         voidPtr = Repository::GetInstance().Get(index);
         void* p = voidPtr.get();
 
-        std::string className(Repository::GetInstance().GetPointerTypeName(index));
+        std::string class_name(Repository::GetInstance().GetPointerTypeName(index));
 
-        if(Polymorphic::GetInstance().HasCast(className, staticClassName))
-            p = Polymorphic::GetInstance().GetCast(className, staticClassName)(p);
+        if(Polymorphic::GetInstance().HasCast(class_name, static_name))
+            p = Polymorphic::GetInstance().GetCast(class_name, static_name)(p);
 
         ptr = boost::shared_ptr<ElementType>(voidPtr, reinterpret_cast<ElementType*>(p));
     }
     else
     {
-        if(Polymorphic::GetInstance().IsPolymorphic(staticClassName))
+        if(Polymorphic::GetInstance().IsPolymorphic(static_name))
         {
-            std::string className;
-            buffer.Read(className);
-            void* p = Polymorphic::GetInstance().Deserialise(className, buffer, version);
+            std::string class_name;
+            buffer.Read(class_name);
+            void* p = Polymorphic::GetInstance().Deserialise(class_name, buffer, version);
 
             // we can't delete p as long as it Is a void pointer
-            if(Polymorphic::GetInstance().HasCast(className, staticClassName))
-                p = Polymorphic::GetInstance().GetCast(className, staticClassName)(p);
+            if(Polymorphic::GetInstance().HasCast(class_name, static_name))
+                p = Polymorphic::GetInstance().GetCast(class_name, static_name)(p);
 
             ptr = boost::shared_ptr<ElementType>(reinterpret_cast<ElementType*>(p));
         }
@@ -929,10 +929,10 @@ void Deserialise(boost::shared_ptr<ElementType>& ptr, ReadBuffer& buffer, int ve
         }
 
         voidPtr = boost::shared_ptr<void>(ptr);
-        Repository::GetInstance().add(index, voidPtr, staticClassName);
+        Repository::GetInstance().Register(index, voidPtr, static_name);
 
         if(Repository::GetInstance().HasDelayedAssignment(index))
-            Repository::GetInstance().Assign(index, voidPtr, staticClassName);
+            Repository::GetInstance().Assign(index, voidPtr, static_name);
     }
 }
 
@@ -950,11 +950,11 @@ void Deserialise(boost::weak_ptr<ElementType>& ptr, ReadBuffer& buffer, int vers
         boost::shared_ptr<void> voidPtr = Repository::GetInstance().Get(index);
         void* p = voidPtr.get();
 
-        std::string className(Repository::GetInstance().GetPointerTypeName(index));
-        std::string staticClassName(ElementType::staticClassName());
+        std::string class_name(Repository::GetInstance().GetPointerTypeName(index));
+        std::string static_name(ElementType::GetStaticName());
 
-        if(Polymorphic::GetInstance().HasCast(className, staticClassName))
-            p = Polymorphic::GetInstance().GetCast(className, staticClassName)(p);
+        if(Polymorphic::GetInstance().HasCast(class_name, static_name))
+            p = Polymorphic::GetInstance().GetCast(class_name, static_name)(p);
 
         ptr = boost::shared_ptr<ElementType>(voidPtr, reinterpret_cast<ElementType*>(p));
     }
@@ -971,17 +971,17 @@ void Deserialise(std::auto_ptr<ElementType>& ptr, ReadBuffer& buffer, int versio
     if(index == 0)
         return;
 
-    std::string staticClassName(ElementType::staticClassName());
+    std::string static_name(ElementType::GetStaticName());
 
-    if(Polymorphic::GetInstance().IsPolymorphic(staticClassName))
+    if(Polymorphic::GetInstance().IsPolymorphic(static_name))
     {
-        std::string className;
-        buffer.Read(className);
-        void* p = Polymorphic::GetInstance().Deserialise(className, buffer, version);
+        std::string class_name;
+        buffer.Read(class_name);
+        void* p = Polymorphic::GetInstance().Deserialise(class_name, buffer, version);
 
         // we can't delete p as long as it Is a void pointer
-        if(Polymorphic::GetInstance().HasCast(className, staticClassName))
-            p = Polymorphic::GetInstance().GetCast(className, staticClassName)(p);
+        if(Polymorphic::GetInstance().HasCast(class_name, static_name))
+            p = Polymorphic::GetInstance().GetCast(class_name, static_name)(p);
 
         ptr = std::auto_ptr<ElementType>(reinterpret_cast<ElementType*>(p));
     }
@@ -1116,11 +1116,11 @@ void Serialise(const boost::shared_ptr<ElementType>& ptr, WriteBuffer& buffer, i
     }
 
     void* p = reinterpret_cast<void*>(ptr.get());
-    std::string className = ptr->className();
-    std::string staticClassName = ElementType::staticClassName();
+    std::string class_name = ptr->GetClassName();
+    std::string static_name = ElementType::GetStaticName();
 
-    if(Polymorphic::GetInstance().HasCast(staticClassName, className))
-        p = Polymorphic::GetInstance().GetCast(staticClassName, className)(p);
+    if(Polymorphic::GetInstance().HasCast(static_name, class_name))
+        p = Polymorphic::GetInstance().GetCast(static_name, class_name)(p);
 
     if(Repository::GetInstance().IsRegistered(p))
         buffer.Append(Repository::GetInstance().Get(p));
@@ -1129,14 +1129,14 @@ void Serialise(const boost::shared_ptr<ElementType>& ptr, WriteBuffer& buffer, i
         if(Repository::GetInstance().IsReserved(p))
         {
             buffer.Append(Repository::GetInstance().GetReservedIndex(p));
-            Repository::GetInstance().clearReserved(p);
+            Repository::GetInstance().Unregister(p);
         }
         else
-            buffer.Append(Repository::GetInstance().add(p));
+            buffer.Append(Repository::GetInstance().Register(p));
 
-        if(Polymorphic::GetInstance().IsPolymorphic(className))
+        if(Polymorphic::GetInstance().IsPolymorphic(class_name))
         {
-            buffer.Append(className);
+            buffer.Append(class_name);
             ptr->Serialise(buffer, version);
         }
         else
@@ -1156,16 +1156,16 @@ void Serialise(const boost::weak_ptr<ElementType>& ptr, WriteBuffer& buffer, int
     }
 
     void* p = reinterpret_cast<void*>(shared.get());
-    std::string className = shared->className();
-    std::string staticClassName = ElementType::staticClassName();
+    std::string class_name = shared->GetClassName();
+    std::string static_name = ElementType::GetStaticName();
 
-    if(Polymorphic::GetInstance().HasCast(staticClassName, className))
-        p = Polymorphic::GetInstance().GetCast(staticClassName, className)(p);
+    if(Polymorphic::GetInstance().HasCast(static_name, class_name))
+        p = Polymorphic::GetInstance().GetCast(static_name, class_name)(p);
 
     if(Repository::GetInstance().IsRegistered(p))
         buffer.Append(Repository::GetInstance().Get(p));
     else
-        buffer.Append(Repository::GetInstance().resrveIndex(p));
+        buffer.Append(Repository::GetInstance().ReserveSlot(p));
 }
 
 template <class ElementType>
@@ -1178,11 +1178,11 @@ void Serialise(const std::auto_ptr<ElementType>& ptr, WriteBuffer& buffer, int v
     }
 
     buffer.Append((int)1);
-    std::string className(ptr->className());
+    std::string class_name(ptr->GetClassName());
 
-    if(Polymorphic::GetInstance().IsPolymorphic(className))
+    if(Polymorphic::GetInstance().IsPolymorphic(class_name))
     {
-        buffer.Append(className);
+        buffer.Append(class_name);
         ptr->Serialise(buffer, version);
     }
     else
@@ -1263,23 +1263,19 @@ void Serialise(const std::string& value, WriteBuffer& buffer, int version)
 
 // ---------------------------------------------------------------------------------------------- //
 
-template <int alignment_, class ObjectType>
+template <int Align, class ObjectType>
 void Serialise(const ObjectType& object, WriteBuffer& buffer, int version);
 
-template <int alignment_, class ObjectType>
+template <int Align, class ObjectType>
 void Deserialise(ObjectType& value, const ReadBuffer& buffer, int version);
 
 // ---------------------------------------------------------------------------------------------- //
 
-} // namespace Core
-
-// ---------------------------------------------------------------------------------------------- //
-
-template <int alignment_, int endian_, class ObjectType>
+template <int Align, int Endian, class ObjectType>
 char* Serialise(const ObjectType& object, long& length, int version = 1)
 {
     Core::Repository::GetInstance().reset();
-    std::auto_ptr<Core::WriteBuffer::Internal> internal(new Core::WriteBufferInternal<alignment_, endian_>());
+    std::auto_ptr<Core::WriteBuffer::Internal> internal(new Core::WriteBufferInternal<Align, Endian>());
     Core::WriteBuffer buffer(internal);
     buffer.Append(version);
     Core::Serialise(object, buffer, version);
@@ -1288,10 +1284,10 @@ char* Serialise(const ObjectType& object, long& length, int version = 1)
     return buffer.GetData();
 }
 
-template <int alignment_, class ObjectType>
+template <int Align, class ObjectType>
 char* Serialise(const ObjectType& object, long& length, int version = 1)
 {
-    return Serialise<alignment_, VD_BYTE_ORDER, ObjectType>(object, length, version);
+    return Serialise<Align, VD_BYTE_ORDER, ObjectType>(object, length, version);
 }
 
 template <class ObjectType>
@@ -1302,7 +1298,7 @@ char* Serialise(const ObjectType& object, long& length, int version = 1)
 
 // ---------------------------------------------------------------------------------------------- //
 
-template <class ObjectType, int alignment_, int endian_>
+template <class ObjectType, int Align, int Endian>
 ObjectType* Deserialise(const char* bytes, int version = 1)
 {
     Core::Repository::GetInstance().reset();
@@ -1311,7 +1307,7 @@ ObjectType* Deserialise(const char* bytes, int version = 1)
     try
     {
         ObjectType* ptr = new ObjectType();
-        std::auto_ptr<Core::ReadBuffer::Internal> internal(new Core::ReadBufferInternal<alignment_, endian_>(bytes));
+        std::auto_ptr<Core::ReadBuffer::Internal> internal(new Core::ReadBufferInternal<Align, Endian>(bytes));
         Core::ReadBuffer buffer(internal);
         
         int data_version;
@@ -1327,10 +1323,10 @@ ObjectType* Deserialise(const char* bytes, int version = 1)
     catch(...) { delete ptr; throw; }
 }
 
-template <class ObjectType, int alignment_>
+template <class ObjectType, int Align>
 ObjectType* Deserialise(const char* bytes, int version = 1)
 {
-    return Deserialise<ObjectType, alignment_, VD_BYTE_ORDER>(bytes, version);
+    return Deserialise<ObjectType, Align, VD_BYTE_ORDER>(bytes, version);
 }
 
 template <class ObjectType>
@@ -1338,6 +1334,313 @@ ObjectType* Deserialise(const char* bytes, int version = 1)
 {
     return Deserialise<ObjectType, VD_MEMORY_ALIGNMENT, VD_BYTE_ORDER>(bytes, version);
 }
+
+
+WeakPtrWrapper::Internal::Internal()
+{ 
+    // EMPTY!
+}
+
+WeakPtrWrapper::Internal::~Internal()
+{ 
+    // EMPTY!
+}
+
+WeakPtrWrapper::WeakPtrWrapper(
+    boost::shared_ptr<WeakPtrWrapper::Internal> internal
+) : 
+    m_Internal(internal)
+{ 
+    // EMPTY!
+}
+
+
+WeakPtrWrapper::WeakPtrWrapper(
+    const WeakPtrWrapper& that
+) : 
+    m_Internal(that.m_Internal)
+{ 
+    // EMPTY!
+}    
+
+void WeakPtrWrapper::assign(
+    boost::shared_ptr<void> ptr, 
+    const std::string& sharedName)
+{
+    m_Internal->assign(ptr, sharedName);
+}
+
+// ---------------------------------------------------------------------------------------------- //
+
+ReadBuffer::Internal::Internal() 
+{ 
+    // EMPTY!
+}
+
+ReadBuffer::Internal::~Internal() 
+{ 
+    // EMPTY!
+}
+
+ReadBuffer::ReadBuffer(
+    std::auto_ptr<ReadBuffer::Internal> internal
+) : 
+    m_Internal(internal)
+{
+    // EMPTY!
+}
+
+// ---------------------------------------------------------------------------------------------- //
+
+const char* WriteBuffer::Internal::Padding = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+
+WriteBuffer::Internal::Internal() :
+   m_Data(new char[16]),
+   m_Capacity(16),
+   m_Length(0),
+   m_IsOwner(true)
+{ 
+    // EMPTY!
+}
+
+WriteBuffer::Internal::~Internal()
+{
+    if(m_IsOwner) delete[] m_Data;
+}
+
+long WriteBuffer::Internal::GetLength()
+{
+    return m_Length;
+}
+
+char* WriteBuffer::Internal::GetData()
+{
+    m_IsOwner = false;
+    return m_Data;
+}
+
+void WriteBuffer::Internal::AppendNoPadding(
+   const char* data, long length)
+{
+    long quantity = m_Length + length;
+
+    if(quantity > m_Capacity)
+        Resize(quantity);
+
+    for(long i = m_Length; i < quantity; ++i)
+        m_Data[i] = data[i - m_Length];
+
+    m_Length += length;
+}
+
+void WriteBuffer::Internal::Resize(long size)
+{
+    long quantity = m_Capacity * 16;
+
+    while(quantity < size)
+        size *= 16;
+
+    char* data = new char[size];
+
+    for(long i = 0; i < m_Length; ++i)
+        data[i] = m_Data[i];
+
+    delete[] m_Data;
+
+    m_Data = data;
+    m_Capacity = size;
+}
+
+WriteBuffer::WriteBuffer(
+   std::auto_ptr<WriteBuffer::Internal> internal
+)
+   : m_Internal(internal)
+{
+   // EMPTY!
+}
+
+long WriteBuffer::GetLength()
+{
+    return m_Internal->GetLength();
+}
+
+char* WriteBuffer::GetData()
+{
+    return m_Internal->GetData();
+}
+
+void WriteBuffer::Append(const char* data, long length)
+{
+    m_Internal->Append(data, length);
+}
+
+// ---------------------------------------------------------------------------------------------- //
+
+std::auto_ptr<Repository> Repository::repository;
+
+Repository::Repository()
+    : m_nextIndex(1)
+{
+
+}
+
+Repository& Repository::GetInstance()
+{
+    if(repository.get() == 0)
+        repository = std::auto_ptr<Repository>(new Repository);
+
+    return *repository;
+}
+
+bool Repository::IsRegistered(void* p) const
+{
+    return m_indices.find(p) != m_indices.end();
+}
+
+int Repository::Get(void* p) const
+{
+    return m_indices.at(p);
+}
+
+int Repository::Register(void* p)
+{
+    m_indices[p] = m_nextIndex;
+    return m_nextIndex++;
+}
+
+int Repository::ReserveSlot(void* p)
+{
+    m_reserved[p] = m_nextIndex;
+    return m_nextIndex++;
+}
+
+bool Repository::IsReserved(void* p)
+{
+    return m_reserved.find(p) != m_reserved.end();
+}
+
+int Repository::GetReservedIndex(void* p)
+{
+    return m_reserved.at(p);
+}
+
+void Repository::Unregister(void* p)
+{
+    int index = m_reserved.at(p);
+    m_reserved.erase(p);
+    m_indices[p] = index;
+}
+
+bool Repository::IsRegistered(const int& i) const
+{
+    return m_ptrs.find(i) != m_ptrs.end();
+}
+
+boost::shared_ptr<void> Repository::Get(const int& i) const
+{
+    return m_ptrs.at(i).first;
+}
+
+void Repository::Register(
+    const int& i, 
+    boost::shared_ptr<void> p, 
+    const std::string& class_name)
+{
+    m_ptrs[i] = std::pair<boost::shared_ptr<void>, std::string>(p, class_name);
+}
+
+std::string Repository::GetPointerTypeName(const int& i) const
+{
+    return m_ptrs.at(i).second;
+}
+bool Repository::HasDelayedAssignment(const int& index) const
+{
+    return m_delayed.find(index) != m_delayed.end();
+}
+
+void Repository::Assign(const int& index
+                                     , boost::shared_ptr<void> voidPtr
+                                     , std::string sharedName)
+{
+    std::vector<WeakPtrWrapper>& weakWrappers(m_delayed.at(index));
+
+    for(std::vector<WeakPtrWrapper>::iterator iter = weakWrappers.begin();
+            iter != weakWrappers.end(); ++iter)
+        iter->assign(voidPtr, sharedName);
+}
+
+
+void Repository::reset()
+{
+    m_indices.clear();
+    m_ptrs.clear();
+    m_delayed.clear();
+    m_nextIndex = 1;
+}
+
+// ---------------------------------------------------------------------------------------------- //
+
+std::auto_ptr<Polymorphic> Polymorphic::Serialiser;
+
+Polymorphic::Polymorphic()
+{
+
+}
+
+Polymorphic& Polymorphic::GetInstance()
+{
+    if(Serialiser.get() == 0)
+        Serialiser = std::auto_ptr<Polymorphic>(new Polymorphic());
+
+    return *Serialiser;
+}
+
+bool Polymorphic::IsPolymorphic(const std::string& class_name) const
+{
+    return m_functions.find(class_name) != m_functions.end();
+}
+
+void* Polymorphic::Deserialise(const std::string& class_name, ReadBuffer& buffer, int version) const
+{
+    return m_functions.at(class_name)(buffer, version);
+}
+
+int Polymorphic::RegisterDeserialise(
+    const std::string& class_name, Polymorphic::DeserialiseFunction func)
+{
+    m_functions[class_name] = func;
+    return 0;
+}
+
+int Polymorphic::RegisterCast(
+    const std::string& from, 
+    const std::string& to, 
+    Polymorphic::CastFunction func)
+{
+    m_Casts[from][to] = func;
+    return 0;
+}
+
+Polymorphic::CastFunction Polymorphic::GetCast(
+    const std::string& from, const std::string& to) const
+{
+    return m_Casts.at(from).at(to);
+}
+
+bool Polymorphic::HasCast(const std::string& from
+                                    , const std::string& to) const
+{
+    CastMap::const_iterator iter = m_Casts.find(from);
+
+    if(iter == m_Casts.end())
+        return false;
+
+    return iter->second.find(to) != iter->second.end();
+}
+
+// ---------------------------------------------------------------------------------------------- //
+
+} // namespace Core
 
 // ============================================================================================== //
 
@@ -1354,8 +1657,8 @@ public:                                                                        \
    template <class Dummy_>                                                     \
    static void initialize(Dummy_&, int) { }                                    \
                                                                                \
-   virtual const char* className() { return #ObjectType; }                 \
-   static const char* staticClassName() { return #ObjectType; }            \
+   virtual const char* GetClassName() { return #ObjectType; }                 \
+   static const char* GetStaticName() { return #ObjectType; }            \
                                                                                \
    virtual void Serialise(vd::Core::WriteBuffer& buffer, int version) const\
    {                                                                           \

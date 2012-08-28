@@ -25,6 +25,9 @@
 
 #include "serialise.h"
 
+using namespace vd;
+using namespace vd::Core;
+
 // ---------------------------------------------------------------------------------------------- //
 
 void WriteBytes(const char* bytes, const long& length)
@@ -84,9 +87,9 @@ void TestSimple()
     SimpleClass obj(3, "Gerrit");
 
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    SimpleClass* newObj = vd::Deserialise<SimpleClass>(bytes);
+    SimpleClass* newObj = vd::Core::Deserialise<SimpleClass>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -130,9 +133,9 @@ void TestComposite()
     CompositeClass obj(SimpleClass(3, "Alex"), 42);
 
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    CompositeClass* newObj = vd::Deserialise<CompositeClass>(bytes);
+    CompositeClass* newObj = vd::Core::Deserialise<CompositeClass>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -176,9 +179,9 @@ void TestDerived()
     DerivedClass obj(SimpleClass(3, "Gerrit Daniels"), 42, "Mostly harmless");
 
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    DerivedClass* newObj = vd::Deserialise<DerivedClass>(bytes);
+    DerivedClass* newObj = vd::Core::Deserialise<DerivedClass>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -222,9 +225,9 @@ void TestVector()
     obj.add(SimpleClass(11, "Kermit"));
 
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    SimpleClassVector* newObj = vd::Deserialise<SimpleClassVector>(bytes);
+    SimpleClassVector* newObj = vd::Core::Deserialise<SimpleClassVector>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -268,9 +271,9 @@ void TestList()
     obj.add(SimpleClass(11, "Kermit"));
 
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    SimpleClassList* newObj = vd::Deserialise<SimpleClassList>(bytes);
+    SimpleClassList* newObj = vd::Core::Deserialise<SimpleClassList>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -314,9 +317,9 @@ void TestMap()
     obj.add("K", SimpleClass(2, "Kermit"));
 
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    SimpleMap* newObj = vd::Deserialise<SimpleMap>(bytes);
+    SimpleMap* newObj = vd::Core::Deserialise<SimpleMap>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -375,9 +378,9 @@ void TestSharedPtr()
     obj.add(ptr);
     obj.add(boost::shared_ptr<SimpleClass>(new SimpleClass(2, "Kermit")));
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    SimpleClassPtrList* newObj = vd::Deserialise<SimpleClassPtrList>(bytes);
+    SimpleClassPtrList* newObj = vd::Core::Deserialise<SimpleClassPtrList>(bytes);
 
     boost::shared_ptr<SimpleClass> ptrAfter(newObj->get(0));
 
@@ -431,9 +434,9 @@ void TestWeakPtr()
     obj.setPointers(ptr);
 
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    WeakContainer* newObj = vd::Deserialise<WeakContainer>(bytes);
+    WeakContainer* newObj = vd::Core::Deserialise<WeakContainer>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -564,9 +567,9 @@ void TestPointers()
     SomeContainer obj(std::auto_ptr<SomeBase>(new SomeClass(true, "Gerrit", 2.25)));
 
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    SomeContainer* newObj = vd::Deserialise<SomeContainer>(bytes);
+    SomeContainer* newObj = vd::Core::Deserialise<SomeContainer>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -578,9 +581,9 @@ void TestPointers()
 
     SomeContainer obj2(boost::shared_ptr<SomeBase>(new SomeClass(false, "Gerrit", 2.25)));
 
-    bytes = vd::Serialise(obj2, length);
+    bytes = vd::Core::Serialise(obj2, length);
     WriteBytes(bytes, length);
-    newObj = vd::Deserialise<SomeContainer>(bytes);
+    newObj = vd::Core::Deserialise<SomeContainer>(bytes);
 
     if(*newObj == obj2)
         std::cout << "SUCCESS" << std::endl;
@@ -772,9 +775,9 @@ void TestPolymorph()
     drawing.addShape(circle);
 
     long length;
-    char* bytes = vd::Serialise(drawing, length);
+    char* bytes = vd::Core::Serialise(drawing, length);
     WriteBytes(bytes, length);
-    Drawing* newDrawing = vd::Deserialise<Drawing>(bytes);
+    Drawing* newDrawing = vd::Core::Deserialise<Drawing>(bytes);
 
     if(*newDrawing == drawing)
         std::cout << "SUCCESS" << std::endl;
@@ -861,9 +864,9 @@ void TestMultipleInheritance0()
     Derived0 obj(1, 2, "abc");
 
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    Derived0* newObj = vd::Deserialise<Derived0>(bytes);
+    Derived0* newObj = vd::Core::Deserialise<Derived0>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -945,9 +948,9 @@ void TestMultipleInheritance1()
     obj.setBase1(boost::shared_ptr<Base1>(new Derived1(5, 6, "c")));
 
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    Container* newObj = vd::Deserialise<Container>(bytes);
+    Container* newObj = vd::Core::Deserialise<Container>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -971,9 +974,9 @@ void TestMultipleInheritance2()
     obj.setBase1(ptr);
 
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    Container* newObj = vd::Deserialise<Container>(bytes);
+    Container* newObj = vd::Core::Deserialise<Container>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -1055,9 +1058,9 @@ void TestInitialize()
     InitializeClass obj(5, 7, 3);
 
     long length;
-    char* bytes = vd::Serialise(obj, length);
+    char* bytes = vd::Core::Serialise(obj, length);
     WriteBytes(bytes, length);
-    InitializeClass* newObj = vd::Deserialise<InitializeClass>(bytes);
+    InitializeClass* newObj = vd::Core::Deserialise<InitializeClass>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -1101,7 +1104,7 @@ void TestLittleEndian()
     EndianClass obj(0x01, 0x0203, 0x04050607, 0x08090a0b0c0d0e0f, 2.0, 3.0);
 
     long length;
-    char* bytes = vd::Serialise<8, VD_LITTLE_ENDIAN>(obj, length);
+    char* bytes = vd::Core::Serialise<8, VD_LITTLE_ENDIAN>(obj, length);
     WriteBytes(bytes, length);
 
     char expected[] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -1122,7 +1125,7 @@ void TestLittleEndian()
         }
     }
 
-    EndianClass* newObj = vd::Deserialise<EndianClass, 8, VD_LITTLE_ENDIAN>(bytes);
+    EndianClass* newObj = vd::Core::Deserialise<EndianClass, 8, VD_LITTLE_ENDIAN>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -1142,7 +1145,7 @@ void TestBigEndian()
     EndianClass obj(0x01, 0x0203, 0x04050607, 0x08090a0b0c0d0e0f, 2.0, 3.0);
 
     long length;
-    char* bytes = vd::Serialise<8, VD_BIG_ENDIAN>(obj, length);
+    char* bytes = vd::Core::Serialise<8, VD_BIG_ENDIAN>(obj, length);
     WriteBytes(bytes, length);
 
     char expected[] = { 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00
@@ -1163,7 +1166,7 @@ void TestBigEndian()
         }
     }
 
-    EndianClass* newObj = vd::Deserialise<EndianClass, 8, VD_BIG_ENDIAN>(bytes);
+    EndianClass* newObj = vd::Core::Deserialise<EndianClass, 8, VD_BIG_ENDIAN>(bytes);
 
     if(*newObj == obj)
         std::cout << "SUCCESS" << std::endl;
@@ -1204,9 +1207,9 @@ void TestVersion()
     VersionedClass obj(1, 2);
 
     long length;
-    char* bytes = vd::Serialise(obj, length, 1);
+    char* bytes = vd::Core::Serialise(obj, length, 1);
     WriteBytes(bytes, length);
-    VersionedClass* newObj = vd::Deserialise<VersionedClass>(bytes, 1);
+    VersionedClass* newObj = vd::Core::Deserialise<VersionedClass>(bytes, 1);
 
     if(obj.getV1() != newObj->getV1() || newObj->getV2() != 0)
         std::cout << "FAILURE" << std::endl;
@@ -1216,9 +1219,9 @@ void TestVersion()
     delete newObj;
     delete[] bytes;
 
-    bytes = vd::Serialise(obj, length, 2);
+    bytes = vd::Core::Serialise(obj, length, 2);
     WriteBytes(bytes, length);
-    newObj = vd::Deserialise<VersionedClass>(bytes, 2);
+    newObj = vd::Core::Deserialise<VersionedClass>(bytes, 2);
 
     if(obj.getV1() != newObj->getV1() || obj.getV2() != newObj->getV2())
         std::cout << "FAILURE" << std::endl;

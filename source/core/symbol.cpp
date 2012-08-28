@@ -117,7 +117,7 @@ public:
 		return Symbol::GetInvalid();
 	}
 
-	const vd::u64
+	vd::u64
 	Resolve(const vd::uid key) const
 	{
 		Symbol symbol;
@@ -312,7 +312,7 @@ Symbol::Register(
 	return registry->Add(key, bytes);
 }
 
-const vd::u64
+vd::u64
 Symbol::Resolve(vd::uid key)
 {
 	SymbolRegistry* registry = Symbol::GetRegistry();

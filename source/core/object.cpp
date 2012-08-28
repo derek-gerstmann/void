@@ -47,6 +47,7 @@ Object::Object(const Object*) :
 
 Object::~Object()
 {
+#if !defined(VD_RELEASE_BUILD)
 	vd::i32 count = GetRefCount();
 #if defined(VD_DEBUG_REFCOUNTS)    
     if(count > 0)
@@ -56,6 +57,7 @@ Object::~Object()
     }
 #else
     vdAssert(count == 0);
+#endif
 #endif
 }
 

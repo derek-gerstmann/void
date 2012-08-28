@@ -63,8 +63,9 @@ public:
 	vd::u32 GetVertexBuffer(void) const		     { return m_VertexBufferId; }
     vd::u32 GetVertexComponents(void) const      { return m_VertexComponents; }
 
-    void SetVertexRange(vd::f32 minval, vd::f32 maxval);
-    vd::v2f32 GetVertexRange(void) const          { return m_VertexRange; }
+    void SetVertexRange(vd::v3f32 minval, vd::v3f32 maxval);
+    vd::v3f32 GetVertexMinValue(void) const          { return m_VertexMinValue; }
+    vd::v3f32 GetVertexMaxValue(void) const          { return m_VertexMaxValue; }
 
     void SetColorBuffer(vd::u32 uiBufferId, int iParticleCount, int vecsize);
 	vd::u32 GetColorBuffer(void) const		     { return m_ColorBufferId; }
@@ -188,7 +189,8 @@ protected:
 
     vd::u32 m_VertexBufferId;
     vd::i32 m_VertexComponents;
-    vd::v2f32 m_VertexRange;
+    vd::v3f32 m_VertexMinValue;
+    vd::v3f32 m_VertexMaxValue;
 
     vd::u32 m_ColorBufferId;
     vd::i32 m_ColorComponents;

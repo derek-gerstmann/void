@@ -60,7 +60,7 @@ Usage(const char* progName)
     Info("  -s, --snapshots <int>       Number of snapshots to process (starting from the given input file) [default=1].\n");
     Info("  -n, --nfiles <int>          Number of files per snapshot [default=1].\n");
     Info("  -o, --output <str>          Path and basename of file to use for exporting the particle data [default=input]\n");
-    Info("  -f, --format <str>          File extension identifiying the format of output file to generate (either CSV, ASC or RAW) [default=raw}\n");
+    Info("  -f, --format <str>          File extension identifiying the format of output file to generate (either CSV, DAT, ASC or RAW) [default=raw}\n");
     Info("  -t, --type <str>            Name of the type of particles to examine (either 'all', 'gas', 'halo', 'disk', 'bulge', 'stars', or 'bndry') [default=all]\n");
     Info("  -d, --data <str>            Block or field name of data to output.  Field must be one of the following:\n");
    	Info("                                'hdr'  - header information (exported as JSON text)\n");
@@ -313,7 +313,9 @@ void ExportDataBlock(
 void ExportColumns(
     gscr_options_t* opt,
     gs_data_t* gs,
-    const char* prefix)
+    const char* sep,
+    const char* prefix,
+    const char* suffix)
 {
     FILE* fh;
     size_t i = 0;
@@ -328,24 +330,24 @@ void ExportColumns(
     
     static const int default_order[] = 
     {
-	GADGET_IO_ID,
-	GADGET_IO_TYPE,
-	GADGET_IO_TSTP,
-	GADGET_IO_POS,
-	GADGET_IO_VEL,
-	GADGET_IO_MASS,
-	GADGET_IO_U,
-	GADGET_IO_RHO,
-	GADGET_IO_HSML,
-	GADGET_IO_POT,
-	GADGET_IO_ACCEL,
-	GADGET_IO_DTENTR,
+    	GADGET_IO_ID,
+    	GADGET_IO_TYPE,
+    	GADGET_IO_TSTP,
+    	GADGET_IO_POS,
+    	GADGET_IO_VEL,
+    	GADGET_IO_MASS,
+    	GADGET_IO_U,
+    	GADGET_IO_RHO,
+    	GADGET_IO_HSML,
+    	GADGET_IO_POT,
+    	GADGET_IO_ACCEL,
+    	GADGET_IO_DTENTR,
     };
     
 
     size_t total_count = gs->TotalParticleCount;
 
-    sprintf(filename, "%s.csv", prefix);
+    sprintf(filename, "%s.%s", prefix, suffix);
 
     Info("Exporting column data '%s'...\n", filename);
 
@@ -363,6 +365,7 @@ void ExportColumns(
 
     // Export all blocks that were requested    
     c = 0;
+    int qts = strcasestr (suffix, "csv") != 0;
     for(i = 0; i < GADGET_IO_NBLOCKS; i++, c++)
     {
         gs_block_type_t block_type = (gs_block_type_t)default_order[i]; 
@@ -372,16 +375,31 @@ void ExportColumns(
             
         const char* label = gsGetBlockName(block_type);
         int vn = gsGetBlockVectorSize(block_type);
-        fprintf(fh, "%s", (c > 0) ? ", " : "");
+        fprintf(fh, "%s", (c > 0) ? sep : "");
 
         if(vn > 1)
         {
-            for(e = 0; e < vn; e++)
-                fprintf(fh, "%s\"%s%c\"", (e > 0) ? ", " : "", label, comp[(int)e]);
+            if(qts)
+            {
+                for(e = 0; e < vn; e++)
+                    fprintf(fh, "%s\"%s%c\"", (e > 0) ? sep : "", label, comp[(int)e]);
+            }
+            else
+            {
+                for(e = 0; e < vn; e++)
+                    fprintf(fh, "%s%s%c", (e > 0) ? sep : "", label, comp[(int)e]);                
+            }
         }
         else
         {
-            fprintf(fh, "\"%s\"", label);
+            if(qts)
+            {
+                fprintf(fh, "\"%s\"", label);
+            }
+            else
+            {
+                fprintf(fh, "%s", label);                
+            }
         }
     }
 
@@ -403,18 +421,18 @@ void ExportColumns(
                 
             size_t vn = gsGetBlockVectorSize(block_type);
 
-            fprintf(fh, "%s", (c > 0) ? ", " : "");
+            fprintf(fh, "%s", (c > 0) ? sep : "");
             if(gsIsBlockIntegerData(block_type))
             {
                 int* vi = (int*)ptr;
                 for(e = 0; e < vn; e++)
-                    fprintf(fh, "%s%d", (e > 0) ? ", " : "",  vi[p * vn + e]);
+                    fprintf(fh, "%s%d", (e > 0) ? sep : "",  vi[p * vn + e]);
             }
             else
             {
                 float* vf = (float*)ptr;
                 for(e = 0; e < vn; e++)
-                    fprintf(fh, "%s%f", (e > 0) ? ", " : "", vf[p * vn + e]);
+                    fprintf(fh, "%s%32.15f", (e > 0) ? sep : "", vf[p * vn + e]);
             }
         }
         fprintf(fh, "\n");
@@ -507,6 +525,7 @@ void gsExport(
 {
 	int all = strcasestr (opt->data, "all") != 0;
     int csv = strcasestr (opt->format, "csv") != 0;
+    int dat = strcasestr (opt->format, "dat") != 0;
 	
 	// Export the header if requested
 	if(all || strcasestr(opt->data, "hdr") != 0 )
@@ -516,7 +535,11 @@ void gsExport(
 
     if(csv)
     {
-        ExportColumns( opt, gs, prefix );
+        ExportColumns( opt, gs, ", ", prefix, "csv" );
+    }
+    else if(dat)
+    {
+        ExportColumns( opt, gs, "\t", prefix, "dat" );
     }
     else
     {

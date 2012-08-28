@@ -926,7 +926,7 @@ bool Template<CharType>::GrowStringBuffer(
     {
         static const vd::i32 initial = 1024;
 
-        size_t reserve = (m_StringCapacity > 0) ?
+        vd::i32 reserve = (m_StringCapacity > 0) ?
                          (m_StringCapacity * 2) : initial;
 
         while(capacity >= reserve)

@@ -55,11 +55,19 @@ public:
     virtual vd::status Setup(Graphics::Context* context);
     virtual vd::status Destroy();
     
+    vd::u32 GetParticleCount(void) const         { return m_ParticleCount; }
+
     void SetVertexBuffer(vd::u32 uiBufferId, int iParticleCount, int vecsize);
-	vd::u32 GetVertexBuffer(void) const		     { return m_VertexBufferId; }
+    vd::u32 GetVertexBuffer(void) const          { return m_VertexBufferId; }
+    vd::u32 GetVertexComponents(void) const      { return m_VertexComponents; }
+
+    void SetVertexRange(vd::v3f32 minval, vd::v3f32 maxval);
+    vd::v3f32 GetVertexMinValue(void) const          { return m_VertexMinValue; }
+    vd::v3f32 GetVertexMaxValue(void) const          { return m_VertexMaxValue; }
 
     void SetColorBuffer(vd::u32 uiBufferId, int iParticleCount, int vecsize);
-	vd::u32 GetColorBuffer(void) const		     { return m_ColorBufferId; }
+    vd::u32 GetColorBuffer(void) const           { return m_ColorBufferId; }
+    vd::u32 GetColorComponents(void) const      { return m_ColorComponents; }
 
     void SetColorRange(vd::f32 minval, vd::f32 maxval);
     vd::v2f32 GetColorRange(void) const          { return m_ColorRange; }
@@ -69,27 +77,30 @@ public:
 
     void SetDensityRange(vd::f32 minval, vd::f32 maxval);
     vd::v2f32 GetDensityRange(void) const          { return m_DensityRange; }
+    vd::u32 GetDensityComponents(void) const      { return m_DensityComponents; }
 
     void Render(bool dirty = false, DisplayMode::Value mode = DisplayMode::Splats);
-    void RenderBoundary(vd::f32 x, vd::f32 y, vd::f32 z, vd::f32 w, vd::f32 h, vd::f32 d);
 
-    void SetPointScale(vd::f32 scale);
-    vd::f32 GetPointScale(void) const   		  { return m_PointScale; }
+    void SetMinPointScale(vd::f32 scale);
+    vd::f32 GetMinPointScale(void) const          { return m_MinPointScale; }
+
+    void SetMaxPointScale(vd::f32 scale);
+    vd::f32 GetMaxPointScale(void) const          { return m_MaxPointScale; }
 
     void SetPointSize(vd::f32 v);
-    vd::f32 GetPointSize(void) const   			  { return m_PointSize; }
+    vd::f32 GetPointSize(void) const              { return m_PointSize; }
 
     void SetSmoothingRadius(vd::f32 v);
-    vd::f32 GetSmoothingRadius(void) const   	  { return m_SmoothingRadius; }
+    vd::f32 GetSmoothingRadius(void) const        { return m_SmoothingRadius; }
 
     void SetSmoothingScale(vd::f32 v);
-    vd::f32 GetSmoothingScale(void) const   	  { return m_SmoothingScale; }
+    vd::f32 GetSmoothingScale(void) const         { return m_SmoothingScale; }
 
     void SetParticleRadius(vd::f32 r);
     vd::f32 GetParticleRadius(void) const         { return m_ParticleRadius; }
 
     void SetDensityScale(vd::f32 v);
-    vd::f32 GetDensityScale(void) const   	      { return m_DensityScale; }
+    vd::f32 GetDensityScale(void) const           { return m_DensityScale; }
 
     void SetExposureScale(vd::f32 v);
     vd::f32 GetExposureScale(void) const          { return m_ExposureScale; }
@@ -100,63 +111,84 @@ public:
     void SetAlphaScale(vd::f32 v);
     vd::f32 GetAlphaScale(void) const             { return m_AlphaScale; }
 
+    void SetAlphaBias(vd::f32 v);
+    vd::f32 GetAlphaBias(void) const             { return m_AlphaBias; }
+
     void SetIntensityScale(vd::f32 v);
     vd::f32 GetIntensityScale(void) const         { return m_IntensityScale; }
 
-    void SetCameraFov(vd::f32 fFov);
-    vd::f32 GetCameraFov(void) const  			  { return m_CameraFov; }
+    void SetIntensityBias(vd::f32 v);
+    vd::f32 GetIntensityBias(void) const         { return m_IntensityBias; }
 
-    void SetCameraDepthRange(vd::f32 near, vd::f32 far);
-    vd::v2f32 GetCameraDepthRange(void) const     { return m_CameraDepthRange; }
+    void SetCameraFov(vd::f32 fFov);
+    vd::f32 GetCameraFov(void) const              { return m_CameraFov; }
+
+    void SetMotionSpeed(vd::f32 v);
+    vd::f32 GetMotionSpeed(void) const            { return m_MotionSpeed; }
+
+    void SetMotionTime(vd::f32 v);
+    vd::f32 GetMotionTime(void) const            { return m_MotionTime; }
 
     void SetScreenSize(vd::u32 w, vd::u32 h);
-    void SetUseCustomProjection(bool v);
-    void SetCameraPosition(const vd::v3f32& v);
-    void SetCameraRotation(const vd::v3f32& v);
-    void SetLightPosition(const vd::v3f32& v);
+    void SetUseCustomProjection(bool v, bool ortho);
+    void SetCameraPosition(vd::v3f32 v);
+    void SetCameraRotation(vd::v3f32 v);
+    void SetLightPosition(vd::v3f32 v);
+    void SetMotionTransform(vd::m4f32 v);
+    void SetModelView(vd::m4f32 v);
+    void SetProjection(vd::m4f32 v);
+
+    void EnableProjection();
+    void DisableProjection();
     
-	VD_DECLARE_OBJECT(SphPointBasedRenderer);
-	
+    
+    VD_DECLARE_OBJECT(SphPointBasedRenderer);
+    
 protected:
 
-	VD_DISABLE_COPY_CONSTRUCTORS(SphPointBasedRenderer);
-	
+    VD_DISABLE_COPY_CONSTRUCTORS(SphPointBasedRenderer);
+    
     void DrawPoints();
     
 protected:
+    static const char* VertexShader;
+    static const char* FragmentShader;
+    static const char* GeometryShader;
 
-	void EnableProjection();
-	void DisableProjection();
-	
     bool m_IsStale;
-	bool m_UseCustomProjection;
+    bool m_UseCustomProjection;
+    bool m_UseOrthographic;
 
     vd::u32 m_ParticleCount;
 
-	vd::v3f32 m_LightPosition;
-	vd::v3f32 m_CameraPosition;
-	vd::v3f32 m_CameraRotation;
+    vd::v3f32 m_LightPosition;
+    vd::v3f32 m_CameraPosition;
+    vd::v3f32 m_CameraRotation;
     vd::f32 m_CameraFov;
-    vd::v2f32 m_CameraDepthRange;
     vd::f32 m_CameraFocalLength;
-	
+    
     vd::u32 m_ScreenWidth;
     vd::u32 m_ScreenHeight;
 
-	vd::f32 m_PointScale;
+    vd::f32 m_MinPointScale;
+    vd::f32 m_MaxPointScale;
     vd::f32 m_PointSize;
     vd::f32 m_ParticleRadius;
-	vd::f32 m_SmoothingRadius;
+    vd::f32 m_SmoothingRadius;
     vd::f32 m_SmoothingScale;
     vd::f32 m_DensityScale;
     vd::f32 m_ExposureScale;
     vd::f32 m_IntensityScale;
+    vd::f32 m_IntensityBias;
     vd::f32 m_AlphaScale;
-	vd::f32 m_WdC;
+    vd::f32 m_AlphaBias;
+    vd::f32 m_WdC;
     vd::f32 m_BoxSize;
 
     vd::u32 m_VertexBufferId;
     vd::i32 m_VertexComponents;
+    vd::v3f32 m_VertexMinValue;
+    vd::v3f32 m_VertexMaxValue;
 
     vd::u32 m_ColorBufferId;
     vd::i32 m_ColorComponents;
@@ -165,9 +197,15 @@ protected:
     vd::u32 m_DensityBufferId;
     vd::i32 m_DensityComponents;
     vd::v2f32 m_DensityRange;
+    
+    vd::f32 m_MotionSpeed;
+    vd::f32 m_MotionTime;
+    vd::m4f32 m_MotionTransform;
 
-    Shader m_Shader;
-    Graphics::Context* m_Graphics;
+    vd::m4f32 m_ModelView;
+    vd::m4f32 m_Projection;
+
+    Graphics::Shader m_Shader;
 };
 
 // ============================================================================================== //

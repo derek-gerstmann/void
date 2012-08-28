@@ -665,15 +665,8 @@ MotionPointBasedRenderer::Destroy()
 }
 
 void MotionPointBasedRenderer::SetVertexRange(
-    vd::f32 minval, vd::f32 maxval)
+    vd::v3f32 minval, vd::v3f32 maxval)
 {
-    m_VertexRange = v2f32(minval, maxval);
-    if(m_VertexRange[0] == m_VertexRange[1])
-    {
-       m_VertexRange[0] = 0.0f;
-       m_VertexRange[1] = 1.0f;
-    }    
-    m_Shader.SetUniform(vd_sym(VertexRange), m_VertexRange);
 }
 
 void MotionPointBasedRenderer::SetMinPointScale(

@@ -81,7 +81,7 @@ public:
     static Symbol GetInvalid();
 	static bool IsValid(const Symbol symbol);
 
-    static const vd::u64 Resolve(const vd::uid key);   
+    static vd::u64 Resolve(const vd::uid key);   
     static const char* Lookup(const vd::uid key);	
 	static Symbol Retrieve(const vd::uid key);
     static Symbol Register(const char* bytes);
