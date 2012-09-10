@@ -12,10 +12,6 @@ file( GLOB VD_PLATFORM_SRC
     ${VD_SRC_DIR}/*/${VD_SYSTEM_DIR}/*.cpp
 )
 
-if(EXISTS ${VD_SYMBOLS_H})
-    list(APPEND VD_PLATFORM_SRC ${VD_SYMBOLS_H} )
-endif()
-
 if(VD_SYSTEM_OSX)
 
     find_library( COCOA_LIBRARY Cocoa )

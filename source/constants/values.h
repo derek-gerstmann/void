@@ -36,8 +36,6 @@ VD_CONSTANTS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-#define VD_INVALID_INDEX                            (987654321)
-
 static struct NullValue 
 {
 
@@ -150,6 +148,26 @@ static struct FourValue
 #endif
 
 } Four VD_OPTIONAL;
+
+static struct InvalidIndexValue 
+{
+    VD_FORCE_INLINE operator f64( ) const { return VD_F64_MAX; }
+    VD_FORCE_INLINE operator f32( ) const { return VD_F32_MAX; }
+    VD_FORCE_INLINE operator f16( ) const { return VD_F16_MAX; }
+    VD_FORCE_INLINE operator i64( ) const { return VD_I64_MAX; }
+    VD_FORCE_INLINE operator u64( ) const { return VD_U64_MAX; }
+    VD_FORCE_INLINE operator i32( ) const { return VD_I32_MAX; }
+    VD_FORCE_INLINE operator u32( ) const { return VD_U32_MAX; }
+    VD_FORCE_INLINE operator i16( ) const { return VD_I16_MAX; }
+    VD_FORCE_INLINE operator u16( ) const { return VD_U16_MAX; }
+    VD_FORCE_INLINE operator i8 ( ) const { return VD_I8_MAX; }
+    VD_FORCE_INLINE operator u8 ( ) const { return VD_U8_MAX; }
+    VD_FORCE_INLINE operator uid ( ) const { static const uid v; return v; }
+#ifndef __MSVC__
+    VD_FORCE_INLINE operator size_t( ) const { return std::numeric_limits<size_t>::max(); }
+#endif
+
+} InvalidIndex VD_OPTIONAL;
 
 static struct NegInfValue
 {

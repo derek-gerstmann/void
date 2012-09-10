@@ -26,42 +26,24 @@
 #define VD_FRAMEWORK_INCLUDED
 
 // ============================================================================================== //
-// Standard headers
+// Common headers 
 // ============================================================================================== //
 
-#include <climits>
-#include <cmath>
-#include <cstring>
-#include <cassert>
-
-#include <limits>
-#include <vector>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
-#include <stdexcept>
-#include <typeinfo>
-
-// ============================================================================================== //
-// Framework headers 
-// ============================================================================================== //
-
-#include "framework/version.h"
-#include "framework/namespace.h"
-#include "framework/macros.h"
-#include "framework/architecture.h"
-#include "framework/system.h"
-#include "framework/compiler.h"
-#include "framework/support.h"
-#include "framework/visibility.h"
-#include "framework/preprocess.h"
-#include "framework/enumeration.h"
-#include "framework/limits.h"
-#include "framework/types.h"
-#include "framework/traits.h"
-#include "framework/builtins.h"
+#include "common/standard.h"
+#include "common/version.h"
+#include "common/namespace.h"
+#include "common/macros.h"
+#include "common/architecture.h"
+#include "common/system.h"
+#include "common/compiler.h"
+#include "common/support.h"
+#include "common/visibility.h"
+#include "common/preprocess.h"
+#include "common/enumeration.h"
+#include "common/limits.h"
+#include "common/types.h"
+#include "common/traits.h"
+#include "common/builtins.h"
 
 // ============================================================================================== //
 

@@ -26,6 +26,7 @@
 #include "core/core.h"
 #include "core/asserts.h"
 #include "core/memory.h"
+#include "constants/values.h"
 
 #if defined(VD_PLATFORM_OSX)        
 #include <CGLCurrent.h>
@@ -2157,15 +2158,16 @@ Context::Attach(
     Shader::Pass::Value pass)
 {
     bool attached = false;
+    vd::u32 invalid_index = Constants::InvalidIndex;
     for(vd::u32 i = Geometry::AttributeSlot::StartIndex; i < Geometry::AttributeSlot::Count; i++)
     {
         Geometry::AttributeSlot::Value attrib = Graphics::Geometry::AttributeSlot::FromInteger(i);
         vd::u32 buffer = geo->GetBuffer(attrib);
-        if(buffer < VD_INVALID_INDEX)
+        if(buffer < invalid_index)
         {
             Core::Symbol name = Symbol::Register(Graphics::Geometry::AttributeSlot::ToString(attrib));
             vd::u32 slot = shader->GetAttributeSlot(name);
-            if(slot < VD_INVALID_INDEX)
+            if(slot < invalid_index)
             {
                 Attach(geo, attrib, buffer, slot);
                 geo->Attach(pass, shader->GetData().Index);
@@ -2196,12 +2198,12 @@ Context::Detach(
     Shader::Pass::Value pass)
 {
     bool located = false;
-
+    vd::u32 invalid_index = Constants::InvalidIndex;
     for(vd::u32 i = Geometry::AttributeSlot::StartIndex; i < Geometry::AttributeSlot::Count; i++)
     {
         Graphics::Geometry::AttributeSlot::Value attrib = Graphics::Geometry::AttributeSlot::FromInteger(i);
         vd::u32 buffer = geo->GetBuffer(attrib);
-        if(buffer < VD_INVALID_INDEX)
+        if(buffer < invalid_index)
         {
             Detach(geo, attrib);
             geo->Detach(pass);

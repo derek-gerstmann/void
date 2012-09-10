@@ -125,7 +125,7 @@ public:
             return LastValue;
         }
 
-        static const vd::u32 ToInteger(
+        static vd::u32 ToInteger(
             GalaxyType::Value value) 
         { 
             switch (value)
@@ -244,7 +244,7 @@ public:
             return LastValue;
         }
 
-        static const vd::u32 ToInteger(
+        static vd::u32 ToInteger(
             Block::Value value) 
         { 
             switch (value)
@@ -487,7 +487,7 @@ public:
     WorkQueue() : Core::WorkQueue() {} 
     virtual ~WorkQueue() { Destroy(); } 
 
-    virtual void OnRun(HiDist::WorkItem* item);
+    virtual void OnRun(Core::WorkItem* item);
 
     VD_DECLARE_OBJECT(WorkQueue);
 

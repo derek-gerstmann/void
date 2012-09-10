@@ -25,6 +25,7 @@
 #include "graphics/framebuffer.h"
 #include "graphics/context.h"
 #include "core/memory.h"
+#include "constants/values.h"
 
 // ============================================================================================== //
 
@@ -38,7 +39,7 @@ Framebuffer::Framebuffer(
     m_Context(ctx)
 {
     Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
-    m_Data.Index = VD_INVALID_INDEX;
+    m_Data.Index = Constants::InvalidIndex;
 }
 
 Framebuffer::~Framebuffer()
@@ -72,7 +73,7 @@ Framebuffer::Acquire()
 vd::status 
 Framebuffer::Release()
 {
-    m_Data.Index = VD_INVALID_INDEX;
+    m_Data.Index = Constants::InvalidIndex;
     return Status::Code::Success;
 }
 
@@ -83,7 +84,7 @@ Framebuffer::Destroy()
         m_Context->Release(this);
 
     Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
-    m_Data.Index = VD_INVALID_INDEX;
+    m_Data.Index = Constants::InvalidIndex;
     return Status::Code::Success;
 }
 

@@ -25,6 +25,7 @@
 #include "graphics/geometry.h"
 #include "graphics/context.h"
 #include "core/memory.h"
+#include "constants/values.h"
 
 // ============================================================================================== //
 
@@ -32,8 +33,8 @@ VD_GRAPHICS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-vd::u32 Geometry::InvalidBuffer = VD_INVALID_INDEX;
-vd::u32 Geometry::InvalidSlot = VD_INVALID_INDEX;
+vd::u32 Geometry::InvalidBuffer = Constants::InvalidIndex;
+vd::u32 Geometry::InvalidSlot = Constants::InvalidIndex;
 
 // ============================================================================================== //
 
@@ -54,9 +55,9 @@ void
 Geometry::Reset()
 {
     Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
-    Core::Memory::SetBytes(m_Data.Shaders,  VD_INVALID_INDEX, sizeof(m_Data.Shaders));
-    Core::Memory::SetBytes(m_Data.Buffers,  VD_INVALID_INDEX, sizeof(m_Data.Buffers));
-    Core::Memory::SetBytes(m_Data.Bindings, VD_INVALID_INDEX, sizeof(m_Data.Bindings));
+    Core::Memory::SetBytes(m_Data.Shaders,  Constants::InvalidIndex, sizeof(m_Data.Shaders));
+    Core::Memory::SetBytes(m_Data.Buffers,  Constants::InvalidIndex, sizeof(m_Data.Buffers));
+    Core::Memory::SetBytes(m_Data.Bindings, Constants::InvalidIndex, sizeof(m_Data.Bindings));
 }
 
 void
@@ -79,7 +80,7 @@ Geometry::Acquire()
 vd::status 
 Geometry::Release()
 {
-    m_Data.Index = VD_INVALID_INDEX;
+    m_Data.Index = Constants::InvalidIndex;
     return Status::Code::Success;
 }
 
@@ -96,7 +97,7 @@ Geometry::Destroy()
         m_Context->Release(this);
 
     Reset();
-    m_Data.Index = VD_INVALID_INDEX;    
+    m_Data.Index = Constants::InvalidIndex;    
     return Status::Code::Success;
 }
 

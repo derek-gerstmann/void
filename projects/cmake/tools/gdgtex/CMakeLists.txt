@@ -8,6 +8,11 @@ file( GLOB VD_TOOLS_GDGTEX_SRC
 
 include_directories( ${VD_TOOLS_DIR}/gdgtex )
 
-add_executable( vdgdex ${VD_TOOLS_GDGTEX_SRC} )
+if(VOID_USE_HDF5)
+	add_executable( vdgdex ${VD_TOOLS_GDGTEX_SRC} )
+	target_link_libraries( vdgdex ${VD_EXT_HDF5_LIB} ${VD_EXT_SZIP_LIB} ${VD_EXT_ZLIB_LIB} )
+else()
+	add_executable( vdgdex ${VD_TOOLS_GDGTEX_SRC} )
+endif()
 
 message(STATUS "Configured: GdgtEx")

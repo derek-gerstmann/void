@@ -37,9 +37,9 @@ VD_RUNTIME_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-struct System 
+class System 
 {
-
+public:
     static bool Startup(int* argc=NULL, void** argv=NULL);
     static bool Shutdown(void);
 

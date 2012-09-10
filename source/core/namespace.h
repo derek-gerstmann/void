@@ -26,7 +26,7 @@
 
 // ============================================================================================== //
 
-#include "framework/namespace.h"
+#include "common/namespace.h"
 
 #define VD_CORE_NAMESPACE               Core
 #define VD_CORE_SCOPE                   VD_NAMESPACE_SCOPE::VD_CORE_NAMESPACE

@@ -43,12 +43,12 @@ VD_STORAGE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-class DataGroup : public vd::core::Object
+class DataObject : public Core::Object
 {
-    DataSet();    
-    virtual ~DataSet();
+    DataObject();    
+    virtual ~DataObject();
 	
-	virtual void 
+	virtual vd::status 
 	Destroy();
 
 	VD_DECLARE_OBJECT(DataGroup);
@@ -60,7 +60,24 @@ private:
 
 // ============================================================================================== //
 
-class DataSet : public vd::core::Object
+class DataGroup : public DataObject
+{
+    DataGroup();    
+    virtual ~DataGroup();
+	
+	virtual vd::status 
+	Destroy();
+
+	VD_DECLARE_OBJECT(DataGroup);
+	
+private:
+
+	VD_DISABLE_COPY_CONSTRUCTORS(DataGroup);
+};
+
+// ============================================================================================== //
+
+class DataSet : public Core::Object
 {
 public:
     DataSet();    
@@ -77,6 +94,12 @@ public:
 	
 	virtual vd::uid 
 	Resolve(const vd::string& parent, const vd::string& path) = 0;
+
+	virtual vd::status
+	IsSupported(const Core::Symbol feature) = 0;
+
+	virtual vd::status
+	IsValidSourceFormat(const vd::string& uri) = 0;
 
 	virtual DataGroup* 
 	Load(vd::uid index) = 0;

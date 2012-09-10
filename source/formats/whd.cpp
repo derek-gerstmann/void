@@ -1241,7 +1241,7 @@ WorkItem::OnRun()
                                                 work->m_FileIndex, 
                                                 work->m_FileNumberPadding);
 
-    MetaData m = datafile->GetMetaData();
+//    MetaData m = datafile->GetMetaData();
     vd::f64 t1 = Process::GetTimeInSeconds();
     vdLogInfo("Loaded '%s' in '%f' sec.", filename.c_str(), t1 - t0);
 
@@ -1348,9 +1348,9 @@ WorkItem::OnRun()
 
 void
 WorkQueue::OnRun(
-    WorkItem* item)
+    Core::WorkItem* item)
 {
-    Formats::HiDist::WorkItem* work = (WorkItem*)item;
+    Formats::HiDist::WorkItem* work = (Formats::HiDist::WorkItem*)item;
     if(work == NULL)
         return;
 

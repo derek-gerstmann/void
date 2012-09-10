@@ -675,7 +675,7 @@ void MotionPointBasedRenderer::SetMinPointScale(
     m_MinPointScale = scale;
     m_MinPointScale = m_MinPointScale > m_MaxPointScale ? m_MaxPointScale - 1.0f : m_MinPointScale;
     m_MinPointScale = m_MinPointScale < 0.0 ? 0.0 : m_MinPointScale;
-    vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
+    // vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
     m_Shader.SetUniform(vd_sym(MinPointScale), m_MinPointScale );
 }
 
@@ -685,7 +685,7 @@ void MotionPointBasedRenderer::SetMaxPointScale(
 	m_MaxPointScale = scale;
     m_MaxPointScale = m_MaxPointScale < m_MinPointScale ? m_MinPointScale + 1.0f : m_MaxPointScale;
     m_MaxPointScale = m_MaxPointScale < 0.0 ? 0.0 : m_MaxPointScale;
-    vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
+    // vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
 	m_Shader.SetUniform(vd_sym(MaxPointScale), m_MaxPointScale );
 }
 
@@ -780,7 +780,7 @@ void MotionPointBasedRenderer::SetParticleRadius(
     vd::f32 r)         	  
 { 
 	m_ParticleRadius = r; 
-    vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
+    // vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
     m_Shader.SetUniform(vd_sym(ParticleRadius), m_ParticleRadius);
 }
 
@@ -1020,7 +1020,7 @@ MotionPointBasedRenderer::EnableProjection()
 		glPushMatrix();
 		glLoadIdentity();
 
-        vd:;f32 aspect = vd::f32(m_ScreenWidth) / vd::f32(m_ScreenHeight);
+        vd::f32 aspect = vd::f32(m_ScreenWidth) / vd::f32(m_ScreenHeight);
         vd::f32 zmin = 0.001f;
         vd::f32 zmax = 1000.0f;
 
@@ -1109,7 +1109,7 @@ MotionPointBasedRenderer::Setup(
     m_Shader.Compile(VertexShader, NULL, FragmentShader);
 	m_WdC = CWd(m_SmoothingRadius*m_SmoothingRadius);
     SetCameraFov(m_CameraFov);
-    vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
+    // vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
     vd::f32 radians = Core::Deg2Rad(m_CameraFov / vd::f32(Constants::Two));
     m_Shader.SetUniform(vd_sym(CameraPosition), m_CameraPosition );
     m_Shader.SetUniform(vd_sym(MinPointScale), m_MinPointScale );

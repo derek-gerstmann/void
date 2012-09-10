@@ -26,7 +26,7 @@
 #include "graphics/geometry.h"
 #include "graphics/gl/opengl.h"
 #include "containers/containers.h"
-
+#include "constants/values.h"
 #include "core/asserts.h"
 #include "core/resources.h"
 #include "core/symbol.h"
@@ -59,7 +59,7 @@ Shader::Shader(
     m_Context(ctx)
 {
     Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
-    m_Data.Index = VD_INVALID_INDEX;
+    m_Data.Index = Constants::InvalidIndex;
 }
 
 Shader::Shader(
@@ -71,7 +71,7 @@ Shader::Shader(
     m_Context(context)
 {
     Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
-    m_Data.Index = VD_INVALID_INDEX;
+    m_Data.Index = Constants::InvalidIndex;
 }
 
 Shader::~Shader()
@@ -84,7 +84,7 @@ Shader::Reset()
 {
     Destroy();
     Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
-    m_Data.Index = VD_INVALID_INDEX;
+    m_Data.Index = Constants::InvalidIndex;
 }
 
 void
@@ -107,7 +107,7 @@ Shader::Acquire()
 vd::status 
 Shader::Release()
 {
-    m_Data.Index = VD_INVALID_INDEX;
+    m_Data.Index = Constants::InvalidIndex;
 	return Status::Code::Success;
 }
 
@@ -118,7 +118,7 @@ Shader::Destroy()
 		m_Context->Release(this);
 
     Core::Memory::SetBytes(&m_Data, 0, sizeof(m_Data));
-    m_Data.Index = VD_INVALID_INDEX;
+    m_Data.Index = Constants::InvalidIndex;
 	return Status::Code::Success;
 }
 

@@ -153,7 +153,7 @@ class DataFile : public Object
 public:
 
     // Order *must* match block order in snapshot file (eg v2)
-    typedef struct ParticleType
+    struct ParticleType
     {
         enum Value 
         {
@@ -201,7 +201,7 @@ public:
             return LastValue;
         }
 
-        static const vd::u32 ToInteger(
+        static vd::u32 ToInteger(
             ParticleType::Value value) 
         { 
             switch (value)
@@ -240,7 +240,7 @@ public:
     //  IO_TSTP,
 
     // Order *must* match block order in snapshot file (eg v2)
-    typedef struct Block
+    struct Block
     {
         enum Value 
         {
@@ -309,7 +309,7 @@ public:
             return LastValue;
         }
 
-        static const vd::u32 ToInteger(
+        static vd::u32 ToInteger(
             Block::Value value) 
         { 
             switch (value)
