@@ -51,11 +51,11 @@ VD_INTERFACE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Mutex);
-VD_IMPORT(Interface, Keyboard);
-VD_IMPORT(Interface, Mouse);
-VD_IMPORT(Interface, Event);
-VD_IMPORT(Containers, Vector);
+VD_USING(Core, Mutex);
+VD_USING(Interface, Keyboard);
+VD_USING(Interface, Mouse);
+VD_USING(Interface, Event);
+VD_USING(Containers, Vector);
 
 // ============================================================================================== //
 

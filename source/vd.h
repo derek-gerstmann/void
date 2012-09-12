@@ -40,6 +40,7 @@
 #include "common/visibility.h"
 #include "common/preprocess.h"
 #include "common/enumeration.h"
+#include "common/flags.h"
 #include "common/limits.h"
 #include "common/types.h"
 #include "common/traits.h"

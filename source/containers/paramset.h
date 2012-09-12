@@ -285,23 +285,9 @@ public:
     const vd::symbol& GetSymbol(vd::uid uuid) const;
     bool Save(const vd::string& filename) const;
 
-	size_t Size() const { return m_Types.size(); }
-	
+	size_t Size() const;
     vd::string ToString() const;
-
-	void Clear() 
-	{
-		m_Types.clear();
-        m_Strings.clear();
-		m_Flags.clear();
-		m_i32.clear();
-		m_f32.clear();
-		m_v2f32.clear();
-		m_v3f32.clear();
-		m_v4f32.clear();
-		m_m3f32.clear();
-		m_m4f32.clear();
-	}
+	void Clear();
 
 	VD_DECLARE_OBJECT(ParamSet);
 

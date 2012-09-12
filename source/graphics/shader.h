@@ -37,9 +37,9 @@ VD_GRAPHICS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Symbol);
-VD_IMPORT(Containers, ParamSet);
-VD_IMPORT(Containers, Map);
+VD_USING(Core, Symbol);
+VD_USING(Containers, ParamSet);
+VD_USING(Containers, Map);
 
 // ============================================================================================== //
 

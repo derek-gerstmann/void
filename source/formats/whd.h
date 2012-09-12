@@ -43,11 +43,11 @@ VD_FORMATS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Mutex);
-VD_IMPORT(Core, WorkItem);
-VD_IMPORT(Core, WorkQueue);
-VD_IMPORT(Core, AtomicCounter);
-VD_IMPORT(Containers, LruCache);
+VD_USING(Core, Mutex);
+VD_USING(Core, WorkItem);
+VD_USING(Core, WorkQueue);
+VD_USING(Core, AtomicCounter);
+VD_USING(Containers, LruCache);
 
 // ============================================================================================== //
 

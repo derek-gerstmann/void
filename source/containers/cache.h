@@ -37,9 +37,9 @@ VD_CONTAINERS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Function);
-VD_IMPORT(Core, Mutex);
-VD_IMPORT(Core, ScopedMutex);
+VD_USING(Core, Function);
+VD_USING(Core, Mutex);
+VD_USING(Core, ScopedMutex);
 
 // ============================================================================================== //
 

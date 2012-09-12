@@ -34,8 +34,8 @@ VD_RUNTIME_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Symbol);
-VD_IMPORT(Core, Process);
+VD_USING(Core, Symbol);
+VD_USING(Core, Process);
 
 using namespace Constants::Symbols::Demo;
     

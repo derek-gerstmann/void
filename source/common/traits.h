@@ -54,7 +54,33 @@ VD_DECLARE_ENUM(TypeId,
     Double,
     Pointer,
     Address,
-    ByteSize);
+    ByteSize,
+    String,
+    Symbol,
+    UniqueId,
+    Array,
+    Compound);
+
+VD_DECLARE_ENUM(NativeTypeId,
+    VD,
+    I8,
+    U8,
+    I16,
+    U16,
+    I32,
+    U32,
+    I64,
+    U64,
+    F16,
+    F32,
+    F64,
+    PTR,
+    PSZ,
+    STR,
+    SYM,
+    UID,
+    ARR,
+    COM);
 
 // ============================================================================================== //
 // Data Structures
@@ -71,6 +97,11 @@ struct TypeTraits
     static TypeId::Value GetTypeId() 
     {
         return TypeId::Invalid;
+    }
+
+    static NativeTypeId::Value GetNativeTypeId() 
+    {
+        return NativeTypeId::Invalid;
     }
 
     static int GetByteSize() 
@@ -106,8 +137,9 @@ template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::f16>::GetName()             
 template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::f32>::GetName()              { return TypeId::ToString(TypeId::Float);           }
 template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::f64>::GetName()              { return TypeId::ToString(TypeId::Double);          }
 template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::ptr>::GetName()              { return TypeId::ToString(TypeId::Pointer);         }
-// template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::address>::GetName()          { return TypeId::ToString(TypeId::Address);         }
-// template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::bytesize>::GetName()         { return TypeId::ToString(TypeId::ByteSize);        }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::string>::GetName()           { return TypeId::ToString(TypeId::String);          }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::symbol>::GetName()           { return TypeId::ToString(TypeId::Symbol);          }
+template <> VD_FORCE_INLINE vd::cstr TypeTraits<vd::uid>::GetName()              { return TypeId::ToString(TypeId::UniqueId);        }
 
 template <> VD_FORCE_INLINE TypeId::Value TypeTraits<void>::GetTypeId()          { return TypeId::Void;              }
 template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::i8>::GetTypeId()        { return TypeId::Char;              }
@@ -122,8 +154,26 @@ template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::f16>::GetTypeId()      
 template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::f32>::GetTypeId()       { return TypeId::Float;             }
 template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::f64>::GetTypeId()       { return TypeId::Double;            }
 template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::ptr>::GetTypeId()       { return TypeId::Pointer;           }
-// template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::address>::GetTypeId()   { return TypeId::Address;           }
-// template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::bytesize>::GetTypeId()  { return TypeId::ByteSize;          }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::string>::GetTypeId()    { return TypeId::String;            }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::symbol>::GetTypeId()    { return TypeId::Symbol;            }
+template <> VD_FORCE_INLINE TypeId::Value TypeTraits<vd::uid>::GetTypeId()       { return TypeId::UniqueId;          }
+
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<void>::GetNativeTypeId()        { return NativeTypeId::VD; }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::i8>::GetNativeTypeId()      { return NativeTypeId::I8;   }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::u8>::GetNativeTypeId()      { return NativeTypeId::U8;   }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::i16>::GetNativeTypeId()     { return NativeTypeId::I16;  }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::u16>::GetNativeTypeId()     { return NativeTypeId::U16;  }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::i32>::GetNativeTypeId()     { return NativeTypeId::I32;  }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::u32>::GetNativeTypeId()     { return NativeTypeId::U32;  }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::i64>::GetNativeTypeId()     { return NativeTypeId::I64;  }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::u64>::GetNativeTypeId()     { return NativeTypeId::U64;  }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::f16>::GetNativeTypeId()     { return NativeTypeId::F16;  }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::f32>::GetNativeTypeId()     { return NativeTypeId::F32;  }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::f64>::GetNativeTypeId()     { return NativeTypeId::F64;  }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::ptr>::GetNativeTypeId()     { return NativeTypeId::PTR;  }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<std::size_t>::GetNativeTypeId() { return NativeTypeId::PSZ;  }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::symbol>::GetNativeTypeId()  { return NativeTypeId::SYM;  }
+template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::uid>::GetNativeTypeId()     { return NativeTypeId::UID;  }
 
 // ============================================================================================== //
 

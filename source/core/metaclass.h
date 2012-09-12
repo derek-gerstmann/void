@@ -38,20 +38,12 @@ VD_CORE_NAMESPACE_BEGIN();
 
 class Object;
 class Symbol;
-
-class InstanceRegistry
-{
-	InstanceRegistry() { }
-};
-
-class Stream
-{
-	Stream() { }
-};
+class Stream;
+class Repository;
 
 // ============================================================================================== //
 
-class MetaClass
+class VD_API MetaClass
 {
 public:
     MetaClass(
@@ -61,6 +53,7 @@ public:
 		void* createfn = NULL, 
 		void* loadfn = NULL);
 
+    inline const vd::symbol& GetClassName() const { return m_Name; }
     inline const vd::symbol& GetIdentifier() const { return m_Name; }
     inline bool IsAbstract() const { return m_IsAbstract; }
     inline bool IsInstantiable() const { return m_CreateFn != NULL; }
@@ -68,7 +61,7 @@ public:
     inline const MetaClass* GetParentClass() const { return m_ParentClass; }
     bool IsDerivedFrom(const MetaClass* metaclass) const;
 
-    Object* Load(Stream* stream = NULL, InstanceRegistry* instances = NULL) const;
+    Object* Load(Stream* stream = NULL, Repository* repo = NULL) const;
     Object* Create() const;
 
     static void CreateRegistry();

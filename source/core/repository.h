@@ -22,94 +22,66 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_DEMO_CONFIG_INCLUDED
-#define VD_DEMO_CONFIG_INCLUDED
+#ifndef VD_CORE_REPOSITORY_INCLUDED
+#define VD_CORE_REPOSITORY_INCLUDED
 
 // ============================================================================================== //
 
-#include "runtime/runtime.h"
+#include "core/core.h"
+#include "core/object.h"
 #include "containers/containers.h"
-#include "graphics/graphics.h"
-#include "graphics/viewport.h"
-#include "interface/interface.h"
-#include "interface/keyboard.h"
-#include "interface/mouse.h"
-#include "interface/event.h"
-#include "core/numerics.h"
 
 // ============================================================================================== //
 
-VD_RUNTIME_NAMESPACE_BEGIN();
+VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_USING(Core, Memory);
-VD_USING(Interface, Event);
-VD_USING(Interface, Mouse);
-VD_USING(Interface, Keyboard);
-VD_USING(Containers, AlignedMap);
-VD_USING(Graphics, Viewport);
-
-// ============================================================================================== //
-
-struct Config
+class VD_API Serializable : public Core::Object 
 {
-    typedef AlignedMap<vd::i32, vd::uid>::type KeyMapType;
-	
-    Config()
-	{
-	    Memory::SetBytes(this, 0, sizeof(Config));
-	}
-	
-	~Config(){}
-	
-    struct
-    {
-		Graphics::Viewport Viewport;
-    } Window;
+public:
+	Serializable(Stream *stream, Repository* repo);
+	virtual void Serialize(Stream *stream, Repository *repo) const = 0;
+	VD_DECLARE_OBJECT(Serializable);
 
-    struct
-    {
-        Event::KeyEvent Down[Keyboard::KeyCode::Count];
-        vd::i32 Pending;
-    } KeyState;
-
-    struct
-    {
-        KeyMapType KeyMap;
-        bool MouseDown[Mouse::Button::Count];
-        bool KeyDown[Keyboard::KeyCode::Count];
-        bool Ctrl[Keyboard::KeyCode::Count];
-        bool Alt[Keyboard::KeyCode::Count];
-        bool Shift[Keyboard::KeyCode::Count];
-    } Controls;
-
-    struct
-    {
-        bool Initialised;
-        vd::u64 LastRenderTime;
-        vd::u64 FrameCount;
-        vd::u64 TotalFrames;
-        vd::u64 StartTimeForFrame;
-        vd::u64 CurrentTimeForFrame;
-        bool Terminate;
-        bool Stale;
-        bool Paused;
-        bool FullScreen;
-    } Status;
-
-    struct
-    {
-        bool CaptureScreen;
-        bool OpenDataset;
-        bool Shutdown;
-    } Commands;
+protected:
+	inline Serializable() { }
+	virtual ~Serializable() { }
 };
 
 // ============================================================================================== //
 
-VD_RUNTIME_NAMESPACE_END();
+class VD_API Repository : public Core::Object 
+{
+	friend class Serializable;
+    typedef Containers::Vector< Serializable* >::type 				AllocList;
+    typedef Containers::Map<vd::u32, Serializable* >::type 			IdToObjectMap;
+    typedef Containers::Map<const Serializable*, vd::u32 >::type 	ObjectToIdMap;
+
+public:
+	Repository();
+	Serializable* Retrieve(Stream* stream);
+	void Serialize(Stream* stream, const Serializable* object);
+
+	VD_DECLARE_OBJECT(Repository);
+
+private:
+
+	virtual ~Repository();
+	void Register(Serializable* object);
+
+private:
+	vd::u32 		m_Counter;
+	vd::u32 		m_LastId;
+	AllocList 		m_Allocated;
+	IdToObjectMap 	m_IdToObjectMap;
+	ObjectToIdMap 	m_ObjectToIdMap;
+};
 
 // ============================================================================================== //
 
-#endif // VD_DEMO_CONFIG_INCLUDED
+VD_CORE_NAMESPACE_END();
+
+// ============================================================================================== //
+
+#endif // VD_CORE_REPOSITORY_INCLUDED

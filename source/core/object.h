@@ -38,6 +38,10 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
+class Repository;
+
+// ============================================================================================== //
+
 class Object : public Shared<Object>
 {
 public:
@@ -54,24 +58,13 @@ public:
     ToString() const;
 
 	static const char* 
-	GetName()
-	{ 
-		static const char* ident = "Object";
-		return ident; 
-	};
+	GetName();
 
 	static const char* 
-	GetIdentifier()
-	{ 
-		static const char* ident = "Object";
-		return ident; 
-	};
+	GetIdentifier();
 
 	virtual Core::Object* 
-	DynamicCast( const char* identifier )
-	{
-		return NULL;
-	}
+	Locate( const char* identifier ) const;
 	
 	virtual const 
 	Core::MetaClass* GetMetaClass() const;
@@ -88,14 +81,23 @@ protected:
 // ============================================================================================== //
 
 template< class T >
-T* vd_cast( Core::Object* obj )
+T* vd_cast( Core::Object* object )
 {
-	if ( !obj ) return NULL;
-
-	Core::Object* other = obj->DynamicCast( T::GetIdentifier() );
+	if ( !object ) return NULL;
+	Core::Object* other = object->Locate( T::GetIdentifier() );
 	if ( !other ) return NULL;
 
 	return static_cast<T*>(other);
+}
+
+template< class T >
+bool vd_isa( Core::Object* object )
+{
+    if ( object == NULL ) return false;
+    Core::Object* other = object->Locate( T::GetIdentifier() );
+    if ( other != NULL ) return true;
+
+    return false;
 }
 
 // ============================================================================================== //
@@ -106,20 +108,20 @@ T* vd_cast( Core::Object* obj )
 
 // ============================================================================================== //
 
-#define VD_DYNAMIC( ThisName, BaseName )									\
+#define VD_DECLARE_DYNAMIC_RESOLVE( ThisName, BaseName )					\
 																			\
-	static const char* GetIdentifier()										\
+	static const char* GetIdentifier() const								\
 	{																		\
 		static const char* ident = #BaseName ":" #ThisName;					\
 		return ident;														\
 	};																		\
 																			\
-	virtual Object* DynamicCast( const char* identifier )					\
+	virtual Object* Locate( const char* identifier ) const      			\
 	{																		\
 		if ( GetIdentifier() == identifier )								\
 			return this;													\
 																			\
-		return BaseClass::DynamicCast( identifier);							\
+		return BaseClass::Locate( identifier);								\
 	}
 
 // ============================================================================================== //
@@ -128,7 +130,7 @@ T* vd_cast( Core::Object* obj )
 	public:																	\
 		typedef BaseName BaseClass;											\
 		typedef ThisName ThisClass;											\
-		VD_DYNAMIC( ThisName, BaseName )									\
+		VD_DECLARE_DYNAMIC_RESOLVE( ThisName, BaseName )					\
 		ThisName( Object* parent=NULL )
 
 #define VD_DECLARE_DERIVED_OBJECT( ThisName, BaseName )						\
@@ -166,8 +168,8 @@ public: \
 	}
 
 #define VD_IMPLEMENT_OBJECT_AND_LOAD_FN(object, name, parent) \
-	Core::Object* vdLoad ##object (Core::Stream* stream, Core::InstanceManager* manager) { \
-		return VD_NEW(object, stream, manager); \
+	Core::Object* vdLoad ##object (Core::Stream* stream, Core::Repository* repo) { \
+		return VD_NEW(object, stream, repo); \
 	} \
 	Core::MetaClass object::m_MetaClass = Core::MetaClass(name, parent, false, NULL, (void *) &vdLoad ##object ); \
 	const Core::MetaClass* object::GetMetaClass() const { \
@@ -175,8 +177,8 @@ public: \
 	}
 
 #define VD_IMPLEMENT_OBJECT_AND_CREATE_LOAD_FN(object, name, parent) \
-	Core::Object* vdLoad ##object (Core::Stream *stream, Core::InstanceManager *manager) { \
-		return VD_NEW(object, stream, manager); \
+	Core::Object* vdLoad ##object (Core::Stream *stream, Core::Repository *repo) { \
+		return VD_NEW(object, stream, repo); \
 	} \
 	Core::Object* vdCreate ##object () { \
 		return VD_NEW(object); \

@@ -42,7 +42,7 @@ VD_SPATIAL_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Function);
+VD_USING(Core, Function);
 
 // ============================================================================================== //
 // Based on "Data Structures and Algorithms for Nearest Neighbor Search" by Peter N. Yianilos

@@ -26,6 +26,12 @@
 #define VD_FRAMEWORK_SUPPORT_INCLUDED
 
 // ============================================================================================== //
+// Boost hints
+// ============================================================================================== //
+
+#define BOOST_ALL_NO_LIB 				 1
+
+// ============================================================================================== //
 // Branch hint
 // ============================================================================================== //
 
@@ -62,10 +68,35 @@
 
 // ---------------------------------------------------------------------------------------------- //
 
+#define BOOST_FILESYSTEM_NO_LIB 
+#define BOOST_SYSTEM_NO_LIB 
+
+// ---------------------------------------------------------------------------------------------- //
+
 #include <mbstring.h>
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+
+#ifdef _SECURE_SCL_THROWS
+#undef _SECURE_SCL_THROWS
+#endif
+#ifdef _SCL_SECURE_NO_WARNINGS
+#undef _SCL_SECURE_NO_WARNINGS
+#endif
+#ifdef _HAS_ITERATOR_DEBUGGING
+#undef _HAS_ITERATOR_DEBUGGING
+#endif
+#undef _STLP_DEBUG
+
+#define _SECURE_SCL_THROWS 				0
+#define _HAS_ITERATOR_DEBUGGING 		0		
+#define _SCL_SECURE_NO_WARNINGS 		0
+#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_NONSTDC_NO_DEPRECATE
+#define _CRT_SECURE_NO_DEPRECATE
+
+// ---------------------------------------------------------------------------------------------- //
 
 #define VD_AVOID_INLINE                  __declspec(noinline)
 #define VD_FORCE_INLINE          	     __forceinline
@@ -79,6 +110,7 @@
 #define VD_FILE_ID		                 __FILE__
 #define VD_LINE_ID		                 __LINE__
 #define VD_OPTIONAL
+#define VD_SZ_FMT                        "%Iu"
 
 #define vd_strchr                        ::_mbschr
 #define vd_strrchr                       ::_mbsrchr
@@ -90,7 +122,6 @@
 #endif
 #define vd_strcmp                        ::_mbscmp
 #define vd_strcasecmp                    ::_mbsicmp
-#define vd_char                          unsigned char
 #define vd_txt(x)                        _T(x)
 
 #if !defined(VD_HAVE_ICU)
@@ -110,15 +141,7 @@
 # include <glob.h>
 # include <limits.h>
 
-#define VD_MAX_PATH                      PATH_MAX
-#define vd_strchr                        ::strchr
-#define vd_strrchr                       ::strrchr
-#define vd_strlen                        ::strlen
-#define vd_strcpy_s(a,n,b)               ::strcpy(a,b)
-#define vd_strcmp                        ::strcmp
-#define vd_strcasecmp                    ::strcasecmp
-#define vd_char                          char
-#define vd_txt(x)                        x
+// ---------------------------------------------------------------------------------------------- //
 
 #define VD_AVOID_INLINE                  __attribute__((noinline))
 #define VD_FORCE_INLINE		             inline __attribute__((always_inline))
@@ -132,7 +155,20 @@
 #define VD_FILE_ID		                 __FILE__
 #define VD_LINE_ID		                 __LINE__
 #define VD_OPTIONAL 				     __attribute__((used))
+#define VD_SZ_FMT                        "%zd"
+#define VD_MAX_PATH                      PATH_MAX
+
+#define vd_strchr                        ::strchr
+#define vd_strrchr                       ::strrchr
+#define vd_strlen                        ::strlen
+#define vd_strcpy_s(a,n,b)               ::strcpy(a,b)
+#define vd_strcmp                        ::strcmp
+#define vd_strcasecmp                    ::strcasecmp
+#define vd_txt(x)                        x
+
 #define vdDebugBreak()       		     asm ("int $3")
+
+// ---------------------------------------------------------------------------------------------- //
 
 #if (__GNUC__ >= 4)
 #define VD_USE_GCC_ATOMICS		         1
@@ -158,8 +194,8 @@
 
 // ============================================================================================== //
 
-#define VD_TARGET_INFO                 VD_COMPILER_NAME " (" VD_COMPILER_LANG ") for " VD_TARGET_OS_NAME " " VD_ARCH_INFO
-#define VD_BUILD_INFO                  VD_TARGET_INFO " built on " __DATE__ " at " __TIME__
+#define VD_TARGET_INFO    VD_COMPILER_NAME " (" VD_COMPILER_LANG ") for " VD_TARGET_OS_NAME " " VD_ARCH_INFO
+#define VD_BUILD_INFO     VD_TARGET_INFO " built on " __DATE__ " at " __TIME__
 
 // ============================================================================================== //
 

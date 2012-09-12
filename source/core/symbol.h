@@ -61,6 +61,8 @@ public:
 	bool operator!=(const Symbol& other) const;
 	bool operator<(const Symbol& other) const;
 
+    operator vd::symbol() const { return vd::symbol(m_Key, Lookup(m_Key)); }
+
 //	operator const char* () const { return Lookup(m_Key); }
 //	const char* c_str() const { return Lookup(m_Key); }
 	const char* GetStr() const { return Lookup(m_Key); }

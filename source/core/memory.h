@@ -51,6 +51,19 @@ public:
     static void Swap (size_t bytes, void* data);
     static void Swap (size_t bytes, int count, void* data);
 
+    template<typename T> static inline 
+    T Swap(T value) 
+    {
+        union {
+            T       value;
+            vd::u8  swap[sizeof(T)];
+        } u;
+
+        u.value = value;
+        std::reverse(&u.swap[0], &u.swap[sizeof(T)]);
+        return u.value;
+    }
+
 private:
     static bool m_IsLittle;
 };

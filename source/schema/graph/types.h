@@ -45,6 +45,7 @@ typedef Data::MetaKey           NodeKey;
 typedef Data::MetaKey           EdgeKey;
 typedef Data::Model::Property   Property;
 typedef Data::Model::Meta       Meta;
+
 class Node;
 class Edge;
 

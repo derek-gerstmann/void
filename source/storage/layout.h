@@ -22,38 +22,44 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_COMPUTE_TYPES_INCLUDED
-#define VD_COMPUTE_TYPES_INCLUDED
+#ifndef VD_STORAGE_LAYOUT_INCLUDED
+#define VD_STORAGE_LAYOUT_INCLUDED
 
 // ============================================================================================== //
 
-#include "core/object.h"
-#include "constants/constants.h"
+#include "storage/storage.h"
 
 // ============================================================================================== //
 
-VD_COMPUTE_NAMESPACE_BEGIN();
+VD_STORAGE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_USING(Core, Object);
+struct DataLayout
+{
+    size_t                          Offset;
+    size_t                          Stride;
+    size_t                          Extent;
+    size_t                          Block;
+
+    DataLayout() :
+     Offset(0), Stride(0), Extent(0), Block(0) { }
+};
+
+struct DataSpace
+{
+    size_t                          Dimensions;
+    std::vector<size_t>             Extents;
+    std::vector<DataLayout>         Region;
+
+    DataSpace() :
+     Dimensions(0) { }
+};
 
 // ============================================================================================== //
 
-class Platform;
-class Device;
-class Context;
-class CommandQueue;
-class Buffer;
-class Image;
-class Program;    
-class Kernel;    
-class Memory;
+VD_STORAGE_NAMESPACE_END();
 
 // ============================================================================================== //
 
-VD_COMPUTE_NAMESPACE_END();
-
-// ============================================================================================== //
-
-#endif // VD_COMPUTE_TYPES_INCLUDED
+#endif // VD_STORAGE_LAYOUT_INCLUDED

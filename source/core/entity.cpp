@@ -22,6 +22,7 @@
 //
 // ============================================================================================== //
 
+#if 0
 #include "core/entity.h"
 #include "core/traits.h"
 #include "core/threading.h"
@@ -92,4 +93,5 @@ VD_IMPLEMENT_ABSTRACT_ENTITY(Entity, vd_sym(Entity), vd::symbol());
 VD_CORE_NAMESPACE_END();
 
 // ============================================================================================== //
+#endif
 

@@ -53,9 +53,9 @@ VD_RUNTIME_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Interface, Event);
-VD_IMPORT(Containers, ParamSet);
-VD_IMPORT(Interface, Window);
+VD_USING(Interface, Event);
+VD_USING(Containers, ParamSet);
+VD_USING(Interface, Window);
 
 // ============================================================================================== //
 

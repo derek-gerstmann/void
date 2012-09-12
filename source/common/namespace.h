@@ -37,11 +37,11 @@
 #define VD_NAMESPACE_BEGIN(x)			VD_NAMESPACE_ENTER { struct EnterVoidNamespace
 #define VD_NAMESPACE_END(x)				VD_NAMESPACE_EXIT } struct ExitVoidNamespace
 
+#define VD_USING_FRAMEWORK(x)			using namespace VD_FRAMEWORK_SCOPE
 #define VD_USING_NAMESPACE(x)			using namespace VD_FRAMEWORK_SCOPE
 #define VD_USING(M,C)                   using VD_NAMESPACE_SCOPE::M::C
-#define VD_IMPORT(M,C)                  using VD_NAMESPACE_SCOPE::M::C
-#define VD_IMPORT_MODULE(M)             using namespace VD_NAMESPACE_SCOPE
-#define VD_IMPORT_NAMESPACE(M,C)        using namespace VD_NAMESPACE_SCOPE::M::C
+#define VD_USING_MODULE(M)              using namespace VD_NAMESPACE_SCOPE
+#define VD_USING_MODULE_NAMESPACE(M,N)  using namespace VD_NAMESPACE_SCOPE::M::N
 #endif
 
 // ============================================================================================== //

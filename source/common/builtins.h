@@ -22,8 +22,8 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_FRAMEWORK_BUILTINS_INCLUDED
-#define VD_FRAMEWORK_BUILTINS_INCLUDED
+#ifndef VD_COMMON_BUILTINS_INCLUDED
+#define VD_COMMON_BUILTINS_INCLUDED
 
 // ============================================================================================== //
 
@@ -179,7 +179,7 @@ VD_NAMESPACE_END();
 
 // ============================================================================================== //
 
-#endif // VD_FRAMEWORK_BUILTINS_INCLUDED
+#endif // VD_COMMON_BUILTINS_INCLUDED
 
 // ============================================================================================== //
 // END FILE

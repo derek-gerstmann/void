@@ -1,9 +1,9 @@
 // ============================================================================================== //
 //
-// License:     The Lesser GNU Public License (LGPL) v3.0.
-// 
-// Author(s):   Derek Gerstmann. The University of Western Australia (UWA). 
-//              As well as the shoulders of many giants...
+// License:		The Lesser GNU Public License (LGPL) v3.0.
+//
+// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA).
+//				As well as the shoulders of many giants...
 //
 // This file is part of the Void framework.
 //
@@ -22,38 +22,59 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_COMPUTE_TYPES_INCLUDED
-#define VD_COMPUTE_TYPES_INCLUDED
+#ifndef VD_CORE_MODULE_INCLUDED
+#define VD_CORE_MODULE_INCLUDED
 
 // ============================================================================================== //
 
-#include "core/object.h"
-#include "constants/constants.h"
+#include "core/serialize.h"
 
 // ============================================================================================== //
 
-VD_COMPUTE_NAMESPACE_BEGIN();
+class VD_EXPORT_CORE Entity : public Serializable
+{
+public:
+	virtual void SetParent(Entity* parent);
+
+	inline Module* GetParent() { return m_parent; }
+	inline const Module* GetParent() const { return m_parent; }
+
+	virtual void AddChild(const std::string &name, Entity* child);
+	inline void AddChild(Entity *child) { AddChild("", child); }
+	virtual void Configure();
+
+	virtual void Serialize(Stream *stream, Module* module) const;
+
+	VD_DECLARE_OBJECT(Entity);
+
+protected:
+
+	virtual ~Entity() { }
+	inline Entity(const Config& config) 
+		: Serializable(), m_parent(NULL) { }
+	
+	Entity(Stream *stream, Module* manager);
+
+protected:
+	Entity* m_parent;
+};
 
 // ============================================================================================== //
 
-VD_USING(Core, Object);
+#define VD_EXPORT_PLUGIN(name, descr) 							\
+	extern "C" { 												\
+		void VD_API *CreateInstance(const Config& config) { 	\
+			return new name(config); 							\
+		} 														\
+		const char VD_API *GetDescription() { 					\
+			return descr; 										\
+		} 														\
+	}
 
 // ============================================================================================== //
 
-class Platform;
-class Device;
-class Context;
-class CommandQueue;
-class Buffer;
-class Image;
-class Program;    
-class Kernel;    
-class Memory;
+VD_CORE_NAMESPACE_END();
 
 // ============================================================================================== //
 
-VD_COMPUTE_NAMESPACE_END();
-
-// ============================================================================================== //
-
-#endif // VD_COMPUTE_TYPES_INCLUDED
+#endif // VD_CORE_MODULE_INCLUDED

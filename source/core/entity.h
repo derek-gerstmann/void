@@ -28,9 +28,8 @@
 // ============================================================================================== //
 
 #include "core/core.h"
-#include "core/shared.h"
-#include "core/atomics.h"
-#include "core/traits.h"
+#include "core/config.h"
+#include "core/repository.h"
 
 // ============================================================================================== //
 
@@ -38,161 +37,44 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-class Entity : public Shared<Entity>
+class VD_API Entity : public Serializable
 {
 public:
-    Entity(const Entity* parent=NULL);
+    virtual void SetParent(Entity* parent);
 
-    virtual vd::status Destroy(void);
-    void SetId(vd::uid id);
-    vd::uid GetId() const;
-    virtual vd::string ToString() const;
+    inline Entity* GetParent() { return m_Parent; }
+    inline const Entity* GetParent() const { return m_Parent; }
 
-    static const char* GetName()
-    { 
-        static const char* ident = "Entity";
-        return ident; 
-    };
+    virtual void AddChild(const std::string &name, Entity* child);
+    inline void AddChild(Entity *child) { AddChild("", child); }
+    virtual void Configure();
 
-    static const char* GetResolvedName()
-    { 
-        static const char* ident = "Entity";
-        return ident; 
-    };
+    virtual void Serialize(Stream *stream, Repository* repo) const;
 
-    virtual Core::Entity* Resolve( const char* identifier )
-    {
-        return NULL;
-    }
-    
-    virtual const Core::Traits* GetTraits() const;
-    static Core::Traits GlobalTraits;
+    VD_DECLARE_OBJECT(Entity);
 
 protected:
-    virtual ~Entity();
+
+    virtual ~Entity() { }
+    inline Entity(const Config& config) 
+        : Serializable(), m_Parent(NULL) { }
     
+    Entity(Stream *stream, Repository* repo);
+
 protected:
-    vd::uid m_Id;
+    Entity* m_Parent;
 };
 
 // ============================================================================================== //
 
-template< class T >
-T* vd_cast( Core::Entity* entity )
-{
-    if ( !entity ) return NULL;
-    Core::Entity* other = entity->Resolve( T::GetResolvedName() );
-    if ( !other ) return NULL;
-    return static_cast<T*>(other);
-}
-
-template< class T >
-bool vd_isa( Core::Entity* entity )
-{
-    if ( entity == NULL ) return false;
-    Core::Entity* other = entity->Resolve( T::GetResolvedName() );
-    if ( other != NULL ) return true;
-    return false;
-}
-
-// ============================================================================================== //
-/// Entity and Class Declaration Macros
-// ============================================================================================== //
-
-#define VD_TRAITS(x) x::GlobalTraits
-
-// ============================================================================================== //
-
-#define VD_RESOLVE_ENTITY( Derived, Base )                                  \
-                                                                            \
-    static const char* GetBaseName()                                        \
-    {                                                                       \
-        static const char* ident = #Base;                                   \
-        return ident;                                                       \
-    };                                                                      \
-                                                                            \
-    static const char* GetDerivedName()                                     \
-    {                                                                       \
-        static const char* ident = #Derived;                                \
-        return ident;                                                       \
-    };                                                                      \
-                                                                            \
-    static const char* GetResolvedName()                                    \
-    {                                                                       \
-        static const char* ident = #Base ":" #Derived;                      \
-        return ident;                                                       \
-    };                                                                      \
-                                                                            \
-    virtual Entity* Resolve( const char* identifier )                       \
-    {                                                                       \
-        if ( GetResolvedName() == identifier )                              \
-            return this;                                                    \
-                                                                            \
-        return Base::Resolve( identifier );                                 \
-    }
-
-// ============================================================================================== //
-
-#define VD_DERIVE_ENTITY( Derived, Base )                                   \
-    public:                                                                 \
-        typedef Base BaseType;                                              \
-        typedef Derived DerivedType;                                        \
-        VD_RESOLVE_ENTITY( Derived, Base )                                  \
-        Derived( Entity* parent=NULL )
-
-#define VD_DECLARE_DERIVED_ENTITY( Derived, Base )                          \
-    VD_DERIVE_ENTITY( Derived, Base ) : BaseClass( parent )
-
-#define VD_ENTITY_CONSTRUCTOR( Derived )                                    \
-    Derived::Derived( Core::Entity* parent ) : BaseClass( parent )
-
-// ============================================================================================== //
-
-#define VD_DECLARE_ENTITY( Derived ) \
-public: \
-    virtual const Core::Traits* GetTraits() const; \
-    static Core::Traits GlobalTraits;
-
-#define VD_IMPLEMENT_ABSTRACT_ENTITY(entity, name, parent) \
-    Core::Traits entity::GlobalTraits = Core::Traits(name, parent, true); \
-    const Core::Traits* entity::GetTraits() const { \
-        return &GlobalTraits;\
-    }
-
-#define VD_IMPLEMENT_ENTITY(entity, name, parent) \
-    Core::Traits entity::GlobalTraits = Core::Traits(name, parent, false); \
-    const Core::Traits* entity::GetTraits() const { \
-        return &GlobalTraits;\
-    }
-
-#define VD_IMPLEMENT_ENTITY_AND_CREATE_FN(entity, name, parent) \
-    Core::Entity* vdCreate ##entity () { \
-        return VD_NEW(entity); \
-    } \
-    Core::Traits entity::GlobalTraits = Core::Traits(name, parent, false, (void *) &vdCreate ##entity, NULL); \
-    const Core::Traits* entity::GetTraits() const { \
-        return &GlobalTraits;\
-    }
-
-#define VD_IMPLEMENT_ENTITY_AND_LOAD_FN(entity, name, parent) \
-    Core::Entity* vdLoad ##entity (Core::Stream* stream, Core::Registry* registry) { \
-        return VD_NEW(entity, stream, registry); \
-    } \
-    Core::Traits entity::GlobalTraits = Core::Traits(name, parent, false, NULL, (void *) &vdLoad ##entity ); \
-    const Core::Traits* entity::GetTraits() const { \
-        return &GlobalTraits;\
-    }
-
-#define VD_IMPLEMENT_ENTITY_AND_CREATE_LOAD_FN(entity, name, parent) \
-    Core::Entity* vdLoad ##entity (Core::Stream *stream, Core::Registry* registry) { \
-        return VD_NEW(entity, stream, registry); \
-    } \
-    Core::Entity* vdCreate ##entity () { \
-        return VD_NEW(entity); \
-    } \
-    Core::Traits entity::GlobalTraits = Core::Traits(name, parent, false, (void *) &vdCreate ##entity , (void *) &vdLoad ##entity ); \
-    const Core::Traits* entity::GetTraits() const { \
-        return &GlobalTraits;\
+#define VD_EXPORT_PLUGIN(name, descr)                           \
+    extern "C" {                                                \
+        void VD_API *CreateEntity(const Config& config) {       \
+            return VD_NEW(name, config);                        \
+        }                                                       \
+        const char VD_API *GetDescription() {                   \
+            return descr;                                       \
+        }                                                       \
     }
 
 // ============================================================================================== //
@@ -200,6 +82,5 @@ public: \
 VD_CORE_NAMESPACE_END();
 
 // ============================================================================================== //
-
 #endif // VD_CORE_ENTITY_INCLUDED
 

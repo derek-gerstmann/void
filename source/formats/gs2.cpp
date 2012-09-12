@@ -43,9 +43,11 @@ VD_FORMATS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Thread);
-VD_IMPORT(Core, Memory);
-VD_IMPORT(Core, Process);
+VD_USING(Core, Thread);
+VD_USING(Core, Memory);
+VD_USING(Core, Process);
+
+// ============================================================================================== //
 
 namespace Gadget {
 
@@ -1415,9 +1417,9 @@ namespace Gadget {
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, Thread);
-VD_IMPORT(Core, Memory);
-VD_IMPORT(Core, Process);
+VD_USING(Core, Thread);
+VD_USING(Core, Memory);
+VD_USING(Core, Process);
 
 // ============================================================================================== //
 

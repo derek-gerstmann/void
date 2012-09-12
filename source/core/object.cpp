@@ -79,6 +79,27 @@ Object::GetId() const
 	return m_Id;
 }
 
+const char* 
+Object::GetName()
+{ 
+    static const char* ident = "Object";
+    return ident; 
+};
+
+const char* 
+Object::GetIdentifier()
+{ 
+    static const char* ident = "Object";
+    return ident; 
+}
+
+Core::Object* 
+Object::Locate( 
+    const char* identifier ) const
+{
+    return NULL;
+}
+
 vd::string 
 Object::ToString() const
 {

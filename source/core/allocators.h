@@ -36,7 +36,7 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-class Mallocator 
+class VD_API Mallocator 
 {
 public:
     void* operator new(size_t size) { return New(size); }
@@ -46,7 +46,7 @@ public:
     static void Delete(void* p);
 };
 
-class MallocPolicy 
+class VD_API MallocPolicy 
 {
 public:
     VD_FORCE_INLINE static void* New(size_t size) { return Mallocator::New(size); }
@@ -201,7 +201,7 @@ bool operator!=( const AlignedAllocator<T1>&, const AlignedAllocator<T2>& ) thro
 // ============================================================================================== //
 
 template <typename T, int alignment>
-class aligned_allocator
+class VD_API aligned_allocator
 {
 public:
     typedef T value_type;
@@ -315,7 +315,7 @@ inline bool operator!=(const aligned_allocator<T, alignment1>&, const aligned_al
 // ============================================================================================== //
 
 template <int alignment>
-class aligned_allocator<void, alignment>
+class VD_API aligned_allocator<void, alignment>
 {
 public:
     typedef void* pointer;

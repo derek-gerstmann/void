@@ -53,6 +53,7 @@ typedef unsigned __int64                     vd_u64;
 typedef unsigned __int16                     vd_f16;
 typedef float                                vd_f32;
 typedef double                               vd_f64;
+typedef unsigned char                        vd_char;
 typedef wchar_t                              vd_utf8;
 typedef size_t                               vd_size;
 typedef vd_u32                               vd_tag;
@@ -79,6 +80,7 @@ typedef uint64_t                             vd_u64;
 typedef uint16_t                             vd_f16;
 typedef float                                vd_f32;
 typedef double                               vd_f64;
+typedef char                                 vd_char;
 typedef wchar_t                              vd_utf8;
 typedef size_t                               vd_size;
 typedef vd_u32                               vd_tag;
@@ -271,6 +273,8 @@ T AsType(void* v){ return reinterpret_cast<T*>(v); }
 
 // ============================================================================================== //
 
+#define VD_FSTR_LENGTH                         256u
+
 typedef wchar*                		  	       cwstr;
 typedef wchar                 		  	       fwstr[VD_FSTR_LENGTH];
 typedef std::wstring              		       vwstr;
@@ -291,7 +295,7 @@ typedef std::ostringstream        		       stringstream;
 
 // ============================================================================================== //
 
-struct Status
+struct VD_API Status
 {
     VD_DECLARE_ENUM(Code,
         Success,
@@ -339,7 +343,7 @@ typedef Status::Code status;
 
 // ============================================================================================== //
 
-class uid
+class VD_API uid
 {
 public:
 
@@ -534,7 +538,9 @@ struct UidHash : std::unary_function<vd::uid, std::size_t>
     }
 };
 
-struct symbol
+// ============================================================================================== //
+
+struct VD_API symbol
 {
 
 public:
@@ -571,6 +577,11 @@ public:
         return str; 
     }
     
+    const char* c_str() const 
+    { 
+        return str; 
+    }
+
     operator const uid& () const 
     { 
         return key; 
@@ -610,6 +621,259 @@ public:
 
 };
 
+// ============================================================================================== //
+
+template <typename T, unsigned int N = 16>
+class VD_API array
+{
+private:
+    T       m_Data[N];
+    vd::u32 m_Size;
+
+public:
+
+    array() : m_Size(static_cast<vd::u32>(0)) { }
+    ~array() { clear(); }
+
+    unsigned int capacity() const { return N; }
+    unsigned int size(void) const { return m_Size; }
+
+    void clear()
+    {
+        while(!empty()) {
+            pop_back();
+        }
+    }
+
+    void push_back (const T& x)
+    { 
+        if (size() < N) {    
+            new (&m_Data[m_Size]) T(x);
+            m_Size++;
+        } else {
+//            vdGlobalException("Failed to append to array -- capacity exceeded!");
+        }
+    }
+
+    void pop_back(void)
+    {
+        if (m_Size != 0) {
+            --m_Size;
+            m_Data[m_Size].~T();
+        } else {
+//            vdGlobalException("Failed to remove from array -- capacity exceeded!");
+        }
+    }
+  
+    array(const array<T, N>& a) : 
+        m_Size(a.m_Size)
+    {
+        if (m_Size != 0) {   
+            assign(a.begin(), a.end());
+        }
+    } 
+
+    array(unsigned int size, const T& val = T()
+    ) :
+        m_Size(0)
+    {
+        for (unsigned int i = 0; i < size; i++) 
+        {
+            push_back(val);
+        }
+    }
+
+    array<T, N>& operator=(const array<T, N>& rhs)
+    {
+        if (this == &rhs) {
+            return *this;
+        }
+
+        if (rhs.m_Size != 0) {   
+            assign(rhs.begin(), rhs.end());
+        } else {
+            clear();
+        }
+    
+        return *this;
+    }
+
+    bool operator==(array<T,N> &vec)
+    {
+        if (size() != vec.size()) {
+            return false;
+        }
+
+        for( unsigned int i = 0; i < size(); ++i ) {
+            if( operator[](i) != vec[i] ) {
+                return false;
+            }
+        }
+        return true;
+    }
+  
+    operator T* ()             { return m_Data; }
+    operator const T* () const { return m_Data; }
+   
+    bool empty (void) const
+    {
+        return m_Size==0;
+    }
+  
+    unsigned int max_size () const
+    {
+        return N;
+    }
+
+    T& operator[](int index)
+    {
+        return m_Data[index];
+    }
+  
+    const T& operator[](int index) const
+    {
+        return m_Data[index];
+    }
+  
+    template<class I>
+    void assign(I start, I end)
+    {
+        clear();   
+        while(start != end) 
+        {
+            push_back(*start);
+            start++;
+        }
+    }
+
+    class iterator
+    {
+    private:
+        const array<T,N>*   m_Array;
+        vd::i32             m_Index;
+
+        iterator (const array<T,N> &vec, int index) :
+            m_Array(&vec)
+        {            
+            if( !vec.empty() ) {
+                m_Index = index;
+            } else {
+                m_Index = -1;
+            }
+        }
+
+    public:
+        iterator(void) : 
+            m_Index(-1),
+            m_Array(NULL)
+        {
+        }
+
+        iterator(const iterator& rhs) :
+            m_Array(rhs.m_Array),
+            m_Index(rhs.m_Index)
+        {
+        }
+
+        ~iterator(void) {}
+
+        static iterator begin(const array<T,N> &vec)
+        {
+            iterator i(vec, 0);
+
+            return i;
+        }
+
+        static iterator end(const array<T,N> &vec)
+        {
+            iterator i(vec, vec.size());
+
+            return i;
+        }
+    
+        bool operator==(iterator i)
+        {
+            return ((m_Array == i.m_Array) && 
+                    (m_Index == i.m_Index));
+        }
+
+        bool operator!=(iterator i)
+        {
+            return (!(*this==i));
+        }
+
+        iterator& operator++()
+        {
+            ++m_Index;
+            return *this;
+        }
+
+        iterator operator++(int)
+        {
+            iterator retVal(*this);
+            ++m_Index;
+            return retVal;
+        }
+
+        iterator& operator--()
+        {
+            --m_Index;
+            return *this;
+        }
+
+        iterator operator--(int)
+        {
+            iterator retVal(*this);
+            --m_Index;
+            return retVal;
+        }
+
+        const T& operator *() const
+        {
+            return (*m_Array)[m_Index];
+        }
+    };
+
+    iterator begin(void)
+    {
+        return iterator::begin(*this);
+    }
+
+    iterator begin(void) const
+    {
+        return iterator::begin(*this);
+    }
+
+    iterator end(void)
+    {
+        return iterator::end(*this);
+    }
+
+    iterator end(void) const
+    {
+        return iterator::end(*this);
+    }
+
+    T& front(void)
+    {
+        return m_Data[0];
+    }
+
+    T& back(void)
+    {
+        return m_Data[m_Size];
+    }
+
+    const T& front(void) const
+    {
+        return m_Data[0];
+    }
+
+    const T& back(void) const
+    {
+        return m_Data[m_Size-1];
+    }
+};  
 
 // ============================================================================================== //
 

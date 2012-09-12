@@ -28,6 +28,8 @@
 #include "core/threading.h"
 #include "core/asserts.h"
 #include "core/logging.h"
+#include "core/stream.h"
+#include "core/repository.h"
 #include "containers/containers.h"
 
 #include <fstream>
@@ -40,7 +42,7 @@ VD_CORE_NAMESPACE_BEGIN();
 // ============================================================================================== //
 
 typedef Object* (*CreateFn)();
-typedef Object* (*LoadFn)(Stream*, InstanceRegistry*);
+typedef Object* (*LoadFn)(Stream*, Repository*);
 
 // ============================================================================================== //
 
@@ -171,14 +173,14 @@ Object* MetaClass::Create() const
     return ((CreateFn) m_CreateFn)();
 }
 
-Object* MetaClass::Load(Stream* stream, InstanceRegistry* instances) const
+Object* MetaClass::Load(Stream* stream, Repository* repo) const
 {
-    vdGlobalAssertMsg((m_CreateFn != NULL),
+    vdGlobalAssertMsg((m_LoadFn != NULL),
         "ERROR: Attempted to instantiate an object without a load method (%s)!",
         GetIdentifier().ToString());
 
 
-    return ((LoadFn) m_LoadFn)(stream, instances);
+    return ((LoadFn) m_LoadFn)(stream, repo);
 }
 
 void MetaClass::DestroyRegistry()

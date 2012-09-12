@@ -852,6 +852,26 @@ ParamSet::ToString() const
 	return ss.str();
 }
 
+size_t
+ParamSet::Size() const
+{
+	return m_Types.size();
+}
+
+void
+ParamSet::Clear()
+{
+	m_Types.clear();
+    m_Strings.clear();
+	m_Flags.clear();
+	m_i32.clear();
+	m_f32.clear();
+	m_v2f32.clear();
+	m_v3f32.clear();
+	m_v4f32.clear();
+	m_m3f32.clear();
+	m_m4f32.clear();
+}
 
 bool
 ParamSet::Save(const vd::string& filename) const

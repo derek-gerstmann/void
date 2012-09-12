@@ -53,12 +53,18 @@
 #if defined(VD_BUILD_SHARED_LIBRARY)
 #define VD_API          VD_DLL_EXPORT
 #define VD_API_C        extern "C" VD_DLL_EXPORT
+#define VD_API_CPP      VD_DLL_EXPORT
+#define VD_API_C99      extern "C" VD_DLL_EXPORT
 #else
 #define VD_API          VD_DLL_IMPORT
 #define VD_API_C        extern "C" VD_DLL_IMPORT
+#define VD_API_CPP      VD_DLL_IMPORT
+#define VD_API_C99      extern "C" VD_DLL_IMPORT
 #endif
 #define VD_INTERNAL     VD_DLL_INTERNAL
 #define VD_INTERNAL_C   extern "C" VD_DLL_INTERNAL
+#define VD_INTERNAL_CPP VD_DLL_INTERNAL
+#define VD_INTERNAL_C99 extern "C" VD_DLL_INTERNAL
 
 // ============================================================================================== //
 

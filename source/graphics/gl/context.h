@@ -39,8 +39,8 @@ VD_GRAPHICS_OPENGL_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Containers, Vector);
-VD_IMPORT(Core, Symbol);
+VD_USING(Containers, Vector);
+VD_USING(Core, Symbol);
 
 // ============================================================================================== //
 

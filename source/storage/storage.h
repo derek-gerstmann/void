@@ -32,6 +32,7 @@
 #include "storage/namespace.h"
 #include "storage/types.h"
 #include "storage/system.h"
+#include "storage/layout.h"
 #include "constants/constants.h"
 
 // ============================================================================================== //

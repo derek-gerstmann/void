@@ -22,8 +22,8 @@
 //
 // ============================================================================================== //
 
-#ifndef VD_FRAMEWORK_MACROS_INCLUDED
-#define VD_FRAMEWORK_MACROS_INCLUDED
+#ifndef VD_COMMON_MACROS_INCLUDED
+#define VD_COMMON_MACROS_INCLUDED
 
 // ============================================================================================== //
 // Pragmas and messages
@@ -128,7 +128,7 @@ private:											\
 
 // ============================================================================================== //
 
-#endif	// VD_FRAMEWORK_MACROS_INCLUDED
+#endif	// VD_COMMON_MACROS_INCLUDED
 
 // ============================================================================================== //
 // END FILE

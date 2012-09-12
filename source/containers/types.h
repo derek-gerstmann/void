@@ -53,8 +53,8 @@ VD_CONTAINERS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, RawAllocator);
-VD_IMPORT(Core, AlignedAllocator);
+VD_USING(Core, RawAllocator);
+VD_USING(Core, AlignedAllocator);
 
 // ============================================================================================== //
 

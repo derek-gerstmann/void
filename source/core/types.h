@@ -36,9 +36,8 @@
 VD_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
-// Typedefs Promoting Vector Types to Framework Namespace
+// Typedefs for common numeric types
 // ============================================================================================== //
-
 
 typedef VD_CORE_NAMESPACE::v1<bool>      v1b;
 typedef VD_CORE_NAMESPACE::v1<vd::i8>    v1i8;
@@ -180,7 +179,12 @@ VD_DECLARE_ENUM(TypeId,
     Q4F64,
     M4F16,
     M4F32,
-    M4F64);
+    M4F64,
+    STR,
+    SYM,
+    UID,
+    ARR,
+    VAR);
 
 // ---------------------------------------------------------------------------------------------- //
 

@@ -35,11 +35,11 @@ VD_INTERFACE_COCOA_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_IMPORT(Core, ScopedMutex);
+VD_USING(Core, ScopedMutex);
 
-VD_IMPORT(Interface, Mouse);
-VD_IMPORT(Interface, Keyboard);
-VD_IMPORT(Interface, Event);
+VD_USING(Interface, Mouse);
+VD_USING(Interface, Keyboard);
+VD_USING(Interface, Event);
 
 // ============================================================================================== //
 
