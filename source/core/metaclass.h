@@ -67,6 +67,7 @@ public:
     static void CreateRegistry();
     static void DestroyRegistry();
     static const MetaClass* Retrieve(const vd::symbol& name);
+    static const MetaClass* Retrieve(const Core::Symbol& name);
     static void Register(MetaClass* metaclass);
     static inline bool HasRegistry() { return m_IsInitialized; }
 

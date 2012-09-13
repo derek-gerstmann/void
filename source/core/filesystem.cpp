@@ -166,6 +166,17 @@ FileSystem::GetExtension(
     return filepath.substr(found+1);
 }
 
+vd::string
+FileSystem::GetPrefix(
+    const vd::string& filepath)
+{
+    size_t found;
+    vd::string basename = GetFilename(filepath);
+    found = basename.find_last_of(".");
+    size_t end = (found < filepath.length() && found > 0) ? (found-1) : filepath.length();
+    return filepath.substr(0, end);
+}
+
 void
 FileSystem::SplitSearchPath(
     std::vector<vd::string> &dirs,

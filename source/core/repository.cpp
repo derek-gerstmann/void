@@ -74,7 +74,10 @@ Repository::Retrieve(Stream* stream)
 		const MetaClass* meta = MetaClass::Retrieve(class_symbol);
 		if (meta == NULL)
 		{
-			vdLogError("Class with name '%s' not found!", class_name.c_str());
+			vdLogError(
+				"Failed to locate an appropriate class with name '%s'!", 
+				class_name.c_str()
+			);
 		}
 		
 		try 
@@ -84,8 +87,8 @@ Repository::Retrieve(Stream* stream)
 		catch (std::exception &e) 
 		{
 			vdLogError(
-				"Encountered an exception while unserializing an "
-				"instance of \"%s\": \"%s\"!", class_name.c_str(), e.what()
+				"Failed to load an instance of '%s': '%s'!", 
+				class_name.c_str(), e.what()
 			);
 		}
 		m_Allocated.push_back(object);

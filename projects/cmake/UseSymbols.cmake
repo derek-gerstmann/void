@@ -1,5 +1,5 @@
 
-function(extract_symbols output included scope namespace)
+function(vd_extract_symbols header source included scope namespace)
     foreach(VALUE ${ARGN})
         if ("${VALUE}" STREQUAL "${ARGV1}")
             set(filelist ${VALUE})
@@ -9,15 +9,15 @@ function(extract_symbols output included scope namespace)
     endforeach(VALUE)
 
     add_custom_command ( 
-        OUTPUT ${output}
-        COMMENT "Extracting Static Symbols and Strings to ${output} ..."
-        COMMAND vdsymex ${filelist} -i "vd.h" -i "constants/constants.h" -w "${included}" -u "${scope}" -n Symbols -n ${namespace} -o ${output}
+        OUTPUT ${header} ${source}
+        COMMENT "Extracting Static Symbols and Strings to ${header} ..."
+        COMMAND vdsymex ${filelist} -i "vd.h" -i "constants/constants.h" -w "${included}" -u "${scope}" -n Symbols -n ${namespace} -o ${header}
         DEPENDS ${filelist} ${VD_PLATFORM_SRC} 
     )
 
     add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
 
-endfunction(extract_symbols) 
+endfunction(vd_extract_symbols) 
 
 
 

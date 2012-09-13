@@ -110,6 +110,7 @@ public:
 
     vd::string Resolve(const vd::string& path);
     vd::string GetFilename(const vd::string& filepath);
+    vd::string GetPrefix(const vd::string& filepath);
     vd::string GetExtension(const vd::string& filepath);
 
     FileHandle OpenFile(const vd::string& filepath, vd::u32 flag,  vd::u32 mode = VD_FILE_MODE_DEFAULT);

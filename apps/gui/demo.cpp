@@ -24,7 +24,6 @@
 
 #include "vd.h"
 #include "demo.h"
-#include "symbols.h"
 #include "core/symbol.h"
 #include <iostream>
 
@@ -37,8 +36,6 @@ VD_RUNTIME_NAMESPACE_BEGIN();
 VD_USING(Core, Symbol);
 VD_USING(Core, Process);
 
-using namespace Constants::Symbols::Demo;
-    
 // ============================================================================================== //
 
 Demo::Demo()

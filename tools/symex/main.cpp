@@ -350,9 +350,6 @@ GenerateHeader(
 	output.open(tmpfile.c_str());
 	std::vector<std::string>::const_iterator it;
 
-	std::cout << "Generating header '" << settings.OutputFile;
-	std::cout << "' with " << symbols.size() << " entries ..." << std::endl;
-	
 	output << "#ifndef " << settings.HeaderDefineName << std::endl;
 	output << "#define " << settings.HeaderDefineName << std::endl;
 
@@ -370,15 +367,6 @@ GenerateHeader(
 	OutputSeparator(output, "=", "// ", " //");
 	output << std::endl;
 
-	if(settings.MacroBegin.size())
-	{
-		output << settings.MacroBegin << "();" << std::endl;
-
-		output << std::endl;
-		OutputSeparator(output, "=", "// ", " //");
-		output << std::endl;
-	}
-
 	if(settings.NameSpaceList.size())
 	{
 		output << "#ifndef " << settings.NameSpaceMacro << std::endl;
@@ -393,10 +381,39 @@ GenerateHeader(
 			}
 		}
 		output << std::endl;
-
 		output << "#endif // " << settings.NameSpaceMacro << std::endl;
 
 		output << std::endl;
+		OutputSeparator(output, "=", "// ", " //");
+		output << std::endl;
+	}
+
+#if 0
+	output << "#define vd_sym( X )\t" << settings.NameSpaceMacro;
+	output << "::Static::Table[ ( " << settings.NameSpaceMacro << "::Static::Id ## X ) ]" << std::endl;
+
+	output << "#define vd_str( I )\t" << settings.NameSpaceMacro;
+	output << "::Static::Strings[ ( I ) ]" << std::endl;
+
+	output << "#define vd_uid( X )\t" << settings.NameSpaceMacro;
+	output << "::Static::Ids[ ( " << settings.NameSpaceMacro << "::Static::Id ## X ) ]" << std::endl;
+
+	output << std::endl;
+	OutputSeparator(output, "=", "// ", " //");
+	output << std::endl;
+#endif
+	
+	if(settings.MacroBegin.size())
+	{
+		output << settings.MacroBegin << "();" << std::endl;
+
+		output << std::endl;
+		OutputSeparator(output, "=", "// ", " //");
+		output << std::endl;
+	}
+
+	if(settings.NameSpaceList.size())
+	{
 		for(it = settings.NameSpaceList.begin(); it != settings.NameSpaceList.end(); ++it)
 			output << "namespace " << *it << " {" << std::endl;
 	}
@@ -405,11 +422,14 @@ GenerateHeader(
 	OutputSeparator(output, "=", "// ", " //");
 	output << std::endl;
 
-	size_t symcount = symbols.size();
-	output << "static const size_t Count = " << boost::lexical_cast<std::string>(symcount) << "UL;" << std::endl;
+	output << "struct VD_API Static {" << std::endl;
 
 	output << std::endl;
 	OutputSeparator(output, "=", "// ", " //");
+	output << std::endl;
+
+	size_t symcount = symbols.size();
+	output << "static const size_t Count;" << std::endl;
 	output << std::endl;
 
 	output << "enum " << settings.IndexEnumName << std::endl;
@@ -431,74 +451,29 @@ GenerateHeader(
 		}
 	}
 	output << "};" << std::endl;
+	output << std::endl;
+
+	output << "static const " << settings.IdTypeName << " ";
+	output << settings.IdTableName << vd::string("[");
+	output << boost::lexical_cast<std::string>(symcount) << vd::string("];") << std::endl;	
+	output << std::endl;
+
+	output << "static const char* ";
+	output << settings.StringTableName << vd::string("[");
+	output << boost::lexical_cast<std::string>(symcount) << vd::string("];") << std::endl;	
+	output << std::endl;
+
+	output << "static const " << settings.SymbolTypeName << " ";
+	output << settings.SymbolTableName << vd::string("[");
+	output << boost::lexical_cast<std::string>(symcount) << vd::string("];") << std::endl;	
+	output << std::endl;
 
 	output << std::endl;
 	OutputSeparator(output, "=", "// ", " //");
 	output << std::endl;
 
-	output << "static const " << settings.IdTypeName << std::endl;
-	output << settings.IdTableName << std::string("[] = ") << std::endl;
-	output << "{" << std::endl;
-	{
-		std::size_t count = 0;
-		std::size_t i = 0;
-		std::string prefix = settings.IdPrefix; 
-		for(it = symbols.begin(); it != symbols.end(); ++it)
-		{
-			value = digests[i++];
-			output << "\t" << settings.IdTypeName << "(" << value << ")";
-			if(i < symcount) output << ",";
-			output << std::endl;
-			count++;
-		}
-	}
-	output << "};" << std::endl;
-
-	output << std::endl;
-	OutputSeparator(output, "=", "// ", " //");
-	output << std::endl;
+	output << "}; // end struct: Static" << std::endl;
 	
-	output << "static const char*" << std::endl;
-	output << settings.StringTableName << std::string("[] = ") << std::endl;
-	output << "{" << std::endl;
-	{
-		std::size_t i = 0;
-		for(it = symbols.begin(); it != symbols.end(); ++it)
-		{			
-			i++;
-			output << "\t\"" << *it << "\"";
-			if(i < symcount) output << ",";
-			output << std::endl;
-		}
-	}
-	output << "};" << std::endl;
-	output << std::endl;
-
-	output << std::endl;
-	OutputSeparator(output, "=", "// ", " //");
-	output << std::endl;
-	
-	output << "static const " << settings.SymbolTypeName << std::endl;
-	output << settings.SymbolTableName << std::string("[] = ") << std::endl;
-	output << "{" << std::endl;
-	{
-		std::size_t i = 0;
-		for(it = symbols.begin(); it != symbols.end(); ++it)
-		{			
-			i++;
-			std::string sym;
-			ConvertStringToEnumFormat(*it, sym);
-			key = settings.IndexPrefix + sym;
-
-			output << "\t" << settings.SymbolTypeName << "( ";
-			output << settings.IdTableName << "[ " << key << " ], ";
-			output << settings.StringTableName << "[ " << key << " ] )";
-			if(i < symcount) output << ",";
-			output << std::endl;
-		}
-	}
-	output << "};" << std::endl;
-
 	output << std::endl;
 	OutputSeparator(output, "=", "// ", " //");
 	output << std::endl;
@@ -528,11 +503,11 @@ GenerateHeader(
 	{
 		if(CompareFiles(tmpfile.c_str(), dst.c_str()))
 		{
-			std::cout << "Header unchanged!  Leaving existing '" << settings.OutputFile << "' unmodified!" << std::endl;
+			std::cout << "Header unmodified! Using:   '" << settings.OutputFile << "'" << std::endl;
 		}
 		else
 		{	
-			std::cout << "Replacing existing '" << settings.OutputFile << "' with new symbols!" << std::endl;
+			std::cout << "Header modified! Replacing: '" << settings.OutputFile << "'" << std::endl;
 			fs::copy_file(tmpfile, dst, fs::copy_option::overwrite_if_exists);
 		}
 	}
@@ -542,6 +517,189 @@ GenerateHeader(
 		fs::copy_file(tmpfile, dst, fs::copy_option::overwrite_if_exists);
 	}
 }
+
+// ----------------------------------------------------------------------------------------------------------------- //
+
+void
+GenerateSource(
+	Settings& settings,
+	std::vector<std::string> symbols,
+	std::vector<std::string> digests )
+{
+//	static const size_t pad = 36;
+	std::string key;
+	std::string value;
+	std::string comma(",");
+	std::string assign(" = ");
+
+	std::string outfile;
+	size_t ext = settings.OutputFile.find_last_of(".h");
+	if(ext > 0 && ext < settings.OutputFile.length())
+		outfile = settings.OutputFile.substr(0, ext - 1);
+	else
+		outfile = settings.OutputFile;
+
+	outfile += vd::string(".cpp");
+
+	std::ofstream output;
+	fs::path tmpdir("/tmp");
+	fs::path dst(outfile);
+	fs::path filename(dst.filename());
+	fs::path header(settings.OutputFile);
+	
+	fs::path tmpfile = tmpdir / filename;
+	output.open(tmpfile.c_str());
+	std::vector<std::string>::const_iterator it;
+	
+	output << "#include " << header.filename() << std::endl;
+
+	output << std::endl;
+	OutputSeparator(output, "=", "// ", " //");
+	output << std::endl;
+
+	if(settings.HeaderList.size())
+	{
+		for(it = settings.HeaderList.begin(); it != settings.HeaderList.end(); ++it)
+			output << "#include \"" << *it << "\"" << std::endl;
+	}
+
+	output << std::endl;
+	OutputSeparator(output, "=", "// ", " //");
+	output << std::endl;
+
+	if(settings.MacroBegin.size())
+	{
+		output << settings.MacroBegin << "();" << std::endl;
+
+		output << std::endl;
+		OutputSeparator(output, "=", "// ", " //");
+		output << std::endl;
+	}
+
+	if(settings.NameSpaceList.size())
+	{
+		for(it = settings.NameSpaceList.begin(); it != settings.NameSpaceList.end(); ++it)
+			output << "namespace " << *it << " {" << std::endl;
+	}
+
+	output << std::endl;
+	OutputSeparator(output, "=", "// ", " //");
+	output << std::endl;
+
+	size_t symcount = symbols.size();
+	output << "const size_t Static::Count = " << boost::lexical_cast<std::string>(symcount) << "UL;" << std::endl;
+
+	output << std::endl;
+	OutputSeparator(output, "=", "// ", " //");
+	output << std::endl;
+
+	output << "const " << settings.IdTypeName << std::endl;
+	output << "Static::" << settings.IdTableName << vd::string("[");
+	output << boost::lexical_cast<std::string>(symcount) << vd::string("] = ") << std::endl;	
+	output << "{" << std::endl;
+	{
+		std::size_t count = 0;
+		std::size_t i = 0;
+		std::string prefix = settings.IdPrefix; 
+		for(it = symbols.begin(); it != symbols.end(); ++it)
+		{
+			value = digests[i++];
+			output << "\t" << settings.IdTypeName << "(" << value << ")";
+			if(i < symcount) output << ",";
+			output << std::endl;
+			count++;
+		}
+	}
+	output << "};" << std::endl;
+
+	output << std::endl;
+	OutputSeparator(output, "=", "// ", " //");
+	output << std::endl;
+	
+	output << "const char*" << std::endl;
+	output << "Static::" << settings.StringTableName  << vd::string("[");
+	output << boost::lexical_cast<std::string>(symcount) << vd::string("] = ") << std::endl;	
+	output << "{" << std::endl;
+	{
+		std::size_t i = 0;
+		for(it = symbols.begin(); it != symbols.end(); ++it)
+		{			
+			i++;
+			output << "\t\"" << *it << "\"";
+			if(i < symcount) output << ",";
+			output << std::endl;
+		}
+	}
+	output << "};" << std::endl;
+	output << std::endl;
+
+	output << std::endl;
+	OutputSeparator(output, "=", "// ", " //");
+	output << std::endl;
+	
+	output << "const " << settings.SymbolTypeName << std::endl;
+	output << "Static::" << settings.SymbolTableName << vd::string("[");
+	output << boost::lexical_cast<std::string>(symcount) << vd::string("] = ") << std::endl;	
+	output << "{" << std::endl;
+	{
+		std::size_t i = 0;
+		for(it = symbols.begin(); it != symbols.end(); ++it)
+		{			
+			i++;
+			std::string sym;
+			ConvertStringToEnumFormat(*it, sym);
+			key = settings.IndexPrefix + sym;
+
+			output << "\t" << settings.SymbolTypeName << "( ";
+			output << "Static::" << settings.IdTableName << "[ Static::" << key << " ], ";
+			output << "Static::" << settings.StringTableName << "[ Static::" << key << " ] )";
+			if(i < symcount) output << ",";
+			output << std::endl;
+		}
+	}
+	output << "};" << std::endl;
+
+	output << std::endl;
+	OutputSeparator(output, "=", "// ", " //");
+	output << std::endl;
+
+	std::vector<std::string> reversed = settings.NameSpaceList;
+	std::reverse(reversed.begin(), reversed.end());
+	for(it = reversed.begin(); it != reversed.end(); it++)
+		output << "} // end namespace: " << *it << std::endl;
+
+	if(settings.MacroEnd.size())
+	{
+		output << std::endl;
+		OutputSeparator(output, "=", "// ", " //");
+		output << std::endl;
+		output << settings.MacroEnd << "();" << std::endl;
+	}
+
+	output << std::endl;
+	OutputSeparator(output, "=", "// ", " //");
+	output << std::endl;
+	output.close();
+	
+	if(fs::exists(dst))
+	{
+		if(CompareFiles(tmpfile.c_str(), dst.c_str()))
+		{
+			std::cout << "Header unmodified! Using:   '" << outfile << "'" << std::endl;
+		}
+		else
+		{	
+			std::cout << "Header modified! Replacing: '" << outfile << "'" << std::endl;
+			fs::copy_file(tmpfile, dst, fs::copy_option::overwrite_if_exists);
+		}
+	}
+	else
+	{
+		std::cout << "Creating new '" << outfile << "' with extracted symbols!" << std::endl;	
+		fs::copy_file(tmpfile, dst, fs::copy_option::overwrite_if_exists);
+	}
+}
+
 
 int ParseArgs(
 	int ac, char* av[],
@@ -878,6 +1036,7 @@ int main(int ac, char* av[])
 	OutputSeparator(std::cout);
 	GenerateDigest(settings, symbols, digests);
 	GenerateHeader(settings, symbols, digests);
+	GenerateSource(settings, symbols, digests);
 	OutputSeparator(std::cout);
 
 	return 0;

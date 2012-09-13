@@ -76,19 +76,19 @@ public:
 	Symbol
 	Add(const vd::uid key, const char* bytes)
 	{
-		Symbol symbol;
-		symbol.m_Key = key;
+		Symbol sym;
+		sym.m_Key = key;
 		if(bytes == NULL)
-			return symbol;
+			return sym;
 
 		vd::u64 index = VD_U64_MAX;
 		size_t length = bytes ? strlen(bytes) : 0;
 		if(key == Constants::Zero && length)
 		{
-			symbol.m_Key = Hashing::Murmur(bytes, length);
+			sym.m_Key = Hashing::Murmur(bytes, length);
 		}
 
-		std::pair<SymbolSet::iterator, bool> added = m_SymbolSet.insert(symbol);
+		std::pair<SymbolSet::iterator, bool> added = m_SymbolSet.insert(sym);
 		if(added.second)
 		{
 			index = m_StringTable.size();
@@ -98,18 +98,18 @@ public:
 			added.first->m_Id = index;
 		}
 
-        symbol.m_Key = added.first->m_Key;
-        symbol.m_Id = added.first->m_Id;
-		return symbol;
+        sym.m_Key = added.first->m_Key;
+        sym.m_Id = added.first->m_Id;
+		return sym;
 	}
 	
 	Symbol
 	Retrieve(const vd::uid key) const
 	{
-		Symbol symbol;
-		symbol.m_Key = key;
+		Symbol sym;
+		sym.m_Key = key;
 
-		SymbolSet::const_iterator it = m_SymbolSet.find(symbol);
+		SymbolSet::const_iterator it = m_SymbolSet.find(sym);
 		if(it != m_SymbolSet.end())
 		{
 			return (*it);
@@ -120,10 +120,10 @@ public:
 	vd::u64
 	Resolve(const vd::uid key) const
 	{
-		Symbol symbol;
-		symbol.m_Key = key;
+		Symbol sym;
+		sym.m_Key = key;
 
-		SymbolSet::const_iterator it = m_SymbolSet.find(symbol);
+		SymbolSet::const_iterator it = m_SymbolSet.find(sym);
 		if(it != m_SymbolSet.end())
 		{
 			return it->m_Id;
@@ -144,9 +144,9 @@ public:
 	bool 
 	Exists(const vd::uid key) const
 	{
-		Symbol symbol;
-		symbol.m_Key = key;
-		SymbolSet::const_iterator it = m_SymbolSet.find(symbol);
+		Symbol sym;
+		sym.m_Key = key;
+		SymbolSet::const_iterator it = m_SymbolSet.find(sym);
 		if(it != m_SymbolSet.end())
 		{
 			return true;
@@ -155,19 +155,19 @@ public:
 	}
 	
 	bool 
-	Exists(const Symbol& symbol) const
+	Exists(const Symbol& sym) const
 	{
-		if(symbol.IsValid() == false)
+		if(sym.IsValid() == false)
 			return false;
 			
-		vd::uid key = symbol.GetKey();
+		vd::uid key = sym.GetKey();
 		return Exists(key);
 	}
 	
 	bool 
-	Remove(const Symbol& symbol)
+	Remove(const Symbol& sym)
 	{
-		SymbolSet::const_iterator it = m_SymbolSet.find(symbol);
+		SymbolSet::const_iterator it = m_SymbolSet.find(sym);
 		if(it != m_SymbolSet.end())
 		{
 			vd::u64 index = it->m_Id;
@@ -184,9 +184,9 @@ public:
 	bool 
 	Remove(const vd::uid key)
 	{
-		Symbol symbol;
-		symbol.m_Key = key;
-		return Remove(symbol);
+		Symbol sym;
+		sym.m_Key = key;
+		return Remove(sym);
 	}
     
 	VD_DECLARE_OBJECT(SymbolRegistry);
@@ -228,6 +228,17 @@ Symbol::Symbol(
 	if(sym.key)	
 		m_Id = Symbol::Retrieve(sym.key).GetId();
 }
+
+#if 0
+Symbol::Symbol(
+	const char* str
+) :
+	m_Id(0)
+{ 
+	if(str)	
+		*this = Symbol::Register(m_Key, str);
+}
+#endif
 
 Symbol::Symbol(
 	const vd::uid key, 

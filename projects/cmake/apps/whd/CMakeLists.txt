@@ -7,7 +7,8 @@ set( VD_APP_NAME                        Whd )
 set( VD_APP_WHD_DIR                     ${VD_APPS_DIR}/whd)
 set( VD_APP_WHD_SRC_DIR                 ${VD_APP_WHD_DIR}/source)
 set( VD_APP_WHD_DATA_DIR                ${VD_APP_WHD_DIR}/data)
-set( VD_APP_WHD_SYMBOLS                 ${VD_APP_WHD_DATA_DIR}/constants/symbols.h )
+set( VD_APP_WHD_SYMBOLS_H               ${VD_APP_WHD_DATA_DIR}/constants/symbols.h )
+set( VD_APP_WHD_SYMBOLS_CPP             ${VD_APP_WHD_DATA_DIR}/constants/symbols.cpp )
 set( VD_APP_WHD_RESOURCES               ${VD_APP_WHD_DATA_DIR}/resources/${VD_APP_NAME}Resources.txt )
 
 file( GLOB VD_APP_WHD_SRC               ${VD_APP_WHD_SRC_DIR}/*.c ${VD_APP_WHD_SRC_DIR}/*.cpp)
@@ -40,32 +41,26 @@ include_directories(
     ${VD_INTERFACE_DIR}/gwen
 )
 
-if(VOID_USE_EXTRACTED_SYMBOLS)
-    set( VD_APP_WHD_SYMEX_FILELIST      ${VD_APP_WHD_ALL_SRC} ${VD_APP_WHD_ALL_INC} ${VD_PLATFORM_SRC} )
-    
-    extract_symbols(
-        ${VD_APP_WHD_SYMBOLS} 
-        VD_CONSTANTS_EXTRACTED_WHD_SYMBOLS_SCOPE 
-        VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE
-        Whd
-        ${VD_APP_WHD_SYMEX_FILELIST})
+set( VD_APP_WHD_SYMEX_FILELIST      ${VD_APP_WHD_ALL_SRC} ${VD_APP_WHD_ALL_INC} ${VD_PLATFORM_SRC} )
 
-    add_custom_target(VdSymExWhdHeader ALL DEPENDS ${VD_APP_WHD_SYMEX_FILELIST} )
-endif()
-
-if(EXISTS ${VD_APP_WHD_SYMBOLS})
-    add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
-endif()
+vd_extract_symbols(
+    ${VD_APP_WHD_SYMBOLS_H} ${VD_APP_WHD_SYMBOLS_CPP} 
+    VD_CONSTANTS_EXTRACTED_WHD_SYMBOLS_SCOPE 
+    VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE
+    Whd
+    ${VD_APP_WHD_SYMEX_FILELIST})
 
 add_executable( Whd WIN32 MACOSX_BUNDLE
     ${VD_APP_WHD_SRC} 
     ${VD_APP_WHD_INC} 
-    ${VD_APP_WHD_SYMBOLS} )
+    ${VD_APP_WHD_SYMBOLS_H} 
+    ${VD_APP_WHD_SYMBOLS_CPP} )
 
 target_link_libraries( Whd 
     VdExternal 
     VdFramework 
     VdPlatform 
+    VdSymbols
     ${GUI_LIBRARY}
 )
 
@@ -74,7 +69,6 @@ add_dependencies( Whd
     ${VD_APP_WHD_FONTS} 
     ${VD_APP_WHD_SHADERS} 
     ${VD_APP_WHD_TEXTURES} 
-    ${VD_APP_WHD_SYMBOLS}
     ${VD_APP_WHD_RESOURCES} )
 
 add_custom_target( WhdResources ALL DEPENDS 

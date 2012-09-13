@@ -22,20 +22,9 @@
 //
 // ============================================================================================== //
 
-#if 0
 #include "core/entity.h"
-#include "core/traits.h"
-#include "core/threading.h"
+#include "core/object.h"
 #include "core/logging.h"
-#include "core/asserts.h"
-#include "core/symbol.h"
-
-#include "constants/constants.h"
-
-#include <sstream>
-#include <string>
-
-#define VD_DEBUG_REFCOUNTS (1)
 
 // ============================================================================================== //
 
@@ -43,55 +32,58 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-Entity::Entity(const Entity*) : 
-    Shared<Entity>()
+Entity::Entity(
+    Stream* stream, Repository* repo
+) : 
+    Serializable(stream, repo) 
 {
-    // EMPTY!
+    m_Parent = static_cast<Entity*>(repo->Retrieve(stream));
 }
 
-Entity::~Entity()
+void 
+Entity::SetParent(
+    Entity *parent) 
 {
-#if !VD_RELEASE_BUILD
-    vd::i32 count = GetRefCount();
-    vdGlobalAssertMsg( count == 0, "Deleting %s with reference count %i!", ToString().c_str(), count);
-#endif
+    m_Parent = parent;
 }
 
-vd::status
-Entity::Destroy()
+void 
+Entity::Configure() 
 {
-    return Status::Code::Success;
+
 }
 
-void
-Entity::SetId(vd::uid id)
+void 
+Entity::Serialize(
+    Stream *stream, Repository* repo) const 
 {
-    m_Id = id;
+    if (GetMetaClass()->IsSerializable() == false)
+    {
+        vdLogError(
+            "Unable to serialize an instance of type '%s': no serialization support!", 
+            GetMetaClass()->GetClassName().c_str()
+        );
+    }
+    repo->Serialize(stream, m_Parent);
 }
 
-vd::uid
-Entity::GetId() const
+void 
+Entity::AddChild(
+    const std::string &name, Entity *child) 
 {
-    return m_Id;
-}
-
-vd::string 
-Entity::ToString() const
-{
-    std::ostringstream oss;
-    oss << GetTraits()->GetName().GetStr();
-    oss << " [unknown]";
-    return oss.str();
+    vdLogGlobalError(
+        "Entity::AddChild('%s', '%s') not implemented for '%s'", 
+        name.c_str(), child->ToString().c_str(), ToString().c_str()
+    );
 }
 
 // ============================================================================================== //
 
-VD_IMPLEMENT_ABSTRACT_ENTITY(Entity, vd_sym(Entity), vd::symbol());
+VD_IMPLEMENT_ABSTRACT_OBJECT(Entity, vd_sym(Entity), vd_sym(Serializable));
 
 // ============================================================================================== //
 
 VD_CORE_NAMESPACE_END();
 
 // ============================================================================================== //
-#endif
 

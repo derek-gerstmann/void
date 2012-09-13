@@ -61,7 +61,7 @@ public:
 	bool operator!=(const Symbol& other) const;
 	bool operator<(const Symbol& other) const;
 
-    operator vd::symbol() const { return vd::symbol(m_Key, Lookup(m_Key)); }
+//    operator vd::symbol() const { return vd::symbol(m_Key, Lookup(m_Key)); }
 
 //	operator const char* () const { return Lookup(m_Key); }
 //	const char* c_str() const { return Lookup(m_Key); }
@@ -131,25 +131,24 @@ struct SymbolHash
 
 // ============================================================================================== //
 
-#if defined(VD_USE_EXTRACTED_SYMBOLS)
-
-#define vd_sym( X ) VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE::Table[ ( VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE::Id ## X ) ]
-#define vd_str( I ) VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE::Strings[ ( I ) ]
-#define vd_uid( X ) VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE::Ids[ ( VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE::Id ## X ) ]
-
-#else
-
 #if defined(VD_SYMEX_CLIENT)
 #define vd_sym( X )
 #define vd_str( I )
 #define vd_uid( X )
 #else
-#include "core/hashing.h"
-#warning "Using inline symbols (run SymEx to extract symbols into static data)"
-#define vd_sym( X )  vd::symbol(Core::Hashing::StringHashFnv( #X ), (const char *)( #X ))
-#define vd_str( I )  (const char *)( I )
-#define vd_uid( X )  ((vd::uid)Core::Hashing::StringHashFnv( #X ))
-#endif
+
+// #if defined(VD_USE_EXTRACTED_SYMBOLS)
+
+#define vd_sym( X ) VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE::Static::Table[ ( VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE::Static::Id ## X ) ]
+#define vd_str( I ) VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE::Static::Strings[ ( I ) ]
+#define vd_uid( X ) VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE::Static::Ids[ ( VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE::Static::Id ## X ) ]
+
+// #else
+// #include "core/hashing.h"
+// #warning "Using inline symbols (run SymEx to extract symbols into static data)"
+// #define vd_sym( X )  vd::symbol(Core::Hashing::StringHashFnv( #X ), (const char *)( #X ))
+// #define vd_str( I )  (const char *)( I )
+// #define vd_uid( X )  ((vd::uid)Core::Hashing::StringHashFnv( #X ))
 
 #endif
 

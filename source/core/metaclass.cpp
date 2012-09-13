@@ -106,6 +106,16 @@ MetaClass::Retrieve(
     return NULL;
 }
 
+const MetaClass* 
+MetaClass::Retrieve(
+    const Core::Symbol& symbol)
+{
+    if(!symbol.IsValid())
+        return NULL;
+
+    return Retrieve(vd::symbol(symbol.GetKey(), symbol.GetStr()));
+}
+
 bool 
 MetaClass::IsDerivedFrom(
 	const MetaClass* metaclass) const

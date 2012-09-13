@@ -28,7 +28,7 @@ set( VD_SPATIAL_DIR             ${VD_SRC_DIR}/spatial)
 set( VD_STORAGE_DIR             ${VD_SRC_DIR}/storage)
 set( VD_TEST_DIR                ${VD_SRC_DIR}/test)
 set( VD_SYMBOLS_H               "${VD_EXTRACTED_DIR}/symbols.h" )
-set( VD_SYMBOLS_CPP             "${VD_CONSTANTS_DIR}/symbols.cpp" )
+set( VD_SYMBOLS_CPP             "${VD_EXTRACTED_DIR}/symbols.cpp" )
 set( VD_RESOURCES_TXT           "${VD_EXTRACTED_DIR}/resources.txt" )
 
 file( GLOB VD_FRAMEWORK_INC     ${VD_FRAMEWORK_DIR}/*.h ${VD_FRAMEWORK_DIR}/*.hpp)

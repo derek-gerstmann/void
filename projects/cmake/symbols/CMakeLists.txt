@@ -22,26 +22,21 @@ target_link_libraries( vdsymex
 
 message(STATUS "Configured: SymEx")
 
-if(VOID_USE_EXTRACTED_SYMBOLS)
+set( VD_SYMEX_FILELIST 
+        ${VD_ALL_SRC} 
+        ${VD_ALL_INC} 
+        ${VD_PLATFORM_SRC} )
 
-    set( VD_SYMEX_FILELIST 
-            ${VD_ALL_SRC} 
-            ${VD_ALL_INC} 
-            ${VD_PLATFORM_SRC} )
+file(MAKE_DIRECTORY ${VD_EXTRACTED_DIR} )
 
-    file(MAKE_DIRECTORY ${VD_EXTRACTED_DIR} )
-    
-    extract_symbols(
-        ${VD_SYMBOLS_H} 
-        VD_CONSTANTS_EXTRACTED_GLOBAL_SYMBOLS_INCLUDED 
-        VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE
-        Global
-        ${VD_SYMEX_FILELIST})
+vd_extract_symbols(
+    ${VD_SYMBOLS_H} ${VD_SYMBOLS_CPP}
+    VD_CONSTANTS_EXTRACTED_GLOBAL_SYMBOLS_INCLUDED 
+    VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE
+    Global
+    ${VD_SYMEX_FILELIST})
 
-    add_custom_target(VdSymExHeader ALL DEPENDS ${VD_ALL_SRC} ${VD_ALL_INC} )
-    set_source_files_properties(${VD_SYMBOLS_H} PROPERTIES HEADER_FILE_ONLY TRUE)
-    add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
-endif()
+add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
 
 add_library( VdSymbols ${VD_LIBRARY_TYPE} ${VD_SYMBOLS_H} ${VD_SYMBOLS_CPP} )
 message(STATUS "Configured: VdSymbols")

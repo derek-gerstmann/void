@@ -4,13 +4,14 @@ if(VOID_USE_GLUT)
 project( SkinDemo )
 
 set( VD_APP_NAME                        SkinDemo )
-set( VD_APP_SKIN_DEMO_DIR               ${VD_APPS_DIR}/skin)
+set( VD_APPS_SKIN_DEMO_DIR              ${VD_APPS_DIR}/skin)
+set( VD_APPS_SKIN_DEMO_SYMBOLS         "${VD_APPS_SKIN_DEMO_DIR}/symbols.h" )
+set( VD_APPS_SKIN_DEMO_SYMBOLS_H       "${VD_APPS_SKIN_DEMO_DIR}/symbols.h" )
+set( VD_APPS_SKIN_DEMO_SYMBOLS_CPP     "${VD_APPS_SKIN_DEMO_DIR}/symbols.cpp" )
+set( VD_APPS_SKIN_DEMO_RESOURCES       "${VD_APP_NAME}Resources.txt" )
 
-set( VD_APPS_SKIN_DEMO_SYMBOLS_H        "${VD_APP_SKIN_DEMO_DIR}/symbols.h" )
-set( VD_APPS_SKIN_DEMO_RESOURCES_TXT    "${VD_APP_NAME}Resources.txt" )
-
-file( GLOB VD_APPS_SKIN_DEMO_SRC        ${VD_APP_SKIN_DEMO_DIR}/*.c ${VD_APP_SKIN_DEMO_DIR}/*.cpp)
-file( GLOB VD_APPS_SKIN_DEMO_INC        ${VD_APP_SKIN_DEMO_DIR}/*.h ${VD_APP_SKIN_DEMO_DIR}/*.hpp)
+file( GLOB VD_APPS_SKIN_DEMO_SRC        ${VD_APPS_SKIN_DEMO_DIR}/*.c ${VD_APPS_SKIN_DEMO_DIR}/*.cpp)
+file( GLOB VD_APPS_SKIN_DEMO_INC        ${VD_APPS_SKIN_DEMO_DIR}/*.h ${VD_APPS_SKIN_DEMO_DIR}/*.hpp)
 
 file( GLOB VD_FONTS                     ${VD_RESOURCE_DIR}/fonts/*.ttf ${VD_RESOURCE_DIR}/fonts/*.otf )
 file( GLOB VD_SHADERS                   ${VD_RESOURCE_DIR}/shaders/*.glsl )
@@ -20,16 +21,6 @@ find_library( SKIN_LIBRARY Glut )
 
 set(VD_CXX_STD_FLAGS ${VD_CXX_STD_FLAGS} "-fno-rtti")
     
-set( VD_APPS_SKIN_DEMO_ALL_SRC 
-    ${VD_ALL_SRC} 
-    ${VD_APPS_SKIN_DEMO_SRC}
-)
-
-set( VD_APPS_SKIN_DEMO_ALL_INC
-    ${VD_ALL_INC} 
-    ${VD_APPS_SKIN_DEMO_INC}
-)
-
 include_directories(
     ${VD_APPS_DIR}
     ${VD_APPS_DIR}/gui
@@ -37,49 +28,46 @@ include_directories(
     ${VD_INTERFACE_DIR}/gwen
 )
 
-if(VOID_USE_EXTRACTED_SYMBOLS)
-    set( VD_APPS_SKIN_SYMEX_FILELIST ${VD_APPS_SKIN_DEMO_ALL_SRC} ${VD_APPS_SKIN_DEMO_ALL_INC} ${VD_PLATFORM_SRC} )
-    set( VD_APPS_SKIN_DEMO_ALL_SRC ${VD_APPS_SKIN_DEMO_ALL_SRC} ${VD_APPS_SKIN_DEMO_SYMBOLS_H} )
-    
-    extract_symbols(
-        ${VD_APPS_SKIN_DEMO_SYMBOLS_H} 
-        VD_CONSTANTS_EXTRACTED_DEMO_SYMBOLS_SCOPE 
-        VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE
-        Demo
-        ${VD_APPS_SKIN_SYMEX_FILELIST})
+set( VD_APP_SKIN_SYMEX_FILELIST      
+    ${VD_APPS_SKIN_DEMO_INC} 
+    ${VD_APPS_SKIN_DEMO_SRC} 
+    ${VD_PLATFORM_SRC} )
 
-    add_custom_target(VdSymExSkinDemoHeader ALL DEPENDS ${VD_APPS_SKIN_SYMEX_FILELIST} )
-endif()
+vd_extract_symbols(
+    ${VD_APPS_SKIN_DEMO_SYMBOLS_H} ${VD_APPS_SKIN_DEMO_SYMBOLS_CPP} 
+    VD_CONSTANTS_EXTRACTED_GUI_SYMBOLS_SCOPE 
+    VD_CONSTANTS_EXTRACTED_SYMBOLS_SCOPE
+    Demo
+    ${VD_APP_SKIN_SYMEX_FILELIST})
 
-if(EXISTS ${VD_APPS_SKIN_DEMO_SYMBOLS_H})
-    add_definitions( -DVD_USE_EXTRACTED_SYMBOLS=1 )
-endif()
-    
 add_executable( SkinDemo WIN32 MACOSX_BUNDLE
-    ${VD_APPS_SKIN_DEMO_SRC} ${VD_APPS_SKIN_DEMO_INC} ${VD_APPS_SKIN_DEMO_SYMBOLS_H} )
+    ${VD_APPS_SKIN_DEMO_INC} 
+    ${VD_APPS_SKIN_DEMO_SRC}
+    ${VD_APPS_SKIN_DEMO_SYMBOLS_H}
+    ${VD_APPS_SKIN_DEMO_SYMBOLS_CPP} )
 
 target_link_libraries( SkinDemo 
     VdExternal 
     VdFramework 
     VdPlatform 
+    VdSymbols
     ${VD_EXT_ICONV_LIB}
     ${VD_EXT_LIB}
     ${SKIN_LIBRARY}
 )
 
 add_dependencies( SkinDemo 
-    VdExternal 
-    VdFramework 
-    VdPlatform 
     ${VD_APPS_SKIN_DEMO_ALL_SRC} 
-    ${VD_FONTS} 
-    ${VD_SHADERS} 
-    ${VD_TEXTURES} 
-    ${VD_APPS_SKIN_DEMO_SYMBOLS_H}
-    ${VD_APPS_SKIN_DEMO_RESOURCES_TXT} )
+    ${VD_APPS_SKIN_DEMO_FONTS} 
+    ${VD_APPS_SKIN_DEMO_SHADERS} 
+    ${VD_APPS_SKIN_DEMO_TEXTURES} 
+    ${VD_APPS_SKIN_DEMO_RESOURCES} )
 
-add_custom_target( SkinDemoResources ALL DEPENDS 
-    ${VD_FONTS} ${VD_SHADERS} ${VD_TEXTURES} ${VD_APPS_SKIN_DEMO_RESOURCES_TXT} )
+add_custom_target( SkinResources ALL DEPENDS 
+    ${VD_APPS_SKIN_DEMO_FONTS} 
+    ${VD_APPS_SKIN_DEMO_SHADERS} 
+    ${VD_APPS_SKIN_DEMO_TEXTURES} 
+    ${VD_APPS_SKIN_DEMO_RESOURCES} )
 
 if(VD_SYSTEM_OSX)
 
@@ -108,12 +96,12 @@ if(VD_SYSTEM_OSX)
     )
 
     add_custom_command (
-        OUTPUT ${VD_APPS_SKIN_DEMO_RESOURCES_TXT} 
+        OUTPUT ${VD_APPS_SKIN_DEMO_RESOURCES} 
         COMMENT "Creating Resources Directory ..."
         COMMAND mkdir -p SkinDemo.app/Contents/Resources
         COMMENT "Copying Resources to Bundle ..."
         COMMAND cp ${VD_FONTS} SkinDemo.app/Contents/Resources
-        COMMAND cmake -E touch ${VD_APPS_SKIN_DEMO_RESOURCES_TXT}
+        COMMAND cmake -E touch ${VD_APPS_SKIN_DEMO_RESOURCES}
         DEPENDS ${VD_APPS_SKIN_DEMO_ALL_SRC} ${VD_FONTS} 
     )
 
@@ -126,7 +114,7 @@ if(VD_SYSTEM_OSX)
         --output-format human-readable-text 
         --compile SkinDemo.app/Contents/Resources/MainMenu.nib 
          ${VD_ROOT_DIR}/resources/platform/osx/MainMenu.xib
-        DEPENDS ${VD_APPS_SKIN_DEMO_RESOURCES_TXT}
+        DEPENDS ${VD_APPS_SKIN_DEMO_RESOURCES}
     )
 
 endif()
