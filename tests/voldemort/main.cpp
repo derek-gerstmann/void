@@ -42,10 +42,10 @@
 
 // ============================================================================================== //
 
-#include "core/core.h"
-#include "core/registry.h"
-#include "test/test.h"
-#include "test/speed.h"
+// #include "core/core.h"
+// #include "core/registry.h"
+// #include "test/test.h"
+// #include "test/speed.h"
 
 // ============================================================================================== //
 

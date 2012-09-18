@@ -1,9 +1,13 @@
 find_library( EXPAT_LIBRARY expat )
 find_library( BZIP2_LIBRARY bz2 )
+find_library( LIBM_LIBRARY m)
+find_library( PTHREAD_LIBRARY pthread )
 
 set( VD_PLATFORM_LIBS 
 	${EXPAT_LIBRARY} 
 	${BZIP2_LIBRARY} 
+	${LIBM_LIBRARY}
+	${PTHREAD_LIBRARY}
 )
 
 file( GLOB VD_PLATFORM_SRC 
