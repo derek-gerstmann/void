@@ -55,7 +55,6 @@ add_executable( GuiDemo WIN32 MACOSX_BUNDLE
     ${VD_APPS_GUI_DEMO_SYMBOLS_CPP} )
 
 target_link_libraries( GuiDemo 
-    VdExternal 
     VdFramework 
     VdPlatform 
     VdSymbols

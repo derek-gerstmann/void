@@ -57,7 +57,6 @@ add_executable( Whd WIN32 MACOSX_BUNDLE
     ${VD_APP_WHD_SYMBOLS_CPP} )
 
 target_link_libraries( Whd 
-    VdExternal 
     VdFramework 
     VdPlatform 
     VdSymbols

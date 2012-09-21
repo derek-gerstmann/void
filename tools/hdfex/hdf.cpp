@@ -479,12 +479,12 @@ std::string
 GroupAccess::GetLocalName() const
 {
     char local_name[VD_HDF5_MAX_NAME] = {0};
-    herr_t err = H5Iget_name(m_Hid, local_name, VD_HDF5_MAX_NAME  );
-    if(err != 0)
+    if(Hdf::Access::IsValid(m_Hid) == false)
     {
-        vdLogGlobalError("Failed to determine local name for group '%s'", m_Name.c_str());
-        return std::string(local_name);
+        vdLogGlobalError("Invalid handle!  Failed to find local name for group: '%s'", m_Name.c_str());
+        return std::string(local_name);    
     }
+    H5Iget_name(m_Hid, local_name, VD_HDF5_MAX_NAME  );
     return std::string(local_name);    
 }
 
@@ -492,11 +492,17 @@ size_t
 GroupAccess::GetEntryCount() const
 {
     hsize_t entry_count = 0;
+    if(Hdf::Access::IsValid(m_Hid) == false)
+    {
+        vdLogGlobalError("Invalid handle!  Failed to find determine entry count for group: '%s'", m_Name.c_str());
+        return 0;    
+    }
+
     herr_t err = H5Gget_num_objs(m_Hid, &entry_count);
     if(err != 0)
     {
         vdLogGlobalError("Failed to determine group entry count for group '%s'", m_Name.c_str());
-        return entry_count;
+        return 0;
     }
 
     return entry_count;
@@ -506,19 +512,27 @@ std::string
 GroupAccess::GetEntryName(size_t index) const
 {
     char child_name[VD_HDF5_MAX_NAME] = {0};
-    herr_t err = H5Gget_objname_by_idx(m_Hid, (hsize_t)index, child_name, (size_t)VD_HDF5_MAX_NAME );
-    if(err != 0)
+    if(Hdf::Access::IsValid(m_Hid) == false)
     {
-        vdLogGlobalError("Failed to determine group entry '%u' name for group '%s'", (uint32_t)index, m_Name.c_str());
+        vdLogGlobalError("Invalid handle!  Failed to find determine entry count for group: '%s'", m_Name.c_str());
         return std::string(child_name);
     }
+
+    H5Gget_objname_by_idx(m_Hid, (hsize_t)index, child_name, (size_t)VD_HDF5_MAX_NAME );
     return std::string(child_name);
 }
         
 int
 GroupAccess::GetEntryType(size_t index) const
 {
-    int obj_type = H5Gget_objtype_by_idx(m_Hid, (size_t)index );
+    int obj_type = 0;
+    if(Hdf::Access::IsValid(m_Hid) == false)
+    {
+        vdLogGlobalError("Invalid handle!  Failed to find determine entry type for group: '%s'", m_Name.c_str());
+        return 0;
+    }
+
+    obj_type = H5Gget_objtype_by_idx(m_Hid, (size_t)index );
     return obj_type;
 }
 
@@ -647,6 +661,82 @@ SpaceAccess::GetExtentRange(
     return dims;
 }
 
+bool
+SpaceAccess::SelectHyperSlab(
+    Storage::SpaceSelectOpId op,
+    const Storage::HyperSlab& slab) const
+{
+    if(Hdf::Access::IsValid(m_Hid) == false)
+    {
+        vdLogGlobalError("Failed to select hyperslab! Invalid handle!");
+        return false;
+    }
+
+    size_t ndim = slab.Region.size();
+
+    hsize_t start[ndim];
+    hsize_t stride[ndim];
+    hsize_t count[ndim];
+    hsize_t block[ndim];
+
+    for(size_t n = 0; n < ndim; n++)
+    {
+        start[n] = slab.Region[n].Start;
+        stride[n] = slab.Region[n].Stride;
+        count[n] = slab.Region[n].Count;
+        block[n] = slab.Region[n].Block;
+    }
+
+    H5S_seloper_t select = AdaptSelectOp::ToNativeOp(op);
+    herr_t err = H5Sselect_hyperslab(m_Hid, select, start, stride, count, block);
+    if(err)
+    {
+        vdLogGlobalError("Failed to select hyperslab! Error encountered!");
+        return false;
+    }
+    return true;
+}
+
+bool
+SpaceAccess::SelectHyperSlab(
+    const Storage::HyperSlab& slab) const
+{
+    return SelectHyperSlab(VD_SPACE_SELECT_SET, slab);
+}
+
+bool
+SpaceAccess::SelectElements(
+    Storage::SpaceSelectOpId op,
+    const std::vector<size_t>& elements) const
+{
+    if(Hdf::Access::IsValid(m_Hid) == false)
+    {
+        vdLogGlobalError("Failed to select hyperslab! Invalid handle!");
+        return false;
+    }
+
+    hsize_t count = elements.size();
+    std::vector<hsize_t> indices(count);
+    for(size_t n = 0; n < elements.size(); n++)
+        indices[n] = elements[n];
+
+    H5S_seloper_t select = AdaptSelectOp::ToNativeOp(op);
+    herr_t err = H5Sselect_elements(m_Hid, select, count, &indices[0]);
+    if(err)
+    {
+        vdLogGlobalError("Failed to select elements! Error encountered!");
+        return false;
+    }
+    return true;
+}
+
+bool
+SpaceAccess::SelectElements(
+    const std::vector<size_t>& elements) const
+{
+    return SelectElements(VD_SPACE_SELECT_SET, elements);
+}
+
 AccessClassId 
 SpaceAccess::GetAccessClassId() const
 {
@@ -760,6 +850,39 @@ AttribValueAccess::Close()
     return (error) ? false : true;
 }
 
+bool
+AttribValueAccess::ReadData(
+    void* ptr, size_t bytes) const
+{
+    TypeAccess attrib_type;
+    attrib_type.Open(*this);
+
+    SpaceAccess attrib_space;
+    attrib_space.Open(*this);
+
+    std::vector<size_t> extents;
+    attrib_space.GetExtents(extents);
+
+    size_t type_size = attrib_type.GetSizeInBytes();
+    size_t byte_count = type_size;
+    for(size_t m = 0; m < extents.size(); m++)
+        byte_count *= extents[m];
+
+    if(byte_count > bytes)
+    {
+        vdLogGlobalError("Insufficient bytes for buffer!  Failed to read attribute data at index: '%d'", m_Index);
+        return false;
+    }
+
+    herr_t error = H5Aread(m_Hid, attrib_type, ptr);
+    if(error)
+    {
+        vdLogGlobalError("Failed to read attribute data at index: '%d'", m_Index);
+        return false;
+    }
+    return true;
+}
+
 uint32_t 
 AttribValueAccess::GetListIndex() const
 { 
@@ -837,6 +960,66 @@ DataSetAccess::Close()
     return (error) ? false : true;
 }
 
+size_t
+DataSetAccess::GetStorageSize() const
+{
+    size_t bytes = 0;
+    if(Hdf::Access::IsValid(m_Hid) == false)
+    {
+        vdLogGlobalError("Invalid Handle!  Failed to retrieve storage size for dataset: '%s'", m_Name.c_str());
+        return 0;
+    }
+    bytes = H5Dget_storage_size(m_Hid);
+    return bytes;
+}
+
+bool
+DataSetAccess::ReadData(
+    const SpaceAccess& dset_space,
+    void* ptr, size_t bytes) const
+{
+    if(Hdf::Access::IsValid(m_Hid) == false)
+    {
+        vdLogGlobalError("Invalid Handle!  Failed to read data for dataset: '%s'", m_Name.c_str());
+        return false;
+    }
+
+    TypeAccess mem_type;
+    mem_type.Open(*this);
+    hid_t mem_space = H5S_ALL;
+
+    herr_t error = H5Dread(m_Hid, mem_type, mem_space, dset_space, H5P_DEFAULT, ptr);
+    if(error)
+    {
+        vdLogGlobalError("Failed to read dataset data at index: '%s'", m_Name.c_str());
+        return false;
+    }
+    return true;
+}
+
+bool 
+DataSetAccess::ReadData(
+    const Hdf::SpaceAccess& dset_space, 
+    const Hdf::SpaceAccess& mem_space, 
+    const Hdf::TypeAccess& mem_type, 
+    void* ptr, size_t bytes) const
+{
+    if(Hdf::Access::IsValid(m_Hid) == false)
+    {
+        vdLogGlobalError("Invalid Handle!  Failed to read data for dataset: '%s'", m_Name.c_str());
+        return false;
+    }
+
+    herr_t error = H5Dread(m_Hid, mem_type, mem_space, dset_space, H5P_DEFAULT, ptr);
+    if(error)
+    {
+        vdLogGlobalError("Failed to read dataset data at index: '%s'", m_Name.c_str());
+        return false;
+    }
+    return true;
+
+}
+
 const std::string&
 DataSetAccess::GetName() const
 {
@@ -897,7 +1080,7 @@ ToPropertyGraph::ExportDataSet(
     const std::string& path, 
     const std::vector<Hdf::Range> region)
 {
-    Cursor child_cursor;
+    AccessCursor child_cursor;
     child_cursor.Id = H5Dopen(group_cursor.Id, child_name, H5P_DEFAULT);
     child_cursor.Path = child_path;
     child_cursor.Name = child_name;
@@ -930,7 +1113,7 @@ ToPropertyGraph::ExportMetaData(
     root_meta.Set("Type", std::string("file") );
     NodeKey root_key = graph.AddNode(root_meta);
 
-    Cursor group_cursor;
+    AccessCursor group_cursor;
     group_cursor.Id = group_access;
     group_cursor.Name = group_path;
     ExportGroupMetaData(graph, root_key, group_access, group_cursor);
@@ -941,7 +1124,7 @@ void
 ToPropertyGraph::ExportGroupMetaData(
     GraphType& graph, NodeKey& parent_key, 
     const GroupAccess& group_access,
-    const Cursor& group_cursor)
+    const AccessCursor& group_cursor)
 {
     std::string group_name = group_access.GetLocalName();
     std::string group_path = group_cursor.Path; 
@@ -959,29 +1142,26 @@ ToPropertyGraph::ExportGroupMetaData(
 
     AttribListAccess attrib_access;
 
-    Cursor list_cursor;
+    AccessCursor list_cursor;
     list_cursor.Id = group_cursor.Id;
     list_cursor.Path = group_path;
     list_cursor.Name = group_cursor.Name;
     list_cursor.Indent = group_cursor.Indent;
     ExportAttribList(graph, group_key, attrib_access, list_cursor);
 
-    hsize_t child_count;
-    herr_t err = H5Gget_num_objs(group_cursor.Id, &child_count);
-    for (hsize_t i = 0; (i < child_count) && (err == 0); i++)
+    size_t child_count = group_access.GetEntryCount();
+    for (size_t i = 0; (i < child_count); i++)
     {
-        char child_name[VD_HDF5_MAX_NAME] = {0};
-        H5Gget_objname_by_idx(group_cursor.Id, (hsize_t)i, child_name, (size_t)VD_HDF5_MAX_NAME );
-        
+        std::string child_name = group_access.GetEntryName(i);
         std::cout << group_cursor.Indent << "+ " << child_name;
         std::string child_path = group_path + std::string("/") + std::string(child_name);
 
-        int obj_type = H5Gget_objtype_by_idx(group_cursor.Id, (size_t)i );
+        int obj_type = group_access.GetEntryType(i);
         switch(obj_type)
         {
         case H5G_LINK:
         {
-            Cursor child_cursor;
+            AccessCursor child_cursor;
             child_cursor.Id = group_cursor.Id;
             child_cursor.Index = i;
             child_cursor.Path = child_path;
@@ -997,15 +1177,17 @@ ToPropertyGraph::ExportGroupMetaData(
         {
             std::cout << " [ GROUP ] " << std::endl;
 
-            Cursor child_cursor;
-            child_cursor.Id = H5Gopen(group_cursor.Id, child_name, H5P_DEFAULT);
+            GroupAccess child_group;
+            child_group.Open(group_access, child_name);
+
+            AccessCursor child_cursor;
+            child_cursor.Id = child_group;
             child_cursor.Index = i;
             child_cursor.Path = child_path;
             child_cursor.Name = child_name;
             child_cursor.Indent = group_cursor.Indent + "  ";
 
-            ExportGroupMetaData(graph, group_key, group_access, child_cursor);
-            H5Gclose(child_cursor.Id );
+            ExportGroupMetaData(graph, group_key, child_group, child_cursor);
             break;
         }
         case H5G_DATASET:
@@ -1015,15 +1197,13 @@ ToPropertyGraph::ExportGroupMetaData(
             DataSetAccess dset_access;
             dset_access.Open(group_access, child_name);
 
-            Cursor child_cursor;
-            child_cursor.Id = dset_access; // H5Dopen(group_cursor.Id, child_name, H5P_DEFAULT);
+            AccessCursor child_cursor;
+            child_cursor.Id = dset_access;
             child_cursor.Index = i;
             child_cursor.Path = child_path;
             child_cursor.Name = child_name;
             child_cursor.Indent = group_cursor.Indent + "  ";
-
             ExportDataSetMetaData(graph, group_key, dset_access, child_cursor);
-//            H5Dclose(child_cursor.Id);
             break;
         }
         case H5G_TYPE:
@@ -1031,15 +1211,13 @@ ToPropertyGraph::ExportGroupMetaData(
             TypeAccess type_access;
             type_access.Open(group_access, child_name);
 
-            Cursor child_cursor;
-            child_cursor.Id = type_access; // H5Topen(group_cursor.Id, child_name, H5P_DEFAULT);
+            AccessCursor child_cursor;
+            child_cursor.Id = type_access; 
             child_cursor.Index = i;
             child_cursor.Path = child_path;
             child_cursor.Name = child_name;
             child_cursor.Indent = group_cursor.Indent + "  ";
-
             ExportType(graph, group_key, type_access, child_cursor);
-//            H5Tclose(child_cursor.Id);
 
             std::cout << std::endl;
             break;
@@ -1054,67 +1232,69 @@ void
 ToPropertyGraph::ExportDataSetMetaData(
     GraphType& graph, NodeKey& parent_key, 
     const DataSetAccess& dset_access, 
-    const Cursor& dset_cursor)
+    const AccessCursor& dset_cursor)
 {
-    char dset_name[VD_HDF5_MAX_NAME] = {0};
-    H5Iget_name(dset_cursor.Id, dset_name, VD_HDF5_MAX_NAME  );
-
+    std::string dset_name = dset_access.GetName();
     std::string dset_path = dset_cursor.Path + std::string("/") + std::string(dset_cursor.Name);
 
-    hid_t space_id = H5Dget_space(dset_cursor.Id);
-    hid_t type_id = H5Dget_type(dset_cursor.Id);
-    int ndims = H5Sget_simple_extent_ndims( space_id );
+    SpaceAccess dset_space;
+    dset_space.Open(dset_access);
+    int ndims = (int)dset_space.GetDimCount(); 
+    size_t dset_storage_size = dset_access.GetStorageSize();
+    
+    TypeAccess dset_type;
+    dset_type.Open(dset_access);
 
     MetaInfo dset_meta;
     dset_meta.Set("Path", std::string(dset_cursor.Path));
     dset_meta.Set("Name", std::string(dset_cursor.Name));
     dset_meta.Set("Type", std::string("dataset") );
     dset_meta.Set("Dimensions", ndims );
+    dset_meta.Set("StorageSize", uint64_t(dset_storage_size) );
+    NodeKey dset_key = graph.AddNode(dset_meta);
 
     TypeAccess type_access;
+    type_access.Open(dset_access);
 
-    Cursor type_cursor;
-    type_cursor.Id = type_id;
-    type_cursor.Path = dset_path;
+    AccessCursor type_cursor;
+    type_cursor.Id = type_access;
+    type_cursor.Path = dset_cursor.Path;
     type_cursor.Name = dset_cursor.Name;
     type_cursor.Indent = std::string(" ");
-    ExportType(graph, parent_key, type_access, type_cursor);
+    ExportType(graph, dset_key, type_access, type_cursor);
+    graph.GetNodeMeta(dset_key, dset_meta);
 
-//    m_DataSets.push_back(dset_meta.Id);
+    size_t type_size = dset_type.GetSizeInBytes();
+    size_t byte_size = type_size;
 
     if(ndims > 0)
     {
-        hsize_t dims[ndims];
-        hsize_t maxdims[ndims];
-        H5Sget_simple_extent_dims(space_id, dims, maxdims );
-
+        std::vector<size_t> extents;
+        dset_space.GetExtents(extents);
         PropertyValueList extent_prop;
 
         std::cout << " [";
         for(int m = 0; m < ndims; m++)
         {
-            std::cout << " " << dims[m] << ((m < ndims-1) ? "," : " ");
-            extent_prop.push_back(dims[m]);
+            std::cout << " " << extents[m] << ((m < ndims-1) ? "," : " ");
+            extent_prop.push_back(uint64_t(extents[m]));
+            byte_size *= extents[m];
         }
         std::cout << "]";
-    
+
         if(extent_prop.size() > 1)
             dset_meta.Set("Extents", extent_prop );
         else
             dset_meta.Set("Extents", extent_prop[0] );
+
+        std::cout << std::endl;
     }
-    else
-    {
-        std::cout << " [ " << ndims << " dims ]";
-    }
-    std::cout << std::endl;
+    dset_key = graph.SetNode(dset_key, dset_meta);
 
+    Storage::TypeClassId type_class = dset_type.GetTypeClassId();
+    TypeAccess native_type = dset_type.GetNativeType(); 
 
-    hid_t prop_id = H5Dget_create_plist(dset_cursor.Id); 
-    hsize_t storage_size = H5Dget_storage_size(dset_cursor.Id);
-
-    dset_meta.Set("StorageSize", uint64_t(storage_size) );
-    NodeKey dset_key = graph.AddNode(dset_meta);
+// ----------------------------------------
 
     MetaInfo edge_meta;
     edge_meta.Set("Path", std::string(dset_cursor.Path));
@@ -1122,7 +1302,7 @@ ToPropertyGraph::ExportDataSetMetaData(
 
     AttribListAccess attrib_access;
 
-    Cursor list_cursor;
+    AccessCursor list_cursor;
     list_cursor.Id = dset_cursor.Id;
     list_cursor.Path = dset_cursor.Path;
     list_cursor.Name = dset_cursor.Name;
@@ -1131,16 +1311,13 @@ ToPropertyGraph::ExportDataSetMetaData(
 
     // ... read data with H5Dread
 
-    H5Pclose(prop_id);
-    H5Tclose(type_id);
-    H5Sclose(space_id);
 }
 
 void
 ToPropertyGraph::ExportType(
     GraphType& graph, NodeKey& parent_key, 
     const TypeAccess& type_access, 
-    const Cursor& type_cursor)
+    const AccessCursor& type_cursor)
 {
     MetaInfo node_meta;
     graph.GetNodeMeta(parent_key, node_meta);
@@ -1207,7 +1384,7 @@ void
 ToPropertyGraph::ExportLink(
     GraphType& graph, NodeKey& parent_key, 
     const GroupAccess& group_access, 
-    const Cursor& link_cursor)
+    const AccessCursor& link_cursor)
 {
     char target[VD_HDF5_MAX_NAME] = {0};
     H5Gget_linkval(link_cursor.Id, link_cursor.Name.c_str(), VD_HDF5_MAX_NAME, target  ) ;
@@ -1230,12 +1407,12 @@ void
 ToPropertyGraph::ExportAttribList(
     GraphType& graph, NodeKey& parent_key, 
     const AttribListAccess& attrib_list, 
-    const Cursor& list_cursor) 
+    const AccessCursor& list_cursor) 
 {
     int na = H5Aget_num_attrs(list_cursor.Id);
     for (int i = 0; i < na; i++)
     {
-        Cursor attrib_cursor;
+        AccessCursor attrib_cursor;
         attrib_cursor.Id = list_cursor.Id;
         attrib_cursor.Index = i;
         attrib_cursor.Path = list_cursor.Path;
@@ -1243,7 +1420,6 @@ ToPropertyGraph::ExportAttribList(
         attrib_cursor.Indent = list_cursor.Indent;
 
         AttribValueAccess attrib_access;
-//        attrib_access.Open(attrib_list, i);
         ExportAttribValue(graph, parent_key, attrib_access, attrib_cursor);
 
         std::cout << std::endl;
@@ -1254,13 +1430,13 @@ void
 ToPropertyGraph::ExportAttribValue(
     GraphType& graph, NodeKey& parent_key, 
     const AttribValueAccess& attrib_access,
-    const Cursor& attrib_cursor) 
+    const AccessCursor& attrib_cursor) 
 {
     AttribValueAccess attrib_value;
     attrib_value.Open(attrib_cursor.Id, attrib_cursor.Index);
     std::string attrib_name = attrib_value.GetLocalName();
 
-    std::string attrib_path = attrib_cursor.Path + std::string("/") + std::string(attrib_name);
+    std::string attrib_path = attrib_cursor.Path; // + std::string("/") + std::string(attrib_base);
     std::cout << attrib_cursor.Indent << "- " << attrib_name ;
 
     TypeAccess attrib_type;
@@ -1279,7 +1455,7 @@ ToPropertyGraph::ExportAttribValue(
 
     TypeAccess type_access;
     
-    Cursor type_cursor;
+    AccessCursor type_cursor;
     type_cursor.Id = attrib_type;
     type_cursor.Path = attrib_cursor.Path;
     type_cursor.Name = attrib_cursor.Name;
@@ -1287,9 +1463,9 @@ ToPropertyGraph::ExportAttribValue(
     ExportType(graph, attrib_key, type_access, type_cursor);
     graph.GetNodeMeta(attrib_key, attrib_meta);
 
-    size_t type_size = attrib_type.GetSizeInBytes(); // Hdf::SizeOf(attrib_type);
+    size_t type_size = attrib_type.GetSizeInBytes(); 
     size_t byte_size = type_size;
-
+    size_t entry_count = 1;
     if(ndims > 0)
     {
         std::vector<size_t> extents;
@@ -1302,6 +1478,7 @@ ToPropertyGraph::ExportAttribValue(
             std::cout << " " << extents[m] << ((m < ndims-1) ? "," : " ");
             extent_prop.push_back(uint64_t(extents[m]));
             byte_size *= extents[m];
+            entry_count *= extents[m];
         }
         std::cout << "]";
 
@@ -1313,10 +1490,13 @@ ToPropertyGraph::ExportAttribValue(
 
     H5T_class_t type_class = H5Tget_class(attrib_type);
     TypeAccess native_type = attrib_type.GetNativeType(); 
+    PropertyValueList attrib_data;
 
-    void* raw = malloc(byte_size);
-    herr_t error = H5Aread(attrib_value, native_type, raw);
-    if(error == 0)
+    std::vector<int8_t> buffer(byte_size);
+    void* raw = &buffer[0];
+
+    bool success = attrib_value.ReadData(raw, byte_size);
+    if(success)
     {
         PropertyValueList attrib_value;
         if(H5Tequal(attrib_type, H5T_NATIVE_SCHAR))
@@ -1371,13 +1551,13 @@ ToPropertyGraph::ExportAttribValue(
         {
             char* c = (char*)raw;
             std::string str(c);
-            attrib_meta.Set("Value", str);
+            attrib_value.push_back(str);
         }
         else if(type_class == H5T_STRING)
         {
             char* c = (char*)raw;
             std::string str(c);
-            attrib_meta.Set("Value", str);            
+            attrib_value.push_back(str);
         }
 
         if(attrib_value.size() > 1)
@@ -1385,8 +1565,6 @@ ToPropertyGraph::ExportAttribValue(
         else if(attrib_value.size() > 0)
             attrib_meta.Set("Value", attrib_value[0]);
     }
-
-    free(raw);
     attrib_key = graph.SetNode(attrib_key, attrib_meta);
 
     MetaInfo edge_meta;

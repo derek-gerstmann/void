@@ -108,6 +108,21 @@ enum PropertyListTypeId
     VD_PROPERTY_LIST_LAST_ID
 };
 
+enum SpaceSelectOpId
+{
+    VD_SPACE_SELECT_INVALID,  
+    VD_SPACE_SELECT_NOOP,     
+    VD_SPACE_SELECT_SET,  
+    VD_SPACE_SELECT_OR,   
+    VD_SPACE_SELECT_AND,  
+    VD_SPACE_SELECT_XOR,  
+    VD_SPACE_SELECT_NOT_B,     
+    VD_SPACE_SELECT_NOT_A,     
+    VD_SPACE_SELECT_APPEND,   
+    VD_SPACE_SELECT_PREPEND,  
+    VD_SPACE_SELECT_LAST_ID  
+};
+
 // ============================================================================================== //
 
 struct DataLayout
@@ -129,6 +144,20 @@ struct DataSpace
 
     DataSpace() :
      Dimensions(0) { }
+};
+
+struct SlabRegion
+{
+    size_t Start;
+    size_t Stride;
+    size_t Count;
+    size_t Block;
+};
+
+struct HyperSlab
+{
+    std::vector<SlabRegion> Region;
+    size_t                  Dimensions;
 };
 
 // ============================================================================================== //
@@ -181,6 +210,31 @@ template <> inline StdTypeId AdaptStandardType<uint32_t>::ToStdTypeId() { return
 template <> inline StdTypeId AdaptStandardType<uint64_t>::ToStdTypeId() { return VD_STD_TYPE_U64;    }
 template <> inline StdTypeId AdaptStandardType<float>::ToStdTypeId()    { return VD_STD_TYPE_F32;    }
 template <> inline StdTypeId AdaptStandardType<double>::ToStdTypeId()   { return VD_STD_TYPE_F64;    }
+
+// ============================================================================================== //
+
+struct AdaptSelectOp 
+{  
+    static H5S_seloper_t ToNativeOp(Storage::SpaceSelectOpId op) 
+    {
+        switch(op)
+        {
+            case VD_SPACE_SELECT_INVALID:    { return H5S_SELECT_INVALID;   }
+            case VD_SPACE_SELECT_NOOP:       { return H5S_SELECT_NOOP;      }
+            case VD_SPACE_SELECT_SET:        { return H5S_SELECT_SET;       }
+            case VD_SPACE_SELECT_OR:         { return H5S_SELECT_OR;        }
+            case VD_SPACE_SELECT_AND:        { return H5S_SELECT_INVALID;   }
+            case VD_SPACE_SELECT_XOR:        { return H5S_SELECT_XOR;       }
+            case VD_SPACE_SELECT_NOT_B:      { return H5S_SELECT_NOTB;      }
+            case VD_SPACE_SELECT_NOT_A:      { return H5S_SELECT_NOTA;      }
+            case VD_SPACE_SELECT_APPEND:     { return H5S_SELECT_APPEND;    }
+            case VD_SPACE_SELECT_PREPEND:    { return H5S_SELECT_PREPEND;   }
+            case VD_SPACE_SELECT_LAST_ID:    { return H5S_SELECT_INVALID;   }
+            default:                         { return H5S_SELECT_INVALID;   }
+        };
+        return H5S_SELECT_INVALID;
+    }
+};
 
 // ============================================================================================== //
 
@@ -354,6 +408,20 @@ public:
     size_t GetExtents(std::vector<size_t>& extents) const;
     size_t GetExtentRange(std::vector<size_t>& min_extents, std::vector<size_t>& max_extents) const;
 
+    bool SelectHyperSlab(
+        Storage::SpaceSelectOpId op, 
+        const Storage::HyperSlab& slab) const;
+
+    bool SelectHyperSlab(
+        const Storage::HyperSlab& slab) const;
+
+    bool SelectElements(
+        Storage::SpaceSelectOpId op, 
+        const std::vector<size_t>& elements) const;
+
+    bool SelectElements(
+        const std::vector<size_t>& elements) const;
+
     virtual AccessClassId GetAccessClassId() const;
 };
 
@@ -369,7 +437,18 @@ public:
     bool Open(const Hdf::Access& location, const std::string& name, const PropertyListAccess& aapl);
     bool Close();
 
+    bool ReadData(
+        const Hdf::SpaceAccess& data_space, 
+        void* ptr, size_t bytes) const;
+    
+    bool ReadData(
+        const Hdf::SpaceAccess& data_space, 
+        const Hdf::SpaceAccess& mem_space, 
+        const Hdf::TypeAccess& mem_type, 
+        void* ptr, size_t bytes) const;
+
     const std::string& GetName() const;
+    size_t GetStorageSize() const;
     virtual AccessClassId GetAccessClassId() const;
 
 private:
@@ -438,6 +517,32 @@ public:
     bool Open(const Hdf::Access& location, uint32_t index);
     bool Close();
 
+    template <typename T>
+    bool ReadData(
+        std::vector<T> &data) const
+    {
+        SpaceAccess attrib_space;
+        attrib_space.Open(*this);
+
+        std::vector<size_t> extents;
+        attrib_space.GetExtents(extents);
+
+        hid_t native_type = AdaptStandardType<T>::ToNativeTypeId();
+
+        size_t total_count = 1;
+        for(size_t m = 0; m < extents.size(); m++)
+            total_count *= extents[m];
+
+        data.clear();
+        data.resize(total_count);
+        herr_t error = H5Aread(m_Hid, native_type, &data[0]);
+        if(error)
+            return false;
+
+        return true;
+    }
+
+    bool ReadData(void* ptr, size_t bytes) const;
     uint32_t GetListIndex() const;
     std::string GetLocalName() const;
     virtual AccessClassId GetAccessClassId() const;
@@ -466,7 +571,7 @@ public:
     typedef std::vector< EdgeType >                         EdgeList;
     typedef std::vector< NodeType >                         NodeList;
 
-    struct Cursor
+    struct AccessCursor
     {
         Hdf::Access Id; 
         size_t      Index;
@@ -490,36 +595,36 @@ protected:
     void ExportGroupMetaData(
         GraphType& graph, NodeKey& node_key, 
         const GroupAccess& group_access,
-        const Cursor& cursor);
+        const AccessCursor& cursor);
 
     void ExportDataSetMetaData(
         GraphType& graph, NodeKey& node_key, 
         const DataSetAccess& dset_access,
-        const Cursor& cursor);
+        const AccessCursor& cursor);
 
     void ExportAttribList(
         GraphType& graph, NodeKey& node_key, 
         const AttribListAccess& attrib_access,
-        const Cursor& cursor);
+        const AccessCursor& cursor);
 
     void ExportAttribValue(
         GraphType& graph, NodeKey& node_key, 
         const AttribValueAccess& attrib_access,
-        const Cursor& cursor);
+        const AccessCursor& cursor);
 
     void ExportType(
         GraphType& graph, NodeKey& node_key, 
         const TypeAccess& type_access,
-        const Cursor& cursor);
+        const AccessCursor& cursor);
 
     void ExportLink(
         GraphType& graph, NodeKey& node_key, 
         const GroupAccess& group_access,
-        const Cursor& cursor);
+        const AccessCursor& cursor);
 
 private:
-    std::vector<uint32_t>   m_DataSets;
-    std::string             m_InputFile;
+    std::vector<Hdf::Access>    m_DataSets;
+    std::string                 m_InputFile;
 };
 
 // ============================================================================================== //

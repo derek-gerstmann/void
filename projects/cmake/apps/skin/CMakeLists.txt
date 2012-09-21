@@ -47,7 +47,6 @@ add_executable( SkinDemo WIN32 MACOSX_BUNDLE
     ${VD_APPS_SKIN_DEMO_SYMBOLS_CPP} )
 
 target_link_libraries( SkinDemo 
-    VdExternal 
     VdFramework 
     VdPlatform 
     VdSymbols
