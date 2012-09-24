@@ -120,7 +120,7 @@ void
 Window::Setup(
 	const vd::string& title,
 	const Graphics::Viewport& vp,
-	const Containers::ParamSet&)
+	const Core::ParamSet&)
 {
 	ScopedMutex locker(&m_Mutex);
 
@@ -128,16 +128,6 @@ Window::Setup(
     m_Position = vd::v2i32(vp.X, vp.Y);
 	m_Size = vd::v2i32(vp.Width, vp.Height);
 
-/*
-	glutInitDisplayMode(COCOA_RGBA | COCOA_DEPTH | COCOA_DOUBLE | COCOA_MULTISAMPLE);
-	glutInitWindowPosition(vp.X, vp.Y);
-	glutInitWindowSize(vp.Width, vp.Height);
-	glutCreateWindow(m_Title.size() ? m_Title.c_str() : "Main Window");
-	glutReshapeWindow(vp.Width, vp.Height);
-	glEnable(GL_MULTISAMPLE);
-
-	m_Handle = glutGetWindow();
-*/
 	m_Handle = 0;
 	m_Graphics = VD_NEW(Graphics::OpenGL::Context, GetRuntime());
 	m_IsOpened = true;
@@ -159,11 +149,10 @@ Window::SetFullScreen(bool enable)
         m_Position[1] = vp[1];
         m_Size[0] = vp[2];
         m_Size[1] = vp[3];
-//		glutFullScreen();
 	}
 	else
 	{
-//		glutReshapeWindow(m_Size.x, m_Size.y);
+
 	}	
 }	
 
@@ -174,38 +163,9 @@ Window::SetActive(bool enable)
 	if(enable)
 	{
 		Global::ActiveWindow = this;	
-/*
-		glutSetWindow(m_Handle);
-		glutDisplayFunc(vdGuiDisplayCallback);
-		glutReshapeFunc(vdGuiReshapeCallback);
-		glutMouseFunc(vdGuiMouseCallback);
-		glutPassiveMotionFunc(vdGuiPassiveMotionCallback);
-		glutMotionFunc(vdGuiMotionCallback);
-		glutKeyboardFunc(vdGuiKeyboardCallback);
-		glutKeyboardUpFunc(vdGuiKeyboardUpCallback);
-		glutSpecialFunc(vdGuiSpecialKeyDownCallback);
-		glutSpecialUpFunc(vdGuiSpecialKeyUpCallback);
-		glutVisibilityFunc(vdGuiVisibilityCallback);
-		glutEntryFunc(vdGuiEntryCallback);
-		glutIdleFunc(vdGuiIdleCallback);
-*/
 	}
 	else
 	{
-/*
-		glutDisplayFunc(vdNullDisplayCallback);
-		glutReshapeFunc(vdNullReshapeCallback);
-		glutMouseFunc(vdNullMouseCallback);
-		glutPassiveMotionFunc(vdNullMotionCallback);
-		glutMotionFunc(vdNullMotionCallback);
-		glutKeyboardFunc(vdNullKeyboardCallback);
-		glutKeyboardUpFunc(vdNullKeyboardCallback);
-		glutSpecialFunc(vdNullSpecialKeyCallback);
-		glutSpecialUpFunc(vdNullSpecialKeyCallback);
-		glutVisibilityFunc(vdNullEntryCallback);
-		glutEntryFunc(vdNullEntryCallback);
-//		glutIdleFunc(vdNullCallback);
-*/
 		Global::ActiveWindow = NULL;	
 	}
 }
@@ -405,8 +365,7 @@ Window::FlushEvents(void)
 void
 Window::PostRedisplay(void)
 {
-//	if(!Global::IsExiting)
-//		glutPostRedisplay();
+
 }
 
 vd::i32 
@@ -431,16 +390,6 @@ vd::status
 Window::Execute()
 {
 	SetActive(true);
-	m_Mutex.Lock();
-	{
-//		atexit(vdGuiShutdown);
-//	    glutPostRedisplay();
-//	    glutSetWindow(m_Handle);
-	}
-    m_Mutex.Unlock();
-
-//	glutMainLoop();	
-	
 	return Status::Code::Success;
 }
 

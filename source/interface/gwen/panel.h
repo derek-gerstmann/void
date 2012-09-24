@@ -28,7 +28,8 @@
 // ============================================================================================== //
 
 #include "interface/gwen/gwen.h"
-#include "containers/containers.h"
+
+#include "core/collections.h"
 
 #include "Gwen/Gwen.h"
 #include "Gwen/Align.h"

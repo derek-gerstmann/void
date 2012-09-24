@@ -30,7 +30,7 @@
 #include "core/logging.h"
 #include "core/stream.h"
 #include "core/repository.h"
-#include "containers/containers.h"
+#include "core/collections.h"
 
 #include <fstream>
 #include <iostream>

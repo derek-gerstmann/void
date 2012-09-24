@@ -31,7 +31,7 @@
 
 #include "core/core.h"
 #include "core/cache.h"
-#include "core/containers.h"
+#include "core/collections.h"
 #include "core/object.h"
 #include "core/memory.h"
 #include "core/atomics.h"

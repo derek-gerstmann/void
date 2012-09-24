@@ -190,7 +190,7 @@ GWEN_CONTROL_CONSTRUCTOR(Panel)
 
 void
 Panel::Setup(
-    vd::containers::ParamSet * params)
+    ParamSet * params)
 {
     ValueSliderWithLabel * previous = 0;
     m_ParamSet = params;
@@ -250,7 +250,7 @@ Panel::FloatValueChanged(
 {
     ValueSliderWithLabel * pSlider = (ValueSliderWithLabel *)pControl;
     float value = pSlider->GetValue();
-    vd::containers::Parameter<float>* fp = (vd::containers::Parameter<float>*)pSlider->GetUserData();
+    Parameter<float>* fp = (Parameter<float>*)pSlider->GetUserData();
 
     if(fp && fp->Value != value)
     {

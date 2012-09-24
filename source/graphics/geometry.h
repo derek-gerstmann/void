@@ -97,7 +97,7 @@ public:
         vd::u32                     IndexCount;
         Geometry::PrimitiveType     PrimitiveType;
 		vd::u32                     PrimitiveCount;
-        vd::u32                     Shaders[Shader::Pass::Count];
+        vd::u32                     Shaders[RenderPassId::Count];
 		vd::u32                     Bindings[AttributeSlot::Count];
         vd::u32                     Buffers[AttributeSlot::Count];
 	};
@@ -126,10 +126,10 @@ public:
     void SetActive(bool v);
     bool IsActive(void);
 
-    vd::status Attach(Shader::Pass::Value pass, vd::u32 shader);
+    vd::status Attach(RenderPassId::Value pass, vd::u32 shader);
     vd::status Attach(AttributeSlot::Value attrib, vd::u32 buffer, vd::u32 slot=InvalidSlot);
     vd::status Detach(AttributeSlot::Value attrib);
-    vd::status Detach(Shader::Pass::Value pass);
+    vd::status Detach(RenderPassId::Value pass);
 
     bool IsAttributeUsed(AttributeSlot::Value attrib);
     bool IsBufferUsed(AttributeSlot::Value attrib);

@@ -643,7 +643,8 @@ MotionPointBasedRenderer::MotionPointBasedRenderer() :
     m_ColorComponents(1),
     m_DensityBufferId(0),
     m_DensityComponents(1),
-    m_MotionSpeed(10.0f)    
+    m_MotionSpeed(10.0f),
+    m_Shader(NULL)   
 {
 
 }
@@ -657,9 +658,9 @@ vd::status
 MotionPointBasedRenderer::Destroy()
 {
     vd::status result = Status::Code::Success;
-	if(m_Shader.GetShaderId())
+	if(m_Shader && m_Shader->GetShaderId())
 	{
-		result = m_Shader.Destroy();
+		result = m_Shader->Destroy();
 	}
     return result;
 }
@@ -676,7 +677,8 @@ void MotionPointBasedRenderer::SetMinPointScale(
     m_MinPointScale = m_MinPointScale > m_MaxPointScale ? m_MaxPointScale - 1.0f : m_MinPointScale;
     m_MinPointScale = m_MinPointScale < 0.0 ? 0.0 : m_MinPointScale;
     // vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
-    m_Shader.SetUniform(vd_sym(MinPointScale), m_MinPointScale );
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(MinPointScale), m_MinPointScale );
 }
 
 void MotionPointBasedRenderer::SetMaxPointScale(
@@ -686,7 +688,8 @@ void MotionPointBasedRenderer::SetMaxPointScale(
     m_MaxPointScale = m_MaxPointScale < m_MinPointScale ? m_MinPointScale + 1.0f : m_MaxPointScale;
     m_MaxPointScale = m_MaxPointScale < 0.0 ? 0.0 : m_MaxPointScale;
     // vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
-	m_Shader.SetUniform(vd_sym(MaxPointScale), m_MaxPointScale );
+    if(m_Shader)
+    	m_Shader->SetUniform(vd_sym(MaxPointScale), m_MaxPointScale );
 }
 
 void MotionPointBasedRenderer::SetPointSize(
@@ -700,21 +703,24 @@ void MotionPointBasedRenderer::SetBoxSize(
     vd::f32 v)            
 { 
     m_BoxSize = v; 
-    m_Shader.SetUniform(vd_sym(BoxSize), m_BoxSize);  
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(BoxSize), m_BoxSize);  
 }
 
 void MotionPointBasedRenderer::SetSmoothingScale(
     vd::f32 v)			  
 { 
 	m_SmoothingScale = v; 
-	m_Shader.SetUniform(vd_sym(SmoothingScale), m_SmoothingScale);	
+    if(m_Shader)
+    	m_Shader->SetUniform(vd_sym(SmoothingScale), m_SmoothingScale);	
 }
 
 void MotionPointBasedRenderer::SetDensityScale(
     vd::f32 size)          	  
 { 
 	m_DensityScale = size; 
-	m_Shader.SetUniform(vd_sym(DensityScale), m_DensityScale);	
+    if(m_Shader)
+    	m_Shader->SetUniform(vd_sym(DensityScale), m_DensityScale);	
 }
 
 void MotionPointBasedRenderer::SetDensityRange(
@@ -726,7 +732,8 @@ void MotionPointBasedRenderer::SetDensityRange(
        m_DensityRange[0] = 0.0f;
        m_DensityRange[1] = 1.0f;
     }    
-    m_Shader.SetUniform(vd_sym(DensityRange), m_DensityRange);
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(DensityRange), m_DensityRange);
 }
 
 void MotionPointBasedRenderer::SetColorRange(
@@ -738,42 +745,48 @@ void MotionPointBasedRenderer::SetColorRange(
        m_ColorRange[0] = 0.0f;
        m_ColorRange[1] = 1.0f;
     }    
-    m_Shader.SetUniform(vd_sym(ColorRange), m_ColorRange);
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(ColorRange), m_ColorRange);
 }
 
 void MotionPointBasedRenderer::SetExposureScale(
     vd::f32 size)             
 { 
     m_ExposureScale = size; 
-    m_Shader.SetUniform(vd_sym(ExposureScale), m_ExposureScale);  
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(ExposureScale), m_ExposureScale);  
 }
 
 void MotionPointBasedRenderer::SetIntensityScale(
     vd::f32 size)             
 { 
     m_IntensityScale = size; 
-    m_Shader.SetUniform(vd_sym(IntensityScale), m_IntensityScale);  
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(IntensityScale), m_IntensityScale);  
 }
 
 void MotionPointBasedRenderer::SetIntensityBias(
     vd::f32 size)             
 { 
     m_IntensityBias = size; 
-    m_Shader.SetUniform(vd_sym(IntensityBias), m_IntensityBias);  
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(IntensityBias), m_IntensityBias);  
 }
 
 void MotionPointBasedRenderer::SetAlphaScale(
     vd::f32 size)             
 { 
     m_AlphaScale = size; 
-    m_Shader.SetUniform(vd_sym(AlphaScale), m_AlphaScale);  
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(AlphaScale), m_AlphaScale);  
 }
 
 void MotionPointBasedRenderer::SetAlphaBias(
     vd::f32 size)             
 { 
     m_AlphaBias = size; 
-    m_Shader.SetUniform(vd_sym(AlphaBias), m_AlphaBias);  
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(AlphaBias), m_AlphaBias);  
 }
 
 void MotionPointBasedRenderer::SetParticleRadius(
@@ -781,7 +794,8 @@ void MotionPointBasedRenderer::SetParticleRadius(
 { 
 	m_ParticleRadius = r; 
     // vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
-    m_Shader.SetUniform(vd_sym(ParticleRadius), m_ParticleRadius);
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(ParticleRadius), m_ParticleRadius);
 }
 
 void MotionPointBasedRenderer::SetCameraFov(
@@ -790,10 +804,13 @@ void MotionPointBasedRenderer::SetCameraFov(
 	m_CameraFov = Core::Min(fov, 180.0f); 
     vd::f32 radians = Core::Deg2Rad(m_CameraFov / vd::f32(Constants::Two));
     m_CameraFocalLength = vd::f32(Constants::One) / Core::Tan(radians);
-    m_Shader.SetUniform(vd_sym(FieldOfView), radians);
+
     SetMaxPointScale(m_MaxPointScale);
     SetMinPointScale(m_MinPointScale);
     SetParticleRadius(m_ParticleRadius);
+
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(FieldOfView), radians);
 }
 
 void MotionPointBasedRenderer::SetScreenSize(
@@ -803,7 +820,9 @@ void MotionPointBasedRenderer::SetScreenSize(
     SetMaxPointScale(m_MaxPointScale);
     SetMinPointScale(m_MinPointScale);
     SetParticleRadius(m_ParticleRadius);
-    m_Shader.SetUniform(vd_sym(ScreenSize), vd::v2f32(w, h));
+    
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(ScreenSize), vd::v2f32(w, h));
 }
 
 void MotionPointBasedRenderer::SetUseCustomProjection(
@@ -817,40 +836,46 @@ void MotionPointBasedRenderer::SetCameraPosition(
     vd::v3f32 v)	  
 { 
     m_CameraPosition = v; 
-    m_Shader.SetUniform(vd_sym(CameraPosition), m_CameraPosition );
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(CameraPosition), m_CameraPosition );
 }
 
 void MotionPointBasedRenderer::SetMotionSpeed(vd::f32 v)      
 { 
     m_MotionSpeed = v; 
-    m_Shader.SetUniform(vd_sym(MotionSpeed), m_MotionSpeed);
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(MotionSpeed), m_MotionSpeed);
 }
 
 void MotionPointBasedRenderer::SetMotionTime(vd::f32 v)      
 { 
     m_MotionTime = v; 
-    m_Shader.SetUniform(vd_sym(MotionTime), m_MotionTime);
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(MotionTime), m_MotionTime);
 }
 
 void MotionPointBasedRenderer::SetMotionTransform(
     vd::m4f32 v)      
 { 
     m_MotionTransform = v; 
-    m_Shader.SetUniform(vd_sym(MotionTransform), m_MotionTransform);
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(MotionTransform), m_MotionTransform);
 }
 
 void MotionPointBasedRenderer::SetModelView(
     vd::m4f32 v)      
 { 
     m_ModelView = v; 
-    m_Shader.SetUniform(vd_sym(ModelView), m_ModelView);
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(ModelView), m_ModelView);
 }
 
 void MotionPointBasedRenderer::SetProjection(
     vd::m4f32 v)      
 { 
     m_Projection = v; 
-    m_Shader.SetUniform(vd_sym(Projection), m_Projection);
+    if(m_Shader)
+        m_Shader->SetUniform(vd_sym(Projection), m_Projection);
 }
 
 void MotionPointBasedRenderer::SetCameraRotation(
@@ -870,8 +895,11 @@ void MotionPointBasedRenderer::SetSmoothingRadius(
 {
 	m_SmoothingRadius = v;
 	m_WdC = CWd(m_SmoothingRadius * m_SmoothingRadius);
-	m_Shader.SetUniform(vd_sym(SmoothingRadius), m_SmoothingRadius);
-	m_Shader.SetUniform(vd_sym(WdC), m_WdC);
+    if(m_Shader)
+    {
+    	m_Shader->SetUniform(vd_sym(SmoothingRadius), m_SmoothingRadius);
+    	m_Shader->SetUniform(vd_sym(WdC), m_WdC);
+    }
 }
 
 void MotionPointBasedRenderer::SetVertexBuffer(
@@ -909,7 +937,7 @@ void MotionPointBasedRenderer::DrawPoints()
     vd::u32 color_slot = 0;
 	if (m_ColorBufferId) 
 	{
-        color_slot = m_Shader.GetAttributeSlot(vd_sym(ParticleColor));
+        color_slot = m_Shader->GetAttributeSlot(vd_sym(ParticleColor));
         if(color_slot < VD_U32_MAX)
         {
             glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_ColorBufferId);
@@ -929,7 +957,7 @@ void MotionPointBasedRenderer::DrawPoints()
     vd::u32 density_slot = 0;
     if (m_DensityBufferId) 
     {
-        density_slot = m_Shader.GetAttributeSlot(vd_sym(ParticleDensity));
+        density_slot = m_Shader->GetAttributeSlot(vd_sym(ParticleDensity));
         if(density_slot < VD_U32_MAX)
         {
             glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_DensityBufferId);
@@ -992,9 +1020,14 @@ void MotionPointBasedRenderer::Render(
     	else
     		glColor3f(1.0, 1.0, 1.0);
 		
-        m_Shader.Bind(m_IsStale);
-		DrawPoints();
-        m_Shader.Unbind();
+        if(m_Shader)
+            m_Shader->Bind(m_IsStale);
+		
+        DrawPoints();
+        
+        if(m_Shader)
+            m_Shader->Unbind();
+        
         m_IsStale = false;
 
         glDisable(GL_TEXTURE_2D);
@@ -1105,32 +1138,41 @@ vd::status
 MotionPointBasedRenderer::Setup(
     Graphics::Context* gfx)
 {
-    m_Shader.SetName("MBPBR");
-    m_Shader.Compile(VertexShader, NULL, FragmentShader);
+    if(m_Shader)    
+        gfx->Release(m_Shader);
+
+    m_Shader = gfx->CreateShaderFromSource(
+                        vd::string("MBPBR"), 
+                        vd::string(VertexShader), 
+                        vd::string(""), 
+                        vd::string(FragmentShader)
+                );
+
+//    m_Shader->Compile(VertexShader, NULL, FragmentShader);
 	m_WdC = CWd(m_SmoothingRadius*m_SmoothingRadius);
     SetCameraFov(m_CameraFov);
     // vd::f32 ps = m_ScreenHeight * m_CameraFocalLength;
     vd::f32 radians = Core::Deg2Rad(m_CameraFov / vd::f32(Constants::Two));
-    m_Shader.SetUniform(vd_sym(CameraPosition), m_CameraPosition );
-    m_Shader.SetUniform(vd_sym(MinPointScale), m_MinPointScale );
-	m_Shader.SetUniform(vd_sym(MaxPointScale), m_MaxPointScale );
-    m_Shader.SetUniform(vd_sym(ParticleRadius), m_ParticleRadius );
-    m_Shader.SetUniform(vd_sym(FieldOfView), radians );
-    m_Shader.SetUniform(vd_sym(MotionSpeed), m_MotionSpeed);
-    m_Shader.SetUniform(vd_sym(MotionTime), m_MotionTime);
-    m_Shader.SetUniform(vd_sym(MotionTransform), m_MotionTransform);
-	m_Shader.SetUniform(vd_sym(SmoothingRadius), m_SmoothingRadius);
-    m_Shader.SetUniform(vd_sym(SmoothingScale), m_SmoothingScale);  
-    m_Shader.SetUniform(vd_sym(DensityScale), m_DensityScale);  
-    m_Shader.SetUniform(vd_sym(DensityRange), m_DensityRange);
-    m_Shader.SetUniform(vd_sym(ColorRange), m_ColorRange);
-    m_Shader.SetUniform(vd_sym(ExposureScale), m_ExposureScale);  
-    m_Shader.SetUniform(vd_sym(IntensityScale), m_IntensityScale);  
-    m_Shader.SetUniform(vd_sym(IntensityBias), m_IntensityBias);  
-    m_Shader.SetUniform(vd_sym(AlphaScale), m_AlphaScale);  
-    m_Shader.SetUniform(vd_sym(AlphaBias), m_AlphaBias);  
-    m_Shader.SetUniform(vd_sym(BoxSize), m_BoxSize);  
-	m_Shader.SetUniform(vd_sym(WdC), m_WdC);
+    m_Shader->SetUniform(vd_sym(CameraPosition), m_CameraPosition );
+    m_Shader->SetUniform(vd_sym(MinPointScale), m_MinPointScale );
+	m_Shader->SetUniform(vd_sym(MaxPointScale), m_MaxPointScale );
+    m_Shader->SetUniform(vd_sym(ParticleRadius), m_ParticleRadius );
+    m_Shader->SetUniform(vd_sym(FieldOfView), radians );
+    m_Shader->SetUniform(vd_sym(MotionSpeed), m_MotionSpeed);
+    m_Shader->SetUniform(vd_sym(MotionTime), m_MotionTime);
+    m_Shader->SetUniform(vd_sym(MotionTransform), m_MotionTransform);
+	m_Shader->SetUniform(vd_sym(SmoothingRadius), m_SmoothingRadius);
+    m_Shader->SetUniform(vd_sym(SmoothingScale), m_SmoothingScale);  
+    m_Shader->SetUniform(vd_sym(DensityScale), m_DensityScale);  
+    m_Shader->SetUniform(vd_sym(DensityRange), m_DensityRange);
+    m_Shader->SetUniform(vd_sym(ColorRange), m_ColorRange);
+    m_Shader->SetUniform(vd_sym(ExposureScale), m_ExposureScale);  
+    m_Shader->SetUniform(vd_sym(IntensityScale), m_IntensityScale);  
+    m_Shader->SetUniform(vd_sym(IntensityBias), m_IntensityBias);  
+    m_Shader->SetUniform(vd_sym(AlphaScale), m_AlphaScale);  
+    m_Shader->SetUniform(vd_sym(AlphaBias), m_AlphaBias);  
+    m_Shader->SetUniform(vd_sym(BoxSize), m_BoxSize);  
+	m_Shader->SetUniform(vd_sym(WdC), m_WdC);
     m_IsStale = true;
     return Status::Code::Success;
 }

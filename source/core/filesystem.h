@@ -27,7 +27,7 @@
 
 #include "core/core.h"
 #include "core/system.h"
-#include "containers/containers.h"
+#include "core/collections.h"
 
 // ============================================================================================== //
 
@@ -67,7 +67,7 @@ class FileSystem
 {
 public:
 
-    typedef Containers::Vector< vd::string >::type          SearchPath;
+    typedef Core::Vector< vd::string >::type                SearchPath;
 
 #if defined(VD_TARGET_WINDOWS)
     typedef HANDLE                                          FileHandle;

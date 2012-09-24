@@ -27,7 +27,7 @@
 
 #include "vd.h"
 #include "graphics/graphics.h"
-#include "containers/containers.h"
+#include "core/collections.h"
 
 #include <string>
 #include <vector>

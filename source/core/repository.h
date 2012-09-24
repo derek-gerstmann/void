@@ -29,7 +29,7 @@
 
 #include "core/core.h"
 #include "core/object.h"
-#include "containers/containers.h"
+#include "core/collections.h"
 
 // ============================================================================================== //
 
@@ -54,9 +54,9 @@ protected:
 class VD_API Repository : public Core::Object 
 {
 	friend class Serializable;
-    typedef Containers::Vector< Serializable* >::type 				AllocList;
-    typedef Containers::Map<vd::u32, Serializable* >::type 			IdToObjectMap;
-    typedef Containers::Map<const Serializable*, vd::u32 >::type 	ObjectToIdMap;
+    typedef Core::Vector< Serializable* >::type 				AllocList;
+    typedef Core::Map<vd::u32, Serializable* >::type 			IdToObjectMap;
+    typedef Core::Map<const Serializable*, vd::u32 >::type 		ObjectToIdMap;
 
 public:
 	Repository();

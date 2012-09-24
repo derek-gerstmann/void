@@ -503,7 +503,7 @@ void
 Window::Setup(
 	const vd::string& title,
 	const Graphics::Viewport& vp,
-	const Containers::ParamSet&)
+	const Core::ParamSet&)
 {
 	ScopedMutex locker(&m_Mutex);
 

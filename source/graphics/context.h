@@ -81,11 +81,11 @@ public:
     virtual vd::status Attach(Geometry* geo, Geometry::AttributeSlot::Value attrib, vd::u32 buffer, vd::u32 slot) = 0;
     virtual vd::status Detach(Geometry* geo, Geometry::AttributeSlot::Value attrib) = 0;
 
-    virtual vd::status Attach(Geometry* geo, Shader* shader, Shader::Pass::Value pass) = 0;
-    virtual vd::status Detach(Geometry* geo, Shader* shader, Shader::Pass::Value pass) = 0;
+    virtual vd::status Attach(Geometry* geo, Shader* shader, RenderPassId::Value pass) = 0;
+    virtual vd::status Detach(Geometry* geo, Shader* shader, RenderPassId::Value pass) = 0;
 
     virtual vd::status Bind(Geometry* geo) = 0;
-    virtual vd::status Submit(Geometry* geo, Shader::Pass::Value pass = Shader::Pass::Normal, 
+    virtual vd::status Submit(Geometry* geo, RenderPassId::Value pass = RenderPassId::Normal, 
                               vd::u32 start=0, vd::u32 end=VD_U32_MAX, vd::u32 count=VD_U32_MAX) = 0;
     virtual vd::status Unbind(Geometry* geo) = 0;
     virtual vd::status Acquire(Geometry* buffer) = 0;
@@ -140,6 +140,18 @@ public:
         const vd::string& vertex, 
         const vd::string& geometry, 
         const vd::string& fragment) = 0;
+
+    virtual vd::status SetUniform(Shader* s, Symbol name, vd::i32 value) = 0;
+    virtual vd::status SetUniform(Shader* s, Symbol name, vd::f32 value) = 0;
+    virtual vd::status SetUniform(Shader* s, Symbol name, vd::f32 x, vd::f32 y) = 0;
+    virtual vd::status SetUniform(Shader* s, Symbol name, vd::f32 x, vd::f32 y, vd::f32 z) = 0;
+    virtual vd::status SetUniform(Shader* s, Symbol name, vd::f32 x, vd::f32 y, vd::f32 z, vd::f32 w) = 0;
+    
+    virtual vd::status SetUniform(Shader* s, Symbol name, const vd::v2f32& value) = 0;
+    virtual vd::status SetUniform(Shader* s, Symbol name, const vd::v3f32& value) = 0;
+    virtual vd::status SetUniform(Shader* s, Symbol name, const vd::v4f32& value) = 0;
+    virtual vd::status SetUniform(Shader* s, Symbol name, const vd::m3f32& value) = 0;
+    virtual vd::status SetUniform(Shader* s, Symbol name, const vd::m4f32& value) = 0;
 
     virtual vd::status Bind(Shader* s) = 0;
     virtual vd::status Unbind(Shader* s) = 0;

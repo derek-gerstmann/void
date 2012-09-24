@@ -43,7 +43,8 @@ System::Shutdown(void)
 }
 
 Context* 
-System::CreateContext(const Containers::ParamSet& params)
+System::CreateContext(
+	const Core::ParamSet& params)
 {
     Context* context = VD_NEW(Context);
     context->Setup(params);

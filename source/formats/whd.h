@@ -33,9 +33,10 @@
 #include "core/memory.h"
 #include "core/atomics.h"
 #include "core/workqueue.h"
+#include "core/collections.h"
+#include "core/cache.h"
 #include "runtime/runtime.h"
 #include "runtime/context.h"
-#include "containers/cache.h"
 
 // ============================================================================================== //
 
@@ -47,7 +48,7 @@ VD_USING(Core, Mutex);
 VD_USING(Core, WorkItem);
 VD_USING(Core, WorkQueue);
 VD_USING(Core, AtomicCounter);
-VD_USING(Containers, LruCache);
+VD_USING(Core, LruCache);
 
 // ============================================================================================== //
 
@@ -512,8 +513,8 @@ struct ResidentSizeFn
 class Dataset : public Core::Object
 {
 public:
-    typedef Containers::LruCache< vd::i32, HiDist::WorkItem* >             WorkItemCache;
-    typedef Containers::LruCache< vd::i32, HiDist::Data*, ResidentSizeFn > DataCache;
+    typedef Core::LruCache< vd::i32, HiDist::WorkItem* >             WorkItemCache;
+    typedef Core::LruCache< vd::i32, HiDist::Data*, ResidentSizeFn > DataCache;
 
     Dataset(Runtime::Context* runtime);    
     virtual ~Dataset();

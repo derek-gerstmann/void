@@ -28,26 +28,12 @@
 // ============================================================================================== //
 
 #include "core/core.h"
+#include "core/exceptions.h"
 #include "core/logging.h"
 
 // ============================================================================================== //
 
 VD_CORE_NAMESPACE_BEGIN();
-
-// ============================================================================================== //
-
-class EOFException : public std::runtime_error {
-public:
-	inline EOFException(const vd::string &str, size_t completed)
-		: std::runtime_error(str), m_Bytes(completed) { }
-
-	inline size_t GetBytesCompleted() const {
-		return m_Bytes;
-	}
-private:
-	size_t m_Bytes;
-};
-
 
 // ============================================================================================== //
 

@@ -36,9 +36,8 @@
 #include "core/framework.h"
 #include "core/builtins.h"
 #include "core/utilities.h"
-
-#include "containers/buffer.h"
-#include "containers/paramset.h"
+#include "core/buffer.h"
+#include "core/paramset.h"
 
 // ============================================================================================== //
 
@@ -73,7 +72,7 @@ protected:
 
 private:
 
-    Containers::ParamSet m_ParamSet;
+    Core::ParamSet       m_ParamSet;
     Runtime::Context*    m_Runtime;
     vd::status           m_Status;
 };

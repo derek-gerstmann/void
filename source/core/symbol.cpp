@@ -24,9 +24,8 @@
 
 
 #include "core/core.h"
-#include "constants/symbols.h"
-#include "containers/containers.h"
-#include "containers/set.h"
+#include "core/collections.h"
+#include "core/setvector.h"
 
 #include "core/symbol.h"
 #include "core/macros.h"
@@ -39,6 +38,8 @@
 #include "core/registry.h"
 #include "core/utilities.h"
 
+#include "constants/symbols.h"
+
 // ============================================================================================== //
 
 VD_CORE_NAMESPACE_BEGIN();
@@ -49,9 +50,9 @@ class SymbolRegistry : public Object
 {
 public:
 
-	typedef Containers::SetVector<Core::Symbol>	 	 	SymbolSet;
-	typedef Containers::Vector<char*>::type 	 		StringTable;
-	typedef Containers::Map<vd::uid, vd::u64>::type 	SymbolMap;
+	typedef Core::SetVector<Core::Symbol>	 	SymbolSet;
+	typedef Core::Vector<char*>::type 	 		StringTable;
+	typedef Core::Map<vd::uid, vd::u64>::type 	SymbolMap;
 
 public:
 

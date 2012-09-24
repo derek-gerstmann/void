@@ -36,14 +36,18 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-class ExceptionBadCast : public std::bad_cast
+class BadCastException : public std::bad_cast
 {
 public:
-    ExceptionBadCast()
-    {}
+    BadCastException()
+    { 
+        // EMPTY!
+    }
 
-    virtual ~ExceptionBadCast() throw()
-    {}
+    virtual ~BadCastException() throw()
+    { 
+        // EMPTY!
+    }
     
     virtual const char *what() const throw()
     {
@@ -51,20 +55,53 @@ public:
     }
 };
 
-class ExceptionBadLexicalCast : public std::bad_cast
+class BadLexicalCastException : public std::bad_cast
 {
 public:
-    ExceptionBadLexicalCast()
-    {}
+    BadLexicalCastException()
+    { 
+        // EMPTY!
+    }
 
-    virtual ~ExceptionBadLexicalCast() throw()
-    {}
+    virtual ~BadLexicalCastException() throw()
+    { 
+        // EMPTY!
+    }
     
     virtual const char *what() const throw()
     {
         return "bad lexical cast";
     }
 };
+
+class EndOfStreamException : public std::runtime_error 
+{
+public:
+    inline EndOfStreamException(
+        const vd::string &str, size_t completed
+    ) : 
+        std::runtime_error(str), m_Bytes(completed) 
+    { 
+        // EMPTY!
+    }
+
+    virtual ~EndOfStreamException() throw()
+    { 
+        // EMPTY!
+    }
+
+    inline size_t GetBytesCompleted() const {
+        return m_Bytes;
+    }
+
+    virtual const char *what() const throw()
+    {
+        return "end of stream";
+    }
+private:
+    size_t m_Bytes;
+};
+
 
 // ============================================================================================== //
 
@@ -73,8 +110,8 @@ public:
 
 // ============================================================================================== //
 
-#define vdException(cond, explanation) ((void) 0)
-#define vdGlobalException(cond, explanation) ((void) 0)
+#define vdException(exception, fmt, ...)        ((void) 0)
+#define vdGlobalException(exception, fmt, ...)  ((void) 0)
 
 // ============================================================================================== //
 

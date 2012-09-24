@@ -29,11 +29,7 @@
 
 #include "core/core.h"
 #include "core/shared.h"
-#include "containers/containers.h"
-
-// ============================================================================================== //
-
-VD_USING(Containers, Vector);
+#include "core/collections.h"
 
 // ============================================================================================== //
 
@@ -331,20 +327,20 @@ class ConditionMap : public Shared<ConditionMap>
 {
 public:
 
-    static const size_t SlotCount = 64;
+    static const size_t SlotCount           = 64;
     struct Count
     {
-        size_t Queued; 
-        size_t Running;
+        size_t                              Queued; 
+        size_t                              Running;
     };
 
-    typedef Containers::Map<size_t, Count>::type CountMap;
+    typedef Core::Map<size_t, Count>::type  CountMap;
 
     struct Slot
     {
-        ConditionVariable Condition;       
-        Mutex Lock;                      
-        CountMap Counters;            
+        ConditionVariable                   Condition;       
+        Mutex                               Lock;                      
+        CountMap                            Counters;            
     };
 
 public:

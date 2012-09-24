@@ -40,9 +40,10 @@
 #include "core/atomics.h"
 #include "core/utilities.h"
 #include "core/workqueue.h"
+#include "core/collections.h"
+#include "core/cache.h"
 #include "runtime/runtime.h"
 #include "runtime/context.h"
-#include "containers/cache.h"
 
 // ============================================================================================== //
 

@@ -28,6 +28,7 @@
 // ============================================================================================== //
 
 #include "core/core.h"
+#include "core/exceptions.h"
 #include "core/memory.h"
 
 // ============================================================================================== //
@@ -54,7 +55,7 @@ namespace Lexical
             if(!( *ss << arg &&  *ss >> ret && (*ss >> std::ws).eof() )) 
             {
                 ss->str(std::string());
-                throw ExceptionBadLexicalCast();
+                throw BadLexicalCastException();
             }
             return ret;
         }

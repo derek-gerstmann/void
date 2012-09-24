@@ -56,7 +56,8 @@ Context::Destroy()
 }
 
 vd::status 
-Context::Setup(const Containers::ParamSet& params)
+Context::Setup(
+    const Core::ParamSet& params)
 {
     m_FileSystem = VD_NEW(Core::FileSystem);
     m_FileSystem->Open();
@@ -70,7 +71,8 @@ Context::GetFileSystem()
 }
 
 Interface::Window* 
-Context::CreateWindow(const Containers::ParamSet& params)
+Context::CreateWindow(
+    const Core::ParamSet& params)
 {
     Interface::Window* window = NULL;
 #if defined(VD_USE_GLUT_RUNTIME)

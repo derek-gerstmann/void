@@ -28,14 +28,17 @@
 // ============================================================================================== //
 
 #include "runtime/runtime.h"
-#include "containers/containers.h"
+
+#include "core/numerics.h"
+#include "core/collections.h"
+
 #include "graphics/graphics.h"
 #include "graphics/viewport.h"
+
 #include "interface/interface.h"
 #include "interface/keyboard.h"
 #include "interface/mouse.h"
 #include "interface/event.h"
-#include "core/numerics.h"
 
 // ============================================================================================== //
 
@@ -44,10 +47,10 @@ VD_RUNTIME_NAMESPACE_BEGIN();
 // ============================================================================================== //
 
 VD_USING(Core, Memory);
+VD_USING(Core, AlignedMap);
 VD_USING(Interface, Event);
 VD_USING(Interface, Mouse);
 VD_USING(Interface, Keyboard);
-VD_USING(Containers, AlignedMap);
 VD_USING(Graphics, Viewport);
 
 // ============================================================================================== //

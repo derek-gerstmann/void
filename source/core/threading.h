@@ -31,7 +31,7 @@
 #include "core/local.h"
 #include "core/handles.h"
 #include "core/object.h"
-#include "containers/containers.h"
+#include "core/collections.h"
 
 // ============================================================================================== //
 
@@ -68,12 +68,22 @@ class Thread : public Object
 	friend class ThreadEngine;
 
 public:
-    explicit Thread(const char* name, bool critical=false, vd::i32 affinity=-1, vd::bytesize stack_size=0);
+    explicit Thread(
+        const char* name, 
+        bool critical=false, 
+        vd::i32 affinity=-1, 
+        vd::bytesize stack_size=0);
 
     explicit Thread();
     virtual vd::status Destroy();
-    vd::status Setup(const char* name, bool critical=false, vd::i32 affinity=-1, vd::bytesize stack_size=0);
-	vd::status Start();
+
+    vd::status Setup(
+        const char* name, 
+        bool critical=false, 
+        vd::i32 affinity=-1, 
+        vd::bytesize stack_size=0);
+	
+    vd::status Start();
     vd::status Join();
     vd::status Detach();
     vd::status Exit();

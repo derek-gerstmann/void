@@ -29,7 +29,7 @@
 
 #include "runtime/runtime.h"
 #include "runtime/context.h"
-#include "containers/paramset.h"
+#include "core/paramset.h"
 
 // ============================================================================================== //
 
@@ -43,14 +43,14 @@ public:
     static bool Startup(int* argc=NULL, void** argv=NULL);
     static bool Shutdown(void);
 
-    static Context* CreateContext(const Containers::ParamSet& params);
+    static Context* CreateContext(const Core::ParamSet& params);
     static void Release(Context* context);
         
-//    static Graphics::Context* CreateGraphicsContext(const Containers::ParamSet& params);
-//    static Storage::Context* CreateStorageContext(const Containers::ParamSet& params);
-//    static Compute::Context* CreateComputeContext(const Containers::ParamSet& params);
-//    static Render::Context* CreateRenderContext(const Containers::ParamSet& params);
-//    static Interface::Context* CreateInterfaceContext(const Containers::ParamSet& params);
+//    static Graphics::Context* CreateGraphicsContext(const Core::ParamSet& params);
+//    static Storage::Context* CreateStorageContext(const Core::ParamSet& params);
+//    static Compute::Context* CreateComputeContext(const Core::ParamSet& params);
+//    static Render::Context* CreateRenderContext(const Core::ParamSet& params);
+//    static Interface::Context* CreateInterfaceContext(const Core::ParamSet& params);
 
 };
 

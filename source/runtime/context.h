@@ -28,12 +28,15 @@
 // ============================================================================================== //
 
 #include "runtime/runtime.h"
+
 #include "core/object.h"
+#include "core/paramset.h"
 #include "core/filesystem.h"
+
 #include "interface/interface.h"
 #include "interface/window.h"
+
 #include "graphics/viewport.h"
-#include "containers/paramset.h"
 
 // ============================================================================================== //
 
@@ -48,9 +51,9 @@ public:
     Context();
     virtual ~Context();
     virtual vd::status Destroy();
-    virtual vd::status Setup(const Containers::ParamSet& params);
+    virtual vd::status Setup(const Core::ParamSet& params);
     virtual Core::FileSystem* GetFileSystem();
-    virtual Interface::Window* CreateWindow(const Containers::ParamSet& params);
+    virtual Interface::Window* CreateWindow(const Core::ParamSet& params);
     virtual vd::status Release(Interface::Window* w);
     virtual vd::status Lock();
     virtual vd::status Unlock();
@@ -62,8 +65,8 @@ protected:
 
     VD_DISABLE_COPY_CONSTRUCTORS(Context);
 
-    Core::FileSystem* m_FileSystem;
-    Core::Mutex m_Mutex;
+    Core::FileSystem*   m_FileSystem;
+    Core::Mutex         m_Mutex;
 
 };
 

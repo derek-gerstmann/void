@@ -170,7 +170,7 @@ FormatByteSize(size_t size);
 
 template<class Iterator> 
 vd::string 
-ContainerToString(
+ToString(
 	const Iterator& start, const Iterator& end)
 {
     std::ostringstream oss;

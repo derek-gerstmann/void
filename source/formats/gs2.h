@@ -32,14 +32,17 @@
 // ============================================================================================== //
 
 #include "formats/formats.h"
+
 #include "core/core.h"
 #include "core/object.h"
 #include "core/memory.h"
 #include "core/atomics.h"
 #include "core/workqueue.h"
+#include "core/collections.h"
+#include "core/cache.h"
+
 #include "runtime/runtime.h"
 #include "runtime/context.h"
-#include "containers/cache.h"
 
 // ============================================================================================== //
 
@@ -51,7 +54,7 @@ VD_USING(Core, Mutex);
 VD_USING(Core, WorkItem);
 VD_USING(Core, WorkQueue);
 VD_USING(Core, AtomicCounter);
-VD_USING(Containers, LruCache);
+VD_USING(Core, LruCache);
 
 // ============================================================================================== //
 
@@ -722,8 +725,8 @@ VD_USING(Core, Mutex);
 VD_USING(Core, WorkItem);
 VD_USING(Core, WorkQueue);
 VD_USING(Core, AtomicCounter);
-VD_USING(Containers, LruCache);
-VD_USING(Containers, Map);
+VD_USING(Core, LruCache);
+VD_USING(Core, Map);
 
 // ============================================================================================== //
 
@@ -1225,7 +1228,7 @@ private:
         }
     };
 
-    typedef Containers::Vector<SubBlockIndex>::type             SubBlockList;
+    typedef Core::Vector<SubBlockIndex>::type             SubBlockList;
 
 	VD_DISABLE_COPY_CONSTRUCTORS(DataFile);
 

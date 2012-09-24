@@ -687,7 +687,7 @@ SpaceAccess::SelectHyperSlab(
         block[n] = slab.Region[n].Block;
     }
 
-    H5S_seloper_t select = AdaptSelectOp::ToNativeOp(op);
+    H5S_seloper_t select = AdaptSelectOp::ToNative(op);
     herr_t err = H5Sselect_hyperslab(m_Hid, select, start, stride, count, block);
     if(err)
     {
@@ -720,7 +720,7 @@ SpaceAccess::SelectElements(
     for(size_t n = 0; n < elements.size(); n++)
         indices[n] = elements[n];
 
-    H5S_seloper_t select = AdaptSelectOp::ToNativeOp(op);
+    H5S_seloper_t select = AdaptSelectOp::ToNative(op);
     herr_t err = H5Sselect_elements(m_Hid, select, count, &indices[0]);
     if(err)
     {

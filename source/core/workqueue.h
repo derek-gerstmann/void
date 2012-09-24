@@ -32,9 +32,7 @@
 #include "core/threading.h"
 #include "core/logging.h"
 #include "core/locking.h"
-#include "containers/containers.h"
-
-#include <boost/circular_buffer.hpp>
+#include "core/collections.h"
 
 // ============================================================================================== //
 

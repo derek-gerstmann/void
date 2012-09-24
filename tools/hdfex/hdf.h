@@ -167,9 +167,9 @@ namespace Hdf {
 // ============================================================================================== //
 
 template <typename T>
-struct AdaptStandardType 
+struct AdaptType 
 {  
-    static hid_t ToNativeTypeId() 
+    static hid_t ToNative() 
     {
         return 0;
     }
@@ -179,7 +179,7 @@ struct AdaptStandardType
         return sizeof(T);
     }
 
-    static StdTypeId ToStdTypeId() 
+    static StdTypeId ToStd() 
     {
         return VD_STD_TYPE_INVALID;
     }
@@ -187,35 +187,35 @@ struct AdaptStandardType
 
 // ============================================================================================== //
 
-template <> inline hid_t AdaptStandardType<bool>::ToNativeTypeId()     { return H5T_NATIVE_CHAR;    }
-template <> inline hid_t AdaptStandardType<int8_t>::ToNativeTypeId()   { return H5T_NATIVE_CHAR;    }
-template <> inline hid_t AdaptStandardType<int16_t>::ToNativeTypeId()  { return H5T_NATIVE_SHORT;   }
-template <> inline hid_t AdaptStandardType<int32_t>::ToNativeTypeId()  { return H5T_NATIVE_INT;     }
-template <> inline hid_t AdaptStandardType<int64_t>::ToNativeTypeId()  { return H5T_NATIVE_LONG;    }
-template <> inline hid_t AdaptStandardType<uint8_t>::ToNativeTypeId()  { return H5T_NATIVE_UCHAR;   }
-template <> inline hid_t AdaptStandardType<uint16_t>::ToNativeTypeId() { return H5T_NATIVE_USHORT;  }
-template <> inline hid_t AdaptStandardType<uint32_t>::ToNativeTypeId() { return H5T_NATIVE_UINT;    }
-template <> inline hid_t AdaptStandardType<uint64_t>::ToNativeTypeId() { return H5T_NATIVE_ULONG;   }
-template <> inline hid_t AdaptStandardType<float>::ToNativeTypeId()    { return H5T_NATIVE_FLOAT;   }
-template <> inline hid_t AdaptStandardType<double>::ToNativeTypeId()   { return H5T_NATIVE_DOUBLE;  }
+template <> inline hid_t AdaptType<bool>::ToNative()     { return H5T_NATIVE_CHAR;    }
+template <> inline hid_t AdaptType<int8_t>::ToNative()   { return H5T_NATIVE_CHAR;    }
+template <> inline hid_t AdaptType<int16_t>::ToNative()  { return H5T_NATIVE_SHORT;   }
+template <> inline hid_t AdaptType<int32_t>::ToNative()  { return H5T_NATIVE_INT;     }
+template <> inline hid_t AdaptType<int64_t>::ToNative()  { return H5T_NATIVE_LONG;    }
+template <> inline hid_t AdaptType<uint8_t>::ToNative()  { return H5T_NATIVE_UCHAR;   }
+template <> inline hid_t AdaptType<uint16_t>::ToNative() { return H5T_NATIVE_USHORT;  }
+template <> inline hid_t AdaptType<uint32_t>::ToNative() { return H5T_NATIVE_UINT;    }
+template <> inline hid_t AdaptType<uint64_t>::ToNative() { return H5T_NATIVE_ULONG;   }
+template <> inline hid_t AdaptType<float>::ToNative()    { return H5T_NATIVE_FLOAT;   }
+template <> inline hid_t AdaptType<double>::ToNative()   { return H5T_NATIVE_DOUBLE;  }
 
-template <> inline StdTypeId AdaptStandardType<bool>::ToStdTypeId()     { return VD_STD_TYPE_I8;     }
-template <> inline StdTypeId AdaptStandardType<int8_t>::ToStdTypeId()   { return VD_STD_TYPE_I8;     }
-template <> inline StdTypeId AdaptStandardType<int16_t>::ToStdTypeId()  { return VD_STD_TYPE_I16;    }
-template <> inline StdTypeId AdaptStandardType<int32_t>::ToStdTypeId()  { return VD_STD_TYPE_I32;    }
-template <> inline StdTypeId AdaptStandardType<int64_t>::ToStdTypeId()  { return VD_STD_TYPE_I64;    }
-template <> inline StdTypeId AdaptStandardType<uint8_t>::ToStdTypeId()  { return VD_STD_TYPE_U8;     }
-template <> inline StdTypeId AdaptStandardType<uint16_t>::ToStdTypeId() { return VD_STD_TYPE_U16;    }
-template <> inline StdTypeId AdaptStandardType<uint32_t>::ToStdTypeId() { return VD_STD_TYPE_U32;    }
-template <> inline StdTypeId AdaptStandardType<uint64_t>::ToStdTypeId() { return VD_STD_TYPE_U64;    }
-template <> inline StdTypeId AdaptStandardType<float>::ToStdTypeId()    { return VD_STD_TYPE_F32;    }
-template <> inline StdTypeId AdaptStandardType<double>::ToStdTypeId()   { return VD_STD_TYPE_F64;    }
+template <> inline StdTypeId AdaptType<bool>::ToStd()     { return VD_STD_TYPE_I8;     }
+template <> inline StdTypeId AdaptType<int8_t>::ToStd()   { return VD_STD_TYPE_I8;     }
+template <> inline StdTypeId AdaptType<int16_t>::ToStd()  { return VD_STD_TYPE_I16;    }
+template <> inline StdTypeId AdaptType<int32_t>::ToStd()  { return VD_STD_TYPE_I32;    }
+template <> inline StdTypeId AdaptType<int64_t>::ToStd()  { return VD_STD_TYPE_I64;    }
+template <> inline StdTypeId AdaptType<uint8_t>::ToStd()  { return VD_STD_TYPE_U8;     }
+template <> inline StdTypeId AdaptType<uint16_t>::ToStd() { return VD_STD_TYPE_U16;    }
+template <> inline StdTypeId AdaptType<uint32_t>::ToStd() { return VD_STD_TYPE_U32;    }
+template <> inline StdTypeId AdaptType<uint64_t>::ToStd() { return VD_STD_TYPE_U64;    }
+template <> inline StdTypeId AdaptType<float>::ToStd()    { return VD_STD_TYPE_F32;    }
+template <> inline StdTypeId AdaptType<double>::ToStd()   { return VD_STD_TYPE_F64;    }
 
 // ============================================================================================== //
 
 struct AdaptSelectOp 
 {  
-    static H5S_seloper_t ToNativeOp(Storage::SpaceSelectOpId op) 
+    static H5S_seloper_t ToNative(Storage::SpaceSelectOpId op) 
     {
         switch(op)
         {
@@ -240,7 +240,7 @@ struct AdaptSelectOp
 
 struct AdaptNativeType 
 {  
-    static StdTypeId ToStdTypeId(hid_t v) 
+    static StdTypeId ToStd(hid_t v) 
     {
         if(v == 0)                      { return VD_STD_TYPE_INVALID; }
         else if(v == H5T_NATIVE_CHAR)   { return VD_STD_TYPE_I8; }
@@ -527,7 +527,7 @@ public:
         std::vector<size_t> extents;
         attrib_space.GetExtents(extents);
 
-        hid_t native_type = AdaptStandardType<T>::ToNativeTypeId();
+        hid_t native_type = AdaptType<T>::ToNative();
 
         size_t total_count = 1;
         for(size_t m = 0; m < extents.size(); m++)

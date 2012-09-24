@@ -23,6 +23,8 @@
 // ============================================================================================== //
 
 #include "graphics/gl/context.h"
+#include "graphics/gl/shader.h"
+
 #include "core/core.h"
 #include "core/asserts.h"
 #include "core/memory.h"
@@ -841,7 +843,7 @@ Context::Destroy()
 
     for(size_t i = 0; i < m_Shaders.size(); i++)
     {
-        Shader* s = m_Shaders[i];
+        Graphics::Shader* s = m_Shaders[i];
         if(s != NULL) Destroy(s);
         m_Shaders[i] = NULL;
     }
@@ -2026,7 +2028,7 @@ Context::Bind(
 vd::status 
 Context::Submit(
     Geometry* geo,
-    Shader::Pass::Value pass,
+    RenderPassId::Value pass,
     vd::u32 start, 
     vd::u32 end, 
     vd::u32 stride)
@@ -2035,10 +2037,10 @@ Context::Submit(
 
     const Geometry::Data& data = geo->GetData();
 
-    Shader* shader = NULL;
-    if(Shader::Pass::IsValid(pass))
+    Graphics::Shader* shader = NULL;
+    if(RenderPassId::IsValid(pass))
     {
-        vd::u32 pass_index = Shader::Pass::ToInteger(pass);
+        vd::u32 pass_index = RenderPassId::ToInteger(pass);
         vd::u32 shader_index = data.Shaders[pass_index];
         if(shader_index < m_Shaders.size())
             shader = m_Shaders[shader_index];
@@ -2154,8 +2156,8 @@ Context::Detach(
 vd::status
 Context::Attach(
     Geometry* geo,
-    Shader* shader,
-    Shader::Pass::Value pass)
+    Graphics::Shader* shader,
+    RenderPassId::Value pass)
 {
     bool attached = false;
     vd::u32 invalid_index = Constants::InvalidIndex;
@@ -2194,8 +2196,8 @@ Context::Attach(
 vd::status
 Context::Detach(
     Geometry* geo,
-    Shader* shader,
-    Shader::Pass::Value pass)
+    Graphics::Shader* shader,
+    RenderPassId::Value pass)
 {
     bool located = false;
     vd::u32 invalid_index = Constants::InvalidIndex;
@@ -2647,7 +2649,7 @@ Context::CreateShaderFromFile(
     Memory::SetBytes(&data, 0, sizeof(data));
     data.Index = m_Shaders.size();
 
-    Graphics::Shader* shader = VD_NEW(Shader, this, name);
+    OpenGL::Shader* shader = VD_NEW(OpenGL::Shader, this, name);
     shader->Setup(data);
     shader->Load(vertex.c_str(), geometry.c_str(), fragment.c_str());
     m_Shaders.push_back(shader);
@@ -2670,13 +2672,13 @@ Context::CreateShaderFromSource(
     Memory::SetBytes(&data, 0, sizeof(data));
     data.Index = m_Shaders.size();
 
-    Graphics::Shader* shader = VD_NEW(Shader, this, name);
+    OpenGL::Shader* shader = VD_NEW(OpenGL::Shader, this, name);
     shader->Setup(data);
 
     shader->Compile(
-        vertex.size() ? vertex.c_str() : NULL,
-        geometry.size() ? geometry.c_str() : NULL, 
-        fragment.size() ? fragment.c_str() : NULL);
+        vertex.size() ? vertex.c_str() : vd::string(""),
+        geometry.size() ? geometry.c_str() : vd::string(""), 
+        fragment.size() ? fragment.c_str() : vd::string(""));
 
     m_Shaders.push_back(shader);
 
@@ -2687,7 +2689,7 @@ Context::CreateShaderFromSource(
 
 vd::status 
 Context::Acquire(
-    Shader* s)
+    Graphics::Shader* s)
 {
     vdAssert(s != NULL);
 #if 0    
@@ -2699,7 +2701,7 @@ Context::Acquire(
 
 vd::status 
 Context::Release(
-    Shader* s)
+    Graphics::Shader* s)
 {
     vdAssert(s != NULL);
 
@@ -2718,7 +2720,7 @@ Context::Release(
 
 vd::status 
 Context::Retain(
-    Shader* s)
+    Graphics::Shader* s)
 {
     vdAssert(s != NULL);
 
@@ -2731,7 +2733,7 @@ Context::Retain(
 
 vd::status 
 Context::Destroy(
-    Shader* s)
+    Graphics::Shader* s)
 {
     vdAssert(s != NULL);
     vdLogOpenGLErrors("Start");
@@ -2744,29 +2746,105 @@ Context::Destroy(
 }
 
 vd::status 
+Context::SetUniform(
+    Graphics::Shader* s, Symbol name, vd::i32 value)
+{
+    vdAssert(s != NULL);
+    return s->SetUniform(name, value);
+}
+
+vd::status 
+Context::SetUniform(
+    Graphics::Shader* s, Symbol name, vd::f32 value)
+{
+    vdAssert(s != NULL);
+    return s->SetUniform(name, value);
+}
+
+vd::status 
+Context::SetUniform(
+    Graphics::Shader* s, Symbol name, vd::f32 x, vd::f32 y)
+{
+    vdAssert(s != NULL);
+    return s->SetUniform(name, x, y);
+}
+
+vd::status 
+Context::SetUniform(
+    Graphics::Shader* s, Symbol name, vd::f32 x, vd::f32 y, vd::f32 z)
+{
+    vdAssert(s != NULL);
+    return s->SetUniform(name, x, y, z);
+}
+
+vd::status 
+Context::SetUniform(
+    Graphics::Shader* s, Symbol name, vd::f32 x, vd::f32 y, vd::f32 z, vd::f32 w)
+{
+    vdAssert(s != NULL);
+    return s->SetUniform(name, x, y, z, w);
+}
+
+vd::status 
+Context::SetUniform(
+    Graphics::Shader* s, Symbol name, const vd::v2f32& value)
+{
+    vdAssert(s != NULL);
+    return s->SetUniform(name, value);
+}
+
+vd::status 
+Context::SetUniform(
+    Graphics::Shader* s, Symbol name, const vd::v3f32& value)
+{
+    vdAssert(s != NULL);
+    return s->SetUniform(name, value);
+}
+
+vd::status 
+Context::SetUniform(
+    Graphics::Shader* s, Symbol name, const vd::v4f32& value)
+{
+    vdAssert(s != NULL);
+    return s->SetUniform(name, value);
+}
+
+vd::status 
+Context::SetUniform(
+    Graphics::Shader* s, Symbol name, const vd::m3f32& value)
+{
+    vdAssert(s != NULL);
+    return s->SetUniform(name, value);
+}
+
+vd::status 
+Context::SetUniform(
+    Graphics::Shader* s, Symbol name, const vd::m4f32& value)
+{
+    vdAssert(s != NULL);
+    return s->SetUniform(name, value);
+}
+
+vd::status 
 Context::Bind(
-    Shader* s)
+    Graphics::Shader* s)
 {
     vdAssert(s != NULL);
     vdLogOpenGLErrors("Start");
-
-    s->Bind();
-
+    vd::status result = s->Bind();
     vdLogOpenGLErrors("End");
-    return Status::Code::Success;
+    return result;
 }
 
 vd::status 
 Context::Unbind(
-    Shader* s)
+    Graphics::Shader* s)
 {
     vdAssert(s != NULL);
     vdLogOpenGLErrors("Start");
-
-    s->Unbind();
-
+    vd::status result = s->Unbind();
     vdLogOpenGLErrors("End");
-    return Status::Code::Success;
+    return result;
 }
 
 // ============================================================================================== //

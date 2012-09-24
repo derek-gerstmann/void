@@ -28,8 +28,7 @@
 #include "core/locking.h"
 #include "core/asserts.h"
 #include "core/symbol.h"
-
-#include "containers/containers.h"
+#include "core/collections.h"
 #include "constants/constants.h"
 
 #if defined(VD_USE_ASMLIB)
@@ -200,9 +199,9 @@ public:
 	
 private:
 
-	typedef Containers::Map<const char*, vd::i32>::type    LocationMap;
-	typedef Containers::Map<uintptr_t, Info>::type         InfoMap;
-	typedef Containers::Vector<const char*>::type          StringTable;
+	typedef Core::Map<const char*, vd::i32>::type    LocationMap;
+	typedef Core::Map<uintptr_t, Info>::type         InfoMap;
+	typedef Core::Vector<const char*>::type          StringTable;
 
 	VD_DISABLE_COPY_CONSTRUCTORS(MemoryIndex);
 

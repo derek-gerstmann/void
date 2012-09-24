@@ -27,8 +27,8 @@
 
 #include "core/core.h"
 #include "core/memory.h"
-#include "containers/paramset.h"
-#include "containers/containers.h"
+#include "core/paramset.h"
+#include "core/collections.h"
 #include "graphics/graphics.h"
 
 // ============================================================================================== //
@@ -38,35 +38,17 @@ VD_GRAPHICS_NAMESPACE_BEGIN();
 // ============================================================================================== //
 
 VD_USING(Core, Symbol);
-VD_USING(Containers, ParamSet);
-VD_USING(Containers, Map);
+VD_USING(Core, ParamSet);
+VD_USING(Core, Map);
 
 // ============================================================================================== //
 
 class Shader : public Object 
 {
 public:
-	static const vd::i32 InvalidSlot;
-	typedef Map< vd::uid, vd::i32 >::type BindingMap;
 
-    VD_DECLARE_ENUM(Pass,
-        None,
-        Debug,
-        Sorting,
-        Projection,
-        Visibility,
-        Culling,
-        Depth,
-        Shadow,
-        Lighting,
-        Displacement,
-        Geometry,
-        Normal,
-        ScreenSpace,
-        AmbientOcclusion,
-        DeferredLighting,
-        ToneMap,
-        PostProcess);
+    static const vd::i32                   InvalidSlot;
+    typedef Map< vd::uid, vd::i32 >::type  BindingMap;
 
     VD_DECLARE_ENUM(StateId,
         Allocated,
@@ -87,83 +69,62 @@ public:
     Shader(Graphics::Context* context=NULL);
     Shader(Graphics::Context* context, const vd::string& name);
     Shader(const vd::string& name);
-    ~Shader();
+    virtual ~Shader();
 
     virtual vd::status Acquire();
     virtual vd::status Release();
     virtual vd::status Destroy();
 
-    void Reset();
-    void Setup(const Data& data);
-
-    const Data& GetData() const;
-    const Data* GetPtr() const;
-
-    bool IsActive(void);
-    bool Bind(bool dirty=false);
-    bool Unbind();
-    
-    bool Compile(const char* vp, const char* gp, const char* fp);
-    bool Load(const vd::string& vp, const vd::string& gp, const vd::string& fp);
-
-	bool SetUniform(const Core::Symbol name, vd::i32 value);
-	bool SetUniform(const Core::Symbol name, vd::f32 value);
-	bool SetUniform(const Core::Symbol name, vd::f32 x, vd::f32 y);
-	bool SetUniform(const Core::Symbol name, vd::f32 x, vd::f32 y, vd::f32 z);
-	bool SetUniform(const Core::Symbol name, vd::f32 x, vd::f32 y, vd::f32 z, vd::f32 w);
-	bool SetUniform(const Core::Symbol name, const vd::v2f32& value);
-	bool SetUniform(const Core::Symbol name, const vd::v3f32& value);
-	bool SetUniform(const Core::Symbol name, const vd::v4f32& value);
-	bool SetUniform(const Core::Symbol name, const vd::m3f32& value);
-	bool SetUniform(const Core::Symbol name, const vd::m4f32& value);
-	
-	vd::i32 GetShaderId(){ return m_Data.Id; }
-	
-	vd::i32 GetUniformSlot(const Core::Symbol name);
-	vd::i32 GetSamplerSlot(const Core::Symbol name);
-    vd::i32 GetAttributeSlot(const Core::Symbol name);
-    
-    bool IsValidUniform(const Core::Symbol name);
-
-	static const vd::symbol& GetTypeIdentifier(vd::i32 type);
-	static vd::i32 GetSamplerTextureTarget(vd::i32 type);
-
-	bool BindTexture(const Core::Symbol name, vd::i32 texture);
-	bool UnbindTexture(const Core::Symbol name, vd::i32 texture);
-
-    bool BindAttribute(const Core::Symbol name, vd::i32 slot);
-    bool UnbindAttribute(const Core::Symbol name, vd::i32 slot);
+    virtual vd::status Reset();
+    virtual vd::status Setup(const Data& data);
+    virtual vd::status Bind(bool force_update=false);
+    virtual vd::status Unbind();
 
     void SetName(const vd::string& name) {m_Name = name;}
 
+    const Data& GetData() const;
+    const Data* GetPtr() const;
+    vd::i32 GetShaderId() const;
+
+    vd::status SetUniform(Symbol name, vd::i32 value);
+    vd::status SetUniform(Symbol name, vd::f32 value);
+    vd::status SetUniform(Symbol name, vd::f32 x, vd::f32 y);
+    vd::status SetUniform(Symbol name, vd::f32 x, vd::f32 y, vd::f32 z);
+    vd::status SetUniform(Symbol name, vd::f32 x, vd::f32 y, vd::f32 z, vd::f32 w);
+    vd::status SetUniform(Symbol name, const vd::v2f32& value);
+    vd::status SetUniform(Symbol name, const vd::v3f32& value);
+    vd::status SetUniform(Symbol name, const vd::v4f32& value);
+    vd::status SetUniform(Symbol name, const vd::m3f32& value);
+    vd::status SetUniform(Symbol name, const vd::m4f32& value);
+
+    vd::status BindTexture(Symbol name, vd::i32 texture);
+    vd::status UnbindTexture(Symbol name, vd::i32 texture);
+    
+    vd::status BindAttribute(Symbol name, vd::i32 slot);
+    vd::status UnbindAttribute(Symbol name, vd::i32 slot);
+    
+    vd::i32 GetUniformSlot(Symbol name);
+    vd::i32 GetSamplerSlot(Symbol name);
+    vd::i32 GetAttributeSlot(Symbol name);
+    
+    bool IsValidUniform(Symbol name);
+    bool IsActive(void);
+
 	VD_DECLARE_OBJECT(Shader);
 	
-protected:
-
-	bool AddUniform(const Core::Symbol name, vd::i32 type);
-	void LocateUniforms();
-	void SubmitUniforms(bool force);
-
-	void BindSamplers();
-	void UnbindSamplers();
-
-    void LocateAttributes();
-    void BindAttributes();
-    void UnbindAttributes();
-
-    void CheckStatus(const char* acMessage);
-
 private:
 
 	VD_DISABLE_COPY_CONSTRUCTORS(Shader);
     
+protected:
+
     Shader::Data       m_Data;
 	vd::string         m_Name;
-	ParamSet           m_Uniforms;
-	BindingMap         m_UniformSlots;
-	BindingMap         m_UniformTypes;
-	BindingMap         m_SamplerSlots;
-	BindingMap         m_SamplerBindings;
+    ParamSet           m_Uniforms;
+    BindingMap         m_UniformSlots;
+    BindingMap         m_UniformTypes;
+    BindingMap         m_SamplerSlots;
+    BindingMap         m_SamplerBindings;
     BindingMap         m_AttributeSlots;
     Context*           m_Context;
 };

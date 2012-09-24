@@ -31,11 +31,7 @@
 #include "core/threading.h"
 #include "core/locking.h"
 #include "core/handles.h"
-#include "containers/containers.h"
-
-// ============================================================================================== //
-        
-VD_USING(Containers, Vector);
+#include "core/collections.h"
 
 // ============================================================================================== //
 
@@ -222,7 +218,7 @@ class LogContext : public Object
 	friend class LogEngine;
 
 public:
-    typedef Vector<LogChannel*>::type ChannelTable;
+    typedef Core::Vector<LogChannel*>::type ChannelTable;
 
     LogContext(LogLevel::Value logLevel = LogLevel::Debug);
 

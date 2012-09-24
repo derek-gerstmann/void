@@ -42,8 +42,8 @@
 #include "interface/keyboard.h"
 #include "interface/mouse.h"
 
-#include "containers/containers.h"
-#include "containers/paramset.h"
+#include "core/collections.h"
+#include "core/paramset.h"
 
 // ============================================================================================== //
 
@@ -55,7 +55,7 @@ VD_USING(Core, Mutex);
 VD_USING(Interface, Keyboard);
 VD_USING(Interface, Mouse);
 VD_USING(Interface, Event);
-VD_USING(Containers, Vector);
+VD_USING(Core, Vector);
 
 // ============================================================================================== //
 
@@ -87,7 +87,7 @@ public:
     virtual vd::status Destroy();
     
     virtual void ProcessArgs(int* argc = 0, void ** argv = 0) = 0;
-    virtual void Setup(const vd::string& title, const Graphics::Viewport& vp, const Containers::ParamSet& params) = 0;
+    virtual void Setup(const vd::string& title, const Graphics::Viewport& vp, const Core::ParamSet& params) = 0;
     virtual void SetActive(bool enable=true) = 0;
     virtual bool ProcessEvent(Event& event) = 0;   
     virtual bool PollEvent(Event& event) = 0;

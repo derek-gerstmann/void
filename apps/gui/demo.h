@@ -27,22 +27,27 @@
 
 // ============================================================================================== //
 
-#include "symbols.h"
 #include "core/core.h"
 #include "core/builtins.h"
 #include "core/utilities.h"
 #include "core/process.h"
-#include "containers/buffer.h"
+#include "core/buffer.h"
+
 #include "graphics/graphics.h"
+
 #include "interface/interface.h"
 #include "interface/gwen/gwen.h"
 #include "interface/gwen/context.h"
 #include "interface/glut/window.h"
+
 #include "runtime/application.h"
 
 #include "widgets.h"
 #include "config.h"
 
+#if defined(VD_USE_EXTRACTED_SYMBOLS)
+#include "symbols.h"
+#endif
 
 // ============================================================================================== //
 
@@ -50,8 +55,8 @@ VD_RUNTIME_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
+VD_USING(Core, ParamSet);
 VD_USING(Interface, Event);
-VD_USING(Containers, ParamSet);
 VD_USING(Interface, Window);
 
 // ============================================================================================== //
@@ -109,13 +114,13 @@ protected:
     
 private:
 
-	Window* m_Window;
-    Interface::Gw::Context* m_Gui;
-    Interface::Gw::WindowControl* m_Controls;
-    ParamSet m_Params;
-    Config m_Config;
-    vd::f64 m_LastUpdate;
-    vd::status m_Status;
+	Window*                         m_Window;
+    Interface::Gw::Context*         m_Gui;
+    Interface::Gw::WindowControl*   m_Controls;
+    ParamSet                        m_Params;
+    Config                          m_Config;
+    vd::f64                         m_LastUpdate;
+    vd::status                      m_Status;
 };
 
 // ============================================================================================== //

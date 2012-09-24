@@ -30,7 +30,8 @@
 #include "interface/interface.h"
 #include "interface/mouse.h"
 #include "interface/keyboard.h"
-#include "containers/containers.h"
+
+#include "core/collections.h"
 #include "core/functions.h"
 
 // ============================================================================================== //
@@ -45,7 +46,7 @@ class Event
 public :
 
 	typedef Core::Function< vd::status ( const Event& ) > Callback;
-    typedef Containers::Vector< Event >                   Recorder;
+    typedef Core::Vector< Event >                         Recorder;
 	
 	VD_DECLARE_ENUM(Type,
         Startup,                 

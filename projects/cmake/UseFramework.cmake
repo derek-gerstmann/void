@@ -13,7 +13,6 @@ set( VOID_VERSION_STRING        "${VOID_VERSION_MAJOR}.${VOID_VERSION_MINOR}.${V
 set( VD_FRAMEWORK_DIR           ${VD_SRC_DIR}/common)
 set( VD_CORE_DIR                ${VD_SRC_DIR}/core)
 set( VD_CONSTANTS_DIR           ${VD_SRC_DIR}/constants)
-set( VD_CONTAINERS_DIR          ${VD_SRC_DIR}/containers)
 set( VD_EXTRACTED_DIR           ${VD_SRC_DIR}/constants/extracted)
 set( VD_FORMATS_DIR             ${VD_SRC_DIR}/formats)
 set( VD_INPUT_DIR               ${VD_SRC_DIR}/input)
@@ -39,8 +38,6 @@ file( GLOB VD_COMPUTE_INC       ${VD_COMPUTE_DIR}/*.h ${VD_COMPUTE_DIR}/*.hpp)
 file( GLOB VD_COMPUTE_SRC       ${VD_COMPUTE_DIR}/*.c ${VD_COMPUTE_DIR}/*.cpp)
 file( GLOB VD_CONSTANTS_INC     ${VD_CONSTANTS_DIR}/*.h ${VD_CONSTANTS_DIR}/*.hpp)
 file( GLOB VD_CONSTANTS_SRC     ${VD_CONSTANTS_DIR}/*.c ${VD_CONSTANTS_DIR}/*.cpp)
-file( GLOB VD_CONTAINERS_INC    ${VD_CONTAINERS_DIR}/*.h ${VD_CONTAINERS_DIR}/*.hpp)
-file( GLOB VD_CONTAINERS_SRC    ${VD_CONTAINERS_DIR}/*.c ${VD_CONTAINERS_DIR}/*.cpp)
 file( GLOB VD_FORMATS_INC       ${VD_FORMATS_DIR}/*.h ${VD_FORMATS_DIR}/*.hpp)
 file( GLOB VD_FORMATS_SRC       ${VD_FORMATS_DIR}/*.c ${VD_FORMATS_DIR}/*.cpp)
 file( GLOB VD_GRAPHICS_INC      ${VD_GRAPHICS_DIR}/*.h ${VD_GRAPHICS_DIR}/*.hpp ${VD_GRAPHICS_DIR}/*/*.hpp)
@@ -67,7 +64,6 @@ set( VD_ALL_SRC
     ${VD_CORE_SRC} 
     ${VD_COMPUTE_SRC} 
     ${VD_CONSTANTS_SRC} 
-    ${VD_CONTAINERS_SRC} 
     ${VD_FORMATS_SRC} 
     ${VD_GRAPHICS_SRC} 
     ${VD_INTERFACE_SRC} 
@@ -84,8 +80,7 @@ set( VD_ALL_INC
     ${VD_FRAMEWORK_INC} 
     ${VD_CORE_INC} 
     ${VD_COMPUTE_INC} 
-    ${VD_CONSTANTS_INC} 
-    ${VD_CONTAINERS_INC} 
+    ${VD_CONSTANTS_INC}  
     ${VD_FORMATS_INC} 
     ${VD_GRAPHICS_INC} 
     ${VD_INTERFACE_INC} 
@@ -130,8 +125,8 @@ if(VOID_USE_ASMLIB)
     add_definitions( -DVD_USE_ASMLIB=1 )
 endif()
 
-if(VOID_USE_BOOST_CONTAINERS)
-    add_definitions( -DVD_USE_BOOST_CONTAINERS=1 )
+if(VOID_USE_BOOST_COLLECTIONS)
+    add_definitions( -DVD_USE_BOOST_COLLECTIONS=1 )
 endif()
 
 if(VOID_USE_OPENGL)

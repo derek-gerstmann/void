@@ -31,7 +31,7 @@
 #include "graphics/graphics.h"
 #include "graphics/context.h"
 #include "core/symbol.h"
-#include "containers/containers.h"
+#include "core/collections.h"
 
 // ============================================================================================== //
 
@@ -39,7 +39,7 @@ VD_GRAPHICS_OPENGL_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_USING(Containers, Vector);
+VD_USING(Core, Vector);
 VD_USING(Core, Symbol);
 
 // ============================================================================================== //
@@ -95,11 +95,11 @@ public:
     virtual vd::status Attach(Geometry* geo, Geometry::AttributeSlot::Value attrib, vd::u32 buffer, vd::u32 slot);
     virtual vd::status Detach(Geometry* geo, Geometry::AttributeSlot::Value attrib);
     
-    virtual vd::status Attach(Geometry* geo, Shader* shader, Shader::Pass::Value pass);
-    virtual vd::status Detach(Geometry* geo, Shader* shader, Shader::Pass::Value pass);
+    virtual vd::status Attach(Geometry* geo, Graphics::Shader* shader, RenderPassId::Value pass);
+    virtual vd::status Detach(Geometry* geo, Graphics::Shader* shader, RenderPassId::Value pass);
 
     virtual vd::status Bind(Geometry* geo);
-    virtual vd::status Submit(Geometry* geo, Shader::Pass::Value pass = Shader::Pass::Normal, 
+    virtual vd::status Submit(Geometry* geo, RenderPassId::Value pass = RenderPassId::Normal, 
                               vd::u32 start=0, vd::u32 end=VD_U32_MAX, vd::u32 count=VD_U32_MAX);
     virtual vd::status Unbind(Geometry* geo);
     virtual vd::status Acquire(Geometry* geo);
@@ -143,25 +143,37 @@ public:
     virtual vd::status Destroy(Framebuffer* fb);
     virtual vd::status Clear(Framebuffer* fb, vd::f32 r=0.0f, vd::f32 g=0.0f, vd::f32 b=0.0f, vd::f32 a=0.0f);
 	
-    virtual Shader* CreateShaderFromSource(
+    virtual Graphics::Shader* CreateShaderFromSource(
         const vd::string& name, 
         const vd::string& vertex, 
         const vd::string& geometry, 
         const vd::string& fragment);
     
-    virtual Shader* CreateShaderFromFile(
+    virtual Graphics::Shader* CreateShaderFromFile(
         const vd::string& name, 
         const vd::string& vertex, 
         const vd::string& geometry, 
         const vd::string& fragment);
 
-    virtual vd::status Bind(Shader* s);
-    virtual vd::status Unbind(Shader* s);
-    virtual vd::status Acquire(Shader* s);
-    virtual vd::status Release(Shader* s);
-    virtual vd::status Retain(Shader* s);
-    virtual vd::status Destroy(Shader* s);
+    virtual vd::status SetUniform(Graphics::Shader* s, Symbol name, vd::i32 value);
+    virtual vd::status SetUniform(Graphics::Shader* s, Symbol name, vd::f32 value);
+    virtual vd::status SetUniform(Graphics::Shader* s, Symbol name, vd::f32 x, vd::f32 y);
+    virtual vd::status SetUniform(Graphics::Shader* s, Symbol name, vd::f32 x, vd::f32 y, vd::f32 z);
+    virtual vd::status SetUniform(Graphics::Shader* s, Symbol name, vd::f32 x, vd::f32 y, vd::f32 z, vd::f32 w);
 
+    virtual vd::status SetUniform(Graphics::Shader* s, Symbol name, const vd::v2f32& value);
+    virtual vd::status SetUniform(Graphics::Shader* s, Symbol name, const vd::v3f32& value);
+    virtual vd::status SetUniform(Graphics::Shader* s, Symbol name, const vd::v4f32& value);
+    virtual vd::status SetUniform(Graphics::Shader* s, Symbol name, const vd::m3f32& value);
+    virtual vd::status SetUniform(Graphics::Shader* s, Symbol name, const vd::m4f32& value);
+
+    virtual vd::status Bind(Graphics::Shader* s);
+    virtual vd::status Unbind(Graphics::Shader* s);
+    virtual vd::status Acquire(Graphics::Shader* s);
+    virtual vd::status Release(Graphics::Shader* s);
+    virtual vd::status Retain(Graphics::Shader* s);
+    virtual vd::status Destroy(Graphics::Shader* s);
+    
     Runtime::Context* GetRuntime();
     
     void RenderToScreen(

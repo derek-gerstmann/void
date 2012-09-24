@@ -44,8 +44,8 @@
 #include "interface/mouse.h"
 #include "interface/window.h"
 
-#include "containers/containers.h"
-#include "containers/paramset.h"
+#include "core/collections.h"
+#include "core/paramset.h"
 
 // ============================================================================================== //
 
@@ -57,7 +57,7 @@ VD_USING(Core, Mutex);
 VD_USING(Interface, Keyboard);
 VD_USING(Interface, Mouse);
 VD_USING(Interface, Event);
-VD_USING(Containers, Vector);
+VD_USING(Core, Vector);
 
 // ============================================================================================== //
 
@@ -73,7 +73,7 @@ public:
 	virtual ~Window();
 	
 	virtual void ProcessArgs(int* argc = 0, void ** argv = 0);
-    virtual void Setup(const vd::string& title, const Graphics::Viewport& vp, const Containers::ParamSet& params);
+    virtual void Setup(const vd::string& title, const Graphics::Viewport& vp, const Core::ParamSet& params);
 	virtual void SetActive(bool enable=true);
 	virtual vd::status Destroy();
 	virtual bool ProcessEvent(Event& event);	

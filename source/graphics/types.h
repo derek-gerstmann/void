@@ -28,6 +28,8 @@
 // ============================================================================================== //
 
 #include "core/object.h"
+#include "core/entity.h"
+#include "core/symbol.h"
 #include "constants/constants.h"
 
 // ============================================================================================== //
@@ -37,6 +39,8 @@ VD_GRAPHICS_NAMESPACE_BEGIN();
 // ============================================================================================== //
 
 VD_USING(Core, Object);
+VD_USING(Core, Entity);
+VD_USING(Core, Symbol);
 
 // ============================================================================================== //
 
@@ -69,6 +73,25 @@ VD_DECLARE_ENUM(ScalarTypeId,
     Pointer,
     Address,
     ByteSize);
+
+VD_DECLARE_ENUM(RenderPassId,
+    None,
+    Debug,
+    Sorting,
+    Projection,
+    Visibility,
+    Culling,
+    Depth,
+    Shadow,
+    Lighting,
+    Displacement,
+    Geometry,
+    Normal,
+    ScreenSpace,
+    AmbientOcclusion,
+    DeferredLighting,
+    ToneMap,
+    PostProcess);
 
 // ============================================================================================== //
 // Data Structures

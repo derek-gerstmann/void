@@ -127,10 +127,10 @@ Geometry::Attach(
 
 vd::status 
 Geometry::Attach(
-    Shader::Pass::Value pass,
+    RenderPassId::Value pass,
     vd::u32 shader)
 {
-    vd::u32 index = Shader::Pass::ToInteger(pass);
+    vd::u32 index = RenderPassId::ToInteger(pass);
     m_Data.Shaders[index] = shader;
     return Status::Code::Success;
 }
@@ -147,9 +147,9 @@ Geometry::Detach(
 
 vd::status 
 Geometry::Detach(
-    Shader::Pass::Value pass)
+    RenderPassId::Value pass)
 {
-    vd::u32 index = Shader::Pass::ToInteger(pass);
+    vd::u32 index = RenderPassId::ToInteger(pass);
     m_Data.Shaders[index] = Geometry::InvalidSlot;
     return Status::Code::Success;
 }

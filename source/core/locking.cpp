@@ -28,7 +28,7 @@
 #include "core/memory.h"
 #include "core/exceptions.h"
 #include "core/asserts.h"
-#include "containers/containers.h"
+#include "core/collections.h"
 
 // ============================================================================================== //
 

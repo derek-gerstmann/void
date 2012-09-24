@@ -205,7 +205,7 @@ protected:
     vd::m4f32 m_ModelView;
     vd::m4f32 m_Projection;
 
-    Graphics::Shader m_Shader;
+    Graphics::Shader* m_Shader;
 };
 
 // ============================================================================================== //
