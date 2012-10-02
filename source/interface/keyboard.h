@@ -39,7 +39,7 @@ class Keyboard
 {
 public :
 
-	VD_DECLARE_ENUM(KeyCode,	
+	VD_DECLARE_ENUM(KeyCode,
 		A, 
 		B, 
 		C, 
@@ -89,12 +89,17 @@ public :
 		Insert, 
 		Delete, 
 		Pause,
+		Menu,
 		Backspace, 
 		Return, 
+		Enter,
 		System,
 		Shift, 
 		Control, 
 		Alt,
+		CapsLock,
+		ScrollLock,
+		ShiftLock,
 		LeftBracket, 
 		RightBracket,
 		LeftBrace, 

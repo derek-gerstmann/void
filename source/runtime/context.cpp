@@ -28,6 +28,10 @@
 #include "interface/glut/window.h"
 #endif
 
+#if defined(VD_USE_GLFW_RUNTIME)
+#include "interface/glfw/window.h"
+#endif
+
 // ============================================================================================== //
 
 VD_RUNTIME_NAMESPACE_BEGIN();
@@ -76,8 +80,14 @@ Context::CreateWindow(
 {
     Interface::Window* window = NULL;
 #if defined(VD_USE_GLUT_RUNTIME)
-    window = VD_NEW(Interface::Glut::Window, this);
+    if(params.Get1b(vd_sym(UseGlut)) == true)
+        window = VD_NEW(Interface::Glut::Window, this);
 #endif
+#if defined(VD_USE_GLFW_RUNTIME)
+    if(params.Get1b(vd_sym(UseGlfw)) == true)
+        window = VD_NEW(Interface::Glfw::Window, this);
+#endif
+    
     return window;    
 }
 

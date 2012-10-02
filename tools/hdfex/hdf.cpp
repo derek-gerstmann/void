@@ -1291,7 +1291,7 @@ ToPropertyGraph::ExportDataSetMetaData(
     }
     dset_key = graph.SetNode(dset_key, dset_meta);
 
-    Storage::TypeClassId type_class = dset_type.GetTypeClassId();
+    // Storage::TypeClassId type_class = dset_type.GetTypeClassId();
     TypeAccess native_type = dset_type.GetNativeType(); 
 
 // ----------------------------------------

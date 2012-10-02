@@ -459,6 +459,10 @@ public:
     vd::bytesize
     ReadBlock(FILE* fd, Block::Value block, vd::bytesize offset, vd::i32* types);
 
+    vd::bytesize
+    ReadPartialBlock(FILE* fd, Block::Value block, 
+        vd::bytesize start, vd::bytesize end, vd::i32* types);
+
     vd::f32
     Periodic(vd::f32 x, vd::f32 l2);
     
@@ -521,6 +525,7 @@ private:
     MetaData          m_MetaData;
     ParticleData      m_ParticleData;
     BlockSummary      m_SummaryData[Block::Count];
+    vd::u64           m_BlockOffsets[Block::Count];
     vd::u64           m_TotalParticleCount;
     vd::u64           m_FilteredParticleCount;
     vd::u64           m_GasParticleCount;

@@ -185,7 +185,6 @@ void Base::Destroy()
 	if(m_FontManager != NULL)
 		font_manager_delete(m_FontManager);
 	m_FontManager = NULL;
-
 }
 
 void Base::Begin()

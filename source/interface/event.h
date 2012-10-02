@@ -54,7 +54,7 @@ public :
         Update,                 
         Display,                 
         Refresh,                 
-        Closed,                 
+        Close,                 
         Resize,                
         LostFocus,              
         GainedFocus,            

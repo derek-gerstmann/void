@@ -1689,6 +1689,31 @@ v4<T> Select(bool s, const v4<T>& t, const v4<T>& f)
                  Select(s, t.w, f.w));
 }
 
+template<typename T> VD_FORCE_INLINE
+v3<T> BSplineWeights(T f)
+{
+    v3<T> w(
+        T(0.50) * Sqr(f - T(Constants::One)),
+        T(0.75) - Sqr(f - T(0.50)),
+        T(0.50) * Sqr(f)
+    );
+    return w;
+}
+
+template<typename T> VD_FORCE_INLINE
+v4<T> CubicWeights(T f)
+{
+    T f2(f*f);
+    T f3(f2*f);
+
+    T n1 = -T(1.0/3.0) * f + T(1.0/2.0) * f2 - T(1.0/6.0) * f3;
+    T w0 = T(1) - f2 + T(1.0/2.0) * (f3-f);
+    T w1 = f + T(1.0/2.0) * (f2-f3);
+    T w2 = T(1.0/6.0) * (f3-f);
+
+    return v4<T>(n1, w0, w1, w2);
+}
+
 template <typename T> VD_FORCE_INLINE
 std::ostream& operator<<(std::ostream& cout, const v4<T>& a)
 {

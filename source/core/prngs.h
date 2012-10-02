@@ -40,6 +40,65 @@ namespace Random {
 
 // ============================================================================================== //
 
+struct Hash 
+{
+    static inline vd::u32 
+    Encode(vd::u32 seed)
+    {
+       vd::u32 i = (seed^0xA3C59AC3u)*2654435769u;
+       i ^= (i>>16);
+       i *= 2654435769u;
+       i ^= (i>>16);
+       i *= 2654435769u;
+       return i;
+    }
+
+    static inline vd::u32 
+    Decode(
+        vd::u32 h)
+    {
+       h *= 340573321u;
+       h ^= (h>>16);
+       h *= 340573321u;
+       h ^= (h>>16);
+       h *= 340573321u;
+       h ^= 0xA3C59AC3u;
+       return h;
+    }
+
+    static inline vd::u32 NextU32(
+        vd::u32 seed)
+    { 
+        return Encode(seed); 
+    }
+
+    static inline float NextF32(
+        vd::u32 seed)
+    { 
+        return NextU32(seed)/(vd::f32)VD_U32_MAX; 
+    }
+
+    static inline vd::f64 NextF64(
+        vd::u32 seed)
+    { 
+        return NextU32(seed)/(vd::f64)VD_U32_MAX; 
+    }
+
+    static inline vd::f64 RandHashF64(
+        vd::u32 seed, vd::f64 a, vd::f64 b)
+    { 
+        return (b-a)*NextU32(seed)/(vd::f64)VD_U32_MAX + a; 
+    }
+
+    static inline vd::f32 RandHashF32(
+        vd::u32 seed, vd::f32 a, vd::f32 b)
+    { 
+        return ( (b-a)*NextU32(seed)/(vd::f32)VD_U32_MAX + a); }
+    }
+};
+
+// ============================================================================================== //
+
 #define VD_RANDOM_MASKU64               0xffffffffUL
 #define VD_RANDOM_VD_RANDOM_MASKF32     0x00ffffffUL
 

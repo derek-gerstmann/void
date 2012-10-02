@@ -139,6 +139,11 @@ if(VOID_USE_GLUT)
     add_definitions( -DVD_USE_GLUT=1 )
 endif()
 
+if(VOID_USE_GLFW)
+    add_definitions( -DVD_USE_GLFW_RUNTIME=1 )
+    add_definitions( -DVD_USE_GLFW=1 )
+endif()
+
 if(VOID_USE_GWEN)
     add_definitions( -DVD_USE_GWEN=1 )
 endif()

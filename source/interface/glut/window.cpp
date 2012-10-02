@@ -575,14 +575,14 @@ Window::Destroy()
 void
 Window::RemoveAllEventHandlers()
 {
-	m_Mutex.Lock();
+	ScopedMutex locker(&m_Mutex);
+	
 	for(vd::u32 i = 0; i < Event::Type::Count; ++i)
 	{
 		vd::u32 kind = (vd::u32)i;
 		if(m_Handlers[kind].size())
 			RemoveEventHandlers(Event::Type::FromInteger(kind));
 	}
-	m_Mutex.Unlock();	
 }	
 
 bool 
@@ -687,8 +687,6 @@ bool
 Window::RemoveEventHandlers(
 	Event::Type::Value value)
 {
-	ScopedMutex locker(&m_Mutex);
-
 	vd::u32 kind = Event::Type::ToInteger(value);
 	if(m_Handlers[kind].empty() == false)
 	{

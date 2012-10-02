@@ -1,0 +1,10 @@
+remove_definitions( -DVD_BUILDING_FRAMEWORK )
+set( VD_TRIAL_TESTS_DIR	${VD_ROOT_DIR}/tests/trials )
+file( GLOB VD_TESTS_SUBDIRS ./tests/trials/* )
+foreach( entry ${VD_TESTS_SUBDIRS} )
+	if( IS_DIRECTORY ${entry} )
+		message(STATUS "Adding test '${entry}' ...")
+		add_subdirectory( ${entry} )
+	endif()
+endforeach( entry ${VD_TESTS_SUBDIRS} )
+

@@ -1,8 +1,8 @@
 // ============================================================================================== //
 //
 // License:		The Lesser GNU Public License (LGPL) v3.0.
-// 
-// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA). 
+//
+// Author(s): 	Derek Gerstmann. The University of Western Australia (UWA).
 //				As well as the shoulders of many giants...
 //
 // This file is part of the Void framework.
@@ -28,7 +28,6 @@
 // ============================================================================================== //
 
 #include "core/core.h"
-#include "core/numerics.h"
 #include "constants/values.h"
 
 // ============================================================================================== //
@@ -39,19 +38,19 @@ VD_CORE_NAMESPACE_BEGIN();
 
 vd::f32
 FastSqrt(const vd::f32 fV);
-    
+
 vd::f32
 FastRsqrt(const vd::f32 fV);
 
-vd::i32 
+vd::i32
 DivideUp(vd::i32 a, vd::i32 b);
 
-vd::u32 
+vd::u32
 NearestPowerOfTwo(vd::u32 x);
 
 // --------------------------------------------------------------------------------------------- //
 
-int 
+int
 DilateEven(const int iX);
 
 int
@@ -68,7 +67,8 @@ MortonIndex2DPadded(const int row, const int col, const int size);
 // --------------------------------------------------------------------------------------------- //
 
 template <typename T>
-int Compare(const T& a, const T& b) {
+int Compare(const T& a, const T& b)
+{
     if (a == b)
         return 0;
     else if (a < b)
@@ -78,12 +78,12 @@ int Compare(const T& a, const T& b) {
 }
 
 template <typename T>
-int PointerValueCompare(const T* a, const T* b) 
+int PointerValueCompare(const T* a, const T* b)
 {
     return Compare<T>(*a, *b);
 }
 
-inline vd::u32 RoundUpToPowerOf2(vd::u32 x) 
+inline vd::u32 RoundUpToPowerOf2(vd::u32 x)
 {
 //    vdGlobalAssert(x <= 0x80000000u);
     x = x - 1;
@@ -95,7 +95,7 @@ inline vd::u32 RoundUpToPowerOf2(vd::u32 x)
     return x + 1;
 }
 
-inline vd::u32 RoundDownToPowerOf2(vd::u32 x) 
+inline vd::u32 RoundDownToPowerOf2(vd::u32 x)
 {
     vd::u32 rounded_up = RoundUpToPowerOf2(x);
     if (rounded_up > x) return rounded_up >> 1;
@@ -103,94 +103,6 @@ inline vd::u32 RoundDownToPowerOf2(vd::u32 x)
 }
 
 // ============================================================================================== //
-
-template<typename Real> 
-Real Normalize(const Real& value, const Real& low, const Real& high)
-{
-	Real range(high - low);
-	Real result = Clamp(value, low, high);
-    return (result - low) / range;
-}
-
-// ============================================================================================== //
-//
-// Remaps X in [A,B] to X' in [C,D]
-//
-//       (D-C)*(X-A)
-// X' =   -----------  + C
-//          (B-A)
-//
-// ============================================================================================== //
-       
-template<typename Real> 
-Real LinearRemap(const Real& x, 
-    const Real& a, const Real& b,
-    const Real& c, const Real& d)
-{
-    Real xp = ((d - c) * (x - a) / (b - a)) + c;
-    return xp;
-}
-          
-template<typename Real> 
-Real Clamp(const Real& value, const Real& low, const Real& high)
-{
-	Real result(value);
-    if (result < low) 	result = low;
-    if (result > high) 	result = high;
-    return result;
-}
-
-template<typename Real, typename T> T 
-Lerp(Real t, const T& a, const T& b)
-{
-	Real ct = Clamp(t, Real(Constants::Zero), Real(Constants::One));
-	return a * (Real(Constants::One) - ct) + b * ct;
-}
-
-template<typename Real>
-Real SmoothIdentity( Real x, Real m, Real n )
-{
-    if( x > m ) return x;
-
-    const Real one = Real(Constants::One);
-    const Real two = Real(Constants::Two);
-    const Real three = Real(Constants::Three);
-    const Real a = two * n - m;
-    const Real b = two * m - three * n;
-    const Real t = x / m;
-
-    return (a * t + b) * t * t + n;
-}
-
-// ============================================================================================== //
-
-template<typename Real>
-Real Impulse( Real k, Real x )
-{
-    const Real one = Real(Constants::One);
-    const Real h = k * x;
-    return h * Exp(one - h);
-}
-
-template<typename Real>
-Real CubicPulse( Real c, Real w, Real x )
-{
-	const Real zero = Real(Constants::Zero);
-    const Real one = Real(Constants::One);
-    const Real two = Real(Constants::Two);
-    const Real three = Real(Constants::Three);
-
-    x = Abs(x - c);
-    if( x > w ) return zero;
-    x /= w;
-    return one - x * x * (three - two * x);
-}
-
-template<typename Real>
-Real ExpPulse( Real x, Real k, Real n )
-{
-    return Exp( -k * Pow(x,n) );
-}
 
 #if 0
 template<typename Real>
@@ -213,6 +125,226 @@ template<typename Integer>
 Integer RoundToMultipleOf4( Integer x )
 {
     return (((x) + 3) >> 2 << 2);
+}
+
+// ============================================================================================== //
+
+template<class T>
+inline void MinMax(
+    T a1, T a2, T& amin, T& amax)
+{
+    if(a1<a2)
+    {
+        amin=a1;
+        amax=a2;
+    }
+    else
+    {
+        amin=a2;
+        amax=a1;
+    }
+}
+
+template<class T>
+inline void MinMax(
+    T a1, T a2, T a3, T& amin, T& amax)
+{
+    if(a1<a2)
+    {
+        if(a1<a3)
+        {
+            amin=a1;
+            if(a2<a3) amax=a3;
+            else amax=a2;
+        }
+        else
+        {
+            amin=a3;
+            if(a1<a2) amax=a2;
+            else amax=a1;
+        }
+    }
+    else
+    {
+        if(a2<a3)
+        {
+            amin=a2;
+            if(a1<a3) amax=a3;
+            else amax=a1;
+        }
+        else
+        {
+            amin=a3;
+            amax=a1;
+        }
+    }
+}
+
+template<class T>
+inline void MinMax(
+    T a1, T a2, T a3, T a4, T& amin, T& amax)
+{
+    if(a1<a2)
+    {
+        if(a3<a4)
+        {
+            amin = Min(a1,a3);
+            amax = Max(a2,a4);
+        }
+        else
+        {
+            amin = Min(a1,a4);
+            amax = Max(a2,a3);
+        }
+    }
+    else
+    {
+        if(a3<a4)
+        {
+            amin = Min(a2,a3);
+            amax = Max(a1,a4);
+        }
+        else
+        {
+            amin = Min(a2,a4);
+            amax = Max(a1,a3);
+        }
+    }
+}
+
+template<class T>
+inline void MinMmax(
+    T a1, T a2, T a3, T a4, T a5,
+    T& amin, T& amax)
+{
+    amin = Min(a1,a2,a3,a4,a5);
+    amax = Max(a1,a2,a3,a4,a5);
+}
+
+template<class T>
+inline void MinMax(
+    T a1, T a2, T a3, T a4, T a5, T a6,
+    T& amin, T& amax)
+{
+    amin = Min(a1,a2,a3,a4,a5,a6);
+    amax = Max(a1,a2,a3,a4,a5,a6);
+}
+
+template<class T>
+inline void UpdateMinMax(
+    T a1, T& amin, T& amax)
+{
+    if(a1 < amin) amin = a1;
+    else if(a1 > amax) amax = a1;
+}
+
+template<class T>
+inline void Sort(T &a, T &b, T &c)
+{
+    T temp;
+    if(a<b)
+    {
+        if(a<c)
+        {
+            if(c<b)
+            {
+                // a<c<b
+                temp=c;
+                c=b;
+                b=temp;
+            } // else: a<b<c
+        }
+        else
+        {
+            // c<a<b
+            temp=c;
+            c=b;
+            b=a;
+            a=temp;
+        }
+    }
+    else
+    {
+        if(b<c)
+        {
+            if(a<c)
+            {
+                //b<a<c
+                temp=b;
+                b=a;
+                a=temp;
+            }
+            else
+            {
+                // b<c<a
+                temp=b;
+                b=c;
+                c=a;
+                a=temp;
+            }
+        }
+        else
+        {
+            // c<b<a
+            temp=c;
+            c=a;
+            a=temp;
+        }
+    }
+}
+
+#if defined(VD_TARGET_WINDOWS)
+inline int 
+lround(double x)
+{
+    if(x>0)
+        return (x - Floor(x) < 0.5) ? (int)Floor(x) : (int)Ceil(x);
+    else
+        return (x - Floor(x) <= 0.5) ? (int)Floor(x) : (int)Ceil(x);
+}
+
+inline double 
+remainder(double x, double y)
+{
+    return x - Floor(x/y+0.5)*y;
+}
+#endif
+
+inline vd::u32
+RoundUpPow2(vd::u32 n)
+{
+    vd::i32 exponent=0;
+    --n;
+    while(n)
+    {
+        ++exponent;
+        n >>= 1;
+    }
+    return 1 << exponent;
+}
+
+inline vd::u32
+RoundDownPow2(vd::u32 n)
+{
+    vd::i32 exponent=0;
+    while(n > 1)
+    {
+        ++exponent;
+        n >>= 1;
+    }
+    return 1 << exponent;
+}
+
+inline vd::i32 
+IntLog2(vd::i32 x)
+{
+    vd::i32 exp = -1;
+    while(x)
+    {
+        x >>= 1;
+        ++exp;
+    }
+    return exp;
 }
 
 // ============================================================================================== //

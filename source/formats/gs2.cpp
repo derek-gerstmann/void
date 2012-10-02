@@ -67,6 +67,7 @@ DataFile::DataFile() :
     Memory::SetBytes(&m_MetaData, 		0, sizeof(m_MetaData));
     Memory::SetBytes(&m_ParticleData, 	0, sizeof(m_ParticleData));
     Memory::SetBytes(&m_SummaryData,	0, sizeof(m_SummaryData));
+    Memory::SetBytes(&m_BlockOffsets,	0, sizeof(m_BlockOffsets));
 }
  
 DataFile::~DataFile()
@@ -644,7 +645,6 @@ DataFile::SkipBlock(
 	FILE* fd, Block::Value block, vd::bytesize start)
 {
 	size_t offset = 0;
-//	offset += GetBlockSeparatorSize();
 	SkipToNextBlock(fd);
 	for(vd::i32 pt = 0; pt < (vd::i32)ParticleType::Count; pt++)
 	{
@@ -652,8 +652,6 @@ DataFile::SkipBlock(
 	}
 	fseek(fd,offset,SEEK_CUR);
 	SkipToNextBlock(fd);
-
-//	offset += GetBlockSeparatorSize();
 	return offset;
 }
 
@@ -689,6 +687,44 @@ DataFile::ReadBlock(
 			return 0;
 	}
 	return 0;
+}
+
+vd::bytesize
+DataFile::ReadPartialBlock(
+	FILE* fd, Block::Value block, 
+    vd::bytesize start, vd::bytesize end, 
+    vd::i32* types)
+{
+	size_t offset = 0;
+#if 0
+	fseek(fd, m_BlockOffsets[b], SEEK_SET);
+	SkipToNextBlock(fd);
+
+	for(vd::i32 k = 0; k < (vd::i32)ParticleType::Count; k++)
+	{
+		offset += fseek(fd, start, SEEK_CUR);
+
+		size_t req_size = end - start;
+		size_t sub_size = GetBlockEntrySize(block) * m_MetaData.ParticleCountTotal[k];
+		if(sub_size < 1)
+			continue;
+
+		if(req_size > sub_size)
+			req_size = sub_size;
+
+		if(types == NULL)
+			rd += fread(ptr+dx, req_size, 1, fd);
+		else if(types[k] > 0)
+			rd += fread(ptr+dx, req_size, 1, fd);
+		else
+			rd += fseek(fd, sub_size - start, SEEK_CUR);
+
+		dx += (sub_size - start);
+	}	
+	SkipToNextBlock(fd);
+#endif
+	return offset;
+
 }
 
 vd::f32
@@ -909,12 +945,13 @@ DataFile::Load(
 			if(req_data[n] > 0)
 			{
 	            vdLogInfo("Reading block '%s' from '%s'!", DataFile::Block::ToString(block), filename.c_str());
+				m_BlockOffsets[n] = ftell(fd);
 				ReadBlock(fd, block, pc, req_types);
  			}
 			else
             {
+				m_BlockOffsets[n] = ftell(fd);
 				SkipBlock(fd, block, pc);
-
             }
         }
         

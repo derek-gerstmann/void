@@ -69,7 +69,7 @@ Demo::CreateWindow(int* argc, void** argv)
     m_Window->Setup(title, m_Config.Window.Viewport, m_Params );
     m_Window->AddEventHandler(Event::Type::Display, 	VD_BIND_MEMBER_FUNCTION(this, &Demo::OnDisplay), false);
     m_Window->AddEventHandler(Event::Type::Update, 		VD_BIND_MEMBER_FUNCTION(this, &Demo::OnUpdate), false);
-    m_Window->AddEventHandler(Event::Type::Closed, 		VD_BIND_MEMBER_FUNCTION(this, &Demo::OnCloseEvent), false);
+    m_Window->AddEventHandler(Event::Type::Close, 		VD_BIND_MEMBER_FUNCTION(this, &Demo::OnCloseEvent), false);
     m_Window->AddEventHandler(Event::Type::Shutdown, 	VD_BIND_MEMBER_FUNCTION(this, &Demo::OnShutdown), false);
     m_Window->AddEventHandler(Event::Type::KeyDown, 	VD_BIND_MEMBER_FUNCTION(this, &Demo::OnKeyEvent), false);
     m_Window->AddEventHandler(Event::Type::KeyUp, 		VD_BIND_MEMBER_FUNCTION(this, &Demo::OnKeyEvent), false);
@@ -433,7 +433,7 @@ Demo::UpdateData(void)
         m_Window->Exit();
         m_Window->RemoveEventHandlers(Event::Type::Display);
         m_Window->RemoveEventHandlers(Event::Type::Update);
-        m_Window->RemoveEventHandlers(Event::Type::Closed);
+        m_Window->RemoveEventHandlers(Event::Type::Close);
         m_Window->RemoveEventHandlers(Event::Type::KeyDown);
         m_Window->RemoveEventHandlers(Event::Type::KeyUp);
         m_Window->RemoveEventHandlers(Event::Type::Resize);

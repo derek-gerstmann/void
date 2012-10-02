@@ -30,9 +30,18 @@
 #include "interface/gwen/gwen.h"
 #include "graphics/gl/opengl.h"
 
+// ============================================================================================== //
+
 extern "C"
 {
+
+// Freetype GL collides with the macro definition in GLEW for GL_TYPE -- 	
+#ifdef GL_TYPE
+#undef GL_TYPE
+#endif
+
 #include "font-manager.h"
+
 }
 
 // ============================================================================================== //
