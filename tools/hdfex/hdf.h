@@ -310,7 +310,7 @@ public:
     bool IsValid() const;
     static bool IsValid(hid_t h);
 
-    const operator hid_t() const;
+    operator hid_t() const;
     virtual AccessClassId GetAccessClassId() const;
 
 protected:

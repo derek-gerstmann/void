@@ -162,7 +162,7 @@ static struct InvalidIndexValue
     VD_FORCE_INLINE operator u16( ) const { return VD_U16_MAX; }
     VD_FORCE_INLINE operator i8 ( ) const { return VD_I8_MAX; }
     VD_FORCE_INLINE operator u8 ( ) const { return VD_U8_MAX; }
-    VD_FORCE_INLINE operator uid ( ) const { static const uid v; return v; }
+//    VD_FORCE_INLINE operator uid ( ) const { static const uid v; return v; }
 #ifndef __MSVC__
     VD_FORCE_INLINE operator size_t( ) const { return std::numeric_limits<size_t>::max(); }
 #endif

@@ -54,7 +54,7 @@ typedef unsigned __int16                     vd_f16;
 typedef float                                vd_f32;
 typedef double                               vd_f64;
 typedef unsigned char                        vd_char;
-typedef wchar_t                              vd_utf8;
+typedef vd_u8                                vd_utf8;
 typedef size_t                               vd_size;
 typedef vd_u32                               vd_tag;
 typedef intptr_t                             vd_address;
@@ -81,7 +81,7 @@ typedef uint16_t                             vd_f16;
 typedef float                                vd_f32;
 typedef double                               vd_f64;
 typedef char                                 vd_char;
-typedef wchar_t                              vd_utf8;
+typedef vd_u8                                vd_utf8;
 typedef size_t                               vd_size;
 typedef vd_u32                               vd_tag;
 typedef intptr_t                             vd_address;
@@ -186,6 +186,7 @@ typedef u16                                  f16     __attribute__((aligned(2)))
 #endif
 typedef float           	                 f32     __attribute__((aligned(4)));
 typedef double          	                 f64	 __attribute__((aligned(8)));
+typedef uint8_t                              utf8    __attribute__((aligned(1)));
 typedef wchar_t                              wchar_t __attribute__((aligned(sizeof(wchar_t))));
 typedef size_t                               bytesize;
 typedef u32 				                 tag;
@@ -208,6 +209,7 @@ typedef uint16_t                             f16;
 #endif
 typedef float                                f32;
 typedef double                               f64;
+typedef u8                                   utf8;
 typedef wchar_t                              wchar;
 typedef size_t                               bytesize;
 typedef u32                                  tag;

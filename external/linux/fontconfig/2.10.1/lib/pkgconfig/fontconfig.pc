@@ -1,0 +1,16 @@
+prefix=/opt/bldr/2012-10-05/local/typography/fontconfig/2.10.1
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+sysconfdir=${prefix}/etc
+localstatedir=${prefix}/var
+PACKAGE=fontconfig
+confdir=${sysconfdir}/fonts
+cachedir=${localstatedir}/cache/${PACKAGE}
+
+Name: Fontconfig
+Description: Font configuration and customization library
+Version: 2.10.1
+Libs: -L${libdir} -lfontconfig
+Libs.private:  -L/opt/bldr/2012-10-05/local/text/expat/2.1.0/lib -lexpat   -L/opt/bldr/2012-10-05/local/typography/freetype/2.4.10/lib -lfreetype   
+Cflags: -I${includedir}

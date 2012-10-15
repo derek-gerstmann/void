@@ -1,0 +1,501 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>VipsThreadState</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="VIPS Reference Manual">
+<link rel="up" href="ch01.html" title="Core VIPS API">
+<link rel="prev" href="libvips-rect.html" title="rect">
+<link rel="next" href="VipsObject.html" title="VipsObject">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="libvips-rect.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">VIPS Reference Manual</th>
+<td><a accesskey="n" href="VipsObject.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#VipsThreadState.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#VipsThreadState.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#VipsThreadState.object-hierarchy" class="shortcut">Object Hierarchy</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="VipsThreadState"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="VipsThreadState.top_of_page"></a>VipsThreadState</span></h2>
+<p>VipsThreadState — pools of worker threads</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="VipsThreadState.stability-level"></a><h2>Stability Level</h2>
+Stable, unless otherwise indicated
+</div>
+<div class="refsynopsisdiv">
+<a name="VipsThreadState.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">
+#include &lt;vips/vips.h&gt;
+
+<a class="link" href="VipsThreadState.html" title="VipsThreadState"><span class="returnvalue">VipsThreadState</span></a> *   (<a class="link" href="VipsThreadState.html#VipsThreadStartFn" title="VipsThreadStartFn ()">*VipsThreadStartFn</a>)                (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *im</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>);
+                    <a class="link" href="VipsThreadState.html#VipsThreadState-struct" title="VipsThreadState">VipsThreadState</a>;
+                    <a class="link" href="VipsThreadState.html#VipsThreadStateClass" title="VipsThreadStateClass">VipsThreadStateClass</a>;
+<span class="returnvalue">int</span>                 (<a class="link" href="VipsThreadState.html#VipsThreadpoolAllocateFn" title="VipsThreadpoolAllocateFn ()">*VipsThreadpoolAllocateFn</a>)         (<em class="parameter"><code><a class="link" href="VipsThreadState.html" title="VipsThreadState"><span class="type">VipsThreadState</span></a> *state</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> *stop</code></em>);
+<span class="returnvalue">int</span>                 (<a class="link" href="VipsThreadState.html#VipsThreadpoolProgressFn" title="VipsThreadpoolProgressFn ()">*VipsThreadpoolProgressFn</a>)         (<em class="parameter"><code><span class="type">void</span> *a</code></em>);
+<span class="returnvalue">int</span>                 (<a class="link" href="VipsThreadState.html#VipsThreadpoolWorkFn" title="VipsThreadpoolWorkFn ()">*VipsThreadpoolWorkFn</a>)             (<em class="parameter"><code><a class="link" href="VipsThreadState.html" title="VipsThreadState"><span class="type">VipsThreadState</span></a> *state</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="VipsThreadState.html#vips--print-renders" title="vips__print_renders ()">vips__print_renders</a>                 (<em class="parameter"><code><span class="type">void</span></code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="VipsThreadState.html#vips-concurrency-get" title="vips_concurrency_get ()">vips_concurrency_get</a>                (<em class="parameter"><code><span class="type">void</span></code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="VipsThreadState.html#vips-concurrency-set" title="vips_concurrency_set ()">vips_concurrency_set</a>                (<em class="parameter"><code><span class="type">int</span> concurrency</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="VipsThreadState.html#vips-get-tile-size" title="vips_get_tile_size ()">vips_get_tile_size</a>                  (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *im</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> *tile_width</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> *tile_height</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> *nlines</code></em>);
+<a class="link" href="VipsThreadState.html" title="VipsThreadState"><span class="returnvalue">VipsThreadState</span></a> *   <a class="link" href="VipsThreadState.html#vips-thread-state-new" title="vips_thread_state_new ()">vips_thread_state_new</a>               (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *im</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>);
+<span class="returnvalue">void</span> *              <a class="link" href="VipsThreadState.html#vips-thread-state-set" title="vips_thread_state_set ()">vips_thread_state_set</a>               (<em class="parameter"><code><a class="link" href="VipsObject.html" title="VipsObject"><span class="type">VipsObject</span></a> *object</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *b</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="VipsThreadState.html#vips-threadpool-run" title="vips_threadpool_run ()">vips_threadpool_run</a>                 (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *im</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsThreadState.html#VipsThreadStartFn" title="VipsThreadStartFn ()"><span class="type">VipsThreadStartFn</span></a> start</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsThreadState.html#VipsThreadpoolAllocateFn" title="VipsThreadpoolAllocateFn ()"><span class="type">VipsThreadpoolAllocateFn</span></a> allocate</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsThreadState.html#VipsThreadpoolWorkFn" title="VipsThreadpoolWorkFn ()"><span class="type">VipsThreadpoolWorkFn</span></a> work</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsThreadState.html#VipsThreadpoolProgressFn" title="VipsThreadpoolProgressFn ()"><span class="type">VipsThreadpoolProgressFn</span></a> progress</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="VipsThreadState.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  GObject
+   +----<a class="link" href="VipsObject.html" title="VipsObject">VipsObject</a>
+         +----VipsThreadState
+</pre>
+</div>
+<div class="refsect1">
+<a name="VipsThreadState.description"></a><h2>Description</h2>
+<p>
+<a class="link" href="VipsThreadState.html#vips-threadpool-run" title="vips_threadpool_run ()"><code class="function">vips_threadpool_run()</code></a> loops a set of threads over an image. Threads take it
+in turns to allocate units of work (a unit might be a tile in an image),
+then run in parallel to process those units. An optional progress function
+can be used to give feedback.
+</p>
+</div>
+<div class="refsect1">
+<a name="VipsThreadState.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="VipsThreadStartFn"></a><h3>VipsThreadStartFn ()</h3>
+<pre class="programlisting"><a class="link" href="VipsThreadState.html" title="VipsThreadState"><span class="returnvalue">VipsThreadState</span></a> *   (*VipsThreadStartFn)                (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *im</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VipsThreadState-struct"></a><h3>VipsThreadState</h3>
+<pre class="programlisting">typedef struct {
+	/* Image we run on.
+	 */
+	VipsImage *im;
+
+	/* This region is created and destroyed by the threadpool for the
+	 * use of the worker. 
+	 */
+	VipsRegion *reg;		
+
+	/* Neither used nor set, do what you like with them.
+	 */
+	VipsRect pos;
+	int x, y;
+
+	/* Set in work to get the allocate to signal stop.
+	 */
+	gboolean stop;
+
+	/* The client data passed to the enclosing vips_threadpool_run().
+	 */
+        void *a;
+} VipsThreadState;
+</pre>
+<p>
+These per-thread values are carried around for your use by
+<a class="link" href="VipsThreadState.html#vips-threadpool-run" title="vips_threadpool_run ()"><code class="function">vips_threadpool_run()</code></a>. They are private to each thread, so they are a
+useful place
+for <span class="type">VipsThreadpoolAllocate</span> and <span class="type">VipsThreadpoolWork</span> to communicate.
+</p>
+<p>
+<em class="parameter"><code>reg</code></em> is created for you at the start of processing and freed at the end,
+but you can do what you like with it.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *<em class="structfield"><code><a name="VipsThreadState-struct.im"></a>im</code></em>;</span></p></td>
+<td>the <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> being operated upon</td>
+</tr>
+<tr>
+<td><p><span class="term"><a class="link" href="VipsRegion.html" title="VipsRegion"><span class="type">VipsRegion</span></a> *<em class="structfield"><code><a name="VipsThreadState-struct.reg"></a>reg</code></em>;</span></p></td>
+<td>a <span class="type">REGION</span>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><a class="link" href="libvips-rect.html#VipsRect" title="VipsRect"><span class="type">VipsRect</span></a> <em class="structfield"><code><a name="VipsThreadState-struct.pos"></a>pos</code></em>;</span></p></td>
+<td>a <span class="type">Rect</span>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="type">int</span> <em class="structfield"><code><a name="VipsThreadState-struct.x"></a>x</code></em>;</span></p></td>
+<td>an int</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="type">int</span> <em class="structfield"><code><a name="VipsThreadState-struct.y"></a>y</code></em>;</span></p></td>
+<td>an int</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="type">gboolean</span> <em class="structfield"><code><a name="VipsThreadState-struct.stop"></a>stop</code></em>;</span></p></td>
+<td></td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="type">void</span> *<em class="structfield"><code><a name="VipsThreadState-struct.a"></a>a</code></em>;</span></p></td>
+<td>client data</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VipsThreadStateClass"></a><h3>VipsThreadStateClass</h3>
+<pre class="programlisting">typedef struct {
+	VipsObjectClass parent_class;
+} VipsThreadStateClass;
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VipsThreadpoolAllocateFn"></a><h3>VipsThreadpoolAllocateFn ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 (*VipsThreadpoolAllocateFn)         (<em class="parameter"><code><a class="link" href="VipsThreadState.html" title="VipsThreadState"><span class="type">VipsThreadState</span></a> *state</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>,
+                                                         <em class="parameter"><code><span class="type">gboolean</span> *stop</code></em>);</pre>
+<p>
+This function is called to allocate a new work unit for the thread. It is
+always single-threaded, so it can modify per-pool state (such as a
+counter). 
+</p>
+<p>
+<em class="parameter"><code>a</code></em>, <em class="parameter"><code>b</code></em>, <em class="parameter"><code>c</code></em> are the values supplied to the call to 
+<a class="link" href="VipsThreadState.html#vips-threadpool-run" title="vips_threadpool_run ()"><code class="function">vips_threadpool_run()</code></a>.
+</p>
+<p>
+It should set <em class="parameter"><code>stop</code></em> to <code class="literal">TRUE</code> to indicate that no work could be allocated
+because the job is done.
+</p>
+<p>
+See also: <a class="link" href="VipsThreadState.html#vips-threadpool-run" title="vips_threadpool_run ()"><code class="function">vips_threadpool_run()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>state</code></em> :</span></p></td>
+<td>per-thread state</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>a</code></em> :</span></p></td>
+<td>client data</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>b</code></em> :</span></p></td>
+<td>client data</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>c</code></em> :</span></p></td>
+<td>client data</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>stop</code></em> :</span></p></td>
+<td>set this to signal end of computation</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, or -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VipsThreadpoolProgressFn"></a><h3>VipsThreadpoolProgressFn ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 (*VipsThreadpoolProgressFn)         (<em class="parameter"><code><span class="type">void</span> *a</code></em>);</pre>
+<p>
+This function is called by the main thread once for every work unit
+processed. It can be used to give the user progress feedback.
+</p>
+<p>
+See also: <a class="link" href="VipsThreadState.html#vips-threadpool-run" title="vips_threadpool_run ()"><code class="function">vips_threadpool_run()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>a</code></em> :</span></p></td>
+<td>client data</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>b</code></em> :</span></p></td>
+<td>client data</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>c</code></em> :</span></p></td>
+<td>client data</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, or -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VipsThreadpoolWorkFn"></a><h3>VipsThreadpoolWorkFn ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 (*VipsThreadpoolWorkFn)             (<em class="parameter"><code><a class="link" href="VipsThreadState.html" title="VipsThreadState"><span class="type">VipsThreadState</span></a> *state</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>);</pre>
+<p>
+This function is called to process a work unit. Many copies of this can run
+at once, so it should not write to the per-pool state. It can write to
+per-thread state.
+</p>
+<p>
+<em class="parameter"><code>a</code></em>, <em class="parameter"><code>b</code></em>, <em class="parameter"><code>c</code></em> are the values supplied to the call to 
+<a class="link" href="VipsThreadState.html#vips-threadpool-run" title="vips_threadpool_run ()"><code class="function">vips_threadpool_run()</code></a>.
+</p>
+<p>
+See also: <a class="link" href="VipsThreadState.html#vips-threadpool-run" title="vips_threadpool_run ()"><code class="function">vips_threadpool_run()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>state</code></em> :</span></p></td>
+<td>per-thread state</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>a</code></em> :</span></p></td>
+<td>client data</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>b</code></em> :</span></p></td>
+<td>client data</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>c</code></em> :</span></p></td>
+<td>client data</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, or -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips--print-renders"></a><h3>vips__print_renders ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips__print_renders                 (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-concurrency-get"></a><h3>vips_concurrency_get ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_concurrency_get                (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
+<p>
+Returns the number of worker threads that vips should use when running a
+<span class="type">VipsThreadPool</span>. 
+</p>
+<p>
+vips gets this values from these sources in turn:
+</p>
+<p>
+If <a class="link" href="VipsThreadState.html#vips-concurrency-set" title="vips_concurrency_set ()"><code class="function">vips_concurrency_set()</code></a> has been called, this value is used. The special
+value 0 means "default". You can also use the command-line argument
+"--vips-concurrency" to set this value.
+</p>
+<p>
+If <a class="link" href="VipsThreadState.html#vips-concurrency-set" title="vips_concurrency_set ()"><code class="function">vips_concurrency_set()</code></a> has not been called and no command-line argument
+was used, vips uses the value of the environment variable IM_CONCURRENCY,
+</p>
+<p>
+If IM_CONCURRENCY has not been set, vips find the number of hardware
+threads that the host machine can run in parallel and uses that value. 
+</p>
+<p>
+The final value is clipped to the range 1 - 1024.
+</p>
+<p>
+See also: <a class="link" href="VipsThreadState.html#vips-concurrency-get" title="vips_concurrency_get ()"><code class="function">vips_concurrency_get()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>number of worker threads to use.</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-concurrency-set"></a><h3>vips_concurrency_set ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_concurrency_set                (<em class="parameter"><code><span class="type">int</span> concurrency</code></em>);</pre>
+<p>
+Sets the number of worker threads that vips should use when running a
+<span class="type">VipsThreadPool</span>. 
+</p>
+<p>
+The special value 0 means "default". In this case, the number of threads is
+set by the environmnt variable IM_CONCURRENCY, or if that is not set, the
+number of threads availble on the hist machine. 
+</p>
+<p>
+See also: <a class="link" href="VipsThreadState.html#vips-concurrency-get" title="vips_concurrency_get ()"><code class="function">vips_concurrency_get()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody><tr>
+<td><p><span class="term"><em class="parameter"><code>concurrency</code></em> :</span></p></td>
+<td>number of threads to run</td>
+</tr></tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-get-tile-size"></a><h3>vips_get_tile_size ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_get_tile_size                  (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *im</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> *tile_width</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> *tile_height</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> *nlines</code></em>);</pre>
+<p>
+Pick a tile size and a buffer height for this image and the current
+value of <a class="link" href="VipsThreadState.html#vips-concurrency-get" title="vips_concurrency_get ()"><code class="function">vips_concurrency_get()</code></a>. The buffer height 
+will always be a multiple of tile_height.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>im</code></em> :</span></p></td>
+<td>image to guess for</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>tile_width</code></em> :</span></p></td>
+<td>return selected tile width</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>tile_height</code></em> :</span></p></td>
+<td>return selected tile height</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>nlines</code></em> :</span></p></td>
+<td>return buffer height in scanlines</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-thread-state-new"></a><h3>vips_thread_state_new ()</h3>
+<pre class="programlisting"><a class="link" href="VipsThreadState.html" title="VipsThreadState"><span class="returnvalue">VipsThreadState</span></a> *   vips_thread_state_new               (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *im</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-thread-state-set"></a><h3>vips_thread_state_set ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span> *              vips_thread_state_set               (<em class="parameter"><code><a class="link" href="VipsObject.html" title="VipsObject"><span class="type">VipsObject</span></a> *object</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *b</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-threadpool-run"></a><h3>vips_threadpool_run ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_threadpool_run                 (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *im</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsThreadState.html#VipsThreadStartFn" title="VipsThreadStartFn ()"><span class="type">VipsThreadStartFn</span></a> start</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsThreadState.html#VipsThreadpoolAllocateFn" title="VipsThreadpoolAllocateFn ()"><span class="type">VipsThreadpoolAllocateFn</span></a> allocate</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsThreadState.html#VipsThreadpoolWorkFn" title="VipsThreadpoolWorkFn ()"><span class="type">VipsThreadpoolWorkFn</span></a> work</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsThreadState.html#VipsThreadpoolProgressFn" title="VipsThreadpoolProgressFn ()"><span class="type">VipsThreadpoolProgressFn</span></a> progress</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>);</pre>
+<p>
+This function runs a set of threads over an image. Each thread first calls
+<em class="parameter"><code>start</code></em> to create new per-thread state, then runs
+<em class="parameter"><code>allocate</code></em> to set up a new work unit (perhaps the next tile in an image, for
+example), then <em class="parameter"><code>work</code></em> to process that work unit. After each unit is
+processed, <em class="parameter"><code>progress</code></em> is called, so that the operation can give
+progress feedback. <em class="parameter"><code>progress</code></em> may be <code class="literal">NULL</code>.
+</p>
+<p>
+The object returned by <em class="parameter"><code>start</code></em> must be an instance of a subclass of
+<a class="link" href="VipsThreadState.html" title="VipsThreadState"><span class="type">VipsThreadState</span></a>. Use this to communicate between <em class="parameter"><code>allocate</code></em> and <em class="parameter"><code>work</code></em>. 
+</p>
+<p>
+<em class="parameter"><code>allocate</code></em> and <em class="parameter"><code>start</code></em> are always single-threaded (so they can write to the 
+per-pool state), whereas <em class="parameter"><code>work</code></em> can be executed concurrently. <em class="parameter"><code>progress</code></em> is 
+always called by 
+the main thread (ie. the thread which called <a class="link" href="VipsThreadState.html#vips-threadpool-run" title="vips_threadpool_run ()"><code class="function">vips_threadpool_run()</code></a>).
+</p>
+<p>
+See also: <a class="link" href="VipsThreadState.html#vips-concurrency-set" title="vips_concurrency_set ()"><code class="function">vips_concurrency_set()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>im</code></em> :</span></p></td>
+<td>image to loop over</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>start</code></em> :</span></p></td>
+<td>allocate per-thread state</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>allocate</code></em> :</span></p></td>
+<td>allocate a work unit</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>work</code></em> :</span></p></td>
+<td>process a work unit</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>progress</code></em> :</span></p></td>
+<td>give progress feedback about a work unit, or <code class="literal">NULL</code>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>a</code></em> :</span></p></td>
+<td>client data</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, or -1 on error.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1">
+<a name="VipsThreadState.see-also"></a><h2>See Also</h2>
+<a class="link" href="libvips-generate.html" title="generate">generate</a>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.18</div>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>VipsArithmetic</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="VIPS Reference Manual">
+<link rel="up" href="ch02.html" title="VIPS operation API by section">
+<link rel="prev" href="ch02.html" title="VIPS operation API by section">
+<link rel="next" href="libvips-colour.html" title="colour">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="ch02.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch02.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">VIPS Reference Manual</th>
+<td><a accesskey="n" href="libvips-colour.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#VipsArithmetic.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#VipsArithmetic.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#VipsArithmetic.object-hierarchy" class="shortcut">Object Hierarchy</a>
+                   | 
+                  <a href="#VipsArithmetic.properties" class="shortcut">Properties</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="VipsArithmetic"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="VipsArithmetic.top_of_page"></a>VipsArithmetic</span></h2>
+<p>VipsArithmetic — operations which perform pixel arithmetic, trig, log, statistics</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="VipsArithmetic.stability-level"></a><h2>Stability Level</h2>
+Stable, unless otherwise indicated
+</div>
+<div class="refsynopsisdiv">
+<a name="VipsArithmetic.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">
+#include &lt;vips/vips.h&gt;
+
+                    <a class="link" href="VipsArithmetic.html#VipsArithmetic-struct" title="VipsArithmetic">VipsArithmetic</a>;
+                    <a class="link" href="VipsArithmetic.html#VipsArithmeticClass" title="VipsArithmeticClass">VipsArithmeticClass</a>;
+<span class="returnvalue">void</span>                (<a class="link" href="VipsArithmetic.html#VipsArithmeticProcessFn" title="VipsArithmeticProcessFn ()">*VipsArithmeticProcessFn</a>)          (<em class="parameter"><code><span class="type">struct _VipsArithmetic</span> *arithmetic</code></em>,
+                                                         <em class="parameter"><code><span class="type">VipsPel</span> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">VipsPel</span> **in</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> width</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="VipsArithmetic.html#vips-arithmetic-compile" title="vips_arithmetic_compile ()">vips_arithmetic_compile</a>             (<em class="parameter"><code><a class="link" href="VipsArithmetic.html#VipsArithmeticClass" title="VipsArithmeticClass"><span class="type">VipsArithmeticClass</span></a> *klass</code></em>);
+<span class="returnvalue">VipsVector</span> *        <a class="link" href="VipsArithmetic.html#vips-arithmetic-get-program" title="vips_arithmetic_get_program ()">vips_arithmetic_get_program</a>         (<em class="parameter"><code><a class="link" href="VipsArithmetic.html#VipsArithmeticClass" title="VipsArithmeticClass"><span class="type">VipsArithmeticClass</span></a> *klass</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html#VipsBandFormat"><span class="type">VipsBandFormat</span></a> fmt</code></em>);
+<span class="returnvalue">VipsVector</span> *        <a class="link" href="VipsArithmetic.html#vips-arithmetic-get-vector" title="vips_arithmetic_get_vector ()">vips_arithmetic_get_vector</a>          (<em class="parameter"><code><a class="link" href="VipsArithmetic.html#VipsArithmeticClass" title="VipsArithmeticClass"><span class="type">VipsArithmeticClass</span></a> *klass</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html#VipsBandFormat"><span class="type">VipsBandFormat</span></a> fmt</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="VipsArithmetic.html#vips-arithmetic-set-format-table" title="vips_arithmetic_set_format_table ()">vips_arithmetic_set_format_table</a>    (<em class="parameter"><code><a class="link" href="VipsArithmetic.html#VipsArithmeticClass" title="VipsArithmeticClass"><span class="type">VipsArithmeticClass</span></a> *klass</code></em>,
+                                                         <em class="parameter"><code>const <a class="link" href="VipsImage.html#VipsBandFormat"><span class="type">VipsBandFormat</span></a> *format_table</code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="VipsArithmetic.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  GObject
+   +----<a class="link" href="VipsObject.html" title="VipsObject">VipsObject</a>
+         +----<a class="link" href="VipsOperation.html" title="VipsOperation">VipsOperation</a>
+               +----VipsArithmetic
+                     +----VipsBinary
+                     +----VipsUnary
+</pre>
+</div>
+<div class="refsect1">
+<a name="VipsArithmetic.properties"></a><h2>Properties</h2>
+<pre class="synopsis">
+  "<a class="link" href="VipsArithmetic.html#VipsArithmetic--out" title='The "out" property'>out</a>"                      <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a>*            : Read / Write
+</pre>
+</div>
+<div class="refsect1">
+<a name="VipsArithmetic.description"></a><h2>Description</h2>
+<p>
+These operations perform pixel arithmetic, that is, they perform an
+arithmetic operation, such as addition, on every pixel in an image or a
+pair of images. All (except in a few cases noted below) will work with 
+images of any type or any mixture of types, of any size and of any number 
+of bands.
+</p>
+<p>
+For binary operations, if the number of bands differs, one of the images 
+must have one band. In this case, an n-band image is formed from the 
+one-band image by joining n copies of the one-band image together, and then
+the two n-band images are operated upon.
+</p>
+<p>
+In the same way, for operations that take an array constant, such as 
+<code class="function">im_remainder_vec()</code>, you can mix single-element arrays or single-band 
+images freely.
+</p>
+<p>
+Arithmetic operations try to preserve precision by increasing the number of
+bits in the output image when necessary. Generally, this follows the ANSI C
+conventions for type promotion, so multiplying two
+<code class="literal">IM_BANDFMT_UCHAR</code> images together, for example, produces a 
+<code class="literal">IM_BANDFMT_USHORT</code> image, and taking the <code class="function">im_costra()</code> of a 
+<code class="literal">IM_BANDFMT_USHORT</code> image produces <code class="literal">IM_BANDFMT_FLOAT</code> image. 
+</p>
+<p>
+For binary arithmetic operations, type promotion occurs in two stages. 
+First, the two input images are cast up to the smallest common format, 
+that is, the type with the smallest range that can represent the full 
+range of both inputs. This conversion can be represented as a table:
+</p>
+<p>
+</p>
+<div class="table">
+<a name="idp1386624"></a><p class="title"><b>Table 1. Smallest common format</b></p>
+<div class="table-contents"><table summary="Smallest common format" border="1">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th align="left">
+<em class="parameter"><code>in2</code></em>/<em class="parameter"><code>in1</code></em>
+</th>
+<th align="left">uchar</th>
+<th align="left">char</th>
+<th align="left">ushort</th>
+<th align="left">short</th>
+<th align="left">uint</th>
+<th align="left">int</th>
+<th align="left">float</th>
+<th align="left">double</th>
+<th align="left">complex</th>
+<th align="left">double complex</th>
+</tr></thead>
+<tbody>
+<tr>
+<td align="left">uchar</td>
+<td align="left">ushort</td>
+<td align="left">short</td>
+<td align="left">ushort</td>
+<td align="left">short</td>
+<td align="left">uint</td>
+<td align="left">int</td>
+<td align="left">float</td>
+<td align="left">double</td>
+<td align="left">complex</td>
+<td align="left">double complex</td>
+</tr>
+<tr>
+<td align="left">char</td>
+<td align="left">short</td>
+<td align="left">short</td>
+<td align="left">short</td>
+<td align="left">short</td>
+<td align="left">int</td>
+<td align="left">int</td>
+<td align="left">float</td>
+<td align="left">double</td>
+<td align="left">complex</td>
+<td align="left">double complex</td>
+</tr>
+<tr>
+<td align="left">ushort</td>
+<td align="left">ushort</td>
+<td align="left">short</td>
+<td align="left">ushort</td>
+<td align="left">short</td>
+<td align="left">uint</td>
+<td align="left">int</td>
+<td align="left">float</td>
+<td align="left">double</td>
+<td align="left">complex</td>
+<td align="left">double complex</td>
+</tr>
+<tr>
+<td align="left">short</td>
+<td align="left">short</td>
+<td align="left">short</td>
+<td align="left">short</td>
+<td align="left">short</td>
+<td align="left">int</td>
+<td align="left">int</td>
+<td align="left">float</td>
+<td align="left">double</td>
+<td align="left">complex</td>
+<td align="left">double complex</td>
+</tr>
+<tr>
+<td align="left">uint</td>
+<td align="left">uint</td>
+<td align="left">int</td>
+<td align="left">uint</td>
+<td align="left">int</td>
+<td align="left">uint</td>
+<td align="left">int</td>
+<td align="left">float</td>
+<td align="left">double</td>
+<td align="left">complex</td>
+<td align="left">double complex</td>
+</tr>
+<tr>
+<td align="left">int</td>
+<td align="left">int</td>
+<td align="left">int</td>
+<td align="left">int</td>
+<td align="left">int</td>
+<td align="left">int</td>
+<td align="left">int</td>
+<td align="left">float</td>
+<td align="left">double</td>
+<td align="left">complex</td>
+<td align="left">double complex</td>
+</tr>
+<tr>
+<td align="left">float</td>
+<td align="left">float</td>
+<td align="left">float</td>
+<td align="left">float</td>
+<td align="left">float</td>
+<td align="left">float</td>
+<td align="left">float</td>
+<td align="left">float</td>
+<td align="left">double</td>
+<td align="left">complex</td>
+<td align="left">double complex</td>
+</tr>
+<tr>
+<td align="left">double</td>
+<td align="left">double</td>
+<td align="left">double</td>
+<td align="left">double</td>
+<td align="left">double</td>
+<td align="left">double</td>
+<td align="left">double</td>
+<td align="left">double</td>
+<td align="left">double</td>
+<td align="left">double complex</td>
+<td align="left">double complex</td>
+</tr>
+<tr>
+<td align="left">complex</td>
+<td align="left">complex</td>
+<td align="left">complex</td>
+<td align="left">complex</td>
+<td align="left">complex</td>
+<td align="left">complex</td>
+<td align="left">complex</td>
+<td align="left">complex</td>
+<td align="left">double complex</td>
+<td align="left">complex</td>
+<td align="left">double complex</td>
+</tr>
+<tr>
+<td align="left">double complex</td>
+<td align="left">double complex</td>
+<td align="left">double complex</td>
+<td align="left">double complex</td>
+<td align="left">double complex</td>
+<td align="left">double complex</td>
+<td align="left">double complex</td>
+<td align="left">double complex</td>
+<td align="left">double complex</td>
+<td align="left">double complex</td>
+<td align="left">double complex</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p><br class="table-break">
+</p>
+<p>
+In the second stage, the operation is performed between the two identical 
+types to form the output. The details vary between operations, but 
+generally the principle is that the output type should be large enough to 
+represent the whole rage of possible values, except that int never becomes 
+float.
+</p>
+</div>
+<div class="refsect1">
+<a name="VipsArithmetic.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="VipsArithmetic-struct"></a><h3>VipsArithmetic</h3>
+<pre class="programlisting">typedef struct _VipsArithmetic VipsArithmetic;</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VipsArithmeticClass"></a><h3>VipsArithmeticClass</h3>
+<pre class="programlisting">typedef struct {
+	VipsOperationClass parent_class;
+
+	/* For each input format, what output format. Used for arithmetic
+	 * too, since we cast inputs to match.
+	 */
+	const VipsBandFormat *format_table;
+
+	/* A vector program for each input type.
+	 */
+	VipsVector *vectors[VIPS_FORMAT_LAST];
+
+	/* ... and if we've set a program for this format.
+	 */
+	gboolean vector_program[VIPS_FORMAT_LAST];
+
+	/* The buffer processor.
+	 */
+	VipsArithmeticProcessFn process_line;
+} VipsArithmeticClass;
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VipsArithmeticProcessFn"></a><h3>VipsArithmeticProcessFn ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                (*VipsArithmeticProcessFn)          (<em class="parameter"><code><span class="type">struct _VipsArithmetic</span> *arithmetic</code></em>,
+                                                         <em class="parameter"><code><span class="type">VipsPel</span> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">VipsPel</span> **in</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> width</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-arithmetic-compile"></a><h3>vips_arithmetic_compile ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_arithmetic_compile             (<em class="parameter"><code><a class="link" href="VipsArithmetic.html#VipsArithmeticClass" title="VipsArithmeticClass"><span class="type">VipsArithmeticClass</span></a> *klass</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-arithmetic-get-program"></a><h3>vips_arithmetic_get_program ()</h3>
+<pre class="programlisting"><span class="returnvalue">VipsVector</span> *        vips_arithmetic_get_program         (<em class="parameter"><code><a class="link" href="VipsArithmetic.html#VipsArithmeticClass" title="VipsArithmeticClass"><span class="type">VipsArithmeticClass</span></a> *klass</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html#VipsBandFormat"><span class="type">VipsBandFormat</span></a> fmt</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-arithmetic-get-vector"></a><h3>vips_arithmetic_get_vector ()</h3>
+<pre class="programlisting"><span class="returnvalue">VipsVector</span> *        vips_arithmetic_get_vector          (<em class="parameter"><code><a class="link" href="VipsArithmetic.html#VipsArithmeticClass" title="VipsArithmeticClass"><span class="type">VipsArithmeticClass</span></a> *klass</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html#VipsBandFormat"><span class="type">VipsBandFormat</span></a> fmt</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-arithmetic-set-format-table"></a><h3>vips_arithmetic_set_format_table ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_arithmetic_set_format_table    (<em class="parameter"><code><a class="link" href="VipsArithmetic.html#VipsArithmeticClass" title="VipsArithmeticClass"><span class="type">VipsArithmeticClass</span></a> *klass</code></em>,
+                                                         <em class="parameter"><code>const <a class="link" href="VipsImage.html#VipsBandFormat"><span class="type">VipsBandFormat</span></a> *format_table</code></em>);</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="VipsArithmetic.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="VipsArithmetic--out"></a><h3>The <code class="literal">"out"</code> property</h3>
+<pre class="programlisting">  "out"                      <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a>*            : Read / Write</pre>
+<p>Output image.</p>
+</div>
+</div>
+<div class="refsect1">
+<a name="VipsArithmetic.see-also"></a><h2>See Also</h2>
+boolean
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.18</div>
+</body>
+</html>

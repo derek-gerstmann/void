@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/303/trunk/trunk/gwen/Projects
+END
+premake4-osx
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/129/trunk/trunk/gwen/Projects/premake4-osx
+END
+Build.bat
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/129/trunk/trunk/gwen/Projects/Build.bat
+END
+premake4.exe
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/129/trunk/trunk/gwen/Projects/premake4.exe
+END
+Build.sh
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/231/trunk/trunk/gwen/Projects/Build.sh
+END
+premake4.lua
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/267/trunk/trunk/gwen/Projects/premake4.lua
+END
+premake4
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/129/trunk/trunk/gwen/Projects/premake4
+END

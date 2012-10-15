@@ -134,7 +134,7 @@ Connected::Connected()  :
     m_LastNodeSlot(0),
     m_LastEdgeSlot(0)
 {
-    m_MetaKey.Type = Data::VD_DATA_MODEL_TYPE_GRAPH;
+    m_MetaKey.Type = Data::ModelType::Graph;
 }
 
 Connected::Connected(
@@ -144,7 +144,7 @@ Connected::Connected(
     m_LastNodeSlot(0),
     m_LastEdgeSlot(0)
 {
-    m_MetaKey.Type = Data::VD_DATA_MODEL_TYPE_GRAPH;
+    m_MetaKey.Type = Data::ModelType::Graph;
 }
 
 Connected::Connected(
@@ -154,7 +154,7 @@ Connected::Connected(
     m_LastNodeSlot(0),
     m_LastEdgeSlot(0)
 {
-    m_MetaKey.Type = Data::VD_DATA_MODEL_TYPE_GRAPH;
+    m_MetaKey.Type = Data::ModelType::Graph;
 }
 
 size_t
@@ -186,7 +186,7 @@ Connected::GetNodeMeta(
     if(MetaKey::IsValid(key) == false)
         return false;
 
-    if(key.Type == Data::VD_DATA_MODEL_TYPE_NODE)
+    if(key.Type == Data::ModelType::Node)
     {
         NodeMapType::const_iterator it;
         it = m_Nodes.find(key.Id);
@@ -206,7 +206,7 @@ Connected::GetEdgeMeta(
     if(MetaKey::IsValid(key) == false)
         return false;
 
-    if(key.Type == Data::VD_DATA_MODEL_TYPE_EDGE)
+    if(key.Type == Data::ModelType::Edge)
     {
         EdgeMapType::const_iterator it;
         it = m_Edges.find(key.Id);
@@ -226,11 +226,11 @@ Connected::GetMeta(
     if(MetaKey::IsValid(key) == false)
         return false;
 
-    if(key.Type == Data::VD_DATA_MODEL_TYPE_NODE)
+    if(key.Type == Data::ModelType::Node)
     {
         return GetNodeMeta(key, meta);
     }
-    else if(key.Type == Data::VD_DATA_MODEL_TYPE_EDGE)
+    else if(key.Type == Data::ModelType::Edge)
     {
         return GetEdgeMeta(key, meta);
     }
@@ -242,7 +242,7 @@ Connected::AddNode()
 {
     Node node;
     node.m_MetaKey.Id = m_LastNodeSlot++;
-    node.m_MetaKey.Type = Data::VD_DATA_MODEL_TYPE_NODE;
+    node.m_MetaKey.Type = Data::ModelType::Node;
     m_Nodes[node.m_MetaKey.Id] = node;
     return node.m_MetaKey;
 }
@@ -262,7 +262,7 @@ Connected::AddNode(
 {
     Node node(properties);
     node.m_MetaKey.Id = m_LastNodeSlot++;
-    node.m_MetaKey.Type = Data::VD_DATA_MODEL_TYPE_NODE;
+    node.m_MetaKey.Type = Data::ModelType::Node;
     m_Nodes[node.m_MetaKey.Id] = node;
     return node.m_MetaKey;
 }
@@ -275,7 +275,7 @@ Connected::SetNode(
     meta.GetPropertyList(properties);
     Node node(properties);
     node.m_MetaKey.Id = key.Id;
-    node.m_MetaKey.Type = Data::VD_DATA_MODEL_TYPE_NODE;
+    node.m_MetaKey.Type = Data::ModelType::Node;
     m_Nodes[node.m_MetaKey.Id] = node;
     return node.m_MetaKey;
 }
@@ -286,7 +286,7 @@ bool Connected::RemoveNode(
     if(MetaKey::IsValid(key) == false)
         return false;
 
-    if(key.Type == Data::VD_DATA_MODEL_TYPE_NODE)
+    if(key.Type == Data::ModelType::Node)
     {
         NodeMapType::const_iterator it;
         it = m_Nodes.find(key.Id);
@@ -306,7 +306,7 @@ Connected::AddEdge(
 {
     Edge edge(src, dst);
     edge.m_MetaKey.Id = m_LastEdgeSlot++;
-    edge.m_MetaKey.Type = Data::VD_DATA_MODEL_TYPE_EDGE;
+    edge.m_MetaKey.Type = Data::ModelType::Edge;
     m_Edges[edge.m_MetaKey.Id] = edge;
     return edge.m_MetaKey;
 }
@@ -327,7 +327,7 @@ Connected::AddEdge(
 {
     Edge edge(src, dst, properties);
     edge.m_MetaKey.Id = m_LastEdgeSlot++;
-    edge.m_MetaKey.Type = Data::VD_DATA_MODEL_TYPE_EDGE;
+    edge.m_MetaKey.Type = Data::ModelType::Edge;
     m_Edges[edge.m_MetaKey.Id] = edge;
     return edge.m_MetaKey;
 }
@@ -341,7 +341,7 @@ Connected::SetEdge(
     meta.GetPropertyList(properties);
     Edge edge(src, dst, properties);
     edge.m_MetaKey.Id = key.Id;
-    edge.m_MetaKey.Type = Data::VD_DATA_MODEL_TYPE_EDGE;
+    edge.m_MetaKey.Type = Data::ModelType::Edge;
     m_Edges[edge.m_MetaKey.Id] = edge;
     return edge.m_MetaKey;
 }
@@ -353,7 +353,7 @@ bool Connected::RemoveEdge(
     if(MetaKey::IsValid(key) == false)
         return false;
 
-    if(key.Type == Data::VD_DATA_MODEL_TYPE_EDGE)
+    if(key.Type == Data::ModelType::Edge)
     {
         EdgeMapType::const_iterator it;
         it = m_Edges.find(key.Id);
@@ -373,11 +373,11 @@ bool Connected::Remove(
     if(MetaKey::IsValid(key) == false)
         return false;
 
-    if(key.Type == Data::VD_DATA_MODEL_TYPE_NODE)
+    if(key.Type == Data::ModelType::Node)
     {
         return RemoveNode(key);
     }
-    else if(key.Type == Data::VD_DATA_MODEL_TYPE_EDGE)
+    else if(key.Type == Data::ModelType::Edge)
     {
         return RemoveEdge(key);
     }

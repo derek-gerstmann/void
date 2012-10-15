@@ -26,7 +26,11 @@
 
 /* ============================================================================================== */
 
+#if defined(VD_TARGET_OSX)
 #include <libc.h>
+#else
+#include <string.h>
+#endif
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <sys/types.h>

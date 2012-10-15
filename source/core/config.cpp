@@ -33,7 +33,7 @@ VD_CORE_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-const Config::Property::ValueType Config::Property::InvalidValue = vd::u64(Constants::InvalidIndex);
+const Config::Property::ValueType Config::Property::InvalidValue = VD_U64_MAX; // (Constants::InvalidIndex);
 
 // ============================================================================================== //
 

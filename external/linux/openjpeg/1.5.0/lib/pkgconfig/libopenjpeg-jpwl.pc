@@ -1,0 +1,13 @@
+prefix=/opt/bldr/2012-08-28/local/imaging/openjpeg/1.5.0
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: openjpeg
+Description: JPEG2000 Wireless (Part 11 - JPWL) library
+URL: http://www.openjpeg.org/
+Version: 1.5.0
+Requires.private: 
+Libs: -L${libdir} -lopenjpeg_JPWL
+Libs.private: -lm
+Cflags: -I${includedir}

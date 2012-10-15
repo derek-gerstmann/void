@@ -1,0 +1,10 @@
+prefix=/opt/bldr/2012-10-05/local/graphics/glew/1.9.0
+exec_prefix=/opt/bldr/2012-10-05/local/graphics/glew/1.9.0/bin
+libdir=/opt/bldr/2012-10-05/local/graphics/glew/1.9.0/lib64
+includedir=/opt/bldr/2012-10-05/local/graphics/glew/1.9.0/include/GL
+
+Name: glew
+Description: The OpenGL Extension Wrangler library
+Version: 1.9.0
+Cflags: -I${includedir} 
+Libs: -L${libdir} -lGLEW

@@ -5,28 +5,26 @@ project( GuiDemo )
 
 set( VD_APP_NAME                        GuiDemo )
 set( VD_APPS_GUI_DEMO_DIR               ${VD_APPS_DIR}/gui)
-set( VD_APPS_GUI_DEMO_SYMBOLS          "${VD_APPS_GUI_DEMO_DIR}/symbols.h" )
 set( VD_APPS_GUI_DEMO_SYMBOLS_H        "${VD_APPS_GUI_DEMO_DIR}/symbols.h" )
 set( VD_APPS_GUI_DEMO_SYMBOLS_CPP      "${VD_APPS_GUI_DEMO_DIR}/symbols.cpp" )
 set( VD_APPS_GUI_DEMO_RESOURCES        "${VD_APP_NAME}Resources.txt" )
-
-file( GLOB VD_APPS_GUI_DEMO_SRC         ${VD_APPS_GUI_DEMO_DIR}/*.c ${VD_APPS_GUI_DEMO_DIR}/*.cpp)
-file( GLOB VD_APPS_GUI_DEMO_INC         ${VD_APPS_GUI_DEMO_DIR}/*.h ${VD_APPS_GUI_DEMO_DIR}/*.hpp)
 
 file( GLOB VD_FONTS                     ${VD_RESOURCE_DIR}/fonts/*.ttf ${VD_RESOURCE_DIR}/fonts/*.otf )
 file( GLOB VD_SHADERS                   ${VD_RESOURCE_DIR}/shaders/*.glsl )
 file( GLOB VD_TEXTURES                  ${VD_RESOURCE_DIR}/textures/*.* )
 
-find_library( GUI_LIBRARY Glut )
-
 set(VD_CXX_STD_FLAGS ${VD_CXX_STD_FLAGS} "-fno-rtti")
     
 set( VD_APPS_GUI_DEMO_ALL_SRC 
-    ${VD_APPS_GUI_DEMO_SRC}
+    ${VD_APPS_GUI_DEMO_DIR}/main.cpp
+    ${VD_APPS_GUI_DEMO_DIR}/demo.cpp
+    ${VD_APPS_GUI_DEMO_DIR}/widgets.cpp
 )
 
 set( VD_APPS_GUI_DEMO_ALL_INC
-    ${VD_APPS_GUI_DEMO_INC}
+    ${VD_APPS_GUI_DEMO_DIR}/demo.h
+    ${VD_APPS_GUI_DEMO_DIR}/widgets.h
+    ${VD_APPS_GUI_DEMO_DIR}/config.h
 )
 
 include_directories(
@@ -39,7 +37,8 @@ include_directories(
 set( VD_APP_GUI_SYMEX_FILELIST      
     ${VD_APPS_GUI_DEMO_ALL_INC} 
     ${VD_APPS_GUI_DEMO_ALL_SRC} 
-    ${VD_PLATFORM_SRC} )
+    ${VD_PLATFORM_SRC} 
+)
 
 vd_extract_symbols(
     ${VD_APPS_GUI_DEMO_SYMBOLS_H} ${VD_APPS_GUI_DEMO_SYMBOLS_CPP} 
@@ -49,22 +48,30 @@ vd_extract_symbols(
     ${VD_APP_GUI_SYMEX_FILELIST})
 
 add_executable( GuiDemo WIN32 MACOSX_BUNDLE
-    ${VD_APPS_GUI_DEMO_SRC} 
-    ${VD_APPS_GUI_DEMO_INC}
-    ${VD_APPS_GUI_DEMO_SYMBOLS_H}
-    ${VD_APPS_GUI_DEMO_SYMBOLS_CPP} )
+    ${VD_APPS_GUI_DEMO_ALL_SRC} 
+    ${VD_APPS_GUI_DEMO_ALL_INC}
+    ${VD_APPS_GUI_DEMO_SYMBOLS_CPP}
+)
 
 target_link_libraries( GuiDemo 
     VdFramework 
     VdPlatform 
     VdSymbols
-    ${VD_EXT_ICONV_LIB}
-    ${VD_EXT_LIB}
-    ${GUI_LIBRARY}
+    ${VD_EXT_OIIO_LIBS} 
+    ${VD_EXT_FONTCONFIG_LIBS} 
+    ${VD_EXT_FREETYPE_LIBS} 
+    ${VD_EXT_GLEW_LIBS} 
+    ${VD_EXT_FREETYPE_GL_LIBS}
+    ${VD_EXT_GLUT_LIBS} 
+    ${VD_EXT_OPENGL_LIBS} 
+    ${VD_EXT_GLEW_LIBS} 
+    ${VD_EXT_ICONV_LIBS}
+    ${VD_EXT_BOOST_LIBS} 
 )
 
 add_dependencies( GuiDemo 
     ${VD_APPS_GUI_DEMO_ALL_SRC} 
+    ${VD_APPS_GUI_DEMO_SYMBOLS_H}
     ${VD_APPS_GUI_DEMO_FONTS} 
     ${VD_APPS_GUI_DEMO_SHADERS} 
     ${VD_APPS_GUI_DEMO_TEXTURES} 
@@ -124,7 +131,20 @@ if(VD_SYSTEM_OSX)
         DEPENDS ${VD_APPS_GUI_DEMO_RESOURCES}
     )
 
+else()
+
+    add_custom_command (
+        OUTPUT ${VD_APPS_GUI_DEMO_RESOURCES} 
+        COMMENT "Creating Resources Directory ..."
+        COMMAND mkdir -p Resources
+        COMMENT "Copying Resources to Bundle ..."
+        COMMAND cp ${VD_FONTS} Resources
+        COMMAND cmake -E touch ${VD_APPS_GUI_DEMO_RESOURCES}
+        DEPENDS ${VD_APPS_GUI_DEMO_ALL_SRC} ${VD_FONTS} 
+    )
+
 endif()
+
 
 message(STATUS "Configured: ${VD_APP_NAME}")
 

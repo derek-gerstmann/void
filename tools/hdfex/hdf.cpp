@@ -73,7 +73,7 @@ bool Access::IsValid(hid_t v)
     return (v == -1) ? false : true; 
 }
 
-const Access::operator hid_t() const
+Access::operator hid_t() const
 { 
     return m_Hid; 
 }

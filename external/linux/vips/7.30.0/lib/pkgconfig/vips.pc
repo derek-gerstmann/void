@@ -1,0 +1,11 @@
+prefix=/opt/bldr/2012-08-28/local/imaging/vips/7.30.0
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: vips-7.30
+Description: Image processing library
+Version: 7.30.0
+Requires:  glib-2.0 gmodule-2.0 libxml-2.0 gobject-2.0 gthread-2.0 fftw3 orc-0.4 lcms2 cfitsio pangoft2 libtiff-4 libpng libexif
+Libs: -L${libdir} -lvips  -L/opt/bldr/2012-08-28/local/imaging/libpng/1.5.12/lib -lpng15   -L/opt/bldr/2012-08-28/local/imaging/libtiff/4.0.2/lib -ltiff   -lz -L/opt/bldr/2012-08-28/local/imaging/libjpeg/8d/lib/libjpeg.a -ljpeg -pthread -L/opt/bldr/2012-08-28/local/developer/glib/2.32.4/lib -lgthread-2.0 -lrt -lglib-2.0   -Wl,--export-dynamic -pthread -L/opt/bldr/2012-08-28/local/developer/glib/2.32.4/lib -L/opt/bldr/2012-08-28/local/text/libxml2/2.8.0/lib -lgmodule-2.0 -lrt -lxml2 -lgobject-2.0 -lglib-2.0   -L/opt/bldr/2012-08-28/local/graphics/pango-cairo/1.30.1/lib -L/opt/bldr/2012-08-28/local/typography/freetype/2.4.10/lib -L/opt/bldr/2012-08-28/local/typography/fontconfig/2.10.1/lib -L/opt/bldr/2012-08-28/local/developer/glib/2.32.4/lib -lpangoft2-1.0 -lpango-1.0 -lm -lfreetype -lfontconfig -lgobject-2.0 -lglib-2.0   -L/opt/bldr/2012-08-28/local/numerics/fftw/3.3.2/lib -lfftw3 -lm   -L/opt/bldr/2012-08-28/local/compilers/orc/0.4.16/lib -lorc-0.4   -L/opt/bldr/2012-08-28/local/imaging/lcms2/2.3/lib -llcms2     -L/opt/bldr/2012-08-28/local/imaging/cfitsio/3.310/lib -lcfitsio -lpthread    -L/opt/bldr/2012-08-28/local/imaging/libexif/0.6.21/lib -lexif   -lm -lstdc++
+Cflags: -I${includedir} 

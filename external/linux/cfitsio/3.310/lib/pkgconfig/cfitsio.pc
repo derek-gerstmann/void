@@ -1,0 +1,11 @@
+prefix=/opt/bldr/2012-10-05/local/imaging/cfitsio/3.310
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: cfitsio
+Description: FITS File Subroutine Library
+Version: 3.31
+Libs: -L${libdir} -lcfitsio -lpthread 
+Libs.private: -lm
+Cflags: -I${includedir}

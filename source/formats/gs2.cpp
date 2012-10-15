@@ -235,13 +235,13 @@ vd::bytesize
 DataFile::FindBlockByName(
 	FILE* fd, const char* label)
 {
-	size_t rd = 0;
+//	size_t rd = 0;
     int blocksize=0;
     char blocklabel[5]= {"    "};
 
     while(!feof(fd) && blocksize == 0)
     {
-		rd = fread(blocklabel, 4*sizeof(char), 1, fd);
+		fread(blocklabel, 4*sizeof(char), 1, fd);
 		if(memcmp(label,blocklabel,4)==0)
 			vdLogInfo("Found Block <%s> ... ",blocklabel);	
 

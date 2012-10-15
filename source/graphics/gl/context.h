@@ -110,8 +110,8 @@ public:
     virtual Graphics::Buffer* CreateBuffer(
         Buffer::TargetType::Value target, 
         Buffer::AttributeType::Value attrib,
-        Buffer::AccessMode::Value access,
-        Buffer::UpdateMode::Value update,
+        Buffer::AccessType::Value access,
+        Buffer::UpdateType::Value update,
         Buffer::TypeId::Value datatype,
         vd::u8 components, 
         vd::u32 count, 
@@ -120,7 +120,7 @@ public:
     virtual vd::status Bind(Buffer* buffer);
     virtual vd::status Unbind(Buffer* buffer);
     virtual vd::status Submit(Buffer* buffer, Geometry::PrimitiveType::Value primitives, vd::u32 offset, vd::u32 count);
-    virtual void* Map(Buffer* buffer, Buffer::AccessMode::Value access);
+    virtual void* Map(Buffer* buffer, Buffer::AccessType::Value access);
     virtual vd::status Unmap(Buffer* buffer);
     virtual vd::status Acquire(Buffer* buffer);
     virtual vd::status Release(Buffer* buffer);
@@ -132,7 +132,7 @@ public:
           Graphics::Viewport viewport, 
           Graphics::ChannelLayout::Value channel_format   = Graphics::ChannelLayout::RGBA, 
            Graphics::ScalarTypeId::Value channel_datatype = Graphics::ScalarTypeId::U8, 
-            Graphics::DepthFormat::Value depth_format     = Graphics::DepthFormat::None, 
+           Graphics::LinearityType::Value depth_linearity = Graphics::LinearityType::None, 
            Graphics::ScalarTypeId::Value depth_datatype   = Graphics::ScalarTypeId::Invalid);
 
     virtual vd::status Bind(Framebuffer* fb);

@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>semaphore</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="VIPS Reference Manual">
+<link rel="up" href="ch03.html" title="Other API (no gtkdoc comments yet)">
+<link rel="prev" href="libvips-version.html" title="version">
+<link rel="next" href="object-tree.html" title="Object Hierarchy">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="libvips-version.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch03.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">VIPS Reference Manual</th>
+<td><a accesskey="n" href="object-tree.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#libvips-semaphore.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#libvips-semaphore.description" class="shortcut">Description</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="libvips-semaphore"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="libvips-semaphore.top_of_page"></a>semaphore</span></h2>
+<p>semaphore</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsynopsisdiv">
+<a name="libvips-semaphore.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">                    <a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore">VipsSemaphore</a>;
+<span class="returnvalue">void</span>                <a class="link" href="libvips-semaphore.html#vips-semaphore-destroy" title="vips_semaphore_destroy ()">vips_semaphore_destroy</a>              (<em class="parameter"><code><a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore"><span class="type">VipsSemaphore</span></a> *s</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-semaphore.html#vips-semaphore-down" title="vips_semaphore_down ()">vips_semaphore_down</a>                 (<em class="parameter"><code><a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore"><span class="type">VipsSemaphore</span></a> *s</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-semaphore.html#vips-semaphore-downn" title="vips_semaphore_downn ()">vips_semaphore_downn</a>                (<em class="parameter"><code><a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore"><span class="type">VipsSemaphore</span></a> *s</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> n</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="libvips-semaphore.html#vips-semaphore-init" title="vips_semaphore_init ()">vips_semaphore_init</a>                 (<em class="parameter"><code><a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore"><span class="type">VipsSemaphore</span></a> *s</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> v</code></em>,
+                                                         <em class="parameter"><code><span class="type">char</span> *name</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-semaphore.html#vips-semaphore-up" title="vips_semaphore_up ()">vips_semaphore_up</a>                   (<em class="parameter"><code><a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore"><span class="type">VipsSemaphore</span></a> *s</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-semaphore.html#vips-semaphore-upn" title="vips_semaphore_upn ()">vips_semaphore_upn</a>                  (<em class="parameter"><code><a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore"><span class="type">VipsSemaphore</span></a> *s</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> n</code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="libvips-semaphore.description"></a><h2>Description</h2>
+</div>
+<div class="refsect1">
+<a name="libvips-semaphore.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="VipsSemaphore"></a><h3>VipsSemaphore</h3>
+<pre class="programlisting">typedef struct {
+	char *name;
+	int v;
+
+	GMutex *mutex;
+	GCond *cond;
+} VipsSemaphore;
+</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-semaphore-destroy"></a><h3>vips_semaphore_destroy ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_semaphore_destroy              (<em class="parameter"><code><a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore"><span class="type">VipsSemaphore</span></a> *s</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-semaphore-down"></a><h3>vips_semaphore_down ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_semaphore_down                 (<em class="parameter"><code><a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore"><span class="type">VipsSemaphore</span></a> *s</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-semaphore-downn"></a><h3>vips_semaphore_downn ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_semaphore_downn                (<em class="parameter"><code><a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore"><span class="type">VipsSemaphore</span></a> *s</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> n</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-semaphore-init"></a><h3>vips_semaphore_init ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_semaphore_init                 (<em class="parameter"><code><a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore"><span class="type">VipsSemaphore</span></a> *s</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> v</code></em>,
+                                                         <em class="parameter"><code><span class="type">char</span> *name</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-semaphore-up"></a><h3>vips_semaphore_up ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_semaphore_up                   (<em class="parameter"><code><a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore"><span class="type">VipsSemaphore</span></a> *s</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-semaphore-upn"></a><h3>vips_semaphore_upn ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_semaphore_upn                  (<em class="parameter"><code><a class="link" href="libvips-semaphore.html#VipsSemaphore" title="VipsSemaphore"><span class="type">VipsSemaphore</span></a> *s</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> n</code></em>);</pre>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.18</div>
+</body>
+</html>

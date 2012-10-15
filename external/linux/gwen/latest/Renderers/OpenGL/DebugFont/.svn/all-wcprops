@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/190/trunk/trunk/gwen/Renderers/OpenGL/DebugFont
+END
+OpenGL_DebugFont.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/190/trunk/trunk/gwen/Renderers/OpenGL/DebugFont/OpenGL_DebugFont.cpp
+END
+FontData.h
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/60/trunk/trunk/gwen/Renderers/OpenGL/DebugFont/FontData.h
+END

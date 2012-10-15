@@ -47,8 +47,8 @@ class Shader : public Object
 {
 public:
 
-    static const vd::i32                   InvalidSlot;
-    typedef Map< vd::uid, vd::i32 >::type  BindingMap;
+    static const vd::i32                            InvalidSlot;
+    typedef Map< vd::uid, vd::i32, UidHash >::type  BindingMap;
 
     VD_DECLARE_ENUM(StateId,
         Allocated,

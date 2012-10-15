@@ -1,0 +1,23 @@
+K 10
+svn:ignore
+V 212
+gwen.dll
+gwen.exp
+gwen.idb
+gwen.lib
+gwen.pdb
+gwen_static.idb
+gwen_static.lib
+gwen_static.pdb
+gwend.dll
+gwend.exp
+gwend.idb
+gwend.ilk
+gwend.lib
+gwend.pdb
+gwend_static.idb
+gwend_static.lib
+gwend_static.pdb
+windows
+
+END

@@ -19,8 +19,6 @@ file( GLOB VD_APP_WHD_TEXTURES          ${VD_APP_WHD_DATA_DIR}/textures/*.* )
 
 set( VD_APP_WHD_ALL_RSC                 ${VD_APP_WHD_FONTS} ${VD_APP_WHD_SHADERS} ${VD_APP_WHD_TEXTURES} )
 
-find_library( GUI_LIBRARY Glut )
-    
 set(VD_CXX_STD_FLAGS ${VD_CXX_STD_FLAGS} "-fno-rtti")
 
 set( VD_APP_WHD_ALL_SRC 

@@ -1,0 +1,11 @@
+prefix=/opt/bldr/2012-10-05/local/imaging/ilmbase/2.0-beta1
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+OpenEXR_includedir=${prefix}/include/OpenEXR
+
+Name: IlmBase
+Description: Base math and exception libraries
+Version: 1.1.0
+Libs: -L${libdir} -lImath -lHalf -lIex -lIlmThread -pthread
+Cflags: -pthread -I${OpenEXR_includedir}

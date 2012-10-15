@@ -49,9 +49,9 @@ public:
 		vd::u32                     ColorTexture;
 		vd::u32                     DepthTexture;
 		vd::u32                     Renderbuffer;
-		ChannelLayout::Value        ChannelLayout;	
+		ChannelLayout::Value        ChannelOrdering;	
         ScalarTypeId::Value         ChannelDataType;	
-        DepthFormat::Value          DepthFormat; 
+        LinearityType::Value        DepthLinearity; 
         ScalarTypeId::Value         DepthDataType;    
         Graphics::Viewport          Viewport;
 	};

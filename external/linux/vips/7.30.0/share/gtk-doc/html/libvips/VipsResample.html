@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>VipsResample</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="VIPS Reference Manual">
+<link rel="up" href="ch02.html" title="VIPS operation API by section">
+<link rel="prev" href="libvips-other.html" title="other">
+<link rel="next" href="libvips-video.html" title="video">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="libvips-other.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch02.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">VIPS Reference Manual</th>
+<td><a accesskey="n" href="libvips-video.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#VipsResample.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#VipsResample.description" class="shortcut">Description</a>
+                   | 
+                  <a href="#VipsResample.object-hierarchy" class="shortcut">Object Hierarchy</a>
+                   | 
+                  <a href="#VipsResample.properties" class="shortcut">Properties</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="VipsResample"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="VipsResample.top_of_page"></a>VipsResample</span></h2>
+<p>VipsResample — shrink, expand, rotate with a choice of interpolators</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="VipsResample.stability-level"></a><h2>Stability Level</h2>
+Stable, unless otherwise indicated
+</div>
+<div class="refsynopsisdiv">
+<a name="VipsResample.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">
+#include &lt;vips/vips.h&gt;
+
+                    <a class="link" href="VipsResample.html#VipsResample-struct" title="VipsResample">VipsResample</a>;
+                    <a class="link" href="VipsResample.html#VipsResampleClass" title="VipsResampleClass">VipsResampleClass</a>;
+</pre>
+</div>
+<div class="refsect1">
+<a name="VipsResample.object-hierarchy"></a><h2>Object Hierarchy</h2>
+<pre class="synopsis">
+  GObject
+   +----<a class="link" href="VipsObject.html" title="VipsObject">VipsObject</a>
+         +----<a class="link" href="VipsOperation.html" title="VipsOperation">VipsOperation</a>
+               +----VipsResample
+</pre>
+</div>
+<div class="refsect1">
+<a name="VipsResample.properties"></a><h2>Properties</h2>
+<pre class="synopsis">
+  "<a class="link" href="VipsResample.html#VipsResample--in" title='The "in" property'>in</a>"                       <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a>*            : Read / Write
+  "<a class="link" href="VipsResample.html#VipsResample--out" title='The "out" property'>out</a>"                      <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a>*            : Read / Write
+</pre>
+</div>
+<div class="refsect1">
+<a name="VipsResample.description"></a><h2>Description</h2>
+<p>
+Resample an image in various ways, using a <span class="type">VipsInterpolator</span> to generate
+intermediate values.
+</p>
+</div>
+<div class="refsect1">
+<a name="VipsResample.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="VipsResample-struct"></a><h3>VipsResample</h3>
+<pre class="programlisting">typedef struct _VipsResample VipsResample;</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VipsResampleClass"></a><h3>VipsResampleClass</h3>
+<pre class="programlisting">typedef struct {
+	VipsOperationClass parent_class;
+} VipsResampleClass;
+</pre>
+</div>
+</div>
+<div class="refsect1">
+<a name="VipsResample.property-details"></a><h2>Property Details</h2>
+<div class="refsect2">
+<a name="VipsResample--in"></a><h3>The <code class="literal">"in"</code> property</h3>
+<pre class="programlisting">  "in"                       <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a>*            : Read / Write</pre>
+<p>Input image argument.</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VipsResample--out"></a><h3>The <code class="literal">"out"</code> property</h3>
+<pre class="programlisting">  "out"                      <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a>*            : Read / Write</pre>
+<p>Output image.</p>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.18</div>
+</body>
+</html>

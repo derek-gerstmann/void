@@ -1,0 +1,1260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>header</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="VIPS Reference Manual">
+<link rel="up" href="ch01.html" title="Core VIPS API">
+<link rel="prev" href="libvips-generate.html" title="generate">
+<link rel="next" href="VipsOperation.html" title="VipsOperation">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="libvips-generate.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch01.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">VIPS Reference Manual</th>
+<td><a accesskey="n" href="VipsOperation.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#libvips-header.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#libvips-header.description" class="shortcut">Description</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="libvips-header"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="libvips-header.top_of_page"></a>header</span></h2>
+<p>header — get, set and walk image headers</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="libvips-header.stability-level"></a><h2>Stability Level</h2>
+Stable, unless otherwise indicated
+</div>
+<div class="refsynopsisdiv">
+<a name="libvips-header.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">
+#include &lt;vips/vips.h&gt;
+
+#define             <a class="link" href="libvips-header.html#VIPS-META-EXIF-NAME:CAPS" title="VIPS_META_EXIF_NAME">VIPS_META_EXIF_NAME</a>
+#define             <a class="link" href="libvips-header.html#VIPS-META-ICC-NAME:CAPS" title="VIPS_META_ICC_NAME">VIPS_META_ICC_NAME</a>
+#define             <a class="link" href="libvips-header.html#VIPS-META-RESOLUTION-UNIT:CAPS" title="VIPS_META_RESOLUTION_UNIT">VIPS_META_RESOLUTION_UNIT</a>
+#define             <a class="link" href="libvips-header.html#VIPS-META-XML:CAPS" title="VIPS_META_XML">VIPS_META_XML</a>
+#define             <a class="link" href="libvips-header.html#VIPS-META-XMP-NAME:CAPS" title="VIPS_META_XMP_NAME">VIPS_META_XMP_NAME</a>
+<span class="returnvalue">void</span> *              (<a class="link" href="libvips-header.html#VipsImageMapFn" title="VipsImageMapFn ()">*VipsImageMapFn</a>)                   (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">GValue</span> *value</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>);
+<span class="returnvalue">guint64</span>             <a class="link" href="libvips-header.html#vips-format-sizeof" title="vips_format_sizeof ()">vips_format_sizeof</a>                  (<em class="parameter"><code><a class="link" href="VipsImage.html#VipsBandFormat"><span class="type">VipsBandFormat</span></a> format</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-copy-fields" title="vips_image_copy_fields ()">vips_image_copy_fields</a>              (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-copy-fields-array" title="vips_image_copy_fields_array ()">vips_image_copy_fields_array</a>        (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in[]</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-copy-fieldsv" title="vips_image_copy_fieldsv ()">vips_image_copy_fieldsv</a>             (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in1</code></em>,
+                                                         <em class="parameter"><code>...</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-get" title="vips_image_get ()">vips_image_get</a>                      (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">GValue</span> *value_copy</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-get-area" title="vips_image_get_area ()">vips_image_get_area</a>                 (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> **data</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-get-as-string" title="vips_image_get_as_string ()">vips_image_get_as_string</a>            (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">char</span> **out</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-get-bands" title="vips_image_get_bands ()">vips_image_get_bands</a>                (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-get-blob" title="vips_image_get_blob ()">vips_image_get_blob</a>                 (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> **data</code></em>,
+                                                         <em class="parameter"><code><span class="type">size_t</span> *length</code></em>);
+<a class="link" href="VipsImage.html#VipsCoding"><span class="returnvalue">VipsCoding</span></a>          <a class="link" href="libvips-header.html#vips-image-get-coding" title="vips_image_get_coding ()">vips_image_get_coding</a>               (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+<span class="returnvalue">void</span> *              <a class="link" href="libvips-header.html#vips-image-get-data" title="vips_image_get_data ()">vips_image_get_data</a>                 (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-get-double" title="vips_image_get_double ()">vips_image_get_double</a>               (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> *out</code></em>);
+const <span class="returnvalue">char</span> *        <a class="link" href="libvips-header.html#vips-image-get-filename" title="vips_image_get_filename ()">vips_image_get_filename</a>             (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+<a class="link" href="VipsImage.html#VipsBandFormat"><span class="returnvalue">VipsBandFormat</span></a>      <a class="link" href="libvips-header.html#vips-image-get-format" title="vips_image_get_format ()">vips_image_get_format</a>               (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-get-height" title="vips_image_get_height ()">vips_image_get_height</a>               (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+const <span class="returnvalue">char</span> *        <a class="link" href="libvips-header.html#vips-image-get-history" title="vips_image_get_history ()">vips_image_get_history</a>              (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-get-int" title="vips_image_get_int ()">vips_image_get_int</a>                  (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> *out</code></em>);
+<a class="link" href="VipsImage.html#VipsInterpretation"><span class="returnvalue">VipsInterpretation</span></a>  <a class="link" href="libvips-header.html#vips-image-get-interpretation" title="vips_image_get_interpretation ()">vips_image_get_interpretation</a>       (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+const <span class="returnvalue">char</span> *        <a class="link" href="libvips-header.html#vips-image-get-mode" title="vips_image_get_mode ()">vips_image_get_mode</a>                 (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-get-string" title="vips_image_get_string ()">vips_image_get_string</a>               (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">char</span> **out</code></em>);
+<span class="returnvalue">GType</span>               <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()">vips_image_get_typeof</a>               (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-get-width" title="vips_image_get_width ()">vips_image_get_width</a>                (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-get-xoffset" title="vips_image_get_xoffset ()">vips_image_get_xoffset</a>              (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+<span class="returnvalue">double</span>              <a class="link" href="libvips-header.html#vips-image-get-xres" title="vips_image_get_xres ()">vips_image_get_xres</a>                 (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-get-yoffset" title="vips_image_get_yoffset ()">vips_image_get_yoffset</a>              (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+<span class="returnvalue">double</span>              <a class="link" href="libvips-header.html#vips-image-get-yres" title="vips_image_get_yres ()">vips_image_get_yres</a>                 (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-history-args" title="vips_image_history_args ()">vips_image_history_args</a>             (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *name</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> argc</code></em>,
+                                                         <em class="parameter"><code><span class="type">char</span> *argv[]</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-header.html#vips-image-history-printf" title="vips_image_history_printf ()">vips_image_history_printf</a>           (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *format</code></em>,
+                                                         <em class="parameter"><code>...</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="libvips-header.html#vips-image-init-fields" title="vips_image_init_fields ()">vips_image_init_fields</a>              (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ysize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> bands</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html#VipsBandFormat"><span class="type">VipsBandFormat</span></a> format</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html#VipsCoding"><span class="type">VipsCoding</span></a> coding</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html#VipsInterpretation"><span class="type">VipsInterpretation</span></a> interpretation</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> xres</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> yres</code></em>);
+<span class="returnvalue">void</span> *              <a class="link" href="libvips-header.html#vips-image-map" title="vips_image_map ()">vips_image_map</a>                      (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="libvips-header.html#VipsImageMapFn" title="VipsImageMapFn ()"><span class="type">VipsImageMapFn</span></a> fn</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>);
+<span class="returnvalue">gboolean</span>            <a class="link" href="libvips-header.html#vips-image-remove" title="vips_image_remove ()">vips_image_remove</a>                   (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="libvips-header.html#vips-image-set" title="vips_image_set ()">vips_image_set</a>                      (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">GValue</span> *value</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="libvips-header.html#vips-image-set-area" title="vips_image_set_area ()">vips_image_set_area</a>                 (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">VipsCallbackFn</span> free_fn</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *data</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="libvips-header.html#vips-image-set-blob" title="vips_image_set_blob ()">vips_image_set_blob</a>                 (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">VipsCallbackFn</span> free_fn</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *data</code></em>,
+                                                         <em class="parameter"><code><span class="type">size_t</span> length</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="libvips-header.html#vips-image-set-double" title="vips_image_set_double ()">vips_image_set_double</a>               (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> d</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="libvips-header.html#vips-image-set-int" title="vips_image_set_int ()">vips_image_set_int</a>                  (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> i</code></em>);
+<span class="returnvalue">void</span>                <a class="link" href="libvips-header.html#vips-image-set-string" title="vips_image_set_string ()">vips_image_set_string</a>               (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *str</code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="libvips-header.description"></a><h2>Description</h2>
+<p>
+These functions let you get at image header data (including metadata) in a
+uniform way. They are handy for language bindings but less useful for C
+users.
+</p>
+<p>
+They first search the 
+VIPS header
+fields (see image), then search for 
+a metadata field of that name (see
+meta).
+Use <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a> to test for the 
+existance and <span class="type">GType</span>
+of a header field.
+</p>
+<p>
+See meta
+for a set of functions for adding new metadata to an image.
+</p>
+</div>
+<div class="refsect1">
+<a name="libvips-header.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="VIPS-META-EXIF-NAME:CAPS"></a><h3>VIPS_META_EXIF_NAME</h3>
+<pre class="programlisting">#define VIPS_META_EXIF_NAME "exif-data"
+</pre>
+<p>
+The name that JPEG read and write operations use for the image's EXIF data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VIPS-META-ICC-NAME:CAPS"></a><h3>VIPS_META_ICC_NAME</h3>
+<pre class="programlisting">#define VIPS_META_ICC_NAME "icc-profile-data"
+</pre>
+<p>
+The name we use to attach an ICC profile. The file read and write
+operations for TIFF, JPEG, PNG and others use this item of metadata to
+attach and save ICC profiles. The profile is updated by the
+<code class="function">vips_icc_transform()</code> operations.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VIPS-META-RESOLUTION-UNIT:CAPS"></a><h3>VIPS_META_RESOLUTION_UNIT</h3>
+<pre class="programlisting">#define VIPS_META_RESOLUTION_UNIT "resolution-unit"
+</pre>
+<p>
+The JPEG and TIFF read and write operations use this to record the
+file's preferred unit for resolution.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VIPS-META-XML:CAPS"></a><h3>VIPS_META_XML</h3>
+<pre class="programlisting">#define VIPS_META_XML "xml-header"
+</pre>
+<p>
+The original XML that was used to code the metadata after reading a VIPS
+format file.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VIPS-META-XMP-NAME:CAPS"></a><h3>VIPS_META_XMP_NAME</h3>
+<pre class="programlisting">#define VIPS_META_XMP_NAME "xmp-data"
+</pre>
+<p>
+The name that JPEG read and write operations use for the image's XMP data.
+</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="VipsImageMapFn"></a><h3>VipsImageMapFn ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span> *              (*VipsImageMapFn)                   (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">GValue</span> *value</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-format-sizeof"></a><h3>vips_format_sizeof ()</h3>
+<pre class="programlisting"><span class="returnvalue">guint64</span>             vips_format_sizeof                  (<em class="parameter"><code><a class="link" href="VipsImage.html#VipsBandFormat"><span class="type">VipsBandFormat</span></a> format</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-copy-fields"></a><h3>vips_image_copy_fields ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_copy_fields              (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>);</pre>
+<p>
+Copy fields from <em class="parameter"><code>in</code></em> to <em class="parameter"><code>out</code></em>. A convenience
+function over <a class="link" href="libvips-header.html#vips-image-copy-fields-array" title="vips_image_copy_fields_array ()"><code class="function">vips_image_copy_fields_array()</code></a>. 
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-copy-fields-array" title="vips_image_copy_fields_array ()"><code class="function">vips_image_copy_fields_array()</code></a>, <a class="link" href="libvips-header.html#vips-image-copy-fieldsv" title="vips_image_copy_fieldsv ()"><code class="function">vips_image_copy_fieldsv()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>image to copy to</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>in</code></em> :</span></p></td>
+<td>image to copy from</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-copy-fields-array"></a><h3>vips_image_copy_fields_array ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_copy_fields_array        (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in[]</code></em>);</pre>
+<p>
+Copy fields from all the input images to the output image. There must be at
+least one input image. 
+</p>
+<p>
+The first input image is used to set the main fields of <em class="parameter"><code>out</code></em> (<em class="parameter"><code>width</code></em>,
+<em class="parameter"><code>coding</code></em> and so on). 
+</p>
+<p>
+Metadata from all the images is merged on to <em class="parameter"><code>out</code></em>, with lower-numbered items 
+overriding higher. So for example, if <em class="parameter"><code>in</code></em>[0] and <em class="parameter"><code>in</code></em>[1] both have an item
+called "icc-profile", it's the profile attached to <em class="parameter"><code>in</code></em>[0] that will end up
+on <em class="parameter"><code>out</code></em>.
+</p>
+<p>
+Image history is completely copied from all <em class="parameter"><code>in</code></em>. <em class="parameter"><code>out</code></em> will have the history
+of all the intput images.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-copy-fieldsv" title="vips_image_copy_fieldsv ()"><code class="function">vips_image_copy_fieldsv()</code></a>, <a class="link" href="libvips-header.html#vips-image-copy-fields" title="vips_image_copy_fields ()"><code class="function">vips_image_copy_fields()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>image to copy to</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>in</code></em> :</span></p></td>
+<td>
+<code class="literal">NULL</code>-terminated array of images to copy from</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-copy-fieldsv"></a><h3>vips_image_copy_fieldsv ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_copy_fieldsv             (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in1</code></em>,
+                                                         <em class="parameter"><code>...</code></em>);</pre>
+<p>
+Copy fields from all the input images to the output image. A convenience
+function over <a class="link" href="libvips-header.html#vips-image-copy-fields-array" title="vips_image_copy_fields_array ()"><code class="function">vips_image_copy_fields_array()</code></a>. 
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-copy-fields-array" title="vips_image_copy_fields_array ()"><code class="function">vips_image_copy_fields_array()</code></a>, <a class="link" href="libvips-header.html#vips-image-copy-fields" title="vips_image_copy_fields ()"><code class="function">vips_image_copy_fields()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>image to copy to</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>in1</code></em> :</span></p></td>
+<td>first image to copy from</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>Varargs</code></em> :</span></p></td>
+<td>
+<code class="literal">NULL</code>-terminated list of images to copy from</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get"></a><h3>vips_image_get ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_get                      (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">GValue</span> *value_copy</code></em>);</pre>
+<p>
+Fill <em class="parameter"><code>value_copy</code></em> with a copy of the header field. <em class="parameter"><code>value_copy</code></em> must be zeroed 
+but uninitialised.
+</p>
+<p>
+This will return -1 and add a message to the error buffer if the field
+does not exist. Use <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a> to test for the 
+existence
+of a field first if you are not certain it will be there.
+</p>
+<p>
+For example, to read a double from an image (though of course you would use
+<a class="link" href="libvips-header.html#vips-image-get-double" title="vips_image_get_double ()"><code class="function">vips_image_get_double()</code></a> in practice):
+</p>
+<p>
+</p>
+<div class="informalexample"><pre class="programlisting">
+GValue value = { 0 };
+double d;
+
+if( vips_image_get( image, field, &amp;value ) )
+  return( -1 );
+
+if( G_VALUE_TYPE( &amp;value ) != G_TYPE_DOUBLE ) {
+  vips_error( "mydomain", 
+    _( "field \"%s\" is of type %s, not double" ),
+    field, 
+    g_type_name( G_VALUE_TYPE( &amp;value ) ) );
+  g_value_unset( &amp;value );
+  return( -1 );
+}
+
+d = g_value_get_double( &amp;value );
+g_value_unset( &amp;value );
+
+return( 0 );
+</pre></div>
+<p>
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a>, <a class="link" href="libvips-header.html#vips-image-get-double" title="vips_image_get_double ()"><code class="function">vips_image_get_double()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to get the field from from</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>the name to give the metadata</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value_copy</code></em> :</span></p></td>
+<td>the GValue is copied into this</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 otherwise.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-area"></a><h3>vips_image_get_area ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_get_area                 (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> **data</code></em>);</pre>
+<p>
+Gets <em class="parameter"><code>data</code></em> from <em class="parameter"><code>image</code></em> under the name <em class="parameter"><code>field</code></em>. A convenience
+function over <a class="link" href="libvips-header.html#vips-image-get" title="vips_image_get ()"><code class="function">vips_image_get()</code></a>. Use <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a> to test for
+the existance of a piece of metadata.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-set-area" title="vips_image_set_area ()"><code class="function">vips_image_set_area()</code></a>, <a class="link" href="libvips-header.html#vips-image-get" title="vips_image_get ()"><code class="function">vips_image_get()</code></a>,
+<a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to get the metadata from</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>metadata name</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
+<td>return metadata value</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 otherwise.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-as-string"></a><h3>vips_image_get_as_string ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_get_as_string            (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">char</span> **out</code></em>);</pre>
+<p>
+Gets <em class="parameter"><code>out</code></em> from <em class="parameter"><code>im</code></em> under the name <em class="parameter"><code>field</code></em>. 
+This function will read any field, returning it as a printable string.
+You need to free the string with <code class="function">g_free()</code> when you are done with it.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get" title="vips_image_get ()"><code class="function">vips_image_get()</code></a>, <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to get the header field from</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>field name</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>return field value as string</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 otherwise.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-bands"></a><h3>vips_image_get_bands ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_get_bands                (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-blob"></a><h3>vips_image_get_blob ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_get_blob                 (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> **data</code></em>,
+                                                         <em class="parameter"><code><span class="type">size_t</span> *length</code></em>);</pre>
+<p>
+Gets <em class="parameter"><code>blob</code></em> from <em class="parameter"><code>image</code></em> under the name <em class="parameter"><code>field</code></em>, optionally return its length in
+<em class="parameter"><code>length</code></em>. A convenience
+function over <a class="link" href="libvips-header.html#vips-image-get" title="vips_image_get ()"><code class="function">vips_image_get()</code></a>. Use <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a> to test for the 
+existance
+of a piece of metadata.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get" title="vips_image_get ()"><code class="function">vips_image_get()</code></a>, <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a>, <code class="function">vips_blob_get()</code>,
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to get the metadata from</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>metadata name</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
+<td>pointer to area of memory</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>length</code></em> :</span></p></td>
+<td>return the blob length here, optionally</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 otherwise.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-coding"></a><h3>vips_image_get_coding ()</h3>
+<pre class="programlisting"><a class="link" href="VipsImage.html#VipsCoding"><span class="returnvalue">VipsCoding</span></a>          vips_image_get_coding               (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-data"></a><h3>vips_image_get_data ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span> *              vips_image_get_data                 (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+<p>
+Return a pointer to the image's pixel data, if possible. This can involve
+allocating large amounts of memory and performing a long computation. Image
+pixels are laid out in band-packed rows.
+</p>
+<p>
+See also: <a class="link" href="VipsImage.html#vips-image-wio-input" title="vips_image_wio_input ()"><code class="function">vips_image_wio_input()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to get data for</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>a pointer to pixel data, if possible.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-double"></a><h3>vips_image_get_double ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_get_double               (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> *out</code></em>);</pre>
+<p>
+Gets <em class="parameter"><code>out</code></em> from <em class="parameter"><code>im</code></em> under the name <em class="parameter"><code>field</code></em>. 
+This function searches for
+double-valued fields.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get" title="vips_image_get ()"><code class="function">vips_image_get()</code></a>, <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to get the header field from</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>field name</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>return field value</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 otherwise.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-filename"></a><h3>vips_image_get_filename ()</h3>
+<pre class="programlisting">const <span class="returnvalue">char</span> *        vips_image_get_filename             (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-format"></a><h3>vips_image_get_format ()</h3>
+<pre class="programlisting"><a class="link" href="VipsImage.html#VipsBandFormat"><span class="returnvalue">VipsBandFormat</span></a>      vips_image_get_format               (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-height"></a><h3>vips_image_get_height ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_get_height               (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-history"></a><h3>vips_image_get_history ()</h3>
+<pre class="programlisting">const <span class="returnvalue">char</span> *        vips_image_get_history              (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+<p>
+This function reads the image history as a C string. The string is owned
+by VIPS and must not be freed.
+</p>
+<p>
+VIPS tracks the history of each image, that is, the sequence of operations
+that generated that image. Applications built on VIPS need to call
+<a class="link" href="libvips-header.html#vips-image-history-printf" title="vips_image_history_printf ()"><code class="function">vips_image_history_printf()</code></a> for each action they perform, setting the 
+command-line equivalent for the action.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-history-printf" title="vips_image_history_printf ()"><code class="function">vips_image_history_printf()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>get history from here</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>The history of <em class="parameter"><code>image</code></em> as a C string. Do not free!</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-int"></a><h3>vips_image_get_int ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_get_int                  (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> *out</code></em>);</pre>
+<p>
+Gets <em class="parameter"><code>out</code></em> from <em class="parameter"><code>im</code></em> under the name <em class="parameter"><code>field</code></em>. This function searches for
+int-valued fields.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get" title="vips_image_get ()"><code class="function">vips_image_get()</code></a>, <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to get the header field from</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>field name</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>return field value</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 otherwise.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-interpretation"></a><h3>vips_image_get_interpretation ()</h3>
+<pre class="programlisting"><a class="link" href="VipsImage.html#VipsInterpretation"><span class="returnvalue">VipsInterpretation</span></a>  vips_image_get_interpretation       (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-mode"></a><h3>vips_image_get_mode ()</h3>
+<pre class="programlisting">const <span class="returnvalue">char</span> *        vips_image_get_mode                 (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-string"></a><h3>vips_image_get_string ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_get_string               (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">char</span> **out</code></em>);</pre>
+<p>
+Gets <em class="parameter"><code>out</code></em> from <em class="parameter"><code>im</code></em> under the name <em class="parameter"><code>field</code></em>. 
+This function searches for string-valued fields. 
+</p>
+<p>
+Do not free <em class="parameter"><code>out</code></em>.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get" title="vips_image_get ()"><code class="function">vips_image_get()</code></a>, <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to get the header field from</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>field name</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>return field value</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 otherwise.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-typeof"></a><h3>vips_image_get_typeof ()</h3>
+<pre class="programlisting"><span class="returnvalue">GType</span>               vips_image_get_typeof               (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>);</pre>
+<p>
+Read the GType for a header field. Returns zero if there is no
+field of that name. 
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get" title="vips_image_get ()"><code class="function">vips_image_get()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to test</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>the name to search for</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>the GType of the field, or zero if there is no
+field of that name.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-width"></a><h3>vips_image_get_width ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_get_width                (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-xoffset"></a><h3>vips_image_get_xoffset ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_get_xoffset              (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-xres"></a><h3>vips_image_get_xres ()</h3>
+<pre class="programlisting"><span class="returnvalue">double</span>              vips_image_get_xres                 (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-yoffset"></a><h3>vips_image_get_yoffset ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_get_yoffset              (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-get-yres"></a><h3>vips_image_get_yres ()</h3>
+<pre class="programlisting"><span class="returnvalue">double</span>              vips_image_get_yres                 (<em class="parameter"><code>const <a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>);</pre>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-history-args"></a><h3>vips_image_history_args ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_history_args             (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *name</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> argc</code></em>,
+                                                         <em class="parameter"><code><span class="type">char</span> *argv[]</code></em>);</pre>
+<p>
+Formats the name/argv as a single string and calls
+<a class="link" href="libvips-header.html#vips-image-history-printf" title="vips_image_history_printf ()"><code class="function">vips_image_history_printf()</code></a>. A
+convenience function for command-line prorams.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get-history" title="vips_image_get_history ()"><code class="function">vips_image_get_history()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to attach history line to</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>name</code></em> :</span></p></td>
+<td>program name</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>argc</code></em> :</span></p></td>
+<td>number of program arguments</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>argv</code></em> :</span></p></td>
+<td>program arguments</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-history-printf"></a><h3>vips_image_history_printf ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 vips_image_history_printf           (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *format</code></em>,
+                                                         <em class="parameter"><code>...</code></em>);</pre>
+<p>
+Add a line to the image history. The <em class="parameter"><code>format</code></em> and arguments are expanded, the
+date and time is appended prefixed with a hash character, and the whole
+string is appended to the image history and terminated with a newline.
+</p>
+<p>
+For example:
+</p>
+<p>
+</p>
+<div class="informalexample"><pre class="programlisting">
+vips_image_history_printf( image, "vips im_invert %s %s", 
+  in-&gt;filename, out-&gt;filename );
+</pre></div>
+<p>
+</p>
+<p>
+Might add the string
+</p>
+<p>
+</p>
+<div class="informalexample"><pre class="programlisting">
+"vips im_invert /home/john/fred.v /home/john/jim.v # Fri Apr  3 23:30:35
+2009\n"
+</pre></div>
+<p>
+</p>
+<p>
+VIPS operations don't add history lines for you because a single action at 
+the application level might involve many VIPS operations. History must be
+recorded by the application.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>add history line to this image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>format</code></em> :</span></p></td>
+<td>printf() format string</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>Varargs</code></em> :</span></p></td>
+<td>arguments to format string</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-init-fields"></a><h3>vips_image_init_fields ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_image_init_fields              (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ysize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> bands</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html#VipsBandFormat"><span class="type">VipsBandFormat</span></a> format</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html#VipsCoding"><span class="type">VipsCoding</span></a> coding</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html#VipsInterpretation"><span class="type">VipsInterpretation</span></a> interpretation</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> xres</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> yres</code></em>);</pre>
+<p>
+A convenience function to set the header fields after creating an image.
+Normally you copy the fields from one of your input images with
+<a class="link" href="libvips-header.html#vips-image-copy-fields" title="vips_image_copy_fields ()"><code class="function">vips_image_copy_fields()</code></a> and then make
+any adjustments you need, but if you are creating an image from scratch,
+for example <code class="function">im_black()</code> or <code class="function">im_jpeg2vips()</code>, you do need to set all the
+fields yourself.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-copy-fields" title="vips_image_copy_fields ()"><code class="function">vips_image_copy_fields()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to init</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xsize</code></em> :</span></p></td>
+<td>image width</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ysize</code></em> :</span></p></td>
+<td>image height</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>bands</code></em> :</span></p></td>
+<td>image bands</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>format</code></em> :</span></p></td>
+<td>band format</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>coding</code></em> :</span></p></td>
+<td>image coding</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>interpretation</code></em> :</span></p></td>
+<td>image type</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xres</code></em> :</span></p></td>
+<td>horizontal resolution, pixels per millimetre</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>yres</code></em> :</span></p></td>
+<td>vertical resolution, pixels per millimetre</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-map"></a><h3>vips_image_map ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span> *              vips_image_map                      (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="libvips-header.html#VipsImageMapFn" title="VipsImageMapFn ()"><span class="type">VipsImageMapFn</span></a> fn</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *a</code></em>);</pre>
+<p>
+This function calls <em class="parameter"><code>fn</code></em> for every header field, including every item of 
+metadata. 
+</p>
+<p>
+Like all _map functions, the user function should return <code class="literal">NULL</code> to continue
+iteration, or a non-<code class="literal">NULL</code> pointer to indicate early termination.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a>, <a class="link" href="libvips-header.html#vips-image-get" title="vips_image_get ()"><code class="function">vips_image_get()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to map over</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>fn</code></em> :</span></p></td>
+<td>function to call for each header field</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>a</code></em> :</span></p></td>
+<td>user data for function</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>
+<code class="literal">NULL</code> on success, the failing pointer otherwise.</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-remove"></a><h3>vips_image_remove ()</h3>
+<pre class="programlisting"><span class="returnvalue">gboolean</span>            vips_image_remove                   (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>);</pre>
+<p>
+Find and remove an item of metadata. Return <code class="literal">FALSE</code> if no metadata of that
+name was found.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-set" title="vips_image_set ()"><code class="function">vips_image_set()</code></a>, <a class="link" href="libvips-header.html#vips-image-get-typeof" title="vips_image_get_typeof ()"><code class="function">vips_image_get_typeof()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to test</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>the name to search for</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>
+<code class="literal">TRUE</code> if an item of metadata of that name was found and removed</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-set"></a><h3>vips_image_set ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_image_set                      (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">GValue</span> *value</code></em>);</pre>
+<p>
+Set a piece of metadata on <em class="parameter"><code>image</code></em>. Any old metadata with that name is
+destroyed. The GValue is copied into the image, so you need to unset the
+value when you're done with it.
+</p>
+<p>
+For example, to set an integer on an image (though you would use the
+convenience function <a class="link" href="libvips-header.html#vips-image-set-int" title="vips_image_set_int ()"><code class="function">vips_image_set_int()</code></a> in practice), you would need:
+</p>
+<p>
+</p>
+<div class="informalexample"><pre class="programlisting">
+GValue value = { 0 };
+
+g_value_init( &amp;value, G_TYPE_INT );
+g_value_set_int( &amp;value, 42 );
+vips_image_set( image, field, &amp;value );
+g_value_unset( &amp;value );
+
+return( 0 );
+</pre></div>
+<p>
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get" title="vips_image_get ()"><code class="function">vips_image_get()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to set the metadata on</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>the name to give the metadata</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>value</code></em> :</span></p></td>
+<td>the GValue to copy into the image</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-set-area"></a><h3>vips_image_set_area ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_image_set_area                 (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">VipsCallbackFn</span> free_fn</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *data</code></em>);</pre>
+<p>
+Attaches <em class="parameter"><code>data</code></em> as a metadata item on <em class="parameter"><code>image</code></em> under the name <em class="parameter"><code>field</code></em>. When
+VIPS no longer needs the metadata, it will be freed with <em class="parameter"><code>free_fn</code></em>.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get-double" title="vips_image_get_double ()"><code class="function">vips_image_get_double()</code></a>, <a class="link" href="libvips-header.html#vips-image-set" title="vips_image_set ()"><code class="function">vips_image_set()</code></a>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to attach the metadata to</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>metadata name</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>free_fn</code></em> :</span></p></td>
+<td>free function for <em class="parameter"><code>data</code></em>. <span class="annotation">[<acronym title="The callback is valid until first called."><span class="acronym">scope async</span></acronym>]</span>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
+<td>pointer to area of memory</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-set-blob"></a><h3>vips_image_set_blob ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_image_set_blob                 (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">VipsCallbackFn</span> free_fn</code></em>,
+                                                         <em class="parameter"><code><span class="type">void</span> *data</code></em>,
+                                                         <em class="parameter"><code><span class="type">size_t</span> length</code></em>);</pre>
+<p>
+Attaches <em class="parameter"><code>blob</code></em> as a metadata item on <em class="parameter"><code>image</code></em> under the name <em class="parameter"><code>field</code></em>. A 
+convenience
+function over <a class="link" href="libvips-header.html#vips-image-set" title="vips_image_set ()"><code class="function">vips_image_set()</code></a> using an vips_blob.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get-blob" title="vips_image_get_blob ()"><code class="function">vips_image_get_blob()</code></a>, <a class="link" href="libvips-header.html#vips-image-set" title="vips_image_set ()"><code class="function">vips_image_set()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to attach the metadata to</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>metadata name</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>free_fn</code></em> :</span></p></td>
+<td>free function for <em class="parameter"><code>data</code></em>. <span class="annotation">[<acronym title="The callback is valid until first called."><span class="acronym">scope async</span></acronym>]</span>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>data</code></em> :</span></p></td>
+<td>pointer to area of memory</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>length</code></em> :</span></p></td>
+<td>length of memory area</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-set-double"></a><h3>vips_image_set_double ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_image_set_double               (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> d</code></em>);</pre>
+<p>
+Attaches <em class="parameter"><code>d</code></em> as a metadata item on <em class="parameter"><code>image</code></em> under the name <em class="parameter"><code>field</code></em>. A 
+convenience
+function over <a class="link" href="libvips-header.html#vips-image-set" title="vips_image_set ()"><code class="function">vips_image_set()</code></a>.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get-double" title="vips_image_get_double ()"><code class="function">vips_image_get_double()</code></a>, <a class="link" href="libvips-header.html#vips-image-set" title="vips_image_set ()"><code class="function">vips_image_set()</code></a>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to attach the metadata to</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>metadata name</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>d</code></em> :</span></p></td>
+<td>metadata value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-set-int"></a><h3>vips_image_set_int ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_image_set_int                  (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> i</code></em>);</pre>
+<p>
+Attaches <em class="parameter"><code>i</code></em> as a metadata item on <em class="parameter"><code>image</code></em> under the name <em class="parameter"><code>field</code></em>. A 
+convenience
+function over <a class="link" href="libvips-header.html#vips-image-set" title="vips_image_set ()"><code class="function">vips_image_set()</code></a>.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get-int" title="vips_image_get_int ()"><code class="function">vips_image_get_int()</code></a>, <a class="link" href="libvips-header.html#vips-image-set" title="vips_image_set ()"><code class="function">vips_image_set()</code></a>
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to attach the metadata to</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>metadata name</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>i</code></em> :</span></p></td>
+<td>metadata value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="vips-image-set-string"></a><h3>vips_image_set_string ()</h3>
+<pre class="programlisting"><span class="returnvalue">void</span>                vips_image_set_string               (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *image</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *field</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *str</code></em>);</pre>
+<p>
+Attaches <em class="parameter"><code>str</code></em> as a metadata item on <em class="parameter"><code>image</code></em> under the name <em class="parameter"><code>field</code></em>. 
+A convenience
+function over <a class="link" href="libvips-header.html#vips-image-set" title="vips_image_set ()"><code class="function">vips_image_set()</code></a> using an vips_ref_string.
+</p>
+<p>
+See also: <a class="link" href="libvips-header.html#vips-image-get-double" title="vips_image_get_double ()"><code class="function">vips_image_get_double()</code></a>, <a class="link" href="libvips-header.html#vips-image-set" title="vips_image_set ()"><code class="function">vips_image_set()</code></a>, vips_ref_string
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>image</code></em> :</span></p></td>
+<td>image to attach the metadata to</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>field</code></em> :</span></p></td>
+<td>metadata name</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>str</code></em> :</span></p></td>
+<td>metadata value</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div class="refsect1">
+<a name="libvips-header.see-also"></a><h2>See Also</h2>
+meta,
+check
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.18</div>
+</body>
+</html>

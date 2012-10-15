@@ -39,24 +39,22 @@ namespace Data {
 
 // ---------------------------------------------------------------------------------------------- //
 
-enum ModelTypeId
-{
-    VD_DATA_MODEL_TYPE_INVALID,
-    VD_DATA_MODEL_TYPE_META,
-    VD_DATA_MODEL_TYPE_VALUE,
-    VD_DATA_MODEL_TYPE_PROPERTY,
-    VD_DATA_MODEL_TYPE_EDGE,
-    VD_DATA_MODEL_TYPE_NODE,
-    VD_DATA_MODEL_TYPE_GRAPH,
-    VD_DATA_MODEL_TYPE_LAST_ID
-};
+VD_DECLARE_ENUM(ModelType,
+    MetaType,
+    Key,
+    Entry,
+    Property,
+    Edge,
+    Node,
+    Graph,
+    Table);
 
 // ---------------------------------------------------------------------------------------------- //
 
 struct MetaKey
 {
-    vd::u64     Id;
-    ModelTypeId Type;
+    vd::u64          Id;
+    ModelType::Value Type;
 
     MetaKey();
     static bool IsValid(MetaKey mk);

@@ -1,0 +1,1399 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>mosaicing</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="VIPS Reference Manual">
+<link rel="up" href="ch02.html" title="VIPS operation API by section">
+<link rel="prev" href="libvips-morphology.html" title="morphology">
+<link rel="next" href="libvips-other.html" title="other">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="libvips-morphology.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch02.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">VIPS Reference Manual</th>
+<td><a accesskey="n" href="libvips-other.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#libvips-mosaicing.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#libvips-mosaicing.description" class="shortcut">Description</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="libvips-mosaicing"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="libvips-mosaicing.top_of_page"></a>mosaicing</span></h2>
+<p>mosaicing — build image mosaics</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="libvips-mosaicing.stability-level"></a><h2>Stability Level</h2>
+Stable, unless otherwise indicated
+</div>
+<div class="refsynopsisdiv">
+<a name="libvips-mosaicing.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">
+#include &lt;vips/vips.h&gt;
+
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-align-bands" title="im_align_bands ()">im_align_bands</a>                      (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-correl" title="im_correl ()">im_correl</a>                           (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xref</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yref</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xsec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ysec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hwindowsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hsearchsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> *correlation</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> *x</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> *y</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()">im_global_balance</a>                   (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> gamma</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-global-balancef" title="im_global_balancef ()">im_global_balancef</a>                  (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> gamma</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-lrmerge" title="im_lrmerge ()">im_lrmerge</a>                          (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> dx</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> dy</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-lrmerge1" title="im_lrmerge1 ()">im_lrmerge1</a>                         (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-lrmosaic" title="im_lrmosaic ()">im_lrmosaic</a>                         (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> bandno</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xref</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yref</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xsec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ysec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hwindowsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hsearchsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> balancetype</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-lrmosaic1" title="im_lrmosaic1 ()">im_lrmosaic1</a>                        (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> bandno</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hwindowsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hsearchsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> balancetype</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-maxpos-subpel" title="im_maxpos_subpel ()">im_maxpos_subpel</a>                    (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> *x</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> *y</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-remosaic" title="im_remosaic ()">im_remosaic</a>                         (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *old_str</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *new_str</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-tbmerge" title="im_tbmerge ()">im_tbmerge</a>                          (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> dx</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> dy</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-tbmerge1" title="im_tbmerge1 ()">im_tbmerge1</a>                         (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-tbmosaic" title="im_tbmosaic ()">im_tbmosaic</a>                         (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> bandno</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xref</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yref</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xsec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ysec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hwindowsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hsearchsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> balancetype</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-mosaicing.html#im-tbmosaic1" title="im_tbmosaic1 ()">im_tbmosaic1</a>                        (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> bandno</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hwindowsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hsearchsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> balancetype</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="libvips-mosaicing.description"></a><h2>Description</h2>
+<p>
+These functions are useful for joining many small images together to make
+one large image. They can cope with unstable contrast and arbitary sub-image
+layout, but will not do any geometric correction. Geometric errors should
+be removed before using these functions.
+</p>
+<p>
+The mosaicing functions can be grouped into layers:
+</p>
+<p>
+The lowest level functions are <a class="link" href="libvips-mosaicing.html#im-correl" title="im_correl ()"><code class="function">im_correl()</code></a>, <a class="link" href="libvips-mosaicing.html#im-lrmerge" title="im_lrmerge ()"><code class="function">im_lrmerge()</code></a> and <a class="link" href="libvips-mosaicing.html#im-tbmerge" title="im_tbmerge ()"><code class="function">im_tbmerge()</code></a>.
+<a class="link" href="libvips-mosaicing.html#im-correl" title="im_correl ()"><code class="function">im_correl()</code></a> 
+searches a large image for a small sub-image, returning
+the position of the best sub-image match. <a class="link" href="libvips-mosaicing.html#im-lrmerge" title="im_lrmerge ()"><code class="function">im_lrmerge()</code></a> and <a class="link" href="libvips-mosaicing.html#im-tbmerge" title="im_tbmerge ()"><code class="function">im_tbmerge()</code></a> 
+join two images together
+left-right or up-down with a smooth seam.
+</p>
+<p>
+Next, <a class="link" href="libvips-mosaicing.html#im-lrmosaic" title="im_lrmosaic ()"><code class="function">im_lrmosaic()</code></a> and <a class="link" href="libvips-mosaicing.html#im-tbmosaic" title="im_tbmosaic ()"><code class="function">im_tbmosaic()</code></a> use the
+search function plus the two low-level merge operations to join two images 
+given just an approximate overlap as a start point. 
+</p>
+<p>
+The functions <a class="link" href="libvips-mosaicing.html#im-lrmosaic1" title="im_lrmosaic1 ()"><code class="function">im_lrmosaic1()</code></a> and <a class="link" href="libvips-mosaicing.html#im-tbmosaic1" title="im_tbmosaic1 ()"><code class="function">im_tbmosaic1()</code></a> are
+first-order
+analogues of the basic mosaic functions: they take two approximate 
+tie-points and use
+them to rotate and scale the right-hand or bottom image before starting to
+join.
+</p>
+<p>
+Finally, <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a> can be used to remove contrast differences in 
+a mosaic
+which has been assembled with these functions. It takes the mosaic apart,
+measures image contrast differences along the seams, finds a set of
+correction factors which will minimise these differences, and reassembles
+the mosaic.
+<a class="link" href="libvips-mosaicing.html#im-remosaic" title="im_remosaic ()"><code class="function">im_remosaic()</code></a> uses the
+same
+techniques, but will reassemble the image from a different set of source
+images.
+</p>
+</div>
+<div class="refsect1">
+<a name="libvips-mosaicing.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="im-align-bands"></a><h3>im_align_bands ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_align_bands                      (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>);</pre>
+<p>
+This operation uses <a class="link" href="libvips-freq-filt.html#im-phasecor-fft" title="im_phasecor_fft ()"><code class="function">im_phasecor_fft()</code></a> to find an integer displacement to
+align all image bands band 0. It is very slow and not very accurate. 
+</p>
+<p>
+Use <code class="function">im_estpar()</code> in preference: it's fast and accurate.
+</p>
+<p>
+See also: <a class="link" href="libvips-mosaicing.html#im-global-balancef" title="im_global_balancef ()"><code class="function">im_global_balancef()</code></a>, <a class="link" href="libvips-mosaicing.html#im-remosaic" title="im_remosaic ()"><code class="function">im_remosaic()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>in</code></em> :</span></p></td>
+<td>image to align</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-correl"></a><h3>im_correl ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_correl                           (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xref</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yref</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xsec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ysec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hwindowsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hsearchsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> *correlation</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> *x</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> *y</code></em>);</pre>
+<p>
+This operation finds the position of <em class="parameter"><code>sec</code></em> within <em class="parameter"><code>ref</code></em>. 
+</p>
+<p>
+The area around
+(<em class="parameter"><code>xsec</code></em>, <em class="parameter"><code>ysec</code></em>) is searched for the best match to the area around (<em class="parameter"><code>xref</code></em>,
+<em class="parameter"><code>yref</code></em>). It  searches an area of size <em class="parameter"><code>hsearchsize</code></em> for a
+match of size <em class="parameter"><code>hwindowsize</code></em>.  The position of the best match is
+returned, together with the correlation at that point.
+</p>
+<p>
+Only  the  first  band  of each image is correlated. <em class="parameter"><code>ref</code></em> and <em class="parameter"><code>sec</code></em> may be
+very large --- the function  extracts  and  generates  just  the
+parts needed.  Correlation is done with <a class="link" href="libvips-convolution.html#im-spcor" title="im_spcor ()"><code class="function">im_spcor()</code></a>; the position of
+the maximum is found with <code class="function">im_maxpos()</code>.
+</p>
+<p>
+See also: <code class="function">im_match_linear()</code>, <code class="function">im_match_linear_search()</code>, <a class="link" href="libvips-mosaicing.html#im-lrmosaic" title="im_lrmosaic ()"><code class="function">im_lrmosaic()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ref</code></em> :</span></p></td>
+<td>reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>sec</code></em> :</span></p></td>
+<td>secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xref</code></em> :</span></p></td>
+<td>position in reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>yref</code></em> :</span></p></td>
+<td>position in reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xsec</code></em> :</span></p></td>
+<td>position in secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ysec</code></em> :</span></p></td>
+<td>position in secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>hwindowsize</code></em> :</span></p></td>
+<td>half window size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>hsearchsize</code></em> :</span></p></td>
+<td>half search size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>correlation</code></em> :</span></p></td>
+<td>return detected correlation</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>x</code></em> :</span></p></td>
+<td>return found position</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>y</code></em> :</span></p></td>
+<td>return found position</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-global-balance"></a><h3>im_global_balance ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_global_balance                   (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> gamma</code></em>);</pre>
+<p>
+<a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a> can be used to remove contrast differences in 
+an assembled mosaic.
+</p>
+<p>
+It reads the History field attached to <em class="parameter"><code>in</code></em> and builds a list of the source
+images that were used to make the mosaic and the position that each ended
+up at in the final image.
+</p>
+<p>
+It opens each of the source images in turn and extracts all parts which
+overlap with any of the other images. It finds the average values in the
+overlap areas and uses least-mean-square to find a set of correction
+factors which will minimise overlap differences. It uses <em class="parameter"><code>gamma</code></em> to
+gamma-correct the source images before calculating the factors. A value of
+1.0 will stop this.
+</p>
+<p>
+Each of the source images is transformed with the appropriate correction 
+factor, then the mosaic is reassembled. <em class="parameter"><code>out</code></em> always has the same <span class="type">BandFmt</span>
+as <em class="parameter"><code>in</code></em>. Use <a class="link" href="libvips-mosaicing.html#im-global-balancef" title="im_global_balancef ()"><code class="function">im_global_balancef()</code></a> to get float output and avoid clipping.
+</p>
+<p>
+There are some conditions that must be met before this operation can work:
+the source images must all be present under the filenames recorded in the
+history on <em class="parameter"><code>in</code></em>, and the mosaic must have been built using only operations in
+this package.
+</p>
+<p>
+See also: <a class="link" href="libvips-mosaicing.html#im-global-balancef" title="im_global_balancef ()"><code class="function">im_global_balancef()</code></a>, <a class="link" href="libvips-mosaicing.html#im-remosaic" title="im_remosaic ()"><code class="function">im_remosaic()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>in</code></em> :</span></p></td>
+<td>mosaic to rebuild</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>gamma</code></em> :</span></p></td>
+<td>gamma of source images</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-global-balancef"></a><h3>im_global_balancef ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_global_balancef                  (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> gamma</code></em>);</pre>
+<p>
+Just as <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a>, but the output image is always float. This
+stops overflow or underflow in the case of an extremely unbalanced image
+mosaic. 
+</p>
+<p>
+See also: <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a>, <a class="link" href="libvips-mosaicing.html#im-remosaic" title="im_remosaic ()"><code class="function">im_remosaic()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>in</code></em> :</span></p></td>
+<td>mosaic to rebuild</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>gamma</code></em> :</span></p></td>
+<td>gamma of source images</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-lrmerge"></a><h3>im_lrmerge ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_lrmerge                          (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> dx</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> dy</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);</pre>
+<p>
+This operation joins two images left-right (with <em class="parameter"><code>ref</code></em> on the left) with a 
+smooth seam.
+</p>
+<p>
+If the number of bands differs, one of the images 
+must have one band. In this case, an n-band image is formed from the 
+one-band image by joining n copies of the one-band image together, and then
+the two n-band images are operated upon.
+</p>
+<p>
+The two input images are cast up to the smallest common type (see table 
+Smallest common format in 
+arithmetic).
+</p>
+<p>
+<em class="parameter"><code>dx</code></em> and <em class="parameter"><code>dy</code></em> give the displacement of <em class="parameter"><code>sec</code></em> relative to <em class="parameter"><code>ref</code></em>, in other words,
+the vector to get from the origin of <em class="parameter"><code>sec</code></em> to the origin of <em class="parameter"><code>ref</code></em>, in other
+words, <em class="parameter"><code>dx</code></em> will generally be a negative number. 
+</p>
+<p>
+<em class="parameter"><code>mwidth</code></em> limits  the  maximum width of the
+blend area.  A value of "-1" means "unlimited". The two images are blended 
+with a raised cosine. 
+</p>
+<p>
+Pixels with all bands equal to zero are "transparent", that
+is, zero pixels in the overlap area do not  contribute  to  the  merge.
+This makes it possible to join non-rectangular images.
+</p>
+<p>
+See also: <a class="link" href="libvips-mosaicing.html#im-lrmosaic" title="im_lrmosaic ()"><code class="function">im_lrmosaic()</code></a>, <a class="link" href="libvips-mosaicing.html#im-tbmerge" title="im_tbmerge ()"><code class="function">im_tbmerge()</code></a>, <code class="function">im_match_linear()</code>, <code class="function">im_insert()</code>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ref</code></em> :</span></p></td>
+<td>reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>sec</code></em> :</span></p></td>
+<td>secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>dx</code></em> :</span></p></td>
+<td>displacement of ref from sec</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>dy</code></em> :</span></p></td>
+<td>displacement of ref from sec</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mwidth</code></em> :</span></p></td>
+<td>maximum seam width</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-lrmerge1"></a><h3>im_lrmerge1 ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_lrmerge1                         (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);</pre>
+<p>
+This operation joins two images left-right (with <em class="parameter"><code>ref</code></em> on the left) 
+given a pair of tie-points. <em class="parameter"><code>sec</code></em> is scaled and rotated as
+necessary before the join.
+</p>
+<p>
+<em class="parameter"><code>mwidth</code></em> limits  the  maximum width of the
+blend area.  A value of "-1" means "unlimited". The two images are blended 
+with a raised cosine. 
+</p>
+<p>
+Pixels with all bands equal to zero are "transparent", that
+is, zero pixels in the overlap area do not  contribute  to  the  merge.
+This makes it possible to join non-rectangular images.
+</p>
+<p>
+If the number of bands differs, one of the images 
+must have one band. In this case, an n-band image is formed from the 
+one-band image by joining n copies of the one-band image together, and then
+the two n-band images are operated upon.
+</p>
+<p>
+The two input images are cast up to the smallest common type (see table 
+Smallest common format in 
+arithmetic).
+</p>
+<p>
+See also: <a class="link" href="libvips-mosaicing.html#im-tbmerge1" title="im_tbmerge1 ()"><code class="function">im_tbmerge1()</code></a>, <a class="link" href="libvips-mosaicing.html#im-lrmerge" title="im_lrmerge ()"><code class="function">im_lrmerge()</code></a>, <code class="function">im_insert()</code>, <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ref</code></em> :</span></p></td>
+<td>reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>sec</code></em> :</span></p></td>
+<td>secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xr1</code></em> :</span></p></td>
+<td>first reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>yr1</code></em> :</span></p></td>
+<td>first reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xs1</code></em> :</span></p></td>
+<td>first secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ys1</code></em> :</span></p></td>
+<td>first secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xr2</code></em> :</span></p></td>
+<td>second reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>yr2</code></em> :</span></p></td>
+<td>second reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xs2</code></em> :</span></p></td>
+<td>second secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ys2</code></em> :</span></p></td>
+<td>second secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mwidth</code></em> :</span></p></td>
+<td>maximum blend width</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-lrmosaic"></a><h3>im_lrmosaic ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_lrmosaic                         (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> bandno</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xref</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yref</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xsec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ysec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hwindowsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hsearchsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> balancetype</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);</pre>
+<p>
+This operation joins two images left-right (with <em class="parameter"><code>ref</code></em> on the left) 
+given an approximate overlap.
+</p>
+<p>
+<em class="parameter"><code>sec</code></em> is positioned so that the pixel (<em class="parameter"><code>xsec</code></em>, <em class="parameter"><code>ysec</code></em>) lies on top of the
+pixel in <em class="parameter"><code>ref</code></em> at (<em class="parameter"><code>xref</code></em>, <em class="parameter"><code>yref</code></em>). The overlap area is divided into three
+sections, 20 high-contrast points in band <em class="parameter"><code>bandno</code></em> of image <em class="parameter"><code>ref</code></em> are found 
+in each, and each high-contrast point is searched for in <em class="parameter"><code>sec</code></em> using
+<em class="parameter"><code>hwindowsize</code></em> and <em class="parameter"><code>hsearchsize</code></em> (see <a class="link" href="libvips-mosaicing.html#im-correl" title="im_correl ()"><code class="function">im_correl()</code></a>). 
+</p>
+<p>
+A linear model is fitted to the 60 tie-points, points a long way from the
+fit are discarded, and the model refitted until either too few points
+remain or the model reaches good agreement. 
+</p>
+<p>
+The detected displacement is used with <a class="link" href="libvips-mosaicing.html#im-lrmerge" title="im_lrmerge ()"><code class="function">im_lrmerge()</code></a> to join the two images
+together. 
+</p>
+<p>
+<em class="parameter"><code>mwidth</code></em> limits  the  maximum width of the
+blend area.  A value of "-1" means "unlimited". The two images are blended 
+with a raised cosine. 
+</p>
+<p>
+Pixels with all bands equal to zero are "transparent", that
+is, zero pixels in the overlap area do not  contribute  to  the  merge.
+This makes it possible to join non-rectangular images.
+</p>
+<p>
+If the number of bands differs, one of the images 
+must have one band. In this case, an n-band image is formed from the 
+one-band image by joining n copies of the one-band image together, and then
+the two n-band images are operated upon.
+</p>
+<p>
+The two input images are cast up to the smallest common type (see table 
+Smallest common format in 
+arithmetic).
+</p>
+<p>
+See also: <a class="link" href="libvips-mosaicing.html#im-lrmerge" title="im_lrmerge ()"><code class="function">im_lrmerge()</code></a>, <a class="link" href="libvips-mosaicing.html#im-tbmosaic" title="im_tbmosaic ()"><code class="function">im_tbmosaic()</code></a>, <code class="function">im_insert()</code>, <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ref</code></em> :</span></p></td>
+<td>reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>sec</code></em> :</span></p></td>
+<td>secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>bandno</code></em> :</span></p></td>
+<td>band to search for features</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xref</code></em> :</span></p></td>
+<td>position in reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>yref</code></em> :</span></p></td>
+<td>position in reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xsec</code></em> :</span></p></td>
+<td>position in secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ysec</code></em> :</span></p></td>
+<td>position in secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>hwindowsize</code></em> :</span></p></td>
+<td>half window size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>hsearchsize</code></em> :</span></p></td>
+<td>half search size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>balancetype</code></em> :</span></p></td>
+<td>no longer used</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mwidth</code></em> :</span></p></td>
+<td>maximum blend width</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-lrmosaic1"></a><h3>im_lrmosaic1 ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_lrmosaic1                        (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> bandno</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hwindowsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hsearchsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> balancetype</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);</pre>
+<p>
+This operation joins two images left-right (with <em class="parameter"><code>ref</code></em> on the left) 
+given an approximate pair of tie-points. <em class="parameter"><code>sec</code></em> is scaled and rotated as
+necessary before the join.
+</p>
+<p>
+Before performing the transformation, the  tie-points are improved by 
+searching band <em class="parameter"><code>bandno</code></em> in an area of <em class="parameter"><code>sec</code></em> of size <em class="parameter"><code>hsearchsize</code></em> for a
+match of size <em class="parameter"><code>hwindowsize</code></em> to <em class="parameter"><code>ref</code></em>. 
+</p>
+<p>
+<em class="parameter"><code>mwidth</code></em> limits  the  maximum width of the
+blend area.  A value of "-1" means "unlimited". The two images are blended 
+with a raised cosine. 
+</p>
+<p>
+Pixels with all bands equal to zero are "transparent", that
+is, zero pixels in the overlap area do not  contribute  to  the  merge.
+This makes it possible to join non-rectangular images.
+</p>
+<p>
+If the number of bands differs, one of the images 
+must have one band. In this case, an n-band image is formed from the 
+one-band image by joining n copies of the one-band image together, and then
+the two n-band images are operated upon.
+</p>
+<p>
+The two input images are cast up to the smallest common type (see table 
+Smallest common format in 
+arithmetic).
+</p>
+<p>
+See also: <a class="link" href="libvips-mosaicing.html#im-tbmosaic1" title="im_tbmosaic1 ()"><code class="function">im_tbmosaic1()</code></a>, <a class="link" href="libvips-mosaicing.html#im-lrmerge" title="im_lrmerge ()"><code class="function">im_lrmerge()</code></a>, <code class="function">im_insert()</code>, <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ref</code></em> :</span></p></td>
+<td>reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>sec</code></em> :</span></p></td>
+<td>secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>bandno</code></em> :</span></p></td>
+<td>band to search for features</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xr1</code></em> :</span></p></td>
+<td>first reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>yr1</code></em> :</span></p></td>
+<td>first reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xs1</code></em> :</span></p></td>
+<td>first secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ys1</code></em> :</span></p></td>
+<td>first secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xr2</code></em> :</span></p></td>
+<td>second reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>yr2</code></em> :</span></p></td>
+<td>second reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xs2</code></em> :</span></p></td>
+<td>second secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ys2</code></em> :</span></p></td>
+<td>second secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>hwindowsize</code></em> :</span></p></td>
+<td>half window size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>hsearchsize</code></em> :</span></p></td>
+<td>half search size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>balancetype</code></em> :</span></p></td>
+<td>no longer used</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mwidth</code></em> :</span></p></td>
+<td>maximum blend width</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-maxpos-subpel"></a><h3>im_maxpos_subpel ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_maxpos_subpel                    (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> *x</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> *y</code></em>);</pre>
+<p>
+This function implements:
+</p>
+<p>
+  "Extension of Phase Correlation to Subpixel Registration"
+  by H. Foroosh, from IEEE trans. Im. Proc. 11(3), 2002.
+</p>
+<p>
+If the best three matches in the correlation are aranged:
+</p>
+<p>
+  02   or   01
+  1         2
+</p>
+<p>
+then we return a subpixel match using the ratio of correlations in the
+vertical and horizontal dimension.
+</p>
+<p>
+( xs[0], ys[0] ) is the best integer alignment
+( xs[ use_x ], ys[ use_x ] ) is equal in y and (+/-)1 off in x
+( xs[ use_y ], ys[ use_y ] ) is equal in x and (+/-)1 off in y
+</p>
+<p>
+Alternatively if the best four matches in the correlation are aranged in
+a square:
+</p>
+<p>
+  01  or  03  or  02  or  03
+  32      12      31      21
+</p>
+<p>
+then we return a subpixel match weighting with the sum the two on each
+side over the sum of all four, but only if all four of them are very
+close to the best, and the fifth is nowhere near.
+</p>
+<p>
+This alternative method is not described by Foroosh, but is often the
+case where the match is close to n-and-a-half pixels in both dimensions.
+</p>
+<p>
+See also: <code class="function">im_maxpos()</code>, <code class="function">im_min()</code>, <code class="function">im_stats()</code>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>in</code></em> :</span></p></td>
+<td>input image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>x</code></em> :</span></p></td>
+<td>output position of maximum</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>y</code></em> :</span></p></td>
+<td>output position of maximum</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-remosaic"></a><h3>im_remosaic ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_remosaic                         (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *old_str</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">char</span> *new_str</code></em>);</pre>
+<p>
+<a class="link" href="libvips-mosaicing.html#im-remosaic" title="im_remosaic ()"><code class="function">im_remosaic()</code></a> works rather as <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a>. It takes apart the
+mosaiced image in and rebuilds it, substituting images.
+</p>
+<p>
+Unlike <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a>, images are substituted based on their file‐
+names.  The  rightmost  occurence  of the string <em class="parameter"><code>old_str</code></em> is swapped
+for <em class="parameter"><code>new_str</code></em>, that file is opened, and that image substituted  for
+the  old image.
+</p>
+<p>
+It's convenient for multispectral images. You can mosaic one band, then
+use that mosaic as a template for mosaicing the others automatically.
+</p>
+<p>
+See also: <a class="link" href="libvips-mosaicing.html#im-lrmosaic" title="im_lrmosaic ()"><code class="function">im_lrmosaic()</code></a>, <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>in</code></em> :</span></p></td>
+<td>mosaic to rebuild</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>old_str</code></em> :</span></p></td>
+<td>gamma of source images</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>new_str</code></em> :</span></p></td>
+<td>gamma of source images</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-tbmerge"></a><h3>im_tbmerge ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_tbmerge                          (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> dx</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> dy</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);</pre>
+<p>
+This operation joins two images top-bottom (with <em class="parameter"><code>ref</code></em> on the top) with a 
+smooth seam.
+</p>
+<p>
+If the number of bands differs, one of the images 
+must have one band. In this case, an n-band image is formed from the 
+one-band image by joining n copies of the one-band image together, and then
+the two n-band images are operated upon.
+</p>
+<p>
+The two input images are cast up to the smallest common type (see table 
+Smallest common format in 
+arithmetic).
+</p>
+<p>
+<em class="parameter"><code>dx</code></em> and <em class="parameter"><code>dy</code></em> give the displacement of <em class="parameter"><code>sec</code></em> relative to <em class="parameter"><code>ref</code></em>, in other words,
+the vector to get from the origin of <em class="parameter"><code>sec</code></em> to the origin of <em class="parameter"><code>ref</code></em>, in other
+words, <em class="parameter"><code>dx</code></em> will generally be a negative number. 
+</p>
+<p>
+<em class="parameter"><code>mwidth</code></em> limits  the  maximum height of the
+blend area.  A value of "-1" means "unlimited". The two images are blended 
+with a raised cosine. 
+</p>
+<p>
+Pixels with all bands equal to zero are "transparent", that
+is, zero pixels in the overlap area do not  contribute  to  the  merge.
+This makes it possible to join non-rectangular images.
+</p>
+<p>
+See also: <a class="link" href="libvips-mosaicing.html#im-lrmosaic" title="im_lrmosaic ()"><code class="function">im_lrmosaic()</code></a>, <a class="link" href="libvips-mosaicing.html#im-lrmerge" title="im_lrmerge ()"><code class="function">im_lrmerge()</code></a>, <code class="function">im_match_linear()</code>, <code class="function">im_insert()</code>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ref</code></em> :</span></p></td>
+<td>reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>sec</code></em> :</span></p></td>
+<td>secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>dx</code></em> :</span></p></td>
+<td>displacement of ref from sec</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>dy</code></em> :</span></p></td>
+<td>displacement of ref from sec</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mwidth</code></em> :</span></p></td>
+<td>maximum seam width</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-tbmerge1"></a><h3>im_tbmerge1 ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_tbmerge1                         (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);</pre>
+<p>
+This operation joins two images top-bottom (with <em class="parameter"><code>ref</code></em> on the top) 
+given a pair of tie-points. <em class="parameter"><code>sec</code></em> is scaled and rotated as
+necessary before the join.
+</p>
+<p>
+<em class="parameter"><code>mwidth</code></em> limits  the  maximum height of the
+blend area.  A value of "-1" means "unlimited". The two images are blended 
+with a raised cosine. 
+</p>
+<p>
+Pixels with all bands equal to zero are "transparent", that
+is, zero pixels in the overlap area do not  contribute  to  the  merge.
+This makes it possible to join non-rectangular images.
+</p>
+<p>
+If the number of bands differs, one of the images 
+must have one band. In this case, an n-band image is formed from the 
+one-band image by joining n copies of the one-band image together, and then
+the two n-band images are operated upon.
+</p>
+<p>
+The two input images are cast up to the smallest common type (see table 
+Smallest common format in 
+arithmetic).
+</p>
+<p>
+See also: <a class="link" href="libvips-mosaicing.html#im-lrmerge1" title="im_lrmerge1 ()"><code class="function">im_lrmerge1()</code></a>, <a class="link" href="libvips-mosaicing.html#im-tbmerge" title="im_tbmerge ()"><code class="function">im_tbmerge()</code></a>, <code class="function">im_insert()</code>, <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ref</code></em> :</span></p></td>
+<td>reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>sec</code></em> :</span></p></td>
+<td>secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xr1</code></em> :</span></p></td>
+<td>first reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>yr1</code></em> :</span></p></td>
+<td>first reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xs1</code></em> :</span></p></td>
+<td>first secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ys1</code></em> :</span></p></td>
+<td>first secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xr2</code></em> :</span></p></td>
+<td>second reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>yr2</code></em> :</span></p></td>
+<td>second reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xs2</code></em> :</span></p></td>
+<td>second secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ys2</code></em> :</span></p></td>
+<td>second secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mwidth</code></em> :</span></p></td>
+<td>maximum blend width</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-tbmosaic"></a><h3>im_tbmosaic ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_tbmosaic                         (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> bandno</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xref</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yref</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xsec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ysec</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hwindowsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hsearchsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> balancetype</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);</pre>
+<p>
+This operation joins two images top-bottom (with <em class="parameter"><code>ref</code></em> on the top) 
+given an approximate overlap.
+</p>
+<p>
+<em class="parameter"><code>sec</code></em> is positioned so that the pixel (<em class="parameter"><code>xsec</code></em>, <em class="parameter"><code>ysec</code></em>) lies on top of the
+pixel in <em class="parameter"><code>ref</code></em> at (<em class="parameter"><code>xref</code></em>, <em class="parameter"><code>yref</code></em>). The overlap area is divided into three
+sections, 20 high-contrast points in band <em class="parameter"><code>bandno</code></em> of image <em class="parameter"><code>ref</code></em> are found 
+in each, and each high-contrast point is searched for in <em class="parameter"><code>sec</code></em> using
+<em class="parameter"><code>hwindowsize</code></em> and <em class="parameter"><code>hsearchsize</code></em> (see <a class="link" href="libvips-mosaicing.html#im-correl" title="im_correl ()"><code class="function">im_correl()</code></a>). 
+</p>
+<p>
+A linear model is fitted to the 60 tie-points, points a long way from the
+fit are discarded, and the model refitted until either too few points
+remain or the model reaches good agreement. 
+</p>
+<p>
+The detected displacement is used with <a class="link" href="libvips-mosaicing.html#im-tbmerge" title="im_tbmerge ()"><code class="function">im_tbmerge()</code></a> to join the two images
+together. 
+</p>
+<p>
+<em class="parameter"><code>mwidth</code></em> limits  the  maximum height of the
+blend area.  A value of "-1" means "unlimited". The two images are blended 
+with a raised cosine. 
+</p>
+<p>
+Pixels with all bands equal to zero are "transparent", that
+is, zero pixels in the overlap area do not  contribute  to  the  merge.
+This makes it possible to join non-rectangular images.
+</p>
+<p>
+If the number of bands differs, one of the images 
+must have one band. In this case, an n-band image is formed from the 
+one-band image by joining n copies of the one-band image together, and then
+the two n-band images are operated upon.
+</p>
+<p>
+The two input images are cast up to the smallest common type (see table 
+Smallest common format in 
+arithmetic).
+</p>
+<p>
+See also: <a class="link" href="libvips-mosaicing.html#im-tbmerge" title="im_tbmerge ()"><code class="function">im_tbmerge()</code></a>, <a class="link" href="libvips-mosaicing.html#im-lrmosaic" title="im_lrmosaic ()"><code class="function">im_lrmosaic()</code></a>, <code class="function">im_insert()</code>, <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ref</code></em> :</span></p></td>
+<td>reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>sec</code></em> :</span></p></td>
+<td>secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>bandno</code></em> :</span></p></td>
+<td>band to search for features</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xref</code></em> :</span></p></td>
+<td>position in reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>yref</code></em> :</span></p></td>
+<td>position in reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xsec</code></em> :</span></p></td>
+<td>position in secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ysec</code></em> :</span></p></td>
+<td>position in secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>hwindowsize</code></em> :</span></p></td>
+<td>half window size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>hsearchsize</code></em> :</span></p></td>
+<td>half search size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>balancetype</code></em> :</span></p></td>
+<td>no longer used</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mwidth</code></em> :</span></p></td>
+<td>maximum blend width</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-tbmosaic1"></a><h3>im_tbmosaic1 ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_tbmosaic1                        (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *ref</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *sec</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> bandno</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys1</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> yr2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xs2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ys2</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hwindowsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> hsearchsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> balancetype</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> mwidth</code></em>);</pre>
+<p>
+This operation joins two images top-bottom (with <em class="parameter"><code>ref</code></em> on the top) 
+given an approximate pair of tie-points. <em class="parameter"><code>sec</code></em> is scaled and rotated as
+necessary before the join.
+</p>
+<p>
+Before performing the transformation, the  tie-points are improved by 
+searching band <em class="parameter"><code>bandno</code></em> in an area of <em class="parameter"><code>sec</code></em> of size <em class="parameter"><code>hsearchsize</code></em> for a
+match of size <em class="parameter"><code>hwindowsize</code></em> to <em class="parameter"><code>ref</code></em>. 
+</p>
+<p>
+<em class="parameter"><code>mwidth</code></em> limits  the  maximum height of the
+blend area.  A value of "-1" means "unlimited". The two images are blended 
+with a raised cosine. 
+</p>
+<p>
+Pixels with all bands equal to zero are "transparent", that
+is, zero pixels in the overlap area do not  contribute  to  the  merge.
+This makes it possible to join non-rectangular images.
+</p>
+<p>
+If the number of bands differs, one of the images 
+must have one band. In this case, an n-band image is formed from the 
+one-band image by joining n copies of the one-band image together, and then
+the two n-band images are operated upon.
+</p>
+<p>
+The two input images are cast up to the smallest common type (see table 
+Smallest common format in 
+arithmetic).
+</p>
+<p>
+See also: <a class="link" href="libvips-mosaicing.html#im-lrmosaic1" title="im_lrmosaic1 ()"><code class="function">im_lrmosaic1()</code></a>, <a class="link" href="libvips-mosaicing.html#im-tbmerge" title="im_tbmerge ()"><code class="function">im_tbmerge()</code></a>, <code class="function">im_insert()</code>, <a class="link" href="libvips-mosaicing.html#im-global-balance" title="im_global_balance ()"><code class="function">im_global_balance()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ref</code></em> :</span></p></td>
+<td>reference image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>sec</code></em> :</span></p></td>
+<td>secondary image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>bandno</code></em> :</span></p></td>
+<td>band to search for features</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xr1</code></em> :</span></p></td>
+<td>first reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>yr1</code></em> :</span></p></td>
+<td>first reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xs1</code></em> :</span></p></td>
+<td>first secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ys1</code></em> :</span></p></td>
+<td>first secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xr2</code></em> :</span></p></td>
+<td>second reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>yr2</code></em> :</span></p></td>
+<td>second reference tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xs2</code></em> :</span></p></td>
+<td>second secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ys2</code></em> :</span></p></td>
+<td>second secondary tie-point</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>hwindowsize</code></em> :</span></p></td>
+<td>half window size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>hsearchsize</code></em> :</span></p></td>
+<td>half search size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>balancetype</code></em> :</span></p></td>
+<td>no longer used</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>mwidth</code></em> :</span></p></td>
+<td>maximum blend width</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.18</div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/193/trunk/trunk/gwen/include/Gwen/Renderers
+END
+DirectX9.h
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/193/trunk/trunk/gwen/include/Gwen/Renderers/DirectX9.h
+END
+Direct2D.h
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/183/trunk/trunk/gwen/include/Gwen/Renderers/Direct2D.h
+END
+SFML.h
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/115/trunk/trunk/gwen/include/Gwen/Renderers/SFML.h
+END
+OpenGL_DebugFont.h
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/190/trunk/trunk/gwen/include/Gwen/Renderers/OpenGL_DebugFont.h
+END
+OpenGL.h
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/161/trunk/trunk/gwen/include/Gwen/Renderers/OpenGL.h
+END
+Allegro.h
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/153/trunk/trunk/gwen/include/Gwen/Renderers/Allegro.h
+END
+GDIPlus.h
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/174/trunk/trunk/gwen/include/Gwen/Renderers/GDIPlus.h
+END

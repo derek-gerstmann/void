@@ -441,7 +441,6 @@ vdGuiVisibilityCallback(int state)
 static void
 vdGuiIdleCallback(void)
 {	
-	static vd::u64 IdleCallbackCount = 0;
 	static double LastCallbackTime = 0;
 	
 	if(Global::IsExiting)
@@ -460,7 +459,6 @@ vdGuiIdleCallback(void)
 		{
 			Global::ActiveWindow->ProcessEvent( event );
 			LastCallbackTime = Core::Process::GetTimeInSeconds() + 1.0f / Global::ActiveWindow->GetFrameRateLimit();
-			IdleCallbackCount = 0;
 		}
     }
 }

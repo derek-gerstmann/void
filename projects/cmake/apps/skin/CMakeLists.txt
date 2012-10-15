@@ -17,8 +17,6 @@ file( GLOB VD_FONTS                     ${VD_RESOURCE_DIR}/fonts/*.ttf ${VD_RESO
 file( GLOB VD_SHADERS                   ${VD_RESOURCE_DIR}/shaders/*.glsl )
 file( GLOB VD_TEXTURES                  ${VD_RESOURCE_DIR}/textures/*.* )
 
-find_library( SKIN_LIBRARY Glut )
-
 set(VD_CXX_STD_FLAGS ${VD_CXX_STD_FLAGS} "-fno-rtti")
     
 include_directories(

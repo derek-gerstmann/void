@@ -171,7 +171,9 @@ template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::f16>::GetNativeTy
 template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::f32>::GetNativeTypeId()     { return NativeTypeId::F32;  }
 template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::f64>::GetNativeTypeId()     { return NativeTypeId::F64;  }
 template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::ptr>::GetNativeTypeId()     { return NativeTypeId::PTR;  }
+#if !defined(VD_TARGET_LINUX)
 template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<std::size_t>::GetNativeTypeId() { return NativeTypeId::PSZ;  }
+#endif
 template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::symbol>::GetNativeTypeId()  { return NativeTypeId::SYM;  }
 template <> VD_FORCE_INLINE NativeTypeId::Value TypeTraits<vd::uid>::GetNativeTypeId()     { return NativeTypeId::UID;  }
 

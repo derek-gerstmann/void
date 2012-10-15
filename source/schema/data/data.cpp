@@ -36,8 +36,7 @@ namespace Data {
 // ============================================================================================== //
 
 MetaKey::MetaKey() :
-    Id(Constants::InvalidIndex),
-    Type(VD_DATA_MODEL_TYPE_INVALID)
+    Id(VD_U64_MAX)
 {
     // EMPTY!
 }
@@ -45,11 +44,9 @@ MetaKey::MetaKey() :
 bool
 MetaKey::IsValid(MetaKey mk)
 {
-    if(mk.Id == vd::u64(Constants::InvalidIndex))
+    if(mk.Id >= VD_U64_MAX)
         return false;
-    else if(mk.Type == VD_DATA_MODEL_TYPE_INVALID)
-        return false;
-    else if(mk.Type == VD_DATA_MODEL_TYPE_LAST_ID)
+    else if(ModelType::IsValid(mk.Type) == false)
         return false;
     return true;
 }

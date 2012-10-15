@@ -29,11 +29,13 @@
 // Standard headers
 // ============================================================================================== //
 
+#include <cstddef>
+#include <cassert>
+#include <cstring>
 #include <climits>
 #include <cmath>
-#include <cstring>
-#include <cassert>
 #include <cfloat>
+#include <cstdlib>
 
 #include <limits>
 #include <vector>
@@ -44,6 +46,7 @@
 #include <iomanip>
 #include <stdexcept>
 #include <typeinfo>
+#include <algorithm>
 
 // ============================================================================================== //
 

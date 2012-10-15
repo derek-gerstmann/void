@@ -16,6 +16,7 @@ add_executable( vdsymex
     
 target_link_libraries( vdsymex 
     ${VD_EXT_BOOST_LIBS}
+    ${VD_PLATFORM_LIBS}
 )
 
 message(STATUS "Configured: SymEx")

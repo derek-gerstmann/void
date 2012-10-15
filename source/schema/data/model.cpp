@@ -38,7 +38,7 @@ namespace Model {
 
 // ============================================================================================== //
 
-const Property::ValueType Property::InvalidValue = vd::u64(Constants::InvalidIndex);
+const Property::ValueType Property::InvalidValue = VD_U64_MAX;
 
 // ============================================================================================== //
 
@@ -177,7 +177,7 @@ Base::GetMetaKey() const
 
 Meta::Meta() : Base::Base()
 {
-    m_MetaKey.Type = VD_DATA_MODEL_TYPE_META;
+    m_MetaKey.Type = Data::ModelType::MetaType;
 }
 
 Meta::Meta(
@@ -185,7 +185,7 @@ Meta::Meta(
 ) :
     Base::Base(other)
 {
-    m_MetaKey.Type = VD_DATA_MODEL_TYPE_META;
+    m_MetaKey.Type = Data::ModelType::MetaType;
 }
 
 Meta::Meta(
@@ -193,7 +193,7 @@ Meta::Meta(
 ) :
     Base::Base(properties)
 {
-    m_MetaKey.Type = VD_DATA_MODEL_TYPE_META;
+    m_MetaKey.Type =  Data::ModelType::MetaType;
 }
 
 // ============================================================================================== //

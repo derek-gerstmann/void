@@ -1,0 +1,10 @@
+prefix=/opt/bldr/2012-08-28/local/imaging/vips/7.30.0
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: vipsCC-7.30
+Description: C++ API for vips image processing library
+Version: 7.30.0
+Requires: vips-7.30 = 7.30.0
+Libs: -L${libdir} -lvipsCC

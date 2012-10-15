@@ -549,12 +549,12 @@ ConvertInternalChannelLayoutToGL(
 
 static GLenum
 ConvertDepthFormatToGL(
-    Graphics::DepthFormat::Value channel_layout,
-    Graphics::ScalarTypeId::Value channel_datatype)
+    Graphics::LinearityType::Value linearity,
+    Graphics::ScalarTypeId::Value precision)
 {
-    vdGlobalAssert(Graphics::DepthFormat::IsValid(channel_layout) == true);
+    vdGlobalAssert(Graphics::LinearityType::IsValid(linearity) == true);
     
-    switch(channel_datatype)
+    switch(precision)
     {
         case Graphics::ScalarTypeId::I16:   return GL_DEPTH_COMPONENT16;
         case Graphics::ScalarTypeId::U16:   return GL_DEPTH_COMPONENT16;
@@ -564,7 +564,7 @@ ConvertDepthFormatToGL(
         default:
         {
             vdLogGlobalError("Invalid scalar datatype '%s' specified for conversion!", 
-                Graphics::ScalarTypeId::ToString(channel_datatype));
+                Graphics::ScalarTypeId::ToString(precision));
 
             return GL_INVALID_ENUM; 
         }
@@ -653,9 +653,9 @@ ConvertBufferTypeIdToGL(
 }
 
 static GLenum
-ConvertBufferAccessUpdateModeToGL(
-	Buffer::AccessMode::Value access,
-	Buffer::UpdateMode::Value update)
+ConvertBufferAccessUpdateTypeToGL(
+	Buffer::AccessType::Value access,
+	Buffer::UpdateType::Value update)
 {
 /*
 	STREAM
@@ -678,62 +678,62 @@ ConvertBufferAccessUpdateModeToGL(
 */
 	switch(update)
 	{
-		case Buffer::UpdateMode::Static:
+		case Buffer::UpdateType::Static:
 		{
 			switch(access)
 			{
-				case Buffer::AccessMode::ReadOnly:	{ return GL_STATIC_DRAW; }
-				case Buffer::AccessMode::WriteOnly: { return GL_STATIC_READ; }
-				case Buffer::AccessMode::ReadWrite: { return GL_STATIC_COPY; }
-				case Buffer::AccessMode::Invalid:
+				case Buffer::AccessType::ReadOnly:	{ return GL_STATIC_DRAW; }
+				case Buffer::AccessType::WriteOnly: { return GL_STATIC_READ; }
+				case Buffer::AccessType::ReadWrite: { return GL_STATIC_COPY; }
+				case Buffer::AccessType::Invalid:
 				default:
 				{
 					vdLogGlobalError("Invalid buffer update '%s' and access '%s' modes specified for conversion!", 
-						Buffer::UpdateMode::ToString(update), Buffer::AccessMode::ToString(access));
+						Buffer::UpdateType::ToString(update), Buffer::AccessType::ToString(access));
 		
 					return GL_INVALID_ENUM;	
 				}
 			};
 		}
-		case Buffer::UpdateMode::Stream:
+		case Buffer::UpdateType::Stream:
 		{
 			switch(access)
 			{
-				case Buffer::AccessMode::ReadOnly:	{ return GL_STREAM_DRAW; }
-				case Buffer::AccessMode::WriteOnly: { return GL_STREAM_READ; }
-				case Buffer::AccessMode::ReadWrite: { return GL_STREAM_COPY; }
-				case Buffer::AccessMode::Invalid:
+				case Buffer::AccessType::ReadOnly:	{ return GL_STREAM_DRAW; }
+				case Buffer::AccessType::WriteOnly: { return GL_STREAM_READ; }
+				case Buffer::AccessType::ReadWrite: { return GL_STREAM_COPY; }
+				case Buffer::AccessType::Invalid:
 				default:
 				{
 					vdLogGlobalError("Invalid buffer update '%s' and access '%s' modes specified for conversion!", 
-						Buffer::UpdateMode::ToString(update), Buffer::AccessMode::ToString(access));
+						Buffer::UpdateType::ToString(update), Buffer::AccessType::ToString(access));
 		
 					return GL_INVALID_ENUM;	
 				}
 			};
 		}
-		case Buffer::UpdateMode::Dynamic:
+		case Buffer::UpdateType::Dynamic:
 		{
 			switch(access)
 			{
-				case Buffer::AccessMode::ReadOnly:	{ return GL_DYNAMIC_DRAW; }
-				case Buffer::AccessMode::WriteOnly: { return GL_DYNAMIC_READ; }
-				case Buffer::AccessMode::ReadWrite: { return GL_DYNAMIC_COPY; }
-				case Buffer::AccessMode::Invalid:
+				case Buffer::AccessType::ReadOnly:	{ return GL_DYNAMIC_DRAW; }
+				case Buffer::AccessType::WriteOnly: { return GL_DYNAMIC_READ; }
+				case Buffer::AccessType::ReadWrite: { return GL_DYNAMIC_COPY; }
+				case Buffer::AccessType::Invalid:
 				default:
 				{
 					vdLogGlobalError("Invalid buffer update '%s' and access '%s' modes specified for conversion!", 
-						Buffer::UpdateMode::ToString(update), Buffer::AccessMode::ToString(access));
+						Buffer::UpdateType::ToString(update), Buffer::AccessType::ToString(access));
 		
 					return GL_INVALID_ENUM;	
 				}
 			};
 		}
-		case Buffer::UpdateMode::Invalid:
+		case Buffer::UpdateType::Invalid:
         default:
         {
             vdLogGlobalError("Invalid buffer update '%s' and access '%s' modes specified for conversion!", 
-                Buffer::UpdateMode::ToString(update), Buffer::AccessMode::ToString(access));
+                Buffer::UpdateType::ToString(update), Buffer::AccessType::ToString(access));
 
             return GL_INVALID_ENUM; 
         }
@@ -742,19 +742,19 @@ ConvertBufferAccessUpdateModeToGL(
 }
 
 static GLenum
-ConvertBufferAccessModeToGL(
-	Buffer::AccessMode::Value access)
+ConvertBufferAccessTypeToGL(
+	Buffer::AccessType::Value access)
 {
 	switch(access)
 	{
-		case Buffer::AccessMode::ReadOnly:	{ return GL_READ_ONLY; }
-		case Buffer::AccessMode::WriteOnly:	{ return GL_WRITE_ONLY; }
-		case Buffer::AccessMode::ReadWrite:	{ return GL_READ_WRITE; }
-		case Buffer::AccessMode::Invalid:
+		case Buffer::AccessType::ReadOnly:	{ return GL_READ_ONLY; }
+		case Buffer::AccessType::WriteOnly:	{ return GL_WRITE_ONLY; }
+		case Buffer::AccessType::ReadWrite:	{ return GL_READ_WRITE; }
+		case Buffer::AccessType::Invalid:
 		default:
 		{
 			vdLogGlobalError("Invalid buffer access '%s' mode specified for conversion!", 
-				Buffer::AccessMode::ToString(access));
+				Buffer::AccessType::ToString(access));
 
 			return GL_INVALID_ENUM;	
 		}
@@ -992,8 +992,8 @@ Buffer*
 Context::CreateBuffer(
 	Buffer::TargetType::Value target, 
 	Buffer::AttributeType::Value attrib,
-	Buffer::AccessMode::Value access,
-	Buffer::UpdateMode::Value update,
+	Buffer::AccessType::Value access,
+	Buffer::UpdateType::Value update,
 	Buffer::TypeId::Value datatype,	
 	vd::u8 components, vd::u32 count, 
     const void* ptr)
@@ -1009,7 +1009,7 @@ Context::CreateBuffer(
 	}
 	
     GLenum gl_target = ConvertBufferTargetToGL(target);
-    GLenum gl_update = ConvertBufferAccessUpdateModeToGL(access, update);
+    GLenum gl_update = ConvertBufferAccessUpdateTypeToGL(access, update);
     GLenum gl_datatype = ConvertBufferTypeIdToGL(datatype);
     size_t gl_bytes = GetSizeOfTypeIdFromGL(gl_datatype) * components * count;
 
@@ -1129,7 +1129,7 @@ Context::Destroy(
 void* 
 Context::Map(
     Buffer* buffer, 
-    Buffer::AccessMode::Value access)
+    Buffer::AccessType::Value access)
 {
     vdLogOpenGLErrors("Start");
 
@@ -1138,7 +1138,7 @@ Context::Map(
     GLuint gl_id = ConvertObjectIdToGL(data.Id);
     if(gl_id < 1) return NULL;
 
-	GLenum gl_access = ConvertBufferAccessModeToGL(access);
+	GLenum gl_access = ConvertBufferAccessTypeToGL(access);
     GLenum gl_target = ConvertBufferTargetToGL(data.Target);
 
     buffer->Bind();
@@ -1441,8 +1441,8 @@ Context::CreatePointList(
     Buffer* position_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::Position,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::F32,
         components, data.PrimitiveCount, positions
     );
@@ -1482,8 +1482,8 @@ Context::CreatePoint(
     Buffer* position_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::Position,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::F32,
         4, data.PrimitiveCount, positions
     );
@@ -1491,8 +1491,8 @@ Context::CreatePoint(
     Buffer* index_buffer = CreateBuffer(
         Buffer::TargetType::IndexBuffer, 
         Buffer::AttributeType::Index,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::U32,
         1, data.IndexCount, faces
     );
@@ -1544,8 +1544,8 @@ Context::CreateQuad(
     Buffer* position_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::Position,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::F32,
         2, data.PrimitiveCount, positions
     );
@@ -1553,8 +1553,8 @@ Context::CreateQuad(
     Buffer* texcoord_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::TexCoord,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::F32,
         2, data.PrimitiveCount, texcoords
     );
@@ -1562,8 +1562,8 @@ Context::CreateQuad(
     Buffer* index_buffer = CreateBuffer(
         Buffer::TargetType::IndexBuffer, 
         Buffer::AttributeType::Index,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::U32,
         1, data.IndexCount, faces
     );
@@ -1721,8 +1721,8 @@ Context::CreateSphere(
     Buffer* position_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::Position,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::F32,
         3, data.PrimitiveCount, &positions[0]
     );
@@ -1730,8 +1730,8 @@ Context::CreateSphere(
     Buffer* normal_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::Normal,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::F32,
         3, data.PrimitiveCount, &normals[0]
     );
@@ -1739,8 +1739,8 @@ Context::CreateSphere(
     Buffer* texcoord_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::TexCoord,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::F32,
         2, data.PrimitiveCount, &texcoords[0]
     );
@@ -1748,8 +1748,8 @@ Context::CreateSphere(
     Buffer* index_buffer = CreateBuffer(
         Buffer::TargetType::IndexBuffer, 
         Buffer::AttributeType::Index,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::U32,
         1, data.IndexCount, &indices[0]
     );
@@ -1833,8 +1833,8 @@ Context::CreateWireGrid(
     Buffer* position_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::Position,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::F32,
         4, data.PrimitiveCount, positions
     );
@@ -1909,8 +1909,8 @@ Context::CreateGrid(
     Buffer* position_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::Position,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::F32,
         4, data.PrimitiveCount, positions
     );
@@ -1934,8 +1934,8 @@ Context::CreateGrid(
     Buffer* texcoord_buffer = CreateBuffer(
         Buffer::TargetType::ArrayBuffer, 
         Buffer::AttributeType::TexCoord,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::F32,
         2, data.PrimitiveCount, texcoords
     );
@@ -1967,8 +1967,8 @@ Context::CreateGrid(
     Buffer* index_buffer = CreateBuffer(
         Buffer::TargetType::IndexBuffer, 
         Buffer::AttributeType::Index,
-        Buffer::AccessMode::ReadOnly,
-        Buffer::UpdateMode::Static,
+        Buffer::AccessType::ReadOnly,
+        Buffer::UpdateType::Static,
         Buffer::TypeId::U32,
         1, data.IndexCount, faces
     );
@@ -2354,7 +2354,7 @@ Context::CreateFramebuffer(
     Graphics::Viewport viewport,
     Graphics::ChannelLayout::Value channel_layout,
      Graphics::ScalarTypeId::Value channel_datatype,
-      Graphics::DepthFormat::Value depth_format,
+    Graphics::LinearityType::Value depth_linearity,
      Graphics::ScalarTypeId::Value depth_datatype)
 {
     GLuint gl_id = 0;
@@ -2372,10 +2372,11 @@ Context::CreateFramebuffer(
 
     vdLogOpenGLErrors("Bind Framebuffer");
 
-    if(Graphics::DepthFormat::IsValid(depth_format) && 
-       depth_format != Graphics::DepthFormat::None)
+    if(Graphics::LinearityType::IsValid(depth_linearity) == true && 
+       Graphics::LinearityType::None != depth_linearity && 
+       Graphics::ScalarTypeId::IsValid(depth_datatype) == true)
     {
-        GLenum gl_depth_format = ConvertDepthFormatToGL(depth_format, depth_datatype);
+        GLenum gl_depth_format = ConvertDepthFormatToGL(depth_linearity, depth_datatype);
         GLenum gl_depth_datatype = ConvertScalarTypeIdToGL(depth_datatype);
 
         glGenTextures(1, &gl_depth_texture);
@@ -2388,11 +2389,7 @@ Context::CreateFramebuffer(
         glTexImage2D(GL_TEXTURE_2D, 0, gl_depth_format, 
                      width, height, 0, GL_DEPTH_COMPONENT, 
                      gl_depth_datatype, 0);
-/*
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 
-                     width, height, 0, GL_DEPTH_COMPONENT, 
-                     GL_UNSIGNED_SHORT, 0);
-*/
+
         vdLogOpenGLErrors("Unable to create depth texture");   
     }
     
@@ -2440,9 +2437,9 @@ Context::CreateFramebuffer(
     Core::Memory::SetBytes(&data, 0, sizeof(data));
 
     data.Viewport = viewport;
-    data.ChannelLayout = channel_layout;
+    data.ChannelOrdering = channel_layout;
     data.ChannelDataType = channel_datatype;
-    data.DepthFormat = depth_format;
+    data.DepthLinearity = depth_linearity;
     data.DepthDataType = depth_datatype;
     data.Renderbuffer = gl_renderbuffer;
     data.ColorTexture = gl_color_texture;

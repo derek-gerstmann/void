@@ -47,7 +47,13 @@ set( VD_EXT_BOOST_INCLUDE_PATH				${VD_EXT_BOOST_DIR}/include )
 set( VD_EXT_BOOST_LIB_PATH					${VD_EXT_BOOST_DIR}/lib )
 include_directories(						${VD_EXT_BOOST_INCLUDE_PATH} )
 include_directories(						${VD_EXT_BOOST_INCLUDE_PATH}/boost )
-file( GLOB VD_EXT_BOOST_LIBS				${VD_EXT_BOOST_LIB_PATH}/*.${VD_EXT_LIB_EXT} )
+
+set( VD_EXT_BOOST_LIBS				
+	${VD_EXT_BOOST_LIB_PATH}/libboost_filesystem.${VD_EXT_LIB_EXT} 
+	${VD_EXT_BOOST_LIB_PATH}/libboost_program_options.${VD_EXT_LIB_EXT} 
+	${VD_EXT_BOOST_LIB_PATH}/libboost_system.${VD_EXT_LIB_EXT} 
+	${VD_EXT_BOOST_LIB_PATH}/libboost_thread.${VD_EXT_LIB_EXT} 
+)
 
 if(VOID_USE_NANOFLANN)
 	set( VD_EXT_NANOFLANN_DIR				${VD_EXT_SYS_DIR}/nanoflann/latest )
@@ -90,11 +96,15 @@ if(VOID_USE_OPENGL)
 		set (OPENGL_LIBS ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})	
 	    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink 
 	    	/System/Library/Frameworks/OpenGL.framework/Headers ${VD_EXT_SYS_DIR}/opengl/latest/include/OpenGL)
+
+	    set(VD_EXT_OPENGL_INCLUDE_DIR		${VD_EXT_SYS_DIR}/opengl/latest/include/OpenGL})
+		set(VD_EXT_OPENGL_LIBS 				${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 	else()
 	    find_path(OPENGL_INCLUDE_DIR GL/gl.h DOC "Include for OpenGL")
-		set (OPENGL_LIBS ${OPENGL_LIBRARY})		
+	    set(VD_EXT_OPENGL_INCLUDE_DIR		${OPENGL_INCLUDE_DIR})
+		set(VD_EXT_OPENGL_LIBS 				${OPENGL_LIBRARY})		
 	endif()
-	include_directories(					${VD_EXT_SYS_DIR}/opengl/latest/include)
+	include_directories(					${VD_EXT_OPENGL_INCLUDE_DIR})
 
 	set( VD_EXT_FONTCONFIG_DIR				${VD_EXT_SYS_DIR}/fontconfig/latest )
 	set( VD_EXT_FONTCONFIG_INCLUDE_PATH		${VD_EXT_FONTCONFIG_DIR}/include )
@@ -134,30 +144,29 @@ if(VOID_USE_OPENGL)
 
 	if(VOID_USE_GLUT)
 
-		if(VD_SYSTEM_IS_LINUX)
-			set( VD_EXT_GLUT_DIR 			${VD_EXT_SYS_DIR}/freeglut/latest )
-			set( VD_EXT_GLUT_INCLUDE_PATH	${VD_EXT_GLUT_DIR}/include )
-			set( VD_EXT_GLUT_LIB_PATH		${VD_EXT_GLUT_DIR}/lib )
-			set( GLUT_INCLUDE_DIRS			${VD_EXT_GLUT_INCLUDE_PATH} ${VD_EXT_GLUT_INCLUDE_PATH}/GL )
-			file( GLOB GLUT_LIBRARY 		${VD_EXT_GLUT_LIB_PATH}/*.${VD_EXT_LIB_EXT} )
-		endif()
-
 		if(VD_SYSTEM_IS_OSX)
 			find_package(GLUT 				REQUIRED)
 			find_library(GLUT_LIBRARY 		Glut )
 			find_path(GLUT_INCLUDE_DIR 		Glut/glut.h)
 			set (GLUT_glut_LIBRARY 			"-framework Glut" CACHE STRING "Glut lib for OSX")
-			set (GLUT_LIBS 					${GLUT_glut_LIBRARY})
+			set ( VD_EXT_GLUT_LIBS 			${GLUT_glut_LIBRARY})
 
 		    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink 
 		    	/System/Library/Frameworks/Glut.framework/Headers ${VD_EXT_SYS_DIR}/opengl/latest/include/GLUT)
 
+			set( VD_EXT_GLUT_INCLUDE_PATH	${GLUT_INCLUDE_DIR} )
+
 		else()
-			find_package(GLUT 				REQUIRED)
-			find_path(GLUT_INCLUDE_DIR 		GLUT/glut.h)
+			set( VD_EXT_GLUT_DIR 			${VD_EXT_SYS_DIR}/freeglut/latest )
+			set( VD_EXT_GLUT_INCLUDE_PATH	${VD_EXT_GLUT_DIR}/include )
+			set( VD_EXT_GLUT_LIB_PATH		${VD_EXT_GLUT_DIR}/lib )
+			set( VD_EXT_GLUT_INCLUDE_PATH	${VD_EXT_GLUT_INCLUDE_PATH})
+			file( GLOB VD_EXT_GLUT_LIBS		${VD_EXT_GLUT_LIB_PATH}/*.${VD_EXT_LIB_EXT} )
 		endif()
 
-		include_directories(				${GLUT_INCLUDE_DIRS})
+		include_directories(				${VD_EXT_GLUT_INCLUDE_PATH})
+		include_directories(				${VD_EXT_GLUT_INCLUDE_PATH}/GL)
+
 	endif()
 		
 endif()

@@ -1,0 +1,477 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>other</title>
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
+<link rel="home" href="index.html" title="VIPS Reference Manual">
+<link rel="up" href="ch02.html" title="VIPS operation API by section">
+<link rel="prev" href="libvips-mosaicing.html" title="mosaicing">
+<link rel="next" href="VipsResample.html" title="VipsResample">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<table class="navigation" id="top" width="100%" summary="Navigation header" cellpadding="2" cellspacing="2">
+<tr valign="middle">
+<td><a accesskey="p" href="libvips-mosaicing.html"><img src="left.png" width="24" height="24" border="0" alt="Prev"></a></td>
+<td><a accesskey="u" href="ch02.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
+<td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
+<th width="100%" align="center">VIPS Reference Manual</th>
+<td><a accesskey="n" href="VipsResample.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+</tr>
+<tr><td colspan="5" class="shortcuts">
+<a href="#libvips-other.synopsis" class="shortcut">Top</a>
+                   | 
+                  <a href="#libvips-other.description" class="shortcut">Description</a>
+</td></tr>
+</table>
+<div class="refentry">
+<a name="libvips-other"></a><div class="titlepage"></div>
+<div class="refnamediv"><table width="100%"><tr>
+<td valign="top">
+<h2><span class="refentrytitle"><a name="libvips-other.top_of_page"></a>other</span></h2>
+<p>other — miscellaneous operators</p>
+</td>
+<td valign="top" align="right"></td>
+</tr></table></div>
+<div class="refsect1">
+<a name="libvips-other.stability-level"></a><h2>Stability Level</h2>
+Stable, unless otherwise indicated
+</div>
+<div class="refsynopsisdiv">
+<a name="libvips-other.synopsis"></a><h2>Synopsis</h2>
+<pre class="synopsis">
+#include &lt;vips/vips.h&gt;
+
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-other.html#im-benchmark2" title="im_benchmark2 ()">im_benchmark2</a>                       (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> *out</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-other.html#im-benchmarkn" title="im_benchmarkn ()">im_benchmarkn</a>                       (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> n</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-other.html#im-eye" title="im_eye ()">im_eye</a>                              (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> ysize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">double</span> factor</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-other.html#im-feye" title="im_feye ()">im_feye</a>                             (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> ysize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">double</span> factor</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-other.html#im-fgrey" title="im_fgrey ()">im_fgrey</a>                            (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> ysize</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-other.html#im-fzone" title="im_fzone ()">im_fzone</a>                            (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> size</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-other.html#im-grey" title="im_grey ()">im_grey</a>                             (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> ysize</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-other.html#im-make-xy" title="im_make_xy ()">im_make_xy</a>                          (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> ysize</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-other.html#im-sines" title="im_sines ()">im_sines</a>                            (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ysize</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> horfreq</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> verfreq</code></em>);
+<span class="returnvalue">int</span>                 <a class="link" href="libvips-other.html#im-zone" title="im_zone ()">im_zone</a>                             (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> size</code></em>);
+</pre>
+</div>
+<div class="refsect1">
+<a name="libvips-other.description"></a><h2>Description</h2>
+<p>
+These functions generate various test images. You can combine them with
+the arithmetic and rotate functions to build more complicated images.
+</p>
+<p>
+The <code class="function">im_benchmark()</code> operations are for testing the VIPS SMP system.
+</p>
+</div>
+<div class="refsect1">
+<a name="libvips-other.details"></a><h2>Details</h2>
+<div class="refsect2">
+<a name="im-benchmark2"></a><h3>im_benchmark2 ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_benchmark2                       (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> *out</code></em>);</pre>
+<p>
+This operation runs a single <a class="link" href="libvips-other.html#im-benchmarkn" title="im_benchmarkn ()"><code class="function">im_benchmarkn()</code></a> and calculates the average
+pixel value. It's useful if you just want to test image input.
+</p>
+<p>
+See also: <a class="link" href="libvips-other.html#im-benchmarkn" title="im_benchmarkn ()"><code class="function">im_benchmarkn()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>in</code></em> :</span></p></td>
+<td>input image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>average image value</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-benchmarkn"></a><h3>im_benchmarkn ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_benchmarkn                       (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *in</code></em>,
+                                                         <em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> n</code></em>);</pre>
+<p>
+This operation runs a complicated set of other operations on image <em class="parameter"><code>in</code></em>,
+producing image <em class="parameter"><code>out</code></em>. Use <em class="parameter"><code>n</code></em> to set the number of iterations to run: a
+larger number will make the operation more CPU-bound, a smaller number will
+make the operation more IO-bound.
+</p>
+<p>
+See http://www.vips.ecs.soton.ac.uk/index.php?title=Benchmarks for a
+detailed discussion of the benchmark and some sample results.
+</p>
+<p>
+See also: <a class="link" href="libvips-other.html#im-benchmark2" title="im_benchmark2 ()"><code class="function">im_benchmark2()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>in</code></em> :</span></p></td>
+<td>input image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>n</code></em> :</span></p></td>
+<td>iterations</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-eye"></a><h3>im_eye ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_eye                              (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> ysize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">double</span> factor</code></em>);</pre>
+<p>
+Exactly as <a class="link" href="libvips-other.html#im-feye" title="im_feye ()"><code class="function">im_feye()</code></a>, but make a UCHAR image with pixels in the range [0,
+255].
+</p>
+<p>
+See also: <a class="link" href="libvips-other.html#im-feye" title="im_feye ()"><code class="function">im_feye()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xsize</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ysize</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>factor</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-feye"></a><h3>im_feye ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_feye                             (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> ysize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">double</span> factor</code></em>);</pre>
+<p>
+Create a test pattern with increasing spatial frequence in X and 
+amplitude in Y. <em class="parameter"><code>factor</code></em> should be between 0 and 1 and determines the 
+maximum spatial frequency.
+</p>
+<p>
+Creates an one band float image with values in +1 to -1.
+</p>
+<p>
+See also: <a class="link" href="libvips-other.html#im-eye" title="im_eye ()"><code class="function">im_eye()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xsize</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ysize</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>factor</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-fgrey"></a><h3>im_fgrey ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_fgrey                            (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> ysize</code></em>);</pre>
+<p>
+Create a one-band float image with the left-most column zero and the
+right-most 1. Intermediate pixels are a linear ramp.
+</p>
+<p>
+See also: <a class="link" href="libvips-other.html#im-grey" title="im_grey ()"><code class="function">im_grey()</code></a>, <a class="link" href="libvips-other.html#im-make-xy" title="im_make_xy ()"><code class="function">im_make_xy()</code></a>, <a class="link" href="libvips-histograms-lut.html#im-identity" title="im_identity ()"><code class="function">im_identity()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xsize</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ysize</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-fzone"></a><h3>im_fzone ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_fzone                            (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> size</code></em>);</pre>
+<p>
+Create a one-band float image of size <em class="parameter"><code>size</code></em> by <em class="parameter"><code>size</code></em> pixels of a zone
+plate. Pixels are in [-1, +1].
+</p>
+<p>
+See also: <a class="link" href="libvips-other.html#im-grey" title="im_grey ()"><code class="function">im_grey()</code></a>, <a class="link" href="libvips-other.html#im-make-xy" title="im_make_xy ()"><code class="function">im_make_xy()</code></a>, <a class="link" href="libvips-histograms-lut.html#im-identity" title="im_identity ()"><code class="function">im_identity()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>size</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-grey"></a><h3>im_grey ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_grey                             (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> ysize</code></em>);</pre>
+<p>
+Create a one-band uchar image with the left-most column zero and the
+right-most 255. Intermediate pixels are a linear ramp.
+</p>
+<p>
+See also: <a class="link" href="libvips-other.html#im-fgrey" title="im_fgrey ()"><code class="function">im_fgrey()</code></a>, <a class="link" href="libvips-other.html#im-make-xy" title="im_make_xy ()"><code class="function">im_make_xy()</code></a>, <a class="link" href="libvips-histograms-lut.html#im-identity" title="im_identity ()"><code class="function">im_identity()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xsize</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ysize</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-make-xy"></a><h3>im_make_xy ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_make_xy                          (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">int</span> ysize</code></em>);</pre>
+<p>
+Create a two-band uint32 image where the elements in the first band have the
+value of their x coordinate and elements in the second band have their y
+coordinate. 
+</p>
+<p>
+You can make any image where the value of a pixel is a function of its (x,
+y) coordinate by combining this operator with the arithmetic operators. 
+</p>
+<p>
+See also: <a class="link" href="libvips-other.html#im-grey" title="im_grey ()"><code class="function">im_grey()</code></a>, <a class="link" href="libvips-histograms-lut.html#im-identity" title="im_identity ()"><code class="function">im_identity()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xsize</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ysize</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-sines"></a><h3>im_sines ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_sines                            (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> xsize</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> ysize</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> horfreq</code></em>,
+                                                         <em class="parameter"><code><span class="type">double</span> verfreq</code></em>);</pre>
+<p>
+<a class="link" href="libvips-other.html#im-sines" title="im_sines ()"><code class="function">im_sines()</code></a> creates a float one band image of the a sine waveform in two
+dimensions.  
+</p>
+<p>
+The number of horizontal and vertical spatial frequencies are
+determined by the variables <em class="parameter"><code>horfreq</code></em> and <em class="parameter"><code>verfreq</code></em> respectively.  The
+function is useful for creating displayable sine waves and
+square waves in two dimensions.
+</p>
+<p>
+If horfreq and verfreq are integers the resultant image is periodical
+and therfore the Fourier transform doesnot present spikes
+</p>
+<p>
+See also: <a class="link" href="libvips-other.html#im-grey" title="im_grey ()"><code class="function">im_grey()</code></a>, <a class="link" href="libvips-other.html#im-make-xy" title="im_make_xy ()"><code class="function">im_make_xy()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>xsize</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>ysize</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>horfreq</code></em> :</span></p></td>
+<td>horizontal frequency</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>verfreq</code></em> :</span></p></td>
+<td>vertical frequency</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<hr>
+<div class="refsect2">
+<a name="im-zone"></a><h3>im_zone ()</h3>
+<pre class="programlisting"><span class="returnvalue">int</span>                 im_zone                             (<em class="parameter"><code><a class="link" href="VipsImage.html" title="VipsImage"><span class="type">VipsImage</span></a> *out</code></em>,
+                                                         <em class="parameter"><code><span class="type">int</span> size</code></em>);</pre>
+<p>
+Create a one-band uchar image of size <em class="parameter"><code>size</code></em> by <em class="parameter"><code>size</code></em> pixels of a zone
+plate. Pixels are in [0, 255].
+</p>
+<p>
+See also: <a class="link" href="libvips-other.html#im-grey" title="im_grey ()"><code class="function">im_grey()</code></a>, <a class="link" href="libvips-other.html#im-make-xy" title="im_make_xy ()"><code class="function">im_make_xy()</code></a>, <a class="link" href="libvips-histograms-lut.html#im-identity" title="im_identity ()"><code class="function">im_identity()</code></a>.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>out</code></em> :</span></p></td>
+<td>output image</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>size</code></em> :</span></p></td>
+<td>image size</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>0 on success, -1 on error</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+</div>
+<div class="footer">
+<hr>
+          Generated by GTK-Doc V1.18</div>
+</body>
+</html>

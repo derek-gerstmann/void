@@ -1,0 +1,11 @@
+prefix=/opt/bldr/2012-10-05/local/imaging/lcms2/2.3
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: lcms2
+Description: LCMS Color Management Library
+Version: 2.3
+Libs: -L${libdir} -llcms2
+Libs.private: -lm 
+Cflags: -I${includedir}

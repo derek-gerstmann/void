@@ -1,0 +1,12 @@
+prefix=/opt/bldr/2012-10-05/local/imaging/libexif/0.6.21
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libexif
+Description: Library for easy access to EXIF data
+Requires:
+Version: 0.6.21
+Libs: -L${libdir} -lexif
+Libs.private: -lm
+Cflags: -I${includedir}

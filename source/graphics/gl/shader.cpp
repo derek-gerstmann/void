@@ -631,7 +631,6 @@ Shader::UnbindAttributes()
 vd::status 
 Shader::SubmitUniforms(bool force)
 {
-	vd::i64 i = 0;
 	ParamSet::ParamVector changes;
 
 	if(force)
@@ -665,7 +664,7 @@ Shader::SubmitUniforms(bool force)
 #endif
 	}
 
-	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
+	for(it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
 		Core::Symbol name = Core::Symbol::Retrieve(key);
@@ -684,7 +683,7 @@ Shader::SubmitUniforms(bool force)
 		}
 	}
 
-	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
+	for(it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
 		Core::Symbol name = Core::Symbol::Retrieve(key);
@@ -703,7 +702,7 @@ Shader::SubmitUniforms(bool force)
 		}
 	}
 
-	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
+	for(it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
 		Core::Symbol name = Core::Symbol::Retrieve(key);
@@ -722,7 +721,7 @@ Shader::SubmitUniforms(bool force)
 		}
 	}
 
-	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
+	for(it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
 		Core::Symbol name = Core::Symbol::Retrieve(key);
@@ -741,7 +740,7 @@ Shader::SubmitUniforms(bool force)
 		}
 	}
 
-	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
+	for(it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
 		Core::Symbol name = Core::Symbol::Retrieve(key);
@@ -761,7 +760,7 @@ Shader::SubmitUniforms(bool force)
 		}
 	}
 
-	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
+	for(it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
 		Core::Symbol name = Core::Symbol::Retrieve(key);
@@ -790,7 +789,7 @@ Shader::SubmitUniforms(bool force)
 		}
 	}
 
-	for(i = 0, it = changes.begin(); it != changes.end(); ++it)
+	for(it = changes.begin(); it != changes.end(); ++it)
 	{
 		vd::uid key = *it;
 		Core::Symbol name = Core::Symbol::Retrieve(key);

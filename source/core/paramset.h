@@ -179,17 +179,17 @@ public:
 		VD_FORCE_INLINE operator m4f32( ) const { return m4f32(Constants::Zero); }
 	} Empty;
 
-    typedef AlignedMap< vd::uid, ParamSet::Type >::type 		MapTypes;
-    typedef AlignedMap< vd::uid, Parameter<vd::string> >::type  MapStrings;
-    typedef AlignedMap< vd::uid, Parameter<vd::flag> >::type 	MapFlags;
-    typedef AlignedMap< vd::uid, Parameter<vd::i32> >::type 	MapI32;
-    typedef AlignedMap< vd::uid, Parameter<vd::f32> >::type 	MapF32;
-    typedef AlignedMap< vd::uid, Parameter<vd::v2f32> >::type   MapV2F32;
-    typedef AlignedMap< vd::uid, Parameter<vd::v3f32> >::type   MapV3F32;
-    typedef AlignedMap< vd::uid, Parameter<vd::v4f32> >::type   MapV4F32;
-    typedef AlignedMap< vd::uid, Parameter<vd::m3f32> >::type   MapM3F32;
-    typedef AlignedMap< vd::uid, Parameter<vd::m4f32> >::type   MapM4F32;
-    typedef Vector< vd::uid >::type                             ParamVector;
+    typedef AlignedMap< vd::uid, ParamSet::Type, UidHash >::type 		 MapTypes;
+    typedef AlignedMap< vd::uid, Parameter<vd::string>, UidHash >::type  MapStrings;
+    typedef AlignedMap< vd::uid, Parameter<vd::flag>, UidHash >::type 	 MapFlags;
+    typedef AlignedMap< vd::uid, Parameter<vd::i32>, UidHash >::type 	 MapI32;
+    typedef AlignedMap< vd::uid, Parameter<vd::f32>, UidHash >::type 	 MapF32;
+    typedef AlignedMap< vd::uid, Parameter<vd::v2f32>, UidHash >::type   MapV2F32;
+    typedef AlignedMap< vd::uid, Parameter<vd::v3f32>, UidHash >::type   MapV3F32;
+    typedef AlignedMap< vd::uid, Parameter<vd::v4f32>, UidHash >::type   MapV4F32;
+    typedef AlignedMap< vd::uid, Parameter<vd::m3f32>, UidHash >::type   MapM3F32;
+    typedef AlignedMap< vd::uid, Parameter<vd::m4f32>, UidHash >::type   MapM4F32;
+    typedef Vector< vd::uid >::type                                      ParamVector;
 	
 public:
 

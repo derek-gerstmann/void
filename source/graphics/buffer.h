@@ -68,12 +68,12 @@ public:
 		F32,
 		F64);
 
-	VD_DECLARE_ENUM(UpdateMode,
+	VD_DECLARE_ENUM(UpdateType,
 		Static,
 		Stream,
 		Dynamic);
 
-	VD_DECLARE_ENUM(AccessMode,
+	VD_DECLARE_ENUM(AccessType,
 		ReadOnly,
 		WriteOnly,
 		ReadWrite);
@@ -101,8 +101,8 @@ public:
         TargetType::Value       Target;
         AttributeType::Value    Attribute;
         TypeId::Value         	DataType;
-        UpdateMode::Value       UpdateMode;
-        AccessMode::Value       AccessMode;
+        UpdateType::Value       UpdateMode;
+        AccessType::Value       AccessMode;
         StateId::Value          State;
         const void*             Ptr;
     };

@@ -1,0 +1,9 @@
+K 10
+svn:ignore
+V 50
+Debug DLL
+Debug Static
+Release DLL
+Release Static
+
+END

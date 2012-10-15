@@ -38,13 +38,13 @@ VD_GRAPHICS_NAMESPACE_BEGIN();
 
 // ============================================================================================== //
 
-VD_DECLARE_ENUM(DepthFormat,
+VD_DECLARE_ENUM(LinearityType,
 	None,
+	Linear,
 	Log,
 	LogLinear,
-	Linear,
 	Custom);
-
+	
 VD_DECLARE_ENUM(ChannelLayout,
 	None,
 	R,

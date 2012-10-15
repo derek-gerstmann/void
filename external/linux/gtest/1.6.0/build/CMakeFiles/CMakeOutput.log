@@ -1,0 +1,269 @@
+The system is: Linux - 2.6.32-279.5.1.el6.x86_64 - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/c++ 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is GNU, found in "/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CompilerIdCXX/a.out"
+
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc 
+Build flags: 
+Id flags: 
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is GNU, found in "/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CompilerIdC/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec740160252/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec740160252.dir/build.make CMakeFiles/cmTryCompileExec740160252.dir/build
+gmake[1]: Entering directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp'
+/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_progress_report /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec740160252.dir/testCXXCompiler.cxx.o
+/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/c++     -o CMakeFiles/cmTryCompileExec740160252.dir/testCXXCompiler.cxx.o -c /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTryCompileExec740160252
+/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec740160252.dir/link.txt --verbose=1
+/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/c++          CMakeFiles/cmTryCompileExec740160252.dir/testCXXCompiler.cxx.o  -o cmTryCompileExec740160252 -rdynamic 
+gmake[1]: Leaving directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp'
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec3858145202/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec3858145202.dir/build.make CMakeFiles/cmTryCompileExec3858145202.dir/build
+gmake[1]: Entering directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp'
+/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_progress_report /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building CXX object CMakeFiles/cmTryCompileExec3858145202.dir/CMakeCXXCompilerABI.cpp.o
+/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/c++     -o CMakeFiles/cmTryCompileExec3858145202.dir/CMakeCXXCompilerABI.cpp.o -c /opt/bldr/2012-10-05/local/internal/cmake/2.8.9/share/cmake-2.8/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTryCompileExec3858145202
+/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3858145202.dir/link.txt --verbose=1
+/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/c++        -v CMakeFiles/cmTryCompileExec3858145202.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec3858145202 -rdynamic  
+Using built-in specs.
+COLLECT_GCC=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/c++
+COLLECT_LTO_WRAPPER=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/lto-wrapper
+Target: x86_64-unknown-linux-gnu
+Configured with: ./configure --prefix=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1 --disable-bootstrap --enable-checking=release --enable-languages=c,c++,objc,obj-c++,lto --with-gmp=/opt/bldr/2012-10-05/local/numerics/gmp/5.0.5 --with-isl=/opt/bldr/2012-10-05/local/numerics/isl/0.10 --with-osl=/opt/bldr/2012-10-05/local/compilers/osl/0.8.4 --with-mpfr=/opt/bldr/2012-10-05/local/numerics/mpfr/3.1.1 --with-mpc=/opt/bldr/2012-10-05/local/numerics/mpc/1.0 --with-ppl=/opt/bldr/2012-10-05/local/numerics/ppl/1.0 --with-cloog=/opt/bldr/2012-10-05/local/compilers/cloog/0.17.0 --enable-cloog-backend=isl --disable-ppl-version-check --disable-cloog-version-check --with-system-zlib --enable-stage1-checking --disable-nls --disable-multilib --enable-lto CXXFLAGS='-I/opt/bldr/2012-10-05/local/compression/zlib/default/include -I/opt/bldr/2012-10-05/local/numerics/gmp/default/include -I/opt/bldr/2012-10-05/local/numerics/ppl/default/include -I/opt/bldr/2012-10-05/local/numerics/mpfr/default/include -I/opt/bldr/2012-10-05/local/numerics/mpc/default/include -I/opt/bldr/2012-10-05/local/numerics/isl/default/include -I/opt/bldr/2012-10-05/local/compilers/osl/default/include -I/opt/bldr/2012-10-05/local/compilers/cloog/default/include -I/usr/include' CPPFLAGS='-I/opt/bldr/2012-10-05/local/compression/zlib/default/include -I/opt/bldr/2012-10-05/local/numerics/gmp/default/include -I/opt/bldr/2012-10-05/local/numerics/ppl/default/include -I/opt/bldr/2012-10-05/local/numerics/mpfr/default/include -I/opt/bldr/2012-10-05/local/numerics/mpc/default/include -I/opt/bldr/2012-10-05/local/numerics/isl/default/include -I/opt/bldr/2012-10-05/local/compilers/osl/default/include -I/opt/bldr/2012-10-05/local/compilers/cloog/default/include -I/usr/include' CFLAGS='-I/opt/bldr/2012-10-05/local/compression/zlib/default/include -I/opt/bldr/2012-10-05/local/numerics/gmp/default/include -I/opt/bldr/2012-10-05/local/numerics/ppl/default/include -I/opt/bldr/2012-10-05/local/numerics/mpfr/default/include -I/opt/bldr/2012-10-05/local/numerics/mpc/default/include -I/opt/bldr/2012-10-05/local/numerics/isl/default/include -I/opt/bldr/2012-10-05/local/compilers/osl/default/include -I/opt/bldr/2012-10-05/local/compilers/cloog/default/include -I/usr/include' LDFLAGS='-L/opt/bldr/2012-10-05/local/compression/zlib/default/lib -L/opt/bldr/2012-10-05/local/numerics/gmp/default/lib -L/opt/bldr/2012-10-05/local/numerics/ppl/default/lib -L/opt/bldr/2012-10-05/local/numerics/mpfr/default/lib -L/opt/bldr/2012-10-05/local/numerics/mpc/default/lib -L/opt/bldr/2012-10-05/local/numerics/isl/default/lib -L/opt/bldr/2012-10-05/local/compilers/osl/default/lib -L/opt/bldr/2012-10-05/local/compilers/cloog/default/lib -L/opt/bldr/2012-10-05/local/languages/perl/default/lib -L/usr/lib64 -L/usr/lib'
+Thread model: posix
+gcc version 4.7.1 (GCC) 
+COMPILER_PATH=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/
+LIBRARY_PATH=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec3858145202' '-rdynamic' '-shared-libgcc' '-mtune=generic' '-march=x86-64'
+ /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/collect2 --eh-frame-hdr -m elf_x86_64 -export-dynamic -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTryCompileExec3858145202 /usr/lib/../lib64/crt1.o /usr/lib/../lib64/crti.o /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/crtbegin.o -L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1 -L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../.. CMakeFiles/cmTryCompileExec3858145202.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/crtend.o /usr/lib/../lib64/crtn.o
+gmake[1]: Leaving directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp'
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:/usr/bin/gmake "cmTryCompileExec3858145202/fast"]
+  ignore line: [/usr/bin/gmake -f CMakeFiles/cmTryCompileExec3858145202.dir/build.make CMakeFiles/cmTryCompileExec3858145202.dir/build]
+  ignore line: [gmake[1]: Entering directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp']
+  ignore line: [/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_progress_report /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp/CMakeFiles 1]
+  ignore line: [Building CXX object CMakeFiles/cmTryCompileExec3858145202.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/c++     -o CMakeFiles/cmTryCompileExec3858145202.dir/CMakeCXXCompilerABI.cpp.o -c /opt/bldr/2012-10-05/local/internal/cmake/2.8.9/share/cmake-2.8/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Linking CXX executable cmTryCompileExec3858145202]
+  ignore line: [/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3858145202.dir/link.txt --verbose=1]
+  ignore line: [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/c++        -v CMakeFiles/cmTryCompileExec3858145202.dir/CMakeCXXCompilerABI.cpp.o  -o cmTryCompileExec3858145202 -rdynamic  ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/c++]
+  ignore line: [COLLECT_LTO_WRAPPER=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/lto-wrapper]
+  ignore line: [Target: x86_64-unknown-linux-gnu]
+  ignore line: [Configured with: ./configure --prefix=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1 --disable-bootstrap --enable-checking=release --enable-languages=c,c++,objc,obj-c++,lto --with-gmp=/opt/bldr/2012-10-05/local/numerics/gmp/5.0.5 --with-isl=/opt/bldr/2012-10-05/local/numerics/isl/0.10 --with-osl=/opt/bldr/2012-10-05/local/compilers/osl/0.8.4 --with-mpfr=/opt/bldr/2012-10-05/local/numerics/mpfr/3.1.1 --with-mpc=/opt/bldr/2012-10-05/local/numerics/mpc/1.0 --with-ppl=/opt/bldr/2012-10-05/local/numerics/ppl/1.0 --with-cloog=/opt/bldr/2012-10-05/local/compilers/cloog/0.17.0 --enable-cloog-backend=isl --disable-ppl-version-check --disable-cloog-version-check --with-system-zlib --enable-stage1-checking --disable-nls --disable-multilib --enable-lto CXXFLAGS='-I/opt/bldr/2012-10-05/local/compression/zlib/default/include -I/opt/bldr/2012-10-05/local/numerics/gmp/default/include -I/opt/bldr/2012-10-05/local/numerics/ppl/default/include -I/opt/bldr/2012-10-05/local/numerics/mpfr/default/include -I/opt/bldr/2012-10-05/local/numerics/mpc/default/include -I/opt/bldr/2012-10-05/local/numerics/isl/default/include -I/opt/bldr/2012-10-05/local/compilers/osl/default/include -I/opt/bldr/2012-10-05/local/compilers/cloog/default/include -I/usr/include' CPPFLAGS='-I/opt/bldr/2012-10-05/local/compression/zlib/default/include -I/opt/bldr/2012-10-05/local/numerics/gmp/default/include -I/opt/bldr/2012-10-05/local/numerics/ppl/default/include -I/opt/bldr/2012-10-05/local/numerics/mpfr/default/include -I/opt/bldr/2012-10-05/local/numerics/mpc/default/include -I/opt/bldr/2012-10-05/local/numerics/isl/default/include -I/opt/bldr/2012-10-05/local/compilers/osl/default/include -I/opt/bldr/2012-10-05/local/compilers/cloog/default/include -I/usr/include' CFLAGS='-I/opt/bldr/2012-10-05/local/compression/zlib/default/include -I/opt/bldr/2012-10-05/local/numerics/gmp/default/include -I/opt/bldr/2012-10-05/local/numerics/ppl/default/include -I/opt/bldr/2012-10-05/local/numerics/mpfr/default/include -I/opt/bldr/2012-10-05/local/numerics/mpc/default/include -I/opt/bldr/2012-10-05/local/numerics/isl/default/include -I/opt/bldr/2012-10-05/local/compilers/osl/default/include -I/opt/bldr/2012-10-05/local/compilers/cloog/default/include -I/usr/include' LDFLAGS='-L/opt/bldr/2012-10-05/local/compression/zlib/default/lib -L/opt/bldr/2012-10-05/local/numerics/gmp/default/lib -L/opt/bldr/2012-10-05/local/numerics/ppl/default/lib -L/opt/bldr/2012-10-05/local/numerics/mpfr/default/lib -L/opt/bldr/2012-10-05/local/numerics/mpc/default/lib -L/opt/bldr/2012-10-05/local/numerics/isl/default/lib -L/opt/bldr/2012-10-05/local/compilers/osl/default/lib -L/opt/bldr/2012-10-05/local/compilers/cloog/default/lib -L/opt/bldr/2012-10-05/local/languages/perl/default/lib -L/usr/lib64 -L/usr/lib']
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 4.7.1 (GCC) ]
+  ignore line: [COMPILER_PATH=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec3858145202' '-rdynamic' '-shared-libgcc' '-mtune=generic' '-march=x86-64']
+  link line: [ /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/collect2 --eh-frame-hdr -m elf_x86_64 -export-dynamic -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTryCompileExec3858145202 /usr/lib/../lib64/crt1.o /usr/lib/../lib64/crti.o /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/crtbegin.o -L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1 -L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../.. CMakeFiles/cmTryCompileExec3858145202.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/crtend.o /usr/lib/../lib64/crtn.o]
+    arg [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/collect2] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_x86_64] ==> ignore
+    arg [-export-dynamic] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTryCompileExec3858145202] ==> ignore
+    arg [/usr/lib/../lib64/crt1.o] ==> ignore
+    arg [/usr/lib/../lib64/crti.o] ==> ignore
+    arg [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/crtbegin.o] ==> ignore
+    arg [-L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1] ==> dir [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1]
+    arg [-L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64] ==> dir [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64]
+    arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
+    arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
+    arg [-L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../..] ==> dir [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../..]
+    arg [CMakeFiles/cmTryCompileExec3858145202.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [-lstdc++] ==> lib [stdc++]
+    arg [-lm] ==> lib [m]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lc] ==> lib [c]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/crtend.o] ==> ignore
+    arg [/usr/lib/../lib64/crtn.o] ==> ignore
+  remove lib [gcc_s]
+  remove lib [gcc]
+  remove lib [gcc_s]
+  remove lib [gcc]
+  collapse dir [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1] ==> [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1]
+  collapse dir [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64] ==> [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib64]
+  collapse dir [/lib/../lib64] ==> [/lib64]
+  collapse dir [/usr/lib/../lib64] ==> [/usr/lib64]
+  collapse dir [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../..] ==> [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib]
+  implicit libs: [stdc++;m;c]
+  implicit dirs: [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1;/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib64;/lib64;/usr/lib64;/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib]
+
+
+Determining if the C compiler works passed with the following output:
+Change Dir: /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec2023423012/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec2023423012.dir/build.make CMakeFiles/cmTryCompileExec2023423012.dir/build
+gmake[1]: Entering directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp'
+/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_progress_report /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec2023423012.dir/testCCompiler.c.o
+/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc    -o CMakeFiles/cmTryCompileExec2023423012.dir/testCCompiler.c.o   -c /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTryCompileExec2023423012
+/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2023423012.dir/link.txt --verbose=1
+/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc         CMakeFiles/cmTryCompileExec2023423012.dir/testCCompiler.c.o  -o cmTryCompileExec2023423012 -rdynamic 
+gmake[1]: Leaving directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp'
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec1715749370/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec1715749370.dir/build.make CMakeFiles/cmTryCompileExec1715749370.dir/build
+gmake[1]: Entering directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp'
+/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_progress_report /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1715749370.dir/CMakeCCompilerABI.c.o
+/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc    -o CMakeFiles/cmTryCompileExec1715749370.dir/CMakeCCompilerABI.c.o   -c /opt/bldr/2012-10-05/local/internal/cmake/2.8.9/share/cmake-2.8/Modules/CMakeCCompilerABI.c
+Linking C executable cmTryCompileExec1715749370
+/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1715749370.dir/link.txt --verbose=1
+/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc       -v CMakeFiles/cmTryCompileExec1715749370.dir/CMakeCCompilerABI.c.o  -o cmTryCompileExec1715749370 -rdynamic  
+Using built-in specs.
+COLLECT_GCC=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc
+COLLECT_LTO_WRAPPER=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/lto-wrapper
+Target: x86_64-unknown-linux-gnu
+Configured with: ./configure --prefix=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1 --disable-bootstrap --enable-checking=release --enable-languages=c,c++,objc,obj-c++,lto --with-gmp=/opt/bldr/2012-10-05/local/numerics/gmp/5.0.5 --with-isl=/opt/bldr/2012-10-05/local/numerics/isl/0.10 --with-osl=/opt/bldr/2012-10-05/local/compilers/osl/0.8.4 --with-mpfr=/opt/bldr/2012-10-05/local/numerics/mpfr/3.1.1 --with-mpc=/opt/bldr/2012-10-05/local/numerics/mpc/1.0 --with-ppl=/opt/bldr/2012-10-05/local/numerics/ppl/1.0 --with-cloog=/opt/bldr/2012-10-05/local/compilers/cloog/0.17.0 --enable-cloog-backend=isl --disable-ppl-version-check --disable-cloog-version-check --with-system-zlib --enable-stage1-checking --disable-nls --disable-multilib --enable-lto CXXFLAGS='-I/opt/bldr/2012-10-05/local/compression/zlib/default/include -I/opt/bldr/2012-10-05/local/numerics/gmp/default/include -I/opt/bldr/2012-10-05/local/numerics/ppl/default/include -I/opt/bldr/2012-10-05/local/numerics/mpfr/default/include -I/opt/bldr/2012-10-05/local/numerics/mpc/default/include -I/opt/bldr/2012-10-05/local/numerics/isl/default/include -I/opt/bldr/2012-10-05/local/compilers/osl/default/include -I/opt/bldr/2012-10-05/local/compilers/cloog/default/include -I/usr/include' CPPFLAGS='-I/opt/bldr/2012-10-05/local/compression/zlib/default/include -I/opt/bldr/2012-10-05/local/numerics/gmp/default/include -I/opt/bldr/2012-10-05/local/numerics/ppl/default/include -I/opt/bldr/2012-10-05/local/numerics/mpfr/default/include -I/opt/bldr/2012-10-05/local/numerics/mpc/default/include -I/opt/bldr/2012-10-05/local/numerics/isl/default/include -I/opt/bldr/2012-10-05/local/compilers/osl/default/include -I/opt/bldr/2012-10-05/local/compilers/cloog/default/include -I/usr/include' CFLAGS='-I/opt/bldr/2012-10-05/local/compression/zlib/default/include -I/opt/bldr/2012-10-05/local/numerics/gmp/default/include -I/opt/bldr/2012-10-05/local/numerics/ppl/default/include -I/opt/bldr/2012-10-05/local/numerics/mpfr/default/include -I/opt/bldr/2012-10-05/local/numerics/mpc/default/include -I/opt/bldr/2012-10-05/local/numerics/isl/default/include -I/opt/bldr/2012-10-05/local/compilers/osl/default/include -I/opt/bldr/2012-10-05/local/compilers/cloog/default/include -I/usr/include' LDFLAGS='-L/opt/bldr/2012-10-05/local/compression/zlib/default/lib -L/opt/bldr/2012-10-05/local/numerics/gmp/default/lib -L/opt/bldr/2012-10-05/local/numerics/ppl/default/lib -L/opt/bldr/2012-10-05/local/numerics/mpfr/default/lib -L/opt/bldr/2012-10-05/local/numerics/mpc/default/lib -L/opt/bldr/2012-10-05/local/numerics/isl/default/lib -L/opt/bldr/2012-10-05/local/compilers/osl/default/lib -L/opt/bldr/2012-10-05/local/compilers/cloog/default/lib -L/opt/bldr/2012-10-05/local/languages/perl/default/lib -L/usr/lib64 -L/usr/lib'
+Thread model: posix
+gcc version 4.7.1 (GCC) 
+COMPILER_PATH=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/
+LIBRARY_PATH=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec1715749370' '-rdynamic' '-mtune=generic' '-march=x86-64'
+ /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/collect2 --eh-frame-hdr -m elf_x86_64 -export-dynamic -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTryCompileExec1715749370 /usr/lib/../lib64/crt1.o /usr/lib/../lib64/crti.o /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/crtbegin.o -L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1 -L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../.. CMakeFiles/cmTryCompileExec1715749370.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/crtend.o /usr/lib/../lib64/crtn.o
+gmake[1]: Leaving directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp'
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command:/usr/bin/gmake "cmTryCompileExec1715749370/fast"]
+  ignore line: [/usr/bin/gmake -f CMakeFiles/cmTryCompileExec1715749370.dir/build.make CMakeFiles/cmTryCompileExec1715749370.dir/build]
+  ignore line: [gmake[1]: Entering directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp']
+  ignore line: [/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_progress_report /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp/CMakeFiles 1]
+  ignore line: [Building C object CMakeFiles/cmTryCompileExec1715749370.dir/CMakeCCompilerABI.c.o]
+  ignore line: [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc    -o CMakeFiles/cmTryCompileExec1715749370.dir/CMakeCCompilerABI.c.o   -c /opt/bldr/2012-10-05/local/internal/cmake/2.8.9/share/cmake-2.8/Modules/CMakeCCompilerABI.c]
+  ignore line: [Linking C executable cmTryCompileExec1715749370]
+  ignore line: [/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1715749370.dir/link.txt --verbose=1]
+  ignore line: [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc       -v CMakeFiles/cmTryCompileExec1715749370.dir/CMakeCCompilerABI.c.o  -o cmTryCompileExec1715749370 -rdynamic  ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc]
+  ignore line: [COLLECT_LTO_WRAPPER=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/lto-wrapper]
+  ignore line: [Target: x86_64-unknown-linux-gnu]
+  ignore line: [Configured with: ./configure --prefix=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1 --disable-bootstrap --enable-checking=release --enable-languages=c,c++,objc,obj-c++,lto --with-gmp=/opt/bldr/2012-10-05/local/numerics/gmp/5.0.5 --with-isl=/opt/bldr/2012-10-05/local/numerics/isl/0.10 --with-osl=/opt/bldr/2012-10-05/local/compilers/osl/0.8.4 --with-mpfr=/opt/bldr/2012-10-05/local/numerics/mpfr/3.1.1 --with-mpc=/opt/bldr/2012-10-05/local/numerics/mpc/1.0 --with-ppl=/opt/bldr/2012-10-05/local/numerics/ppl/1.0 --with-cloog=/opt/bldr/2012-10-05/local/compilers/cloog/0.17.0 --enable-cloog-backend=isl --disable-ppl-version-check --disable-cloog-version-check --with-system-zlib --enable-stage1-checking --disable-nls --disable-multilib --enable-lto CXXFLAGS='-I/opt/bldr/2012-10-05/local/compression/zlib/default/include -I/opt/bldr/2012-10-05/local/numerics/gmp/default/include -I/opt/bldr/2012-10-05/local/numerics/ppl/default/include -I/opt/bldr/2012-10-05/local/numerics/mpfr/default/include -I/opt/bldr/2012-10-05/local/numerics/mpc/default/include -I/opt/bldr/2012-10-05/local/numerics/isl/default/include -I/opt/bldr/2012-10-05/local/compilers/osl/default/include -I/opt/bldr/2012-10-05/local/compilers/cloog/default/include -I/usr/include' CPPFLAGS='-I/opt/bldr/2012-10-05/local/compression/zlib/default/include -I/opt/bldr/2012-10-05/local/numerics/gmp/default/include -I/opt/bldr/2012-10-05/local/numerics/ppl/default/include -I/opt/bldr/2012-10-05/local/numerics/mpfr/default/include -I/opt/bldr/2012-10-05/local/numerics/mpc/default/include -I/opt/bldr/2012-10-05/local/numerics/isl/default/include -I/opt/bldr/2012-10-05/local/compilers/osl/default/include -I/opt/bldr/2012-10-05/local/compilers/cloog/default/include -I/usr/include' CFLAGS='-I/opt/bldr/2012-10-05/local/compression/zlib/default/include -I/opt/bldr/2012-10-05/local/numerics/gmp/default/include -I/opt/bldr/2012-10-05/local/numerics/ppl/default/include -I/opt/bldr/2012-10-05/local/numerics/mpfr/default/include -I/opt/bldr/2012-10-05/local/numerics/mpc/default/include -I/opt/bldr/2012-10-05/local/numerics/isl/default/include -I/opt/bldr/2012-10-05/local/compilers/osl/default/include -I/opt/bldr/2012-10-05/local/compilers/cloog/default/include -I/usr/include' LDFLAGS='-L/opt/bldr/2012-10-05/local/compression/zlib/default/lib -L/opt/bldr/2012-10-05/local/numerics/gmp/default/lib -L/opt/bldr/2012-10-05/local/numerics/ppl/default/lib -L/opt/bldr/2012-10-05/local/numerics/mpfr/default/lib -L/opt/bldr/2012-10-05/local/numerics/mpc/default/lib -L/opt/bldr/2012-10-05/local/numerics/isl/default/lib -L/opt/bldr/2012-10-05/local/compilers/osl/default/lib -L/opt/bldr/2012-10-05/local/compilers/cloog/default/lib -L/opt/bldr/2012-10-05/local/languages/perl/default/lib -L/usr/lib64 -L/usr/lib']
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 4.7.1 (GCC) ]
+  ignore line: [COMPILER_PATH=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTryCompileExec1715749370' '-rdynamic' '-mtune=generic' '-march=x86-64']
+  link line: [ /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/collect2 --eh-frame-hdr -m elf_x86_64 -export-dynamic -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTryCompileExec1715749370 /usr/lib/../lib64/crt1.o /usr/lib/../lib64/crti.o /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/crtbegin.o -L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1 -L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../.. CMakeFiles/cmTryCompileExec1715749370.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/crtend.o /usr/lib/../lib64/crtn.o]
+    arg [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/libexec/gcc/x86_64-unknown-linux-gnu/4.7.1/collect2] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_x86_64] ==> ignore
+    arg [-export-dynamic] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTryCompileExec1715749370] ==> ignore
+    arg [/usr/lib/../lib64/crt1.o] ==> ignore
+    arg [/usr/lib/../lib64/crti.o] ==> ignore
+    arg [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/crtbegin.o] ==> ignore
+    arg [-L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1] ==> dir [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1]
+    arg [-L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64] ==> dir [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64]
+    arg [-L/lib/../lib64] ==> dir [/lib/../lib64]
+    arg [-L/usr/lib/../lib64] ==> dir [/usr/lib/../lib64]
+    arg [-L/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../..] ==> dir [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../..]
+    arg [CMakeFiles/cmTryCompileExec1715749370.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [-lc] ==> lib [c]
+    arg [-lgcc] ==> lib [gcc]
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--no-as-needed] ==> ignore
+    arg [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/crtend.o] ==> ignore
+    arg [/usr/lib/../lib64/crtn.o] ==> ignore
+  remove lib [gcc]
+  remove lib [gcc_s]
+  remove lib [gcc]
+  remove lib [gcc_s]
+  collapse dir [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1] ==> [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1]
+  collapse dir [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../../../lib64] ==> [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib64]
+  collapse dir [/lib/../lib64] ==> [/lib64]
+  collapse dir [/usr/lib/../lib64] ==> [/usr/lib64]
+  collapse dir [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1/../../..] ==> [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib]
+  implicit libs: [c]
+  implicit dirs: [/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib/gcc/x86_64-unknown-linux-gnu/4.7.1;/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib64;/lib64;/usr/lib64;/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/lib]
+
+
+Determining if files pthread.h exist passed with the following output:
+Change Dir: /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec141942586/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec141942586.dir/build.make CMakeFiles/cmTryCompileExec141942586.dir/build
+gmake[1]: Entering directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp'
+/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_progress_report /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec141942586.dir/CheckIncludeFiles.c.o
+/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc    -o CMakeFiles/cmTryCompileExec141942586.dir/CheckIncludeFiles.c.o   -c /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp/CheckIncludeFiles.c
+Linking C executable cmTryCompileExec141942586
+/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec141942586.dir/link.txt --verbose=1
+/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc         CMakeFiles/cmTryCompileExec141942586.dir/CheckIncludeFiles.c.o  -o cmTryCompileExec141942586 -rdynamic 
+gmake[1]: Leaving directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp'
+
+
+Determining if the function pthread_create exists in the pthread passed with the following output:
+Change Dir: /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/gmake "cmTryCompileExec1046922096/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec1046922096.dir/build.make CMakeFiles/cmTryCompileExec1046922096.dir/build
+gmake[1]: Entering directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp'
+/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_progress_report /home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1046922096.dir/CheckFunctionExists.c.o
+/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec1046922096.dir/CheckFunctionExists.c.o   -c /opt/bldr/2012-10-05/local/internal/cmake/2.8.9/share/cmake-2.8/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec1046922096
+/opt/bldr/2012-10-05/local/internal/cmake/2.8.9/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1046922096.dir/link.txt --verbose=1
+/opt/bldr/2012-10-05/local/compilers/gcc/4.7.1/bin/gcc     -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec1046922096.dir/CheckFunctionExists.c.o  -o cmTryCompileExec1046922096 -rdynamic -lpthread 
+gmake[1]: Leaving directory `/home/derek/workspace/void/external/linux/gtest/1.6.0/build/CMakeFiles/CMakeTmp'
+
+

@@ -971,7 +971,7 @@ Dataset::Dataset(
     m_StartFileIndex(0),
     m_EndFileIndex(0),
     m_FileSplits(0),
-    m_CacheSize(2*1024*1024*1024),
+    m_CacheSize(2*1024*1024),
     m_Runtime(runtime)
 {
     Memory::SetBytes(m_RequestedBlocks, 0, sizeof(m_RequestedBlocks));
